@@ -7,7 +7,7 @@ description: 从 xLua / tolua 迁移到 ZLua 的对照草稿（v2.0 完整版规
 # 从 xLua 迁移
 
 :::info 对照草稿
-本文为 **迁移对照草稿**，便于评估与试点迁移；完整迁移指南、工具与案例计划在 **v2.0**。架构差异见 [与 xLua 对比](../concepts/comparison-with-xlua)。
+本文为 **迁移对照草稿**，便于评估与试点迁移；完整迁移指南、工具与案例计划在 **v2.0**。架构差异见 [ZLua 与 xLua 技术架构对比](../concepts/comparison-with-xlua)。
 :::
 
 ## 何时考虑迁移
@@ -128,7 +128,7 @@ obj:Subscribe(function(x) print(x) end)   -- 隐式 marshal，见回调指南
 
 ## 建议迁移步骤（草稿）
 
-1. **并行评估** — 只读 [与 xLua 对比](../concepts/comparison-with-xlua)，确认 Il2Cpp 路线与 MVP 边界
+1. **并行评估** — 只读 [ZLua 与 xLua 技术架构对比](../concepts/comparison-with-xlua)，确认 Il2Cpp 路线与 MVP 边界
 2. **搭骨架** — clone zlua-demo，替换 `Demo.cs` / `app.lua` 为最小业务
 3. **迁 Lua 层** — `CS.` → `CSharp.{asm}.`；namespace 改括号访问
 4. **迁 C# 调 Lua** — `GetFunction` / `DoString` → `[LuaInvoke]`
@@ -152,7 +152,7 @@ obj:Subscribe(function(x) print(x) end)   -- 隐式 marshal，见回调指南
 
 ## 相关文档
 
-- [与 xLua 对比](../concepts/comparison-with-xlua)
+- [ZLua 与 xLua 技术架构对比](../concepts/comparison-with-xlua)
 - [路线图](./roadmap) — v2.0 完整迁移指南
 - [快速开始](../getting-started/quick-start)
 - [排错指南](../guides/troubleshooting)

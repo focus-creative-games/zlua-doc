@@ -85,7 +85,7 @@ flowchart TB
 | C#→Lua | `LuaEnv.DoString` / DelegateBridge | `[LuaInvoke]` 声明式 |
 | Player 性能 | Wrap 或生成 C++（视配置） | 设计目标：C++ 直桥 + 签名复用 |
 
-详见 [与 xLua 对比](./comparison-with-xlua)、[调用路径概览](../architecture/call-path-overview)。
+详见 [ZLua 与 xLua 技术架构对比](./comparison-with-xlua)、[调用路径概览](../architecture/call-path-overview)。
 
 ## 何时读哪份文档
 

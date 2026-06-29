@@ -28,7 +28,7 @@ xLua、tolua 已是 Unity Lua 绑定的成熟选择。ZLua 不是「多一个绑
 
 :::info 读前须知
 - 上表 **Player** 列以 [项目状态](../getting-started/project-status) 为准；性能/GC 的 **设计目标** 不等于 **当前 MVP 实测**。
-- 路径级性能倍数为 **理论推演**，尚无官方 benchmark → [与 xLua 对比](./comparison-with-xlua)。
+- 路径级性能倍数为 **理论推演**，尚无官方 benchmark → [ZLua 与 xLua 技术架构对比](./comparison-with-xlua)。
 - Il2Cpp 完整版预计 **2026 年 8 月** → [路线图](../community/roadmap)。
 :::
 
@@ -50,7 +50,7 @@ flowchart TD
 |--------|------|
 | **新项目、性能敏感、愿跟路线图** | 读本页 → [5 分钟快速开始](../getting-started/quick-start) → [zlua-demo](https://github.com/focus-creative-games/zlua-demo) |
 | **已有 xLua/tolua 存量、近期上线** | 先看 [不适合](#不适合选-zlua) 与 [迁移草稿](../community/migration-from-xlua) |
-| **架构 / 性能 reviewer** | 本页 + [与 xLua 对比](./comparison-with-xlua) + [Il2Cpp 架构](../architecture/il2cpp-architecture) |
+| **架构 / 性能 reviewer** | 本页 + [ZLua 与 xLua 技术架构对比](./comparison-with-xlua) + [Il2Cpp 架构](../architecture/il2cpp-architecture) |
 | **只关心 API 能不能用** | [兼容性矩阵](../getting-started/compatibility) + Mono Editor 开发 |
 
 ---
@@ -175,7 +175,7 @@ flowchart LR
 | 读 `int` 字段 | 常经 Wrap | **offset 直读**（规范） |
 | 桥接体积 | 每类型大量 Wrap | **按签名复用** MethodBridge |
 
-**为何有机会快数倍（热路径、理论值）：** 消灭 libxlua 往返与 C# Wrap 层；具体场景倍数见 [与 xLua 对比 §4](./comparison-with-xlua#4-分场景理论估计)（**非实测**）。
+**为何有机会快数倍（热路径、理论值）：** 消灭 libxlua 往返与 C# Wrap 层；具体场景倍数见 [ZLua 与 xLua 技术架构对比 §4](./comparison-with-xlua#4-分场景理论估计)（**非实测**）。
 
 ### 今天能用吗
 
@@ -293,7 +293,7 @@ tolua 依赖 **导出的 binding 代码**；xLua 依赖 **Generate + LuaCallCSha
 
 1. **5 分钟上手** — [快速开始](../getting-started/quick-start) + [zlua-demo](https://github.com/focus-creative-games/zlua-demo)  
 2. **确认 Player 边界** — [项目状态](../getting-started/project-status) · [兼容性](../getting-started/compatibility)  
-3. **深度对比** — [与 xLua 对比](./comparison-with-xlua)（路径与理论性能）  
+3. **深度对比** — [ZLua 与 xLua 技术架构对比](./comparison-with-xlua)（路径与理论性能）· [ZLua 与 xLua 全面对比报告](./xlua-comparison-report)（Examples 用法对照）  
 4. **已有 xLua** — [迁移对照草稿](../community/migration-from-xlua)
 
 ---
@@ -302,7 +302,8 @@ tolua 依赖 **导出的 binding 代码**；xLua 依赖 **Generate + LuaCallCSha
 
 | 文档 | 内容 |
 |------|------|
-| [与 xLua 对比](./comparison-with-xlua) | 调用栈、ns 量级推演 |
+| [ZLua 与 xLua 技术架构对比](./comparison-with-xlua) | 调用栈、ns 量级推演 |
+| [ZLua 与 xLua 全面对比报告](./xlua-comparison-report) | Examples 详证 + 用法逐项对照 |
 | [设计概览](./design-overview) | L/Invoke 与自动生成流水线 |
 | [Il2Cpp 架构](../architecture/il2cpp-architecture) | Player C++ 实现 |
 | [Struct 编组](../spec/marshal/struct) | GC 路径完整规范 |

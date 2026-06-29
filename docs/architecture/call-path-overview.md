@@ -67,7 +67,7 @@ sequenceDiagram
 | C#→Lua | DelegateBridge / DoString | `[LuaInvoke]` |
 | Player | 生成 Wrap 或 IL | C++ 直桥（设计目标） |
 
-详见 [与 xLua 对比](../concepts/comparison-with-xlua)。
+详见 [ZLua 与 xLua 技术架构对比](../concepts/comparison-with-xlua)。
 
 ## 相关文档
 

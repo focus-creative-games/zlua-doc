@@ -2,15 +2,15 @@
 mdx:
   format: md
 sidebar_position: 6
-title: 与 xLua 对比
-description: 架构、调用路径与理论开销对比，供技术选型参考。
+title: ZLua 与 xLua 技术架构对比
+description: 与 xLua 的架构、调用路径与理论开销推演，供性能评审参考。
 ---
 
-# ZLua 与 xLua 对比分析
+# ZLua 与 xLua 技术架构对比
 
 本文档从 **架构、调用路径、理论开销** 三方面对比 ZLua 与 xLua（Tencent，Unity Il2Cpp 常用方案）。用于技术选型与设计评审。
 
-**选型理由（用法、GC、Wrapper 等）** 请先读 [为什么选择 ZLua](./why-zlua)；本文侧重 **路径级性能推演**。
+**选型理由（用法、GC、Wrapper 等）** 请先读 [为什么选择 ZLua](./why-zlua)；**基于 xLua Examples 的用法逐项对照与详证** 见 [ZLua 与 xLua 全面对比报告](./xlua-comparison-report)。本文侧重 **路径级性能推演**。
 
 **说明：**
 

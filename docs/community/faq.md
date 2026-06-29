@@ -12,7 +12,7 @@ description: ZLua 常见问题与解答（25+ 条）。
 
 ### ZLua 与 xLua 有什么区别？
 
-ZLua 在 Il2Cpp 内嵌 Lua、C++ 直桥，不生成 C# Wrap。类型访问用 `CSharp` 根表，C# 调 Lua 用 `[LuaInvoke]`。选型理由见 **[为什么选择 ZLua](../concepts/why-zlua)**；架构与理论性能见 [与 xLua 对比](../concepts/comparison-with-xlua)；迁移见 [迁移对照草稿](./migration-from-xlua)。
+ZLua 在 Il2Cpp 内嵌 Lua、C++ 直桥，不生成 C# Wrap。类型访问用 `CSharp` 根表，C# 调 Lua 用 `[LuaInvoke]`。选型理由见 **[为什么选择 ZLua](../concepts/why-zlua)**；架构与理论性能见 [ZLua 与 xLua 技术架构对比](../concepts/comparison-with-xlua)；迁移见 [迁移对照草稿](./migration-from-xlua)。
 
 ### Mono 和 Il2Cpp 差别有多大？
 
