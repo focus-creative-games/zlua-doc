@@ -1,0 +1,32 @@
+.heroBanner {
+  padding: 4rem 0 3rem;
+  text-align: center;
+  overflow: hidden;
+}
+
+.buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 1.5rem;
+}
+
+.heroMeta {
+  margin-top: 1.25rem;
+  font-size: 0.9rem;
+  opacity: 0.75;
+}
+
+.features {
+  display: flex;
+  align-items: center;
+  padding: 3rem 0;
+  width: 100%;
+}
+
+.featureSvg {
+  height: 160px;
+  width: 160px;
+}

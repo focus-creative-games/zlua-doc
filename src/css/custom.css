@@ -1,0 +1,97 @@
+/**
+ * ZLua Docs 品牌色与全局样式
+ */
+
+:root {
+  --ifm-color-primary: #1a6fb5;
+  --ifm-color-primary-dark: #1764a3;
+  --ifm-color-primary-darker: #155e99;
+  --ifm-color-primary-darkest: #114e7f;
+  --ifm-color-primary-light: #1d7ac7;
+  --ifm-color-primary-lighter: #2080cd;
+  --ifm-color-primary-lightest: #2492e6;
+  --ifm-code-font-size: 95%;
+  --ifm-font-family-monospace: 'Cascadia Code', 'Fira Code', Consolas, Monaco, monospace;
+  --docusaurus-highlighted-code-line-bg: rgba(26, 111, 181, 0.12);
+}
+
+[data-theme='dark'] {
+  --ifm-color-primary: #4db8ff;
+  --ifm-color-primary-dark: #2dabff;
+  --ifm-color-primary-darker: #1fa5ff;
+  --ifm-color-primary-darkest: #0089e6;
+  --ifm-color-primary-light: #6fc5ff;
+  --ifm-color-primary-lighter: #7fccff;
+  --ifm-color-primary-lightest: #a8ddff;
+  --docusaurus-highlighted-code-line-bg: rgba(77, 184, 255, 0.15);
+}
+
+.hero--primary {
+  --ifm-hero-background-color: linear-gradient(135deg, #0f2744 0%, #1a6fb5 50%, #0d3d66 100%);
+  background: var(--ifm-hero-background-color);
+}
+
+.hero__title {
+  font-size: 3rem;
+  letter-spacing: -0.02em;
+}
+
+.hero__subtitle {
+  font-size: 1.25rem;
+  opacity: 0.92;
+}
+
+.badgeAlpha {
+  display: inline-block;
+  margin-left: 0.75rem;
+  padding: 0.15rem 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  vertical-align: middle;
+  border-radius: 999px;
+  background: rgba(255, 193, 7, 0.2);
+  color: #ffc107;
+  border: 1px solid rgba(255, 193, 7, 0.45);
+}
+
+.codePreview {
+  margin-top: 2rem;
+}
+
+.codePreviewGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 996px) {
+  .codePreviewGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.codePreviewPanel {
+  background: var(--ifm-background-surface-color);
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: var(--ifm-global-radius);
+  overflow: hidden;
+}
+
+.codePreviewHeader {
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  background: var(--ifm-color-emphasis-100);
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+}
+
+.codePreviewPanel pre {
+  margin: 0;
+  border-radius: 0;
+  font-size: 0.82rem;
+}
+
+.featureIcon {
+  font-size: 2.5rem;
+  line-height: 1;
+}
