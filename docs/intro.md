@@ -37,4 +37,5 @@ description: ZLua 是什么、核心特性与适用场景。
 - [安装与集成](./getting-started/installation) — UPM 安装与工程结构
 - [使用指南](./guides/csharp-to-lua) — C# ↔ Lua 完整教程
 - [API 参考](./reference/overview) — 特性、Lua API 与编组速查
+- [核心概念](./concepts/design-overview) — 设计模型与调用路径
 - [与 xLua 对比](./concepts/comparison-with-xlua) — 技术选型参考

@@ -8,7 +8,23 @@ description: Mono 热点优化对照 xLua 源码核实报告。
 
 # ZLua Mono 热点优化报告（对照 xLua 源码核实版）
 
-依据 `d:\workspace\zlua\3rd\xLua` 源码与 ZLua 当前实现（P1–P7 + Phase 1 元表直连）逐项核对。
+:::info 谁该读本文
+**关心 Editor 性能、对比 xLua CodeEmit 路径的实现者与贡献者。** 游戏业务优化见 [最佳实践](../guides/best-practices)；Player 性能目标见 [Il2Cpp 架构](./il2cpp-architecture)。
+:::
+
+**要点摘要：**
+
+1. ZLua Editor fast path 对标 xLua **CodeEmit 档（档 B）**，非预生成 Wrap 档 A
+2. 方法桥接用 Expression 编译，避免 `MethodInfo.Invoke` 热路径
+3. 字段/属性经元表 getter；P0–P1 已优化直连，仍有 `tostring` key GC 热点
+4. Delegate 回调已 typed push/pop，无 object[] 装箱链
+5. Il2Cpp Player 优化在 C++ 层单独规划，本文主要针对 **Mono Editor**
+
+**快速入口：** [调用路径概览](./call-path-overview) · [路线图](../community/roadmap)
+
+---
+
+依据 xLua 源码与 ZLua 当前实现（P1–P7 + Phase 1 元表直连）逐项核对。
 
 **结论：** ZLua fast path 应对标 xLua **Editor CodeEmit 档（档 B）**；全量预生成 Wrap（档 A）为长期目标。P0 已完成（§5）；P1 · 4.5–4.7 已完成（§6）。
 

@@ -8,7 +8,23 @@ description: ZLua 在 Il2Cpp 发布模式下的 C++ 实现方案。
 
 # ZLua Il2Cpp 设计规范
 
-本文档描述 ZLua 在 Il2Cpp 发布模式下的 C++ 实现方案，与 `../design-spec.md` 中的总体设计目标保持一致。
+:::info 谁该读本文
+**需要理解 Player 侧 C++ 实现、InternalCall 与 Codegen 关系的进阶开发者。** 日常开发只需知道 [项目状态](../getting-started/project-status) 中 Il2Cpp MVP 边界；Lua 用法见 [使用指南](../guides/lua-to-csharp-basics)。
+:::
+
+**要点摘要：**
+
+1. C# 层仅 **门面 + InternalCall**，Player 无反射热路径
+2. `libil2cpp/zlua` 内嵌 Lua 5.4，C++ 直接调 lua API
+3. `[LuaInvoke]` 在构建期生成 C++ 桥，运行时经 `methodPointer` 调 C#
+4. 类型绑定由 Codegen 预生成；**当前 MVP** 仅覆盖 Demo 级子集
+5. 设计目标：字段 offset 直读、桥接函数按 **签名复用**
+
+**快速入口：** [调用路径概览](./call-path-overview) · [双运行时概念](../concepts/dual-runtime)
+
+---
+
+本文档描述 ZLua 在 Il2Cpp 发布模式下的 C++ 实现方案，与 [设计规范](../spec/design-spec) 中的总体设计目标保持一致。
 
 ---
 

@@ -3,10 +3,60 @@ mdx:
   format: md
 sidebar_position: 3
 title: 测试框架
-description: ZLua 正确性测试的目录布局与 Runner 设计。
+description: 5 分钟跑通 ZLua 测试；完整 Runner 设计见下文。
 ---
 
-# ZLua 测试框架设计
+# 测试框架
+
+## 快速上手（约 5 分钟）
+
+ZLua 使用 **自研 Runner**（不依赖 Unity Test Framework），同一套用例在 **Editor（Mono）** 与 **Player（Il2Cpp）** 各跑一遍。
+
+### 前置
+
+- 克隆含 `ZLuaTest` 的 zlua 主仓库测试工程（或本地已配置 `TestScene`）
+- 已安装 ZLua UPM 包
+
+### Editor 跑测试
+
+1. 打开 Unity，加载 **TestScene**（非 Demo 的 SampleScene）
+2. 点击 **Play**
+3. Console 查看输出，末尾应有：
+
+```text
+[SUMMARY] total=..., passed=..., failed=0
+```
+
+### Il2Cpp 验证（可选）
+
+1. Build Settings 首场景设为 **TestScene**
+2. Build Il2Cpp Player
+3. 命令行 `-batchmode -nographics` 运行，**exit code 0** 为通过
+
+### 测试什么
+
+| 层级 | 内容 |
+|------|------|
+| C# `[UnitTest]` | 纯 C#、`[LuaInvoke]` 探针 |
+| Lua `luatest` | 互操作主路径：`test_*` 函数 + manifest 注册 |
+| Fixtures | `CSharp['ZLua.Tests']` 下的边界类型 |
+
+失败时 Console 会输出 `TypeName.MethodName` 或 `suite/tc_*.test_name` 便于定位。
+
+### 与 Demo 的关系
+
+| 工程 | 用途 |
+|------|------|
+| **zlua-demo** | 文档 canonical 最小示例（Smoke） |
+| **ZLuaTest** | 全量正确性回归 |
+
+文档示例以 [zlua-demo](https://github.com/focus-creative-games/zlua-demo) 为准；语义正确性以 ZLuaTest 为准。
+
+---
+
+## 完整规范
+
+以下为测试框架 **设计规范**（原 `TEST_FRAMEWORK.md`），供贡献者与实现者查阅。
 
 本文档描述 ZLua **正确性测试**的目录布局、C# 自研 Runner、Lua 用例组织与执行方式。测试框架**不依赖 Unity Test Framework**，**不包含 benchmark**。
 
