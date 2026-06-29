@@ -128,6 +128,13 @@ LoadLuaModule("app") → 读取 app.lua 源码
 | Player 仍是旧脚本 | 重新 Sync + Build |
 | UTF-8 乱码 | `ReadAllText(..., Encoding.UTF8)` |
 
+## 学习路径
+
+| | |
+|---|---|
+| **上一篇** | [ref / out / in](./marshal-ref-out-in) |
+| **下一篇** | [Event](./events) |
+
 ## 相关文档
 
 - [安装与集成](../getting-started/installation)

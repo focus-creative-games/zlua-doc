@@ -23,6 +23,7 @@ const config: Config = {
 
   i18n: {
     defaultLocale: 'zh-CN',
+    // 英文文档：添加 'en' 至 locales 并创建 i18n/en/ 翻译文件（P5 预留）
     locales: ['zh-CN'],
   },
 

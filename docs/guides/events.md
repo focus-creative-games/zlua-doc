@@ -104,6 +104,13 @@ player.OnHealthChanged.set(player, handler)
 | 静态 event 多传 self | 静态仅 `get(handler)` |
 | Player 失败 | Il2Cpp 未支持 Event |
 
+## 学习路径
+
+| | |
+|---|---|
+| **上一篇** | [Lua 模块加载](./lua-module-loading) |
+| **下一篇** | [enum 与 struct](./enums-and-structs) |
+
 ## 相关文档
 
 - [回调与 Delegate](./callbacks-and-delegates)

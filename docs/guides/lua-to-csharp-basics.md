@@ -145,6 +145,13 @@ end
 | `instance member not found` | 键名拼写；该成员是否 public |
 | 嵌套类型失败 | 使用 `Outer+Nested` 全名 |
 
+## 学习路径
+
+| | |
+|---|---|
+| **上一篇** | [C# 调用 Lua](./csharp-to-lua) |
+| **下一篇** | [字段与属性](./fields-and-properties) |
+
 ## 相关文档
 
 - [字段与属性](./fields-and-properties)

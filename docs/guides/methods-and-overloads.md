@@ -133,6 +133,13 @@ local add = zlua.get_method(CSharp.AC.Demo, "Add", sig, true)
 | `ambiguous overload` | 实参类型同时匹配多个候选；收窄类型或显式绑定 |
 | `get_method` 返回 nil | 签名与 C# 不一致；检查 `isStatic` 参数 |
 
+## 学习路径
+
+| | |
+|---|---|
+| **上一篇** | [字段与属性](./fields-and-properties) |
+| **下一篇** | [回调与 Delegate](./callbacks-and-delegates) |
+
 ## 相关文档
 
 - [方法重载规范](../spec/method-overload-spec)

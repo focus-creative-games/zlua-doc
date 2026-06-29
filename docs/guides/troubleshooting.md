@@ -156,6 +156,13 @@ CSharp.AC['Ns.TypeName']    -- namespace 是否用括号？
 2. 提供 **Unity 版本、Mono/Player、最小复现**（基于 zlua-demo 修改）
 3. [GitHub Issues](https://github.com/focus-creative-games/zlua/issues) 或 [联系](../community/contact)
 
+## 学习路径
+
+| | |
+|---|---|
+| **上一篇** | [enum 与 struct](./enums-and-structs) |
+| **下一篇** | [Editor 与 Player](./editor-vs-player) |
+
 ## 相关文档
 
 - [最佳实践](./best-practices)

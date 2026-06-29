@@ -122,6 +122,13 @@ print(logic:Run(3, 5))   -- 8
 | 重复订阅无效移除 | Event 须用 **同一** function 引用 `set` 移除 |
 | Player 崩溃 | Il2Cpp MVP 不支持 delegate |
 
+## 学习路径
+
+| | |
+|---|---|
+| **上一篇** | [方法重载](./methods-and-overloads) |
+| **下一篇** | [泛型与数组](./generics-and-arrays) |
+
 ## 相关文档
 
 - [函数编组规范](../spec/marshal/function)

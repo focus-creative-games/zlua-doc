@@ -135,6 +135,13 @@ local ok = CSharp.AC.RefDemo.TryDivide(10, 4, quot)
 | opaque 过期 | 跨 pcall 使用 lightuserdata |
 | Player 不支持 | Il2Cpp MVP 未实现 ref 路径 |
 
+## 学习路径
+
+| | |
+|---|---|
+| **上一篇** | [泛型与数组](./generics-and-arrays) |
+| **下一篇** | [Lua 模块加载](./lua-module-loading) |
+
 ## 相关文档
 
 - [枚举与 struct](./enums-and-structs)

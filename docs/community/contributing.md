@@ -49,6 +49,8 @@ npm run build      # 生产构建（CI 同款，须无 broken links）
 6. **常见错误**
 7. **相关文档** — 指南 + 规范 + API 参考
 
+`inject-guide-nav` 会自动在「相关文档」前插入 **学习路径** 表。
+
 ### 示例来源优先级
 
 1. [zlua-demo](https://github.com/focus-creative-games/zlua-demo)
@@ -58,6 +60,27 @@ npm run build      # 生产构建（CI 同款，须无 broken links）
 ### 规范内链
 
 从旧 `zlua/Docs` 粘贴时，将 `./LIB_SPEC.md` 等改为站内路径（如 `/docs/spec/lib-spec`）。修改 `spec/` 后务必 `npm run build` 检查链接。
+
+### 运行时徽章
+
+页面顶部可使用与首页一致的 **Mono / Il2Cpp 徽章**：
+
+```html
+<span class="runtimeBadge">
+  <span class="runtimeBadgeMono">Mono · 全功能</span>
+  <span class="runtimeBadgeIl2cpp">Il2Cpp · MVP</span>
+</span>
+```
+
+样式见 `src/css/custom.css`；首页 React 组件为 `src/components/RuntimeBadge`。
+
+### 指南学习路径
+
+`docs/guides/` 各页底部含 **上一篇 / 下一篇** 表。增删指南后运行：
+
+```bash
+npm run inject-guide-nav
+```
 
 ## 代码贡献
 

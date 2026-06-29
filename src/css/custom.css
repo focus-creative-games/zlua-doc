@@ -95,3 +95,52 @@
   font-size: 2.5rem;
   line-height: 1;
 }
+
+.features {
+  display: flex;
+  align-items: center;
+  padding: 3rem 0;
+  width: 100%;
+}
+
+/* Markdown 页可用的运行时徽章（与 RuntimeBadge 组件视觉一致） */
+.runtimeBadge {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  vertical-align: middle;
+}
+
+.runtimeBadgeMono,
+.runtimeBadgeIl2cpp {
+  display: inline-block;
+  padding: 0.2rem 0.65rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.4;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.runtimeBadgeMono {
+  background: rgba(46, 204, 113, 0.15);
+  color: #1e8449;
+  border: 1px solid rgba(46, 204, 113, 0.45);
+}
+
+.runtimeBadgeIl2cpp {
+  background: rgba(255, 193, 7, 0.15);
+  color: #b7950b;
+  border: 1px solid rgba(255, 193, 7, 0.45);
+}
+
+[data-theme='dark'] .runtimeBadgeMono {
+  color: #58d68d;
+  background: rgba(46, 204, 113, 0.12);
+}
+
+[data-theme='dark'] .runtimeBadgeIl2cpp {
+  color: #ffc107;
+  background: rgba(255, 193, 7, 0.12);
+}

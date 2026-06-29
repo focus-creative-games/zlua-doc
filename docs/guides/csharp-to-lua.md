@@ -114,6 +114,13 @@ private static extern void BattleTick(float dt);
 | 复杂类型 / `[LuaMarshalAs]` | ✅ | ❌ |
 | 多模块 | ✅ | ✅ |
 
+## 学习路径
+
+| | |
+|---|---|
+| **上一篇** | [快速开始](../getting-started/quick-start) |
+| **下一篇** | [Lua 访问 C# 基础](./lua-to-csharp-basics) |
+
 ## 相关文档
 
 - [快速开始](../getting-started/quick-start)

@@ -162,6 +162,13 @@ CSharp.AC.MyGame.Vec2Helper.Normalize(refA)   -- ref 修改 a
 | 找不到 struct 类型 | namespace 括号路径 |
 | `ref struct` 作 by-val | 不支持；须 ref 路径 |
 
+## 学习路径
+
+| | |
+|---|---|
+| **上一篇** | [Event](./events) |
+| **下一篇** | [排错指南](./troubleshooting) |
+
 ## 相关文档
 
 - [ref / out / in](./marshal-ref-out-in)

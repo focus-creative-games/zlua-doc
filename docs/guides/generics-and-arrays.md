@@ -141,6 +141,13 @@ local matrix = zlua.new_mdarray_by_mdarray_type(
 | 数组越界 | 与 C# 相同，0 .. Length-1 |
 | `#` 对 mdarray 无效 | 使用 `GetLength(dimension)` |
 
+## 学习路径
+
+| | |
+|---|---|
+| **上一篇** | [回调与 Delegate](./callbacks-and-delegates) |
+| **下一篇** | [ref / out / in](./marshal-ref-out-in) |
+
 ## 相关文档
 
 - [zlua 标准库](../reference/lua/zlua-lib)

@@ -28,6 +28,8 @@ description: ZLua 是什么、核心特性与适用场景。
 | 类型访问 | `CSharp.{assembly}.{Type}` 懒加载，语义贴近 C# |
 
 :::info 当前状态
+<span class="runtimeBadge"><span class="runtimeBadgeMono">Mono · 全功能</span><span class="runtimeBadgeIl2cpp">Il2Cpp · MVP</span></span>
+
 **Mono（Editor）** 已实现 v1.0 全量互操作能力，适合日常开发与功能验证。**Il2Cpp（Player）** 仍处于 MVP 阶段，仅支持 Demo 级基础互操作；完整 C++ 直桥与性能优化预计 **2026 年 8 月** 发布。详见 [项目状态](./getting-started/project-status)。
 :::
 

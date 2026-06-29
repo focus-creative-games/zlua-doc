@@ -30,3 +30,46 @@
   height: 160px;
   width: 160px;
 }
+
+.runtimeRow {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.codePreview {
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.codePreviewTitle {
+  text-align: center;
+  margin-bottom: 1.25rem;
+  font-size: 1.5rem;
+}
+
+.codeTabs {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.codeBlock {
+  margin: 0 0 1rem;
+  padding: 1rem 1.25rem;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  background: var(--ifm-pre-background);
+  border-radius: var(--ifm-global-radius);
+  overflow-x: auto;
+}
+
+.codeBlockLabel {
+  margin: 0 0 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--ifm-color-emphasis-700);
+}
+
+.codeBlockLabel:not(:first-child) {
+  margin-top: 0.75rem;
+}

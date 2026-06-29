@@ -3,7 +3,10 @@ import clsx from 'clsx';
 import Link from '@docusaurus/Link';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 import HomepageFeatures from '@site/src/components/HomepageFeatures';
+import RuntimeBadge from '@site/src/components/RuntimeBadge';
 import Heading from '@theme/Heading';
 
 import styles from './index.module.css';
@@ -18,6 +21,9 @@ function HomepageHeader() {
           <span className="badgeAlpha">Alpha</span>
         </Heading>
         <p className="hero__subtitle">{siteConfig.tagline}</p>
+        <div className={styles.runtimeRow}>
+          <RuntimeBadge />
+        </div>
         <div className={styles.buttons}>
           <Link
             className="button button--secondary button--lg"
@@ -31,28 +37,41 @@ function HomepageHeader() {
           </Link>
         </div>
         <p className={styles.heroMeta}>
-          Unity 2022.3 · Lua 5.4 · Mono 全功能 · Il2Cpp MVP
+          Unity 2022.3 · Lua 5.4
         </p>
       </div>
     </header>
   );
 }
 
-function CodePreview() {
-  const csharp = `public class Bootstrap : MonoBehaviour
+const CSHARP_INVOKE_CSHARP = `// Bootstrap.cs
+[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+private static void InitZLuaOnStartup()
 {
-    [RuntimeInitializeOnLoadMethod(
-        RuntimeInitializeLoadType.BeforeSceneLoad)]
-    private static void InitZLuaOnStartup()
-    {
-        LuaAppDomain.Initialize(LoadLuaModule);
-    }
+    LuaAppDomain.Initialize(LoadLuaModule);
+}
 
-    [LuaInvoke("app", "main")]
-    private static extern void AppMain();
+[LuaInvoke("app", "main")]
+private static extern void AppMain();
+
+[LuaInvoke("app", "add")]
+private static extern int AppAdd(int a, int b);`;
+
+const CSHARP_INVOKE_LUA = `-- app.lua
+local function main()
+    print("lua main start")
+end
+
+local function add(a, b)
+    return a + b
+end
+
+return {
+    main = main,
+    add = add,
 }`;
 
-  const lua = `CSharp['AC'] = CSharp['Assembly-CSharp']
+const LUA_TO_CSHARP = `CSharp['AC'] = CSharp['Assembly-CSharp']
 
 local function main()
     local demo = CSharp.AC.Demo()
@@ -62,28 +81,34 @@ end
 
 return { main = main }`;
 
+function CodePreview() {
   return (
-    <section className="codePreview container">
-      <div className="codePreviewGrid">
-        <div className="codePreviewPanel">
-          <div className="codePreviewHeader">C# · LuaInvoke</div>
-          <pre>
-            <code>{csharp}</code>
+    <section className={clsx('container', styles.codePreview)}>
+      <Heading as="h2" className={styles.codePreviewTitle}>
+        双向调用一览
+      </Heading>
+      <Tabs groupId="homepage-code" className={styles.codeTabs}>
+        <TabItem value="csharp" label="C# → Lua" default>
+          <p className={styles.codeBlockLabel}>C# · LuaInvoke</p>
+          <pre className={styles.codeBlock}>
+            <code>{CSHARP_INVOKE_CSHARP}</code>
           </pre>
-        </div>
-        <div className="codePreviewPanel">
-          <div className="codePreviewHeader">Lua · CSharp 类型访问</div>
-          <pre>
-            <code>{lua}</code>
+          <p className={styles.codeBlockLabel}>Lua · app.lua</p>
+          <pre className={styles.codeBlock}>
+            <code>{CSHARP_INVOKE_LUA}</code>
           </pre>
-        </div>
-      </div>
+        </TabItem>
+        <TabItem value="lua" label="Lua → C#">
+          <pre className={styles.codeBlock}>
+            <code>{LUA_TO_CSHARP}</code>
+          </pre>
+        </TabItem>
+      </Tabs>
     </section>
   );
 }
 
 export default function Home(): ReactNode {
-  const {siteConfig} = useDocusaurusContext();
   return (
     <Layout
       title="首页"

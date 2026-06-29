@@ -4,9 +4,14 @@ title: 快速开始
 description: 基于 zlua-demo 从零跑通 C# ↔ Lua 互操作。
 ---
 
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 # 快速开始
 
 本教程基于官方示例 [zlua-demo](https://github.com/focus-creative-games/zlua-demo)，逐步完成 **C# 调用 Lua** 与 **Lua 访问 C#**。建议先 clone Demo 工程对照操作。
+
+<span className="runtimeBadge"><span className="runtimeBadgeMono">Mono · 全功能</span><span className="runtimeBadgeIl2cpp">Il2Cpp · MVP</span></span> — 本页示例在 **Editor** 全可用；Player 见 [兼容性](./compatibility) 与文末支持表。
 
 :::tip 示例源码
 | 组件 | 链接 |
@@ -39,7 +44,10 @@ private static void InitZLuaOnStartup()
 
 ## 第 2 步：C# 调用 Lua
 
-用 `[LuaInvoke("module", "method")]` 声明 `static extern` 函数：
+用 `[LuaInvoke("module", "method")]` 声明 `static extern` 函数；Lua 模块 `return` 表导出同名函数。
+
+<Tabs groupId="quickstart-c2l">
+<TabItem value="csharp" label="C#" default>
 
 ```csharp
 [LuaInvoke("app", "main")]
@@ -56,7 +64,8 @@ void Start()
 }
 ```
 
-对应 Lua 模块末尾 **必须** `return` 一个表，导出函数名：
+</TabItem>
+<TabItem value="lua" label="Lua">
 
 ```lua
 local function main()
@@ -73,6 +82,9 @@ return {
     add = add,
 }
 ```
+
+</TabItem>
+</Tabs>
 
 完整逻辑见 [LuaScripts/app.lua](https://github.com/focus-creative-games/zlua-demo/blob/main/LuaScripts/app.lua)。
 
@@ -180,6 +192,13 @@ run_i32(demo, 10)
 
 ## 下一步
 
-- [C# 调用 Lua 详解](../guides/csharp-to-lua)
+- [C# 调用 Lua 详解](../guides/csharp-to-lua) — 使用指南学习路径起点
 - [Lua 访问 C# 基础](../guides/lua-to-csharp-basics)
 - [安装与集成](./installation)
+
+## 学习路径
+
+| | |
+|---|---|
+| **上一篇** | [安装与集成](./installation) |
+| **下一篇** | [C# 调用 Lua](../guides/csharp-to-lua) |

@@ -95,6 +95,13 @@ CSharp['AC'] = CSharp['Assembly-CSharp']
 - Mono 下对比 [规范文档](../spec/) 确认语义预期
 - 疑难问题查 [排错指南](./troubleshooting)
 
+## 学习路径
+
+| | |
+|---|---|
+| **上一篇** | [Editor 与 Player](./editor-vs-player) |
+| **下一篇** | [设计概览](../concepts/design-overview) |
+
 ## 相关文档
 
 - [FAQ](../community/faq)
