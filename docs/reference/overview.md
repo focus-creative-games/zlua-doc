@@ -6,32 +6,38 @@ description: ZLua C# 特性与 Lua API 索引。
 
 # API 概览
 
+程序员查表入口：C# 特性、运行时 API、Lua `CSharp` / `zlua` 标准库与编组规则。
+
 ## C# 特性
 
 | 特性 | 说明 | 文档 |
 |------|------|------|
-| `[LuaInvoke]` | C# 调用 Lua 函数 | [详情](./csharp/lua-invoke) |
-| `[LuaCallback]` | Lua 回调 C# 函数（受限） | [详情](./csharp/lua-callback) |
-| `[LuaMarshalAs]` | 覆盖默认编组规则 | [详情](./csharp/lua-marshal-as) |
-| `[LuaAlias]` | 方法重载别名 | [方法重载规范](../spec/method-overload-spec) |
+| `[LuaInvoke]` | C# 调用 Lua 函数 | [LuaInvoke](./csharp/lua-invoke) |
+| `[MonoLuaCallback]` | 原生 `int (IntPtr L)` 回调 | [MonoLuaCallback](./csharp/lua-callback) |
+| `[LuaMarshalAs]` | 覆盖默认编组 | [LuaMarshalAs](./csharp/lua-marshal-as) |
+| `[LuaAlias]` | 方法重载 Lua 别名 | [LuaAlias](./csharp/lua-alias) |
 
 ## C# 运行时 API
 
-| 类型 | 说明 |
-|------|------|
-| `LuaAppDomain` | 初始化、模块加载 |
-| `LuaEnv` | Lua 环境管理 |
+| 类型 | 说明 | 文档 |
+|------|------|------|
+| `LuaAppDomain` | **公开**初始化入口 | [LuaAppDomain](./csharp/lua-app-domain) |
+| `LuaEnv` | 底层 `lua_State`（后端内部，一般不直接使用） | — |
 
 ## Lua API
 
-| 模块 | 说明 |
-|------|------|
-| `CSharp` | 程序集 / 类型懒加载根表 |
-| `zlua` | 标准库（类型构造、重载、ref、数组等） |
+| 模块 | 说明 | 文档 |
+|------|------|------|
+| `CSharp` | 程序集 / 类型懒加载根表 | [CSharp 根表](./lua/csharp-root) |
+| `zlua` | 类型构造、重载、ref、数组、delegate | [zlua 标准库](./lua/zlua-lib) |
+| `zlua.types` | corlib 类型常量 | [zlua.types](./lua/zlua-types) |
 
-- [CSharp 根表](./lua/csharp-root)
-- [zlua 标准库](./lua/zlua-lib)
-- [编组速查表](./marshal-cheatsheet)
+## 编组
+
+| 资源 | 说明 |
+|------|------|
+| [编组速查表](./marshal-cheatsheet) | 默认规则 + `[LuaMarshalAs]` 摘要 |
+| [编组规范](../spec/marshal/) | 权威完整规则 |
 
 ## 使用指南索引
 
@@ -48,4 +54,4 @@ description: ZLua C# 特性与 Lua API 索引。
 
 ## 权威规范
 
-完整 API 语义以 [规范文档](../spec/) 为准。
+完整 API 语义以 [规范文档](../spec/) 为准；本区为 **查表摘要**，细节变更以规范为准。
