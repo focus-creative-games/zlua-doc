@@ -81,6 +81,8 @@ run_i32(demo, 10)
 zlua.register_method(demo, "run_i32", run_i32)
 ```
 
+与 [zlua-demo `test_overload_signature`](https://github.com/focus-creative-games/zlua-demo/blob/main/LuaScripts/app.lua) 一致；Play 后 Console 应依次输出 `After Run(int): 10`、`After run_i32 alias: 20`。
+
 ### API 摘要
 
 | 函数 | 说明 |
@@ -103,9 +105,16 @@ local add = zlua.get_method(CSharp.AC.Demo, "Add", sig, true)
 
 多构造函数与实例方法相同：默认 dispatch 或 `get_method` + `_ctor` 签名。见 [类型系统规范](../spec/type-system-spec) §4.6。
 
-## 与 Demo 的差异说明
+## 已废弃写法
 
-[zlua-demo/app.lua](https://github.com/focus-creative-games/zlua-demo/blob/main/LuaScripts/app.lua) 中 `test_overload_signature` 使用历史 API 名 `novalua.*`，当前规范与实现统一为 **`zlua.*`**。新代码请使用本文示例。
+以下 API 与用法**不要**在新代码中使用：
+
+| 废弃 | 正确 |
+|------|------|
+| `zlua.corlibtypes.*` | `zlua.types.*` |
+| `zlua.signature("Run", zlua.types.int32)`（把方法名传入 signature） | `zlua.signature(zlua.types.int32)` |
+| `zlua.get_method(demo, sig)`（两参数） | `zlua.get_method(demo, "Run", sig, false)` |
+| `demo[sig](demo, ...)`（签名字符串键查表） | `get_method` 缓存 closure 后 `run_i32(demo, ...)` 或 `register_method` 别名 |
 
 ## Mono / Il2Cpp 支持
 

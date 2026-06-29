@@ -27,11 +27,24 @@ description: ZLua C# 特性与 Lua API 索引。
 | 模块 | 说明 |
 |------|------|
 | `CSharp` | 程序集 / 类型懒加载根表 |
-| `zlua` | 标准库（类型构造、重载绑定等） |
+| `zlua` | 标准库（类型构造、重载、ref、数组等） |
 
 - [CSharp 根表](./lua/csharp-root)
 - [zlua 标准库](./lua/zlua-lib)
 - [编组速查表](./marshal-cheatsheet)
+
+## 使用指南索引
+
+| 主题 | 文档 |
+|------|------|
+| C# → Lua | [csharp-to-lua](../guides/csharp-to-lua) |
+| Lua → C# | [lua-to-csharp-basics](../guides/lua-to-csharp-basics) |
+| 重载 | [methods-and-overloads](../guides/methods-and-overloads) |
+| Delegate | [callbacks-and-delegates](../guides/callbacks-and-delegates) |
+| Event | [events](../guides/events) |
+| 泛型 / 数组 | [generics-and-arrays](../guides/generics-and-arrays) |
+| ref / out / in | [marshal-ref-out-in](../guides/marshal-ref-out-in) |
+| enum / struct | [enums-and-structs](../guides/enums-and-structs) |
 
 ## 权威规范
 

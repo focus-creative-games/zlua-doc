@@ -142,7 +142,7 @@ print(CSharp.AC.Demo.GetSX())         -- 10
 
 ## 第 4 步（可选）：方法重载
 
-`Demo.Run` 有 `int` 与 `string` 两个重载。Mono 下可显式绑定：
+`Demo.Run` 有 `int` 与 `string` 两个重载。Mono 下可显式绑定；完整可运行示例见 [app.lua `test_overload_signature`](https://github.com/focus-creative-games/zlua-demo/blob/main/LuaScripts/app.lua)：
 
 ```lua
 local sig_i32 = zlua.signature(zlua.types.int32)
@@ -150,7 +150,7 @@ local run_i32 = zlua.get_method(demo, "Run", sig_i32, false)
 run_i32(demo, 10)
 ```
 
-Demo 中 `test_overload_signature` 默认注释掉；取消注释前请确认 API 名称（`zlua` 标准库）。详见 [方法重载](../guides/methods-and-overloads)。
+详见 [方法重载](../guides/methods-and-overloads)。
 
 ## 构建 Il2Cpp Player
 

@@ -34,5 +34,6 @@ description: ZLua 是什么、核心特性与适用场景。
 ## 下一步
 
 - [5 分钟快速开始](./getting-started/quick-start) — 跑通最小示例
-- [安装与集成](./getting-started/installation) — 将 ZLua 接入 Unity 工程
+- [安装与集成](./getting-started/installation) — UPM 安装与工程结构
+- [使用指南](./guides/csharp-to-lua) — C# ↔ Lua 完整教程
 - [与 xLua 对比](./concepts/comparison-with-xlua) — 技术选型参考
