@@ -8,9 +8,9 @@ description: C# 方法重载在 Lua 侧的解析与调用策略。
 
 # ZLua 方法重载规范
 
-本文档描述 **C# 方法重载** 在 Lua 侧的解析与调用策略，适用于 **Il2Cpp（Player）** 与 **Mono（Editor）**。与 `DESIGN_SPEC.md`、`TYPE_SYSTEM_SPEC.md`、`MARSHAL_SPEC.md` 衔接。
+本文档描述 **C# 方法重载** 在 Lua 侧的解析与调用策略，适用于 **Il2Cpp（Player）** 与 **Mono（Editor）**。与 `../design-spec.md`、`../type-system-spec.md`、`../marshal/index.md` 衔接。
 
-**继承说明：** 子类访问父类成员、别名、`new` 隐藏、dispatch 沿继承链解析等见 **`TYPE_SYSTEM_SPEC.md` §5**。
+**继承说明：** 子类访问父类成员、别名、`new` 隐藏、dispatch 沿继承链解析等见 **`../type-system-spec.md` §5**。
 
 ---
 
@@ -272,7 +272,7 @@ end
 zlua.register_method(static_class_mt_or_obj, aliasName, methodOrClosure) → void
 ```
 
-将 `get_method` 得到的 closure 注册为 `methodTable` 上的**别名键**，便于 `obj:alias(...)` 或 `TypeTable.alias(...)` 语法糖。完整 API 见 `LIB_SPEC.md` §9.3。
+将 `get_method` 得到的 closure 注册为 `methodTable` 上的**别名键**，便于 `obj:alias(...)` 或 `TypeTable.alias(...)` 语法糖。完整 API 见 `../lib-spec.md` §9.3。
 
 ```lua
 local Demo = CSharp.AC.Demo
@@ -306,7 +306,7 @@ assert.equal(Demo.add_i32(3, 5), 8)
 - 静态方法别名须传**类型表**；实例方法别名须传**对象实例**。
 - 目标 `methodTable` 中**已存在同名键**时立即报错，不覆盖。
 
-`methodTable` 语义见 `META_TABLE_SPEC.md` §3.1。
+`methodTable` 语义见 `../meta-table-spec.md` §3.1。
 
 ### 6.4 `zlua.types`
 

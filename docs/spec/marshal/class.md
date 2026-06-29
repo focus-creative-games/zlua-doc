@@ -8,7 +8,7 @@ description: class 与引用类型的编组规则。
 
 # class 类型 Marshal 设计规范
 
-本文档描述 **引用类型**（class、interface、string、array、delegate 实例等）在 Lua 与 C# 之间的编组规则，与 `TYPE_SYSTEM_SPEC.md` §3（class 实例 userdata）、`MARSHAL_SPEC.md` 衔接。
+本文档描述 **引用类型**（class、interface、string、array、delegate 实例等）在 Lua 与 C# 之间的编组规则，与 `../../type-system-spec.md` §3（class 实例 userdata）、`../../marshal/index.md` 衔接。
 
 **平台原则：** Mono 与 Il2Cpp 的 Lua 可见语义一致；class 实例默认 **GCHandle + userdata**（Il2Cpp：`ObjectRegistry`）。
 
@@ -21,15 +21,15 @@ description: class 与引用类型的编组规则。
 | **C# → Lua** | class **userdata** | `PushConstructorInstance` / `ObjectRegistry` |
 | **Lua → C#** | userdata / `nil` | `TryGetBoxedTarget`；须可赋值给目标类型 |
 | **string** | `string` / `nil` | 非 userdata |
-| **array** | array userdata | 见 `TYPE_SYSTEM_SPEC.md` §7 |
+| **array** | array userdata | 见 `../../type-system-spec.md` §7 |
 
-详细字段、方法访问见 `TYPE_SYSTEM_SPEC.md` §3。
+详细字段、方法访问见 `../../type-system-spec.md` §3。
 
 ---
 
 ## 2. `ref` / `out` / `in` 引用类型形参（Lua → C#）
 
-总览见 `MARSHAL_SPEC.md` §3。本节补充 **引用类型** 特有规则。
+总览见 `../../marshal/index.md` §3。本节补充 **引用类型** 特有规则。
 
 ### 2.1 Pop 行为
 
@@ -60,7 +60,7 @@ CS.Demo.Append(sb, "!")   -- void Append(ref StringBuilder sb, string t) { sb.Ap
 
 ### 2.3 与 `zlua.new_ref` 的关系
 
-`zlua.new_ref` **仅接受值类型**（`LIB_SPEC.md` §6）。**不要**对 class / string 使用 `new_ref`；`ref MyClass` 直接传 userdata 或 `nil` 即可。
+`zlua.new_ref` **仅接受值类型**（`../../lib-spec.md` §6）。**不要**对 class / string 使用 `new_ref`；`ref MyClass` 直接传 userdata 或 `nil` 即可。
 
 ---
 
@@ -68,6 +68,6 @@ CS.Demo.Append(sb, "!")   -- void Append(ref StringBuilder sb, string t) { sb.Ap
 
 | 文档 | 内容 |
 |------|------|
-| `MARSHAL_SPEC.md` §3 | ref/in/out 总规则 |
-| `STRUCT_MARSHAL_SPEC.md` §6.2 | 值类型 StructUserData / ref |
-| `FUNCTION_MARSHAL_SPEC.md` | delegate 形参（无 ref） |
+| `../../marshal/index.md` §3 | ref/in/out 总规则 |
+| `../../marshal/struct.md` §6.2 | 值类型 StructUserData / ref |
+| `../../marshal/function.md` | delegate 形参（无 ref） |

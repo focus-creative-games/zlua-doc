@@ -23,6 +23,27 @@ ZLua 在 **Unity 2022.3.62f3 + Lua 5.4** 上测试通过。
 日常开发、API 验证请在 **Editor（Mono）** 下进行；构建 Player 前请对照下方 [Il2Cpp 已支持清单](#il2cpp-mvp) 确认依赖能力是否可用。
 :::
 
+## 我应该在哪里开发 / 测什么？
+
+```mermaid
+flowchart TD
+    A[我要用 ZLua 做什么？] --> B{需要泛型 / 重载 / Event / ref？}
+    B -->|是| C[Editor Mono 开发与测试]
+    B -->|否，仅 Demo 级互操作| D{要发 Player 包？}
+    D -->|是| E[对照 Il2Cpp MVP 清单裁剪脚本]
+    D -->|否| C
+    C --> F[参考 zlua-demo 与指南]
+    E --> G[Build 前 Sync LuaScripts]
+    G --> H[Il2Cpp Player 冒烟]
+```
+
+| 场景 | 建议 |
+|------|------|
+| 新项目原型、热更逻辑 | Editor Mono，clone [zlua-demo](https://github.com/focus-creative-games/zlua-demo) |
+| 验证 Player 可行性 | 仅用 [app.lua](https://github.com/focus-creative-games/zlua-demo/blob/main/LuaScripts/app.lua) 同等能力 |
+| 性能对比 xLua | 等待 Il2Cpp 完整版；当前 MVP 不具代表性 |
+| 查完整 API 语义 | Mono 行为 + [规范文档](../spec/) |
+
 ## Mono（Editor）— 已实现
 
 ### Lua 调用 C#

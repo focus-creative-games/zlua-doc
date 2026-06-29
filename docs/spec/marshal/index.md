@@ -12,15 +12,15 @@ description: C# 与 Lua 参数编组总览。
 
 | 文档 | 类型 |
 |------|------|
-| `TYPE_SYSTEM_SPEC.md` | 类型解析、元表、成员访问、**枚举类型表** |
-| `STRUCT_MARSHAL_SPEC.md` | struct（值类型）、**枚举 userdata 构造**、`StructStackScope` |
-| `CLASS_MARSHAL_SPEC.md` | class、引用类型、数组元素 |
-| `FUNCTION_MARSHAL_SPEC.md` | **Delegate、Lua 函数回调** |
-| `METHOD_OVERLOAD_SPEC.md` | 重载与实参匹配 |
+| `../../type-system-spec.md` | 类型解析、元表、成员访问、**枚举类型表** |
+| `../../marshal/struct.md` | struct（值类型）、**枚举 userdata 构造**、`StructStackScope` |
+| `../../marshal/class.md` | class、引用类型、数组元素 |
+| `../../marshal/function.md` | **Delegate、Lua 函数回调** |
+| `../../method-overload-spec.md` | 重载与实参匹配 |
 
 **平台原则：** Mono 与 Il2Cpp 的 Lua 可见编组语义一致；Il2Cpp 侧重零 GC 与生成代码快速路径。
 
-**函数 / delegate：** Lua 调用 C# 方法时，delegate 形参接受 Lua function，由 `MethodBridge` 隐式 marshal，规则见 `FUNCTION_MARSHAL_SPEC.md` §4.0。
+**函数 / delegate：** Lua 调用 C# 方法时，delegate 形参接受 Lua function，由 `MethodBridge` 隐式 marshal，规则见 `../../marshal/function.md` §4.0。
 
 **覆盖标注：** 参数、返回值、方法或字段上的 `[LuaMarshalAs]` 可覆盖默认规则；须符合 **§6.2 合法集合**，否则 **§6.3** 回退 Default 并在 Editor 打错误日志。
 
@@ -53,16 +53,16 @@ description: C# 与 Lua 参数编组总览。
 | `string` | **string** | **string** | |
 | `byte[]` | **ArrayUserData** | **ArrayUserData** | 与 `T[]` 相同；`[LuaMarshalAs(Bytes)]` 时改为 ↔ **string**，见 §6 |
 | `class` | **ClassUserData** | **ClassUserData** | 引用身份；`nil` ↔ `null` |
-| `T[]`（一维 / szarray） | **ArrayUserData** | **ArrayUserData** | 见 `CLASS_MARSHAL_SPEC.md`、`TYPE_SYSTEM_SPEC.md` §7 |
+| `T[]`（一维 / szarray） | **ArrayUserData** | **ArrayUserData** | 见 `../../marshal/class.md`、`../../type-system-spec.md` §7 |
 | `T[,]` 等多维（mdarray） | **ArrayUserData** | **ArrayUserData** | 同上 |
 | `enum` | **integer** / **number** | **integer** / **number** 或 **enum userdata** | 默认 **不** 推送 userdata；详见 §2 |
-| `struct` | **OpaqueValue**（lightuserdata） | **StructUserData** 或 **table** | C#→Lua 默认 **StructHandle**（§4）；Lua→C# 亦接受 `_ctor` / `__call` 产物；table 规则见 `STRUCT_MARSHAL_SPEC.md` §6.4 |
-| `Delegate` | **DelegateUserData** | **function** 或 **DelegateUserData** | Lua→C# 接受 Lua function 隐式 bridge；见 `FUNCTION_MARSHAL_SPEC.md` |
+| `struct` | **OpaqueValue**（lightuserdata） | **StructUserData** 或 **table** | C#→Lua 默认 **StructHandle**（§4）；Lua→C# 亦接受 `_ctor` / `__call` 产物；table 规则见 `../../marshal/struct.md` §6.4 |
+| `Delegate` | **DelegateUserData** | **function** 或 **DelegateUserData** | Lua→C# 接受 Lua function 隐式 bridge；见 `../../marshal/function.md` |
 | `object` | 按 **运行时类型** Push | **boolean** / **number** / **string** / **userdata** | 多态装箱；见 §7.4 |
 | `Nullable<T>` | 同 `T` 或 `nil` | 同 `T` 或 `nil` | `T` 为值类型时 `nil` ↔ `null`；见 §7.4 |
 | `interface` | **ClassUserData** | **ClassUserData** | 与 class 相同，按 **实现对象** 编组 |
 | `decimal` | **暂不支持**（默认） | **暂不支持**（默认） | 见 §7.4 |
-| `ref struct`（如 `Span<T>`） | 见 `STRUCT_MARSHAL_SPEC.md` / `LIB_SPEC.md` | 见 `STRUCT_MARSHAL_SPEC.md` | 不能作为普通 by-val 形参默认传递；见 §7.4 |
+| `ref struct`（如 `Span<T>`） | 见 `../../marshal/struct.md` / `../../lib-spec.md` | 见 `../../marshal/struct.md` | 不能作为普通 by-val 形参默认传递；见 §7.4 |
 | `void`（返回值） | （无） | — | |
 | `null` / `nil` | `nil` | `nil` | 仅 **引用类型**、**Nullable**、delegate 等可空形态 |
 
@@ -80,7 +80,7 @@ description: C# 与 Lua 参数编组总览。
 
 ## 2. 枚举（enum）
 
-枚举在 C# 中为 **值类型**，底层为单一整型字段。Lua 侧 **默认不按 userdata 传递**，而按 **integer / number** 编组；需要 boxed 形态时通过类型表 `_ctor` / `__call` 构造 userdata（见 `STRUCT_MARSHAL_SPEC.md` §5.4、`TYPE_SYSTEM_SPEC.md` §3.5）。
+枚举在 C# 中为 **值类型**，底层为单一整型字段。Lua 侧 **默认不按 userdata 传递**，而按 **integer / number** 编组；需要 boxed 形态时通过类型表 `_ctor` / `__call` 构造 userdata（见 `../../marshal/struct.md` §5.4、`../../type-system-spec.md` §3.5）。
 
 ### 2.1 默认规则（C# ↔ Lua）
 
@@ -88,7 +88,7 @@ description: C# 与 Lua 参数编组总览。
 |------|----------|------|
 | **C# → Lua** | **integer**（优先）或 **number** | 推送枚举的 **底层整数值**，不推送 userdata |
 | **Lua → C#** | **integer** / **number** | 接受整型 Lua 值，按目标枚举 **底层类型** 转换并 `Enum.ToObject` / 等价路径 |
-| **Lua → C#**（备选） | **enum userdata** | 从 userdata payload 读出底层整型再转换（见 `STRUCT_MARSHAL_SPEC.md` §5.4） |
+| **Lua → C#**（备选） | **enum userdata** | 从 userdata payload 读出底层整型再转换（见 `../../marshal/struct.md` §5.4） |
 
 **不接受**（除非 `[LuaMarshalAs]` 另行规定）：将枚举默认编组为 **string**（枚举名）、**boolean**、或普通 **table**。
 
@@ -106,7 +106,7 @@ Codegen / 反射须读取枚举 **underlying type**（`System.Int32`、`System.B
 
 ### 2.3 与类型表常量字段的关系
 
-`CSharp[assembly][EnumType].MemberName` 在类型表上暴露为 **同名 integer/number 字段**（非 userdata），其值等于该枚举常量的底层整型值。详见 `TYPE_SYSTEM_SPEC.md` §3.5。
+`CSharp[assembly][EnumType].MemberName` 在类型表上暴露为 **同名 integer/number 字段**（非 userdata），其值等于该枚举常量的底层整型值。详见 `../../type-system-spec.md` §3.5。
 
 下列写法在作为 **enum 形参** 时等价（默认 marshal）：
 
@@ -127,13 +127,13 @@ local boxed = CSharp.AC['MyGame.Color'](CSharp.AC['MyGame.Color'].Red)
 local boxed = CSharp.AC['MyGame.Color']._ctor(CSharp.AC['MyGame.Color'].Blue)
 ```
 
-构造语义与 **blittable struct** 的 `_ctor` → userdata 相同，见 `STRUCT_MARSHAL_SPEC.md` §5.4。
+构造语义与 **blittable struct** 的 `_ctor` → userdata 相同，见 `../../marshal/struct.md` §5.4。
 
 作为 **enum 形参** 传入 C# 时，userdata 与 integer/number **均接受**（默认规则 §2.1）。
 
 ### 2.5 `[LuaMarshalAs]` 扩展
 
-类型级或参数级可覆盖 §1 默认行为；`LuaMarshalType` 语义见 **§6**。struct 相关的双向配置（如 `StructUserData`、`ComposeFromStack`）另见 `STRUCT_MARSHAL_SPEC.md` §7。
+类型级或参数级可覆盖 §1 默认行为；`LuaMarshalType` 语义见 **§6**。struct 相关的双向配置（如 `StructUserData`、`ComposeFromStack`）另见 `../../marshal/struct.md` §7。
 
 ### 2.6 Mono / Il2Cpp 一致性
 
@@ -148,7 +148,7 @@ local boxed = CSharp.AC['MyGame.Color']._ctor(CSharp.AC['MyGame.Color'].Blue)
 
 ## 3. `ref` / `out` / `in`（Lua → C#）
 
-**范围：** 仅 **Lua 调用 C#** 方法/构造时的形参；`[LuaInvoke]`、delegate bridge **不支持** ref/out（见 `FUNCTION_MARSHAL_SPEC.md` §9）。
+**范围：** 仅 **Lua 调用 C#** 方法/构造时的形参；`[LuaInvoke]`、delegate bridge **不支持** ref/out（见 `../../marshal/function.md` §9）。
 
 **统一规则：** Lua 侧 **不区分** `ref` / `out` / `in`，均按 **ref 语义** 处理；C# 侧仍保留各自 CLR 语义（`in` 只读等）。
 
@@ -175,7 +175,7 @@ CS.Demo.Increment(n)   -- 真 ref；zlua.deref(n) 或读 payload 得新值
 
 | 来源 | 说明 |
 |------|------|
-| `zlua.new_ref(ref_type [, value, ...])` | 显式 ref 槽；见 `LIB_SPEC.md` §6 |
+| `zlua.new_ref(ref_type [, value, ...])` | 显式 ref 槽；见 `../../lib-spec.md` §6 |
 | 值类型 **`_ctor` / `__call`** 产物 | 如 `Point2D(1, 2)`；与 `new_ref` 共用 payload 存储，传给 `ref Point2D` 为 **真 ref** |
 | enum **`_ctor` / `__call`** 产物 | 如 `Color(1)`；传给 `ref Color` 为真 ref |
 | C#→Lua 推送的 struct **StructUserData** | 长生命周期 userdata；Lua 再传入 `ref T` 为真 ref |
@@ -192,7 +192,7 @@ CS.Demo.Increment(n)   -- 真 ref；zlua.deref(n) 或读 payload 得新值
 | struct | payload / box 原地更新；字段经 `IMT` 可见 | 临时 struct 副本；原 Lua 值不变 |
 | class / string / array / delegate | 共享对象引用；**C# 对 ref 重新赋值不回 Lua** | 同左；临时槽丢弃 rebind |
 
-引用类型 **重新绑定** ref（`refParam = other`）**永不**写回 Lua；**可变对象原地修改**（如 `ref StringBuilder`）仍通过共享引用可见。详见 `CLASS_MARSHAL_SPEC.md` §2。
+引用类型 **重新绑定** ref（`refParam = other`）**永不**写回 Lua；**可变对象原地修改**（如 `ref StringBuilder`）仍通过共享引用可见。详见 `../../marshal/class.md` §2。
 
 ### 3.4 `out` 与缺省 / `nil`
 
@@ -221,11 +221,11 @@ Mono：可先 GCHandle box；**可观察语义**与 Il2Cpp 一致。
 
 | 项 | 文档 |
 |----|------|
-| `zlua.new_ref` | `LIB_SPEC.md` §6 |
-| `zlua.to_user_data` | 本节 §4.4、`LIB_SPEC.md` |
-| struct payload / scope | `STRUCT_MARSHAL_SPEC.md` §5、§6.2 |
-| ref 引用类型 | `CLASS_MARSHAL_SPEC.md` §2 |
-| delegate 不含 ref | `FUNCTION_MARSHAL_SPEC.md` §9 |
+| `zlua.new_ref` | `../../lib-spec.md` §6 |
+| `zlua.to_user_data` | 本节 §4.4、`../../lib-spec.md` |
+| struct payload / scope | `../../marshal/struct.md` §5、§6.2 |
+| ref 引用类型 | `../../marshal/class.md` §2 |
+| delegate 不含 ref | `../../marshal/function.md` §9 |
 
 ---
 
@@ -252,7 +252,7 @@ lua_pushlightuserdata(L, (void*)(uintptr_t)handleId);
 
 ### 4.2 handleId 与参数地址
 
-`handleId` 在逻辑上映射到 **C# 调用栈上某一参数的存储地址**（`StructStackScope` 登记，见 `STRUCT_MARSHAL_SPEC.md` §3）：
+`handleId` 在逻辑上映射到 **C# 调用栈上某一参数的存储地址**（`StructStackScope` 登记，见 `../../marshal/struct.md` §3）：
 
 | 元素类型 `T` | `stack[i]` / 登记地址含义 | `Resolve` 结果 |
 |--------------|---------------------------|----------------|
@@ -261,7 +261,7 @@ lua_pushlightuserdata(L, (void*)(uintptr_t)handleId);
 
 因此 OpaqueValue **不仅能表达 struct，也能表达 object 形参槽**；与长生命周期的 **ClassUserData**（`ObjectRegistry`）不同，此处 **不** 立即注册 GCHandle / userdata，仅暴露「本次调用栈上的参数位置」。
 
-**校验（沿用现有设计）：** 任意使用前 `ValidateHandle(handleId)`——解码或查表确认 `generation` 仍有效、登记未撤销（`STRUCT_MARSHAL_SPEC.md` §3.4）。过期 → `luaL_error`（如 `zlua: opaque handle expired`）。
+**校验（沿用现有设计）：** 任意使用前 `ValidateHandle(handleId)`——解码或查表确认 `generation` 仍有效、登记未撤销（`../../marshal/struct.md` §3.4）。过期 → `luaL_error`（如 `zlua: opaque handle expired`）。
 
 ### 4.3 生命周期与禁止持久化
 
@@ -295,21 +295,21 @@ local ud = zlua.to_user_data(opaque)
 
 - 拷贝/注册后，opaque 与 userdata **相互独立**（struct 为拷贝语义）。
 - 未 `EndScope` 前，原 opaque 仍可继续使用（若仍需同步链内零拷贝）。
-- Native：`OpaqueValue::ToUserData` / `__zlua_to_user_data`；详见 `LIB_SPEC.md`。
+- Native：`OpaqueValue::ToUserData` / `__zlua_to_user_data`；详见 `../../lib-spec.md`。
 
 ### 4.5 与 Lua→C# Pop 的关系
 
 | 方向 | OpaqueValue 行为 |
 |------|------------------|
 | **C#→Lua** | 默认 struct `StructHandle` → Push OpaqueValue |
-| **Lua→C#** | 若在 **同一同步链** 内将收到的 lightuserdata **原样传回** 对应形参，Pop 时 `Validate` + 按类型 `memcpy` 或绑定 ref 槽（见 `STRUCT_MARSHAL_SPEC.md` §6.1、§6.2.3） |
+| **Lua→C#** | 若在 **同一同步链** 内将收到的 lightuserdata **原样传回** 对应形参，Pop 时 `Validate` + 按类型 `memcpy` 或绑定 ref 槽（见 `../../marshal/struct.md` §6.1、§6.2.3） |
 | **Lua→C#** | 期望 **StructUserData / ClassUserData** 的 API 不得依赖对 opaque 做 `:` / `.` 访问 |
 
 ### 4.6 实现模块（C++ / Mono）
 
 | 模块 | 职责 |
 |------|------|
-| `StructStackScope` | 登记参数地址、`generation`、嵌套 scope（`STRUCT_MARSHAL_SPEC.md` §3） |
+| `StructStackScope` | 登记参数地址、`generation`、嵌套 scope（`../../marshal/struct.md` §3） |
 | **`OpaqueValue`** | `Validate` / `Resolve` / `ToUserData`；**不** 提供字段/方法 `__index` |
 | `NotBlittableStructRegistry` / `ObjectRegistry` | `to_user_data` 的目标路径 |
 
@@ -331,11 +331,11 @@ Mono 与 Il2Cpp **Lua 可见语义一致**；Mono 可用 pinned / 临时 box 代
 
 | 类型 | 文档 |
 |------|------|
-| OpaqueValue / `StructHandle` | 本节 §4；`STRUCT_MARSHAL_SPEC.md` §3 |
-| struct userdata | `STRUCT_MARSHAL_SPEC.md` §5 |
-| class / 引用类型 | `CLASS_MARSHAL_SPEC.md` |
-| delegate / Lua function | `FUNCTION_MARSHAL_SPEC.md` |
-| 数组 | `CLASS_MARSHAL_SPEC.md`、`TYPE_SYSTEM_SPEC.md` §7 |
+| OpaqueValue / `StructHandle` | 本节 §4；`../../marshal/struct.md` §3 |
+| struct userdata | `../../marshal/struct.md` §5 |
+| class / 引用类型 | `../../marshal/class.md` |
+| delegate / Lua function | `../../marshal/function.md` |
+| 数组 | `../../marshal/class.md`、`../../type-system-spec.md` §7 |
 | 指针 / 函数指针 / TypedReference | 本节 §7 |
 | `[LuaMarshalAs]` / `LuaMarshalType` | 本节 §6（含 §6.2 合法集合、§6.3 非法回退） |
 
@@ -392,7 +392,7 @@ public sealed class LuaMarshalAsAttribute : Attribute
 | **`byte[]`** | `Bytes`、`UserData` | `Bytes`：↔ Lua **string**；`UserData`：保持 ArrayUserData（显式标注时与默认相同） |
 | **`T[]` / mdarray** | `UserData` | 默认已是 ArrayUserData；显式 `UserData` 等价强调 full userdata |
 | **`enum`** | `UserData` | 强制 enum userdata，替代默认 integer / number |
-| **`struct`**（普通值类型 struct） | `UserData`、`OpaqueLightUserData` | `UserData`：StructUserData；`OpaqueLightUserData`：**仅 C#→Lua**（§4）。另见 `STRUCT_MARSHAL_SPEC.md` §7 的 `StructUserData`、`ComposeFromStack`、`LuaStackFields` 等 **扩展枚举**（与本表 `UserData` / `OpaqueLightUserData` 正交） |
+| **`struct`**（普通值类型 struct） | `UserData`、`OpaqueLightUserData` | `UserData`：StructUserData；`OpaqueLightUserData`：**仅 C#→Lua**（§4）。另见 `../../marshal/struct.md` §7 的 `StructUserData`、`ComposeFromStack`、`LuaStackFields` 等 **扩展枚举**（与本表 `UserData` / `OpaqueLightUserData` 正交） |
 | **`class` / `interface`** | `UserData` | 默认已是 ClassUserData |
 | **`Delegate` 及子类** | `UserData` | 默认已是 DelegateUserData 或 function bridge |
 | **`object`** | `UserData` | 按运行时类型 Push 时强制 userdata 形态（实现层须与 §7.4 多态规则一致） |
@@ -410,7 +410,7 @@ public sealed class LuaMarshalAsAttribute : Attribute
 | `UserData`、`Bytes` | **双向**（Pop / Push 均可能生效，以形参/返回值方向为准） |
 | `OpaqueLightUserData` | **仅 C# → Lua**（返回值、或 C# 调 Lua 时的 push 实参）；标注于 **纯 Lua→C# 形参** 时视为 **非法** |
 
-**`LuaMarshalFlags`（如 `OptionalField`）** 仅作用于 **struct 字段** 的 table 组装，不改变上表对 `LuaMarshalType` 的合法性；见 `STRUCT_MARSHAL_SPEC.md` §6.4、§7.3。
+**`LuaMarshalFlags`（如 `OptionalField`）** 仅作用于 **struct 字段** 的 table 组装，不改变上表对 `LuaMarshalType` 的合法性；见 `../../marshal/struct.md` §6.4、§7.3。
 
 ### 6.3 非法标注：回退默认规则与 Editor 日志
 
@@ -446,10 +446,10 @@ Codegen / Mono 反射在 Pop / Push 时按 **由细到粗** 解析：
 
 1. **参数 / 返回值** 上的 `[LuaMarshalAs]`（若 `≠ Default`）
 2. **方法** 上的 `[LuaMarshalAs]`（若 `≠ Default`）
-3. **类型** 上的 `[LuaMarshalAs]` / XML 双向配置（见 `STRUCT_MARSHAL_SPEC.md` §7）
+3. **类型** 上的 `[LuaMarshalAs]` / XML 双向配置（见 `../../marshal/struct.md` §7）
 4. **§1 内置默认**
 
-任意参数、返回值或方法级标注 **`≠ Default`** 时，Il2Cpp Codegen 对该方法生成 **专用** push/pcall/pop 代码，**不** 走泛型默认模板（见 `IL2CPP_DESIGN_SPEC.md` §5.2）。
+任意参数、返回值或方法级标注 **`≠ Default`** 时，Il2Cpp Codegen 对该方法生成 **专用** push/pcall/pop 代码，**不** 走泛型默认模板（见 `../../architecture/il2cpp-architecture.md` §5.2）。
 
 解析过程中若标注 **非法**（§6.2），该条标注 **视为未设置**，继续向下一优先级查找；若全部为非法或未标注，则使用 **§1 默认**。
 
@@ -463,7 +463,7 @@ Codegen / Mono 反射在 Pop / Push 时按 **由细到粗** 解析：
 | Lua 调 C#，`byte[]` 形参 | ArrayUserData | `Bytes` → Lua string |
 | 双向 enum | integer/number | `UserData` → enum userdata |
 
-struct 专用的 `StructUserData`、`ComposeFromStack`、`LuaStackFields` 等扩展枚举见 `STRUCT_MARSHAL_SPEC.md` §7；与上述 **`UserData` / `OpaqueLightUserData`** 正交，可组合使用。
+struct 专用的 `StructUserData`、`ComposeFromStack`、`LuaStackFields` 等扩展枚举见 `../../marshal/struct.md` §7；与上述 **`UserData` / `OpaqueLightUserData`** 正交，可组合使用。
 
 ---
 
@@ -532,18 +532,18 @@ struct 专用的 `StructUserData`、`ComposeFromStack`、`LuaStackFields` 等扩
 |---------|----------------------|-----------------|
 | **`object`** | Push 按 **运行时实际类型**；Pop 接受 boolean / number / string / userdata | 多态 boxing；`ReadBoxedObjectValue` 路径；无单独分册 |
 | **`Nullable<T>`** | 有值时同 `T`；`null` ↔ `nil` | `T` 为非 Nullable 值类型时 Pop 接受 `nil` |
-| **`interface`** | 与 **class** 相同（ClassUserData） | 见 `CLASS_MARSHAL_SPEC.md` |
+| **`interface`** | 与 **class** 相同（ClassUserData） | 见 `../../marshal/class.md` |
 | **`decimal`** | **默认不支持** | Pop/Push 未纳入 v1 默认路径；需 `[LuaMarshalAs]` 或专用规则后再定 |
-| **`ref struct`**（`Span<T>`、`ReadOnlySpan<T>` 等） | **不能** 作为普通 by-val 形参默认 marshal | 仅 `ref` / `zlua.new_ref` / OpaqueValue 等受控路径；见 `STRUCT_MARSHAL_SPEC.md`、`LIB_SPEC.md` §6 |
-| **`params T[]`** | 视具体签名为 **数组** 或 **展开**；delegate bridge **可不支持** | `FUNCTION_MARSHAL_SPEC.md` §9 |
-| **开放泛型形参**（如 `void M<T>(T x)` 且 `T` 未实例化） | 由 **调用时类型实参** 决定 | 见 `TYPE_SYSTEM_SPEC.md` 泛型解析 |
+| **`ref struct`**（`Span<T>`、`ReadOnlySpan<T>` 等） | **不能** 作为普通 by-val 形参默认 marshal | 仅 `ref` / `zlua.new_ref` / OpaqueValue 等受控路径；见 `../../marshal/struct.md`、`../../lib-spec.md` §6 |
+| **`params T[]`** | 视具体签名为 **数组** 或 **展开**；delegate bridge **可不支持** | `../../marshal/function.md` §9 |
+| **开放泛型形参**（如 `void M<T>(T x)` 且 `T` 未实例化） | 由 **调用时类型实参** 决定 | 见 `../../type-system-spec.md` 泛型解析 |
 | **`dynamic`** | 编译期按 **`object`** 处理 | 无独立 Lua 形态 |
-| **`string` 构建器 / 自定义 class`** | 同 **class** | `CLASS_MARSHAL_SPEC.md` |
+| **`string` 构建器 / 自定义 class`** | 同 **class** | `../../marshal/class.md` |
 
 **注册 / 暴露阶段即应拒绝的类型（非 marshal 规则，而是签名非法）：**
 
 - 含 **`TypedReference`** 的参数或返回值（§7.3）
-- **`[LuaInvoke]` / delegate bridge** 上的 **`ref` / `out` / `in`**（`FUNCTION_MARSHAL_SPEC.md` §9；普通 C# 方法的 ref 见 §3）
+- **`[LuaInvoke]` / delegate bridge** 上的 **`ref` / `out` / `in`**（`../../marshal/function.md` §9；普通 C# 方法的 ref 见 §3）
 - 无法解析的 **byref 修饰符** 与 **ref struct by-val** 形参组合
 
 ### 7.5 Mono / Il2Cpp 一致性

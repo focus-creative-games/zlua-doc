@@ -10,7 +10,7 @@ description: PUC-Rio Lua 5.4 OP_GETFIELD 快路径（远期规划）。
 
 Lua 侧访问 C# 对象（userdata / 类型表）时的 **metatable 索引优化** 策略。目标：在 PUC-Rio Lua 5.4 上通过 **极简 VM patch** 超越 xLua `gen_obj_indexer`；LuaJIT 分支退守 C/Lua indexer，不 patch VM。
 
-**关联文档：** `OPTIMIZATION.md` §4.8、`META_TABLE_SPEC.md`（Mono Lua obj_indexer）、`TYPE_SYSTEM_SPEC.md`、`IL2CPP_DESIGN_SPEC.md`
+**关联文档：** `../architecture/optimization-report.md` §4.8、`../meta-table-spec.md`（Mono Lua obj_indexer）、`../type-system-spec.md`、`../architecture/il2cpp-architecture.md`
 
 **语义锚点（Il2Cpp 已实现）：** `ZLua~/libil2cpp-2022/zlua/MetaBinding.cpp` → `DispatchIndex` / `DispatchNewIndex`
 
@@ -35,7 +35,7 @@ xLua `obj_indexer`（`3rd/xLua/build/xlua.c`）为 **C closure `__index`**：
 2. getter 表 `gettable` → 命中则 `call(obj)`  
 3. 数组 / csindexer / 基类链 / fallback  
 
-ZLua 当前 Mono 方案（`META_TABLE_SPEC.md`）：Lua function `__index` + 三表 upvalue，已去掉 C# hot path，但仍整段走 **Lua function 帧**。
+ZLua 当前 Mono 方案（`../meta-table-spec.md`）：Lua function `__index` + 三表 upvalue，已去掉 C# hot path，但仍整段走 **Lua function 帧**。
 
 ### 1.3 目标
 

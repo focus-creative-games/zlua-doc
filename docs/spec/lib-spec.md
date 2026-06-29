@@ -18,11 +18,11 @@ description: 全局 zlua 表的 Lua API 设计规范。
 
 | 文档 | 内容 |
 |------|------|
-| `TYPE_SYSTEM_SPEC.md` | `CSharp` 类型访问、元表、数组、泛型方法 |
-| `METHOD_OVERLOAD_SPEC.md` | `signature` / `get_method` / `register_method` 语义 |
-| `MARSHAL_SPEC.md` | 参数编组总览 |
-| `FUNCTION_MARSHAL_SPEC.md` | Lua function ↔ C# delegate |
-| `DESIGN_SPEC.md` | 双运行时与总体架构 |
+| `../type-system-spec.md` | `CSharp` 类型访问、元表、数组、泛型方法 |
+| `../method-overload-spec.md` | `signature` / `get_method` / `register_method` 语义 |
+| `../marshal/index.md` | 参数编组总览 |
+| `../marshal/function.md` | Lua function ↔ C# delegate |
+| `../design-spec.md` | 双运行时与总体架构 |
 
 **平台原则：** `zlua` 的 Lua 封装在 Mono 与 Il2Cpp 上**签名与语义一致**；耗时逻辑在 native `__zlua_*` 回调中实现，Lua 层保持薄封装。
 
@@ -32,7 +32,7 @@ description: 全局 zlua 表的 Lua API 设计规范。
 
 | 层级 | 职责 |
 |------|------|
-| **`CSharp` 根表** | 程序集 / 类型懒加载；静态成员、`Type()` 构造（见 `TYPE_SYSTEM_SPEC.md`） |
+| **`CSharp` 根表** | 程序集 / 类型懒加载；静态成员、`Type()` 构造（见 `../type-system-spec.md`） |
 | **`zlua` 库** | 类型构造辅助（泛型、数组）、`typeof`、重载显式绑定、常用类型常量 |
 | **实例 userdata** | 经类型表 `__call` 或 `new_*` 创建；成员经元表访问，不经 `zlua` |
 
@@ -117,7 +117,7 @@ zlua.make_generic_type(genericBaseType, typeArg1, typeArg2, ...) → typeTable
 | 参数 | 说明 |
 |------|------|
 | `genericBaseType` | 未闭合泛型定义的类型表；**含 namespace 时必须括号访问** |
-| `genericParamType…` | 泛型实参；typeArg 规则见 `TYPE_SYSTEM_SPEC.md` §2.4 |
+| `genericParamType…` | 泛型实参；typeArg 规则见 `../type-system-spec.md` §2.4 |
 
 ```lua
 local ListInt = zlua.make_generic_type(
@@ -136,7 +136,7 @@ local list = ListInt()   -- 构造实例，见 TYPE_SYSTEM_SPEC §4.6
 
 ## 6. ref 变量（`zlua.new_ref`）
 
-创建 **带类型的 StructUserData**，作为 C# `ref` / `out` / `in` 形参的 **真 ref 实参**。规则见 `MARSHAL_SPEC.md` §3、`STRUCT_MARSHAL_SPEC.md` §6.2。
+创建 **带类型的 StructUserData**，作为 C# `ref` / `out` / `in` 形参的 **真 ref 实参**。规则见 `../marshal/index.md` §3、`../marshal/struct.md` §6.2。
 
 ```lua
 zlua.new_ref(ref_type [, value, ...]) → structUserdata
@@ -159,7 +159,7 @@ zlua.new_ref(ref_type [, value, ...]) → structUserdata
 
 by-val 形参仍对 StructUserData 做 **拷贝**；仅 `ref`/`out`/`in` 绑定 payload 地址。
 
-非 StructUserData 实参（如裸 `5`）传给 `ref int`：**拷贝语义**，调用成功但 **不回写** Lua 值（`MARSHAL_SPEC.md` §3.1）。
+非 StructUserData 实参（如裸 `5`）传给 `ref int`：**拷贝语义**，调用成功但 **不回写** Lua 值（`../marshal/index.md` §3.1）。
 
 ### 6.2 示例
 
@@ -189,7 +189,7 @@ CS.Demo.TryParse("42", out)
 
 ### 6.4 Opaque 升级（`zlua.to_user_data`）
 
-将 C#→Lua marshal 产生的 **opaque lightuserdata** 转为可长期持有、可成员访问的 userdata。规则见 `MARSHAL_SPEC.md` §4。
+将 C#→Lua marshal 产生的 **opaque lightuserdata** 转为可长期持有、可成员访问的 userdata。规则见 `../marshal/index.md` §4。
 
 ```lua
 zlua.to_user_data(opaque) → structUserdata | classUserdata
@@ -208,7 +208,7 @@ zlua.to_user_data(opaque) → structUserdata | classUserdata
 
 ## 7. 数组类型与实例
 
-与 `TYPE_SYSTEM_SPEC.md` §2.4–§2.6、§7 一致。
+与 `../type-system-spec.md` §2.4–§2.6、§7 一致。
 
 ### 7.1 数组类型构造
 
@@ -219,8 +219,8 @@ zlua.make_mdarray_type(typeArg, rank) → mdarrayTypeTable
 
 | API | 说明 |
 |-----|------|
-| `make_szarray_type` | 单维 0 基向量数组 `T[]`；`elementType` 见 `TYPE_SYSTEM_SPEC.md` §2.4 |
-| `make_mdarray_type` | `rank` 维数组 `T[,…]`，`rank ≥ 1`；`elementType` 见 `TYPE_SYSTEM_SPEC.md` §2.4 |
+| `make_szarray_type` | 单维 0 基向量数组 `T[]`；`elementType` 见 `../type-system-spec.md` §2.4 |
+| `make_mdarray_type` | `rank` 维数组 `T[,…]`，`rank ≥ 1`；`elementType` 见 `../type-system-spec.md` §2.4 |
 
 ```lua
 local IntArray = zlua.make_szarray_type(zlua.types.int32)
@@ -281,7 +281,7 @@ local bytes = zlua.to_bytes(int_arr)   -- #bytes == #int_arr * 4（int 为 4 字
 zlua.to_table(szarray) → table
 ```
 
-将 szarray 转为 **等长** Lua 表；**对元素类型无限制**，每个元素按 `MARSHAL_SPEC.md` / `CLASS_MARSHAL_SPEC.md` 规则转为 Lua 值。
+将 szarray 转为 **等长** Lua 表；**对元素类型无限制**，每个元素按 `../marshal/index.md` / `../marshal/class.md` 规则转为 Lua 值。
 
 | 约束 | 说明 |
 |------|------|
@@ -306,7 +306,7 @@ local t = zlua.to_table(obj_arr)
 
 ## 8. 泛型方法实参
 
-仅用于**方法自身带泛型参数**的情形（如 `void Foo<T>(T x)`），见 `TYPE_SYSTEM_SPEC.md` §6。
+仅用于**方法自身带泛型参数**的情形（如 `void Foo<T>(T x)`），见 `../type-system-spec.md` §6。
 
 ### 8.1 `zlua.make_generic_inst`
 
@@ -331,7 +331,7 @@ Type.Foo(inst, value)   -- 第一实参必须是 generic_inst
 
 ## 9. Delegate（可选显式 API）
 
-**默认行为：** Lua 调用带 delegate 形参的 C# 方法时，直接传入 Lua function 即可，由 **方法参数 marshal** 隐式转换，与其它形参规则相同。详见 **`FUNCTION_MARSHAL_SPEC.md` §4.0**。
+**默认行为：** Lua 调用带 delegate 形参的 C# 方法时，直接传入 Lua function 即可，由 **方法参数 marshal** 隐式转换，与其它形参规则相同。详见 **`../marshal/function.md` §4.0**。
 
 ```lua
 obj:RegisterCallback(function(v) print(v) end)   -- 无需 to_delegate
@@ -357,13 +357,13 @@ obj:RegisterCallback(d)
 
 **Native：** `__zlua_to_delegate`（可选，待实现）
 
-C# delegate 传入 Lua 后可直接 `d(...)`（`IMT.__call`），见 `FUNCTION_MARSHAL_SPEC.md` §3。
+C# delegate 传入 Lua 后可直接 `d(...)`（`IMT.__call`），见 `../marshal/function.md` §3。
 
 ---
 
 ## 10. 方法重载辅助
 
-完整语义见 `METHOD_OVERLOAD_SPEC.md`。`zlua` 仅提供薄封装。
+完整语义见 `../method-overload-spec.md`。`zlua` 仅提供薄封装。
 
 ### 9.1 `zlua.signature`
 
@@ -407,7 +407,7 @@ add(3, 5)
 ```
 
 - 实例方法：点号调用并传入 `self`；静态方法：直接 `closure(...)`。
-- `is_static == true` 时 `target` 可为实例，仅用于解析类型（见 `TYPE_SYSTEM_SPEC.md` §3.2）。
+- `is_static == true` 时 `target` 可为实例，仅用于解析类型（见 `../type-system-spec.md` §3.2）。
 
 **Native：** `__zlua_get_method`（待实现）
 
@@ -449,12 +449,12 @@ assert.equal(Demo.add_i32(3, 5), 8)
 | **对象实例 userdata** | 该实例所属类型的 **实例元表 `IMT`** 所绑定的 `methodTable` |
 
 - 静态方法别名须传**类型表**；实例方法别名须传**对象实例**（或等价的实例 userdata）。
-- `methodTable` 为注册期构建的内部表，见 `META_TABLE_SPEC.md` §3.1；**不得**直接 `rawset` 到类型表根键。
+- `methodTable` 为注册期构建的内部表，见 `../meta-table-spec.md` §3.1；**不得**直接 `rawset` 到类型表根键。
 
 **冲突与错误：**
 
 - 注册时若目标 `methodTable` 中**已存在同名键**（值为非 `nil`），**立即报错**（`luaL_error`），不覆盖已有条目。
-- `aliasName` 另须满足 `METHOD_OVERLOAD_SPEC.md` §5.1（不得与非别名默认 C# 方法名重复等）。
+- `aliasName` 另须满足 `../method-overload-spec.md` §5.1（不得与非别名默认 C# 方法名重复等）。
 
 **Native：** `__zlua_register_method`（待实现）
 
@@ -608,16 +608,16 @@ zlua.types = zlua.types or {
 
 ## 14. 实现清单
 
-- [ ] `zlua.new_ref` / `__zlua_new_ref`（`MARSHAL_SPEC.md` §3）
-- [ ] `zlua.to_user_data` / `__zlua_to_user_data`（`MARSHAL_SPEC.md` §4）
+- [ ] `zlua.new_ref` / `__zlua_new_ref`（`../marshal/index.md` §3）
+- [ ] `zlua.to_user_data` / `__zlua_to_user_data`（`../marshal/index.md` §4）
 - [ ] `zlua.types` 初始化与 `corlibtypes` 迁移
 - [ ] `signature` 仅接收 `typeArg`，去掉 methodName
 - [ ] `get_method(target, methodName, signature, is_static)` native 实现
 - [ ] `register_method(static_class_mt_or_obj, aliasName, methodOrClosure)` native 实现
 - [ ] 数组 `make_*` / `new_*` 全套 API
 - [ ] `to_bytes` / `to_table`（szarray）
-- [ ] `Marshaling::ReadDelegate` 隐式 marshal（`FUNCTION_MARSHAL_SPEC.md` §4.0，**必做**）
+- [ ] `Marshaling::ReadDelegate` 隐式 marshal（`../marshal/function.md` §4.0，**必做**）
 - [ ] （可选）`to_delegate` 显式 API
 - [ ] `make_generic_inst` + 泛型方法 `inflatedMap`
 - [ ] Mono / Il2Cpp `zlualib.lua` 内容同步（嵌入 vs Resources）
-- [ ] `TYPE_SYSTEM_SPEC.md` §2.2 命名空间括号规则在类型解析回调中强制执行
+- [ ] `../type-system-spec.md` §2.2 命名空间括号规则在类型解析回调中强制执行

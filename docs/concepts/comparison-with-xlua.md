@@ -100,7 +100,7 @@ C# [LuaInvoke] → InternalCall（一次进 native）
 |---|------|---------|
 | 机制 | C# delegate bridge + translator + LuaDLL | `LuaMethod` + `funcRef` + **closed delegate** + C++ `DelegateBridge` |
 | 脚本侧 | 传 function，内部转换 | **隐式 marshal**（方法形参，同其他类型） |
-| 详见 | xLua `lua_csfunction` / `DelegateBridge` | `FUNCTION_MARSHAL_SPEC.md` §4.0 |
+| 详见 | xLua `lua_csfunction` / `DelegateBridge` | `../marshal/function.md` §4.0 |
 
 绑定完成后，两者都要走「C# 调 invoke → 进 Lua `pcall`」；ZLua 少 C# Wrap / LuaDLL 层，但 **string / 重对象** 仍占主导。
 
@@ -223,7 +223,7 @@ marshal 与分配占主导，固定边界成本占比下降。
 | GC | 一般不改 Boehm | non-blittable struct 可能 hook `push_other_roots` |
 | 升级 Unity | 主要升 xLua 包 | **merge libil2cpp 补丁**（工程债更大） |
 
-ZLua **刻意避免**运行时伪造完整 `MethodInfo`（见 `FUNCTION_MARSHAL_SPEC.md`），在技巧深度上有所克制。
+ZLua **刻意避免**运行时伪造完整 `MethodInfo`（见 `../marshal/function.md`），在技巧深度上有所克制。
 
 ---
 
@@ -236,7 +236,7 @@ ZLua **刻意避免**运行时伪造完整 `MethodInfo`（见 `FUNCTION_MARSHAL_
 | 热更配套 | 大量现成实践 | 需自建 |
 | 语义模型 | xLua 自有约定 | 目标贴近 C#（`TYPE_SYSTEM_SPEC`） |
 | Editor 体验 | 与 Player 较一致 | Mono 反射 / Player 原生 **双轨** |
-| 迁移 | — | 见 `DEV.md` 迁移指南（规划） |
+| 迁移 | — | 见 `../community/roadmap.md` 迁移指南（规划） |
 
 ---
 
@@ -323,11 +323,11 @@ for i = 1, 1000000 do local _ = o.x end
 
 | 文档 | 内容 |
 |------|------|
-| `DESIGN_SPEC.md` | ZLua 总体目标 |
-| `IL2CPP_DESIGN_SPEC.md` | Player 架构、LuaInvoke、MethodBridge |
-| `TYPE_SYSTEM_SPEC.md` | 元表、字段快路径 |
-| `FUNCTION_MARSHAL_SPEC.md` | Delegate / 函数 marshal |
-| `STRUCT_MARSHAL_SPEC.md` | struct 零 GC 路径 |
+| `../design-spec.md` | ZLua 总体目标 |
+| `../architecture/il2cpp-architecture.md` | Player 架构、LuaInvoke、MethodBridge |
+| `../type-system-spec.md` | 元表、字段快路径 |
+| `../marshal/function.md` | Delegate / 函数 marshal |
+| `../marshal/struct.md` | struct 零 GC 路径 |
 
 ---
 

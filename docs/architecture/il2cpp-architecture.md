@@ -8,7 +8,7 @@ description: ZLua 在 Il2Cpp 发布模式下的 C++ 实现方案。
 
 # ZLua Il2Cpp 设计规范
 
-本文档描述 ZLua 在 Il2Cpp 发布模式下的 C++ 实现方案，与 `DESIGN_SPEC.md` 中的总体设计目标保持一致。
+本文档描述 ZLua 在 Il2Cpp 发布模式下的 C++ 实现方案，与 `../design-spec.md` 中的总体设计目标保持一致。
 
 ---
 

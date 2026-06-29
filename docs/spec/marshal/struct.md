@@ -8,7 +8,7 @@ description: struct 与值类型的编组规则。
 
 # ZLua Struct Marshal 设计规范
 
-本文档描述 **Il2Cpp 与 Mono（Editor）** 下 **C# struct 与 Lua 互操作** 的传递方案，与 `DESIGN_SPEC.md`、`TYPE_SYSTEM_SPEC.md`、`IL2CPP_DESIGN_SPEC.md` 中的 `Marshaling`、`LuaMarshalAs`、`ObjectRegistry` 体系衔接。
+本文档描述 **Il2Cpp 与 Mono（Editor）** 下 **C# struct 与 Lua 互操作** 的传递方案，与 `../../design-spec.md`、`../../type-system-spec.md`、`../../architecture/il2cpp-architecture.md` 中的 `Marshaling`、`LuaMarshalAs`、`ObjectRegistry` 体系衔接。
 
 **版本说明：** Handle 路径采用 **栈地址记录 + `StructStackScope`**，不再使用预分配 slot 池。
 
@@ -67,7 +67,7 @@ flowchart TB
 | 模块 | 职责 |
 |------|------|
 | `StructStackScope` | 记录栈上形参/局部地址、管理 generation、嵌套 scope |
-| `OpaqueValue` | 校验 handle、`Resolve` 参数槽、`ToUserData`；**无** Lua 字段/方法访问（见 `MARSHAL_SPEC.md` §4） |
+| `OpaqueValue` | 校验 handle、`Resolve` 参数槽、`ToUserData`；**无** Lua 字段/方法访问（见 `../../marshal/index.md` §4） |
 | `NotBlittableStructRegistry` | non-blittable 的 userdata 拷贝与 GC 扫描 |
 | `generated/StructMetadata.*` | size、align、blittable、ref 偏移、klass |
 
@@ -114,7 +114,7 @@ PushOpaque(klass, paramSlotPtr):
 
 ### 3.3 Push（C# → Lua，Opaque / StructHandle 路径）
 
-前置条件：**形参/局部已在当前 native 栈帧**（IC 参数、局部变量、`ref` 指向的稳定区域）。struct 为实例地址；class 等为引用槽地址（`Il2CppObject**`）。详见 `MARSHAL_SPEC.md` §4.2。
+前置条件：**形参/局部已在当前 native 栈帧**（IC 参数、局部变量、`ref` 指向的稳定区域）。struct 为实例地址；class 等为引用槽地址（`Il2CppObject**`）。详见 `../../marshal/index.md` §4.2。
 
 **零拷贝**：不把 struct 拷到池；blittable / non-blittable 均适用（non-blittable 的 GC 见 3.7）。Push 步骤见 §3.2 `PushOpaque`。
 
@@ -179,7 +179,7 @@ StructStackScopeGuard  RAII / 手动对:
 
 - lightuserdata handle **只能**由 C#→Lua 路径产生；**无** Lua API 伪造 handle。
 - Lua 在 **异步** / **pcall 返回后** 保存 handle → 下次 `ValidateHandle` → **error**。
-- 长生命周期须用 **`StructUserData` / ClassUserData** 或 **`zlua.to_user_data(opaque)`**（`MARSHAL_SPEC.md` §4.4）。
+- 长生命周期须用 **`StructUserData` / ClassUserData** 或 **`zlua.to_user_data(opaque)`**（`../../marshal/index.md` §4.4）。
 
 ### 3.7 Non-blittable 与 GC（Handle 路径）
 
@@ -198,7 +198,7 @@ StructStackScopeGuard  RAII / 手动对:
 
 ## 4. OpaqueValue（已迁至总册）
 
-**临时不透明 lightuserdata**（校验、`Resolve`、`zlua.to_user_data`、struct/class 槽语义、生命周期）的完整规范见 **`MARSHAL_SPEC.md` §4**。
+**临时不透明 lightuserdata**（校验、`Resolve`、`zlua.to_user_data`、struct/class 槽语义、生命周期）的完整规范见 **`../../marshal/index.md` §4**。
 
 本节 struct 文档仅保留：
 
@@ -219,7 +219,7 @@ StructStackScopeGuard  RAII / 手动对:
 
 #### 5.1.1 与枚举（enum）的关系
 
-枚举在 CLR 中为 **单字段 blittable 值类型**（underlying 整型）。**默认** C#↔Lua 编组为 integer/number，**不**走 userdata（见 `MARSHAL_SPEC.md` §2）。
+枚举在 CLR 中为 **单字段 blittable 值类型**（underlying 整型）。**默认** C#↔Lua 编组为 integer/number，**不**走 userdata（见 `../../marshal/index.md` §2）。
 
 仅当 Lua 侧通过类型表 **`_ctor` / `__call`** 显式构造时，走与本节相同的 **blittable userdata** 路径（详见 §5.4）。
 
@@ -333,7 +333,7 @@ static void PushRoots(GcPushAllFunc pushAll) {
 
 #### 5.4.1 构造入口（类型表）
 
-与 class/struct 相同，在枚举类型表静态元表 `SMT` 上注册（见 `TYPE_SYSTEM_SPEC.md` §3.5.2）：
+与 class/struct 相同，在枚举类型表静态元表 `SMT` 上注册（见 `../../type-system-spec.md` §3.5.2）：
 
 | 元表键 | 说明 |
 |--------|------|
@@ -360,7 +360,7 @@ enum userdata
 
 | 场景 | 行为 |
 |------|------|
-| C# 返回 enum（默认） | Push **integer/number**，**非** userdata（`MARSHAL_SPEC.md` §2.1） |
+| C# 返回 enum（默认） | Push **integer/number**，**非** userdata（`../../marshal/index.md` §2.1） |
 | Lua 传入 enum 形参（默认） | 接受 **integer/number** 或 **enum userdata**（从 payload 读 underlying 值） |
 | Lua 持有 `EnumType(v)` 结果 | userdata；跨调用传递时 Pop 可读 payload |
 
@@ -406,7 +406,7 @@ SetColor(boxed)
 
 ### 6.2 写回语义与 `ref` / `out` / `in`
 
-总览见 `MARSHAL_SPEC.md` §3。本节补充 **值类型** 在 StructUserData 路径上的规则。
+总览见 `../../marshal/index.md` §3。本节补充 **值类型** 在 StructUserData 路径上的规则。
 
 #### 6.2.1 by-value vs ref
 
@@ -456,7 +456,7 @@ local out = zlua.new_ref(zlua.types.int32) -- default，供 out
 | 已有 StructUserData | **拷贝** payload 到新 ref userdata（避免无意 alias） |
 | struct 构造参数 | 同类型表 `_ctor` dispatch |
 
-**限制：** `ref_type` 须为 **值类型**（基元、enum、struct）；引用类型 → `luaL_error`。API 详见 `LIB_SPEC.md` §6。
+**限制：** `ref_type` 须为 **值类型**（基元、enum、struct）；引用类型 → `luaL_error`。API 详见 `../../lib-spec.md` §6。
 
 #### 6.2.5 示例
 
@@ -655,7 +655,7 @@ public struct MyStruct {
 ## 8. 与 MetaBinding 的衔接
 
 - value type 类型表：`__valuetype = true`。
-- **Opaque（StructHandle）**：**无** 实例 metatable；不可 `:` / `.`；仅 `zlua.to_user_data`（`MARSHAL_SPEC.md` §4）。
+- **Opaque（StructHandle）**：**无** 实例 metatable；不可 `:` / `.`；仅 `zlua.to_user_data`（`../../marshal/index.md` §4）。
 - **UserData**：payload + 与 class 相同的 `instanceMap`（offset 注册期预计算）。
 - **禁止** 通过实例访问 static 成员。
 - 方法 `this`：仅 **UserData** → `payload` 地址；opaque 须先 `to_user_data`。
@@ -780,8 +780,8 @@ ZLua.Mono / LuaManagerObject（或拆出的 StructMarshaling 模块）
 4. 默认 table：`foo({ x=, y= })`  
 5. `zlua.to_user_data(opaque)` 后修改 userdata 不影响原 opaque（拷贝）  
 6. scope 外使用 handle → 两边均 error  
-7. 枚举：`Color.Red` 为 integer/number；`Color(v)` / `Color._ctor(v)` 为 userdata；形参接受 integer 与 userdata（`MARSHAL_SPEC.md` §2）  
-8. **ref 值类型：** `zlua.new_ref` 与 `_ctor` userdata 传给 `ref T` 为真 ref；裸 number 为拷贝语义且不报错（`MARSHAL_SPEC.md` §3）
+7. 枚举：`Color.Red` 为 integer/number；`Color(v)` / `Color._ctor(v)` 为 userdata；形参接受 integer 与 userdata（`../../marshal/index.md` §2）  
+8. **ref 值类型：** `zlua.new_ref` 与 `_ctor` userdata 传给 `ref T` 为真 ref；裸 number 为拷贝语义且不报错（`../../marshal/index.md` §3）
 
 ---
 
@@ -799,19 +799,19 @@ ZLua.Mono / LuaManagerObject（或拆出的 StructMarshaling 模块）
 ## 15. 已确认项
 
 1. **Handle 生命周期**：`StructStackScope`；EndScope 递增 generation；仅同步调用链有效。
-2. **handleId**：`uintptr_t` opaque lightuserdata，不提供 Lua 侧构造；详见 `MARSHAL_SPEC.md` §4。
+2. **handleId**：`uintptr_t` opaque lightuserdata，不提供 Lua 侧构造；详见 `../../marshal/index.md` §4。
 3. **`zlua.to_user_data`**：**拷贝**到 userdata；与 opaque 独立共存。
 4. **StructUserData**：必须有 **`__gc`** → Registry `Release`（Il2Cpp：`NotBlittableStructRegistry`；Mono：等价 Registry）。
 5. **GC（Il2Cpp）**：启动时 `RegisterPushRootCallback`；扫描 struct 实例内存；开发者无感。
 6. **字段展开**：`LuaStackFields`（C#→Lua）/ `ComposeFromStack`（Lua→C#）；table 为默认并行路径。
 7. **Marshal 双向**：单 `LuaMarshalAs` + `Direction`；类型配双向，参数方向由 Codegen / 反射推断。
 8. **Mono 对齐**：struct 同样支持 **StructHandle（lightuserdata）** 与 **StructUserData（userdata）** 两种方式；Lua 语义与 Il2Cpp 一致，实现可简化。  
-9. **ref/out/in（Lua→C#）**：StructUserData（含 `new_ref` 与 `_ctor`）→ 真 ref；其他实参 → 拷贝语义、不回写、不报错（`MARSHAL_SPEC.md` §3）。
+9. **ref/out/in（Lua→C#）**：StructUserData（含 `new_ref` 与 `_ctor`）→ 真 ref；其他实参 → 拷贝语义、不回写、不报错（`../../marshal/index.md` §3）。
 
 ---
 
 ## 16. 相关文档
 
-- `MARSHAL_SPEC.md` — OpaqueValue（§4）、ref/out/in、枚举默认规则
-- `DESIGN_SPEC.md` — 总体目标与 `LuaMarshalAs`
-- `IL2CPP_DESIGN_SPEC.md` — C++ 模块、ThinBinding / FullBinding、Codegen
+- `../../marshal/index.md` — OpaqueValue（§4）、ref/out/in、枚举默认规则
+- `../../design-spec.md` — 总体目标与 `LuaMarshalAs`
+- `../../architecture/il2cpp-architecture.md` — C++ 模块、ThinBinding / FullBinding、Codegen

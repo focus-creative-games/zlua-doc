@@ -15,7 +15,7 @@ description: ZLua 总体设计目标与 L/Invoke 实现说明。
 - 类比于 P/Invoke、 MonoPInvokeCallback, MarshalAs， zlua 有同样对应的概念 L/Invoke、MonoLuaCallback, LuaMarshalAs
 - c# 与 lua 之间交互是高度统一的：
   - c#可以调用 标记为 `[LuaInvoke]` 的static c#函数，调用lua函数
-  - 所有c#类都通过lazy register的方式，使用时自动注册到lua环境。类型访问、元表与成员规则见 **`TYPE_SYSTEM_SPEC.md`**（含命名空间类型须 `CSharp.{asm}['Ns.Type']` 括号访问）。通过类型表访问静态成员、通过 `obj:Method()` 调用实例成员，语义与 C# 一致。
+  - 所有c#类都通过lazy register的方式，使用时自动注册到lua环境。类型访问、元表与成员规则见 **`../type-system-spec.md`**（含命名空间类型须 `CSharp.{asm}['Ns.Type']` 括号访问）。通过类型表访问静态成员、通过 `obj:Method()` 调用实例成员，语义与 C# 一致。
   - c# 与 lua之间的 交互代码，都是自动生成的，对开发者完全感。 在editor下生成c#代码，发布到il2cpp时，生成 c++ 代码。
 - 深度集成，启动时就有初始化好的全局CLR和luaState
 
@@ -32,7 +32,7 @@ description: ZLua 总体设计目标与 L/Invoke 实现说明。
 
 ### zlua 库
 
-见[LIB_SPEC](./LIB_SPEC.md)。
+见[LIB_SPEC](./lib-spec.md)。
 
 ### LuaInvokeAttribute
 
@@ -60,7 +60,7 @@ c#函数，都是在lua 第一次调用时自动注册的。无需`[MonoLuaCallb
 
 #### 处理函数重载
 
-c#类中可能存在同名函数，如 `void Run(int x)` 和 `void Run(string x)`。完整规范见 **`METHOD_OVERLOAD_SPEC.md`**。概要：
+c#类中可能存在同名函数，如 `void Run(int x)` 和 `void Run(string x)`。完整规范见 **`../method-overload-spec.md`**。概要：
 
 1. **默认 dispatch**：`obj:Run(x)` 运行时分派（多重重载时）。
 2. **`[LuaAlias]` / XML**：类内唯一别名。
@@ -74,11 +74,11 @@ zlua.register_method(obj, "run_i32", run_i32)
 obj:run_i32(10)
 ```
 
-`register_method` 第一个参数为**类型表**（静态别名）或**对象实例**（实例别名），写入对应 `methodTable`；详见 `LIB_SPEC.md` §9.3。
+`register_method` 第一个参数为**类型表**（静态别名）或**对象实例**（实例别名），写入对应 `methodTable`；详见 `../lib-spec.md` §9.3。
 
 **不推荐** `obj[sig](obj, ...)` 按签名字符串键查找。
 
-别名细节（`[LuaAlias]`、XML 格式）见 `METHOD_OVERLOAD_SPEC.md` §5。
+别名细节（`[LuaAlias]`、XML 格式）见 `../method-overload-spec.md` §5。
 
 ## Mono 和 Il2Cpp 实现
 

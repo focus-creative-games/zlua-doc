@@ -76,7 +76,7 @@ description: Mono 热点优化对照 xLua 源码核实报告。
 - 4.5 Delegate 桥去 object[] ✅
 - 4.6 重载 `(argc, typeMask)` 快速表 ✅
 - 4.7 C#→Lua 缓存 error handler ref ✅
-- **4.8 obj_indexer 统一模型 + 成员访问零 C# string key** — 规格见 **`META_TABLE_SPEC.md`**（Mono）；VM 远期见 **`ZLUA_VM_INDEX_SPEC.md`**
+- **4.8 obj_indexer 统一模型 + 成员访问零 C# string key** — 规格见 **`../meta-table-spec.md`**（Mono）；VM 远期见 **`../vm-index-spec.md`**
 
 #### 4.8 obj_indexer 统一模型 + 零 C# string key
 
@@ -108,7 +108,7 @@ description: Mono 热点优化对照 xLua 源码核实报告。
 
 - 注册期 `TypeMemberLuaIndexer` 为每个 type 生成 Lua `__index`/`__newindex`；getters/setters 作 closure upvalue。
 - 已注册成员查找在 **Lua VM 内 O(1) rawget + call** 完成；C# 回调仅 unknown key fallback。
-- 可选后续：native `zlua_obj_indexer`（Mono/Il2Cpp 一致，进一步减少 closure 开销）。**完整规格见 `ZLUA_VM_INDEX_SPEC.md`。**
+- 可选后续：native `zlua_obj_indexer`（Mono/Il2Cpp 一致，进一步减少 closure 开销）。**完整规格见 `../vm-index-spec.md`。**
 
 **验收标准**
 
@@ -221,4 +221,4 @@ description: Mono 热点优化对照 xLua 源码核实报告。
 - `TypeFieldRegistration.cs` / `TypePropertyRegistration.cs` — getter/setter 子表绑定
 - `LuaManagerObject.cs` — fallback indexer + 注册期 `Bind*Metatable`
 
-**后续：** Mono 落地 `META_TABLE_SPEC.md`；PUC-Rio 5.4 VM patch 见 `ZLUA_VM_INDEX_SPEC.md`。
+**后续：** Mono 落地 `../meta-table-spec.md`；PUC-Rio 5.4 VM patch 见 `../vm-index-spec.md`。

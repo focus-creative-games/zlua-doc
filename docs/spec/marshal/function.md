@@ -14,12 +14,12 @@ description: Delegate 与 Lua 函数回调的编组规则。
 
 | 文档 | 内容 |
 |------|------|
-| `MARSHAL_SPEC.md` | 参数编组总览 |
-| `CLASS_MARSHAL_SPEC.md` | 引用类型 userdata、`ObjectRegistry` |
-| `TYPE_SYSTEM_SPEC.md` | 委托类型表、`__call` |
-| `LIB_SPEC.md` | `zlua` 标准库（可选 `to_delegate`） |
-| `IL2CPP_DESIGN_SPEC.md` | `LuaInvokeRuntime`、`MethodBridge`、Codegen |
-| `STRUCT_MARSHAL_SPEC.md` | `[LuaMarshalAs]` 与非默认 marshal |
+| `../../marshal/index.md` | 参数编组总览 |
+| `../../marshal/class.md` | 引用类型 userdata、`ObjectRegistry` |
+| `../../type-system-spec.md` | 委托类型表、`__call` |
+| `../../lib-spec.md` | `zlua` 标准库（可选 `to_delegate`） |
+| `../../architecture/il2cpp-architecture.md` | `LuaInvokeRuntime`、`MethodBridge`、Codegen |
+| `../../marshal/struct.md` | `[LuaMarshalAs]` 与非默认 marshal |
 
 **平台原则：** Mono 与 Il2Cpp 的 **Lua 可见语义一致**；实现路径可不同：
 
@@ -178,7 +178,7 @@ obj:RegisterCallback(function(v) print(v) end)
 
 **类型来源：** 以 **C# 方法声明的形参类型** 为准（已闭合的 `Func<int,int>` 等），**不需要** Lua 侧再传 delegate 类型。
 
-与 `int`、`string`、`class` 形参共用 **方法桥接 → ReadValue / ReadDelegate** 规则；详见 `MARSHAL_SPEC.md`。
+与 `int`、`string`、`class` 形参共用 **方法桥接 → ReadValue / ReadDelegate** 规则；详见 `../../marshal/index.md`。
 
 ### 4.1 设计结论（不采用的路径）
 
@@ -255,7 +255,7 @@ Il2CppDelegate* LuaDelegateBinder::Create(Il2CppClass* delegateClass, int funcRe
 ```
 
 - **void 返回**（`Action` 等）：`LuaPCall(..., 0)`，无 pop。
-- **delegate `Invoke` 上的 ref / out**、**`[LuaMarshalAs]`** 非默认语义：生成专用 bridge 或报错（§9）。**普通 C# 方法** 的 ref/out 见 `MARSHAL_SPEC.md` §3。
+- **delegate `Invoke` 上的 ref / out**、**`[LuaMarshalAs]`** 非默认语义：生成专用 bridge 或报错（§9）。**普通 C# 方法** 的 ref/out 见 `../../marshal/index.md` §3。
 
 ### 4.2.2 Mono：`DynamicMethod` bridge
 
@@ -431,7 +431,7 @@ unsupported delegate signature for Lua callback: System.Func<...>
 |------|----------|
 | `Action` / `Func<>` / 自定义 delegate | 统一按 **`Invoke` 签名** 解析 bridge |
 | **C# delegate → Lua** | 当普通 class；`Invoke` + `__call`；无单独 marshal |
-| `ref` / `out` / `in` 参数（**Lua→C# 方法**） | 见 `MARSHAL_SPEC.md` §3：StructUserData 真 ref，否则拷贝语义 |
+| `ref` / `out` / `in` 参数（**Lua→C# 方法**） | 见 `../../marshal/index.md` §3：StructUserData 真 ref，否则拷贝语义 |
 | `ref` / `out` 参数（**delegate bridge**） | **不支持**；`DynamicBridgeFactory` / Codegen 报错 |
 | `params` | 可不支持 |
 | 开放 delegate（无 target） | 可不支持 |
@@ -443,7 +443,7 @@ unsupported delegate signature for Lua callback: System.Func<...>
 
 ## 10. TYPE_SYSTEM 与 MARSHAL 衔接
 
-- 委托 **类型表** 见 `TYPE_SYSTEM_SPEC.md` §10。
+- 委托 **类型表** 见 `../../type-system-spec.md` §10。
 - §3 规范 **C# delegate → Lua**：**无**单独 marshal；普通 class + `IMT.__call`。
 - §4.0 规范 **Lua function → C# delegate** 的 **默认路径**：并入方法参数 `ReadDelegate`。
 - §4.3 `to_delegate` 仅用于无方法调用上下文的显式构造。
@@ -478,4 +478,4 @@ unsupported delegate signature for Lua callback: System.Func<...>
 
 ### 11.4 文档
 
-- [ ] `MARSHAL_SPEC.md` / `LIB_SPEC.md` 交叉引用
+- [ ] `../../marshal/index.md` / `../../lib-spec.md` 交叉引用
