@@ -13,10 +13,16 @@ description: ZLua 是什么、核心特性与适用场景。
 
 ## 为什么选择 ZLua
 
-- **极致易用**：统一 C# 与 Lua 双向调用；Lua 中访问 C# 类时自动注册元表，Editor 与 Il2Cpp 发布对开发者无感。
-- **极致高效**：在 Il2Cpp 中内嵌 Lua，C++ 层让 Il2Cpp 与 Lua 虚拟机直接互操作，数倍甚至十倍以上优化 C# 与 Lua 之间的调用开销。
-- **零 Wrapper 膨胀**：字段与 Property 按偏移直读内存，相同签名的函数共享桥接函数，不再单独优化海量 wrapper。
-- **专职维护**：跟进 Unity 版本，支持 Lua 5.1–5.5、LuaJIT、Luau 等。
+在 xLua、tolua 等成熟方案已广泛使用的今天，ZLua 仍值得评估 —— 核心差异在于 **把 Lua 当作 Native** 的统一设计、**完整的现代 C# 互操作**、**Il2Cpp 直桥性能**、**多路径 GC 优化** 与 **零 C# Wrap 生成**。
+
+详见 **[为什么选择 ZLua](./concepts/why-zlua)**（含与 xLua 的用法对比与 Il2Cpp 性能原理）。
+
+简要概览：
+
+- **极致易用**：`[LuaInvoke]` / `[LuaMarshalAs]` 类比 P/Invoke，双向调用规则统一
+- **极致高效**：C++ 直桥 + 签名复用，热路径理论上有数倍甚至更高优化空间
+- **零 Wrapper 膨胀**：不生成海量 C# Wrap，Player 侧原生桥接
+- **完整 C# 支持**：泛型、数组、重载、ref/out/in（Mono 已全量实现）
 
 ## 核心特性
 
@@ -40,4 +46,5 @@ description: ZLua 是什么、核心特性与适用场景。
 - [使用指南](./guides/csharp-to-lua) — C# ↔ Lua 完整教程
 - [API 参考](./reference/overview) — 特性、Lua API 与编组速查
 - [核心概念](./concepts/design-overview) — 设计模型与调用路径
-- [与 xLua 对比](./concepts/comparison-with-xlua) — 技术选型参考
+- [为什么选择 ZLua](./concepts/why-zlua) — 相对 xLua/tolua 的选型理由
+- [与 xLua 对比](./concepts/comparison-with-xlua) — 架构与理论性能对比
