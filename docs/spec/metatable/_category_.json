@@ -1,0 +1,10 @@
+{
+  "label": "元表",
+  "position": 20,
+  "collapsible": true,
+  "collapsed": true,
+  "link": {
+    "type": "generated-index",
+    "description": "元表布局、索引与绑定。"
+  }
+}

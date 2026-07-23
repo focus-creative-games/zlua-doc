@@ -9,43 +9,44 @@ description: ZLua 是什么、核心特性与适用场景。
 
 **ZLua** 是一个针对 Unity Il2Cpp **极致优化**的现代原生 Lua 方案。
 
-它用清晰的规则统一了 C# 与 Lua 之间的双向调用，把 Lua 当作另一种 **Native**——类比 P/Invoke，ZLua 提供了 `[LuaInvoke]`、`[LuaCallback]`、`[LuaMarshalAs]` 等对应概念，对开发者完全屏蔽底层复杂易错的 Lua C API 操作。
+它用清晰的规则统一 C# 与 Lua 的双向调用，把 Lua 当作另一种 **Native**——类比 P/Invoke，提供 `[LuaInvoke]`、`[LuaMarshalAs]` 等概念，屏蔽底层易错的 Lua C API。
 
 ## 为什么选择 ZLua
 
-在 xLua、tolua 等成熟方案已广泛使用的今天，ZLua 仍值得评估 —— 核心差异在于 **把 Lua 当作 Native** 的统一设计、**完整的现代 C# 互操作**、**Il2Cpp 直桥性能**、**多路径 GC 优化** 与 **零 C# Wrap 生成**。
+相对 xLua / toLua / SLua，ZLua 的核心主张是：
 
-详见 **[为什么选择 ZLua](./concepts/why-zlua)**（含与 xLua 的用法对比与 Il2Cpp 性能原理）。
+| | |
+|--|--|
+| **更易用** | 现代、简单、**零配置**（无 per-type C# Wrap 白名单） |
+| **更完备** | 几乎覆盖全部常用 C#↔Lua 特性（泛型、重载、ref/out、数组、delegate…） |
+| **更高效** | 约 **98%** 对齐用例快于 xLua；Lua→C# 平均约 **2.62×**；常见访问约 **4×** |
+| **更少 GC** | 引用类型与 struct 默认 **0 GC**；OpaqueValue 等灵活策略 |
+| **极小桥接** | 同签名合并的 C++ stub；体积可小一个数量级；可至 **0 桥接函数** |
+| **版本更广** | Lua 5.1–5.5 / LuaJIT；Unity 2021+；团结引擎 |
+| **维护更积极** | 全职专业团队 |
 
-简要概览：
-
-- **极致易用**：`[LuaInvoke]` / `[LuaMarshalAs]` 类比 P/Invoke，双向调用规则统一
-- **极致高效**：C++ 直桥 + 签名复用，热路径理论上有数倍甚至更高优化空间
-- **零 Wrapper 膨胀**：不生成海量 C# Wrap，Player 侧原生桥接
-- **完整 C# 支持**：泛型、数组、重载、ref/out/in（Mono 已全量实现）
+完整论述见 **[为什么选择 ZLua](./concepts/why-zlua)**；四方对照见 **[选型对比](./compare/)**。
 
 ## 核心特性
 
 | 能力 | 说明 |
 |------|------|
-| Lua → C# | 类/struct 访问、静态/实例成员、方法调用、泛型、数组、重载、回调、协程、`ref`/`out`/`in` 等 |
-| C# → Lua | `[LuaInvoke]` 标记 `static extern` 函数，自动桥接至 Lua 模块函数 |
-| 双运行时 | Editor：**Mono 已实现 v1.0 全量功能**；Player：**Il2Cpp MVP**，逐步对齐 |
-| 类型访问 | `CSharp.{assembly}.{Type}` 懒加载，语义贴近 C# |
+| Lua → C# | `CSharp` 根表懒加载；字段/方法/属性；泛型与数组；重载；`add_`/`remove_` 订阅 event |
+| C# → Lua | `[LuaInvoke]` 标记 `static extern`，Weaver / InternalCall 桥接 |
+| 双运行时 | **Mono（Editor）与 Il2Cpp（Player）均已完成**；语义一致、实现路径不同 |
+| 编组 | ByVal / ByObj / Opaque 等路径，见 [编组规范](./spec/marshal/) |
 
 :::info 当前状态
-<span class="runtimeBadge"><span class="runtimeBadgeMono">Mono · 全功能</span><span class="runtimeBadgeIl2cpp">Il2Cpp · MVP</span></span>
+<span class="runtimeBadge"><span class="runtimeBadgeMono">Mono · 已完成</span><span class="runtimeBadgeIl2cpp">Il2Cpp · 已完成</span></span>
 
-**Mono（Editor）** 已实现 v1.0 全量互操作能力，适合日常开发与功能验证。**Il2Cpp（Player）** 仍处于 MVP 阶段，仅支持 Demo 级基础互操作；完整 C++ 直桥与性能优化预计 **2026 年 8 月** 发布。详见 [项目状态](./getting-started/project-status)。
+日常在 **Editor（Mono）** 开发；发版与性能以 **Il2Cpp Player** 为准（构建前 `ZLua/Generate/All`）。详见 [项目状态](./getting-started/project-status)。
 :::
 
 ## 下一步
 
 - [5 分钟快速开始](./getting-started/quick-start) — 跑通最小示例
+- [为什么选择 ZLua](./concepts/why-zlua) — 选型理由
 - [安装与集成](./getting-started/installation) — UPM 安装与工程结构
 - [使用指南](./guides/csharp-to-lua) — C# ↔ Lua 完整教程
-- [API 参考](./reference/overview) — 特性、Lua API 与编组速查
-- [核心概念](./concepts/design-overview) — 设计模型与调用路径
-- [为什么选择 ZLua](./concepts/why-zlua) — 相对 xLua/tolua 的选型理由
-- [ZLua 与 xLua 技术架构对比](./concepts/comparison-with-xlua) — 调用路径与理论性能
-- [ZLua 与 xLua 全面对比报告](./concepts/xlua-comparison-report) — Examples 用法对照与选型证据
+- [选型对比](./compare/) — 相对 xLua / toLua / SLua
+- [规范总览](./spec/00-OVERVIEW) — 权威语义契约

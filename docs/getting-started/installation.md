@@ -16,8 +16,8 @@ ZLua 以 Unity Package（UPM）形式分发。安装后只需：
 2. 配置 Lua 脚本目录与 `LoadLuaModule`
 3. 启动时调用 `LuaAppDomain.Initialize`
 
-:::warning 运行时差异
-**Mono（Editor）** 已支持 v1.0 全量功能；**Il2Cpp（Player）** 仍为 MVP。Player 构建前请阅读 [项目状态](./project-status)。
+:::info 运行时与 Generate
+**Mono（Editor）与 Il2Cpp（Player）均已完成**，Lua 可见语义一致。发布 Il2Cpp 前须执行 **`ZLua/Generate/All`**（C++ stub，非 C# Wrap）。见 [项目状态](./project-status)。
 :::
 
 ## 前置要求
@@ -157,8 +157,8 @@ public class Bootstrap : MonoBehaviour
 |------|:-------------:|:---------------:|
 | UPM 安装 | ✅ | ✅ |
 | `LuaAppDomain.Initialize` | ✅ | ✅ |
-| `[LuaInvoke]` | ✅ | ✅（MVP 签名） |
-| 完整 Lua↔C# API | ✅ | ⚠️ MVP 子集 |
+| `[LuaInvoke]` | ✅ | ✅ |
+| 完整 Lua↔C# API | ✅ | ✅（语义一致；实现路径不同） |
 
 ## 下一步
 

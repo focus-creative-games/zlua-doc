@@ -7,10 +7,10 @@ description: ZLua 的核心设计目标与 L/Invoke 模型。
 # 设计概览
 
 :::tip 谁该读本文
-**选型者、新接入开发者、需要理解「为什么这样设计」的读者。** 日常 API 用法请直接看 [使用指南](../guides/csharp-to-lua)；实现细节见 [规范文档](../spec/design-spec)。
+**选型者、新接入开发者、需要理解「为什么这样设计」的读者。** 日常 API 用法请直接看 [使用指南](../guides/csharp-to-lua)；实现细节见 [规范文档](../spec/00-OVERVIEW)。
 :::
 
-ZLua 把 Lua 当作另一种 **Native**：类比 P/Invoke，用声明式特性统一双向互操作，底层桥接由 CodeGen 自动生成。
+ZLua 把 Lua 当作另一种 **Native**：类比 P/Invoke，用声明式特性统一双向互操作；Il2Cpp 侧生成 **C++ stub**（`ZLua/Generate/All`），**不是** xLua 式 C# Wrap。
 
 ## P/Invoke 与 L/Invoke 对照
 
@@ -74,8 +74,8 @@ flowchart TB
 | 阶段 | Mono (Editor) | Il2Cpp (Player) |
 |------|---------------|-----------------|
 | LuaInvoke | dnlib → `RunLuaFunc` | IL → InternalCall + C++ |
-| Lua→C# 成员 | 首次访问 `EnsureBinding` + 桥接缓存 | Codegen 预生成（MVP 为子集） |
-| 开发者感知 | **无** | **无** |
+| Lua→C# 成员 | 首次访问 `EnsureBinding` + Emit | EnsureBinding + C++ stub（Generate） |
+| 开发者感知 | **无 C# Wrap** | **无 C# Wrap**；须 Generate stub |
 
 ## 与 xLua 的路径差异（摘要）
 
@@ -83,9 +83,9 @@ flowchart TB
 |------|---------------|------|
 | 类型暴露 | 生成 C# Wrap / CodeEmit | `CSharp` 根表 + 元表三表 |
 | C#→Lua | `LuaEnv.DoString` / DelegateBridge | `[LuaInvoke]` 声明式 |
-| Player 性能 | Wrap 或生成 C++（视配置） | 设计目标：C++ 直桥 + 签名复用 |
+| Player 性能 | Wrap + 多次 LuaDLL | C++ 直桥 + 签名复用（见 [PERFORMANCE](../compare/PERFORMANCE)） |
 
-详见 [ZLua 与 xLua 技术架构对比](./comparison-with-xlua)、[调用路径概览](../architecture/call-path-overview)。
+详见 [选型对比](../compare/)、[Il2Cpp 实现](../impl/IL2CPP)。
 
 ## 何时读哪份文档
 
@@ -95,10 +95,10 @@ flowchart TB
 | Lua 怎么访问 C# 类型？ | [类型系统概览](./type-system-overview) |
 | 参数怎么传递？ | [编组模型概览](./marshal-overview) |
 | Editor 与 Player 差别？ | [双运行时](./dual-runtime) |
-| 完整设计语义？ | [设计规范](../spec/design-spec) |
+| 完整设计语义？ | [设计规范](../spec/00-OVERVIEW) |
 
 ## 相关文档
 
-- [设计规范](../spec/design-spec)
+- [设计规范](../spec/00-OVERVIEW)
 - [双运行时架构](./dual-runtime)
-- [Il2Cpp 架构](../architecture/il2cpp-architecture)
+- [Il2Cpp 架构](../impl/IL2CPP)

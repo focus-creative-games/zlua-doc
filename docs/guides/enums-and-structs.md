@@ -6,16 +6,16 @@ description: Lua 侧使用 C# enum 与 struct 值类型。
 
 # 枚举与 struct
 
-**enum** 与 **struct** 均为值类型，但在 Lua 中的默认形态与构造方式不同。Mono 下均已完整支持。
+**enum** 与 **struct** 均为值类型，但在 Lua 中的默认形态与构造方式不同。行为以 [编组规范](../spec/marshal/05-STRUCT) 为准（双端语义一致）。
 
 ## 概述
 
 | 类型 | 默认跨边界形态 | 构造 userdata |
 |------|----------------|---------------|
 | **enum** | integer / number（常量） | `EnumType(value)` / `_ctor` |
-| **struct** | StructUserData 或拷贝 | `Type(...)` / `_default()` |
+| **struct** | ByValUserData / OpaqueValue / ByObj（见编组规范） | `Type(...)` |
 
-详见 [类型系统规范](../spec/type-system-spec) §3.5、§3.6 与 [Struct 编组规范](../spec/marshal/struct)。
+详见 [类型系统规范](../spec/02-TYPE-SYSTEM) 与 [Struct 编组规范](../spec/marshal/05-STRUCT)。
 
 ---
 
@@ -145,11 +145,11 @@ CSharp.AC.MyGame.Vec2Helper.Normalize(refA)   -- ref 修改 a
 
 | 能力 | Mono | Il2Cpp |
 |------|:----:|:------:|
-| enum 常量 integer | ✅ | ❌ |
-| enum 传参 default | ✅ | ❌ |
-| enum userdata 构造 | ✅ | ❌ |
-| struct 构造 / 字段 | ✅ | ❌ |
-| ref struct | ✅ | ❌ |
+| enum 常量 integer | ✅ | ✅ |
+| enum 传参 default | ✅ | ✅ |
+| enum boxed / `zlua.box` | ✅ | ✅ |
+| struct ByVal / ByObj / Opaque | ✅ | ✅ |
+| byref 写回 | ✅ | ✅ |
 
 ---
 
@@ -162,6 +162,13 @@ CSharp.AC.MyGame.Vec2Helper.Normalize(refA)   -- ref 修改 a
 | 找不到 struct 类型 | namespace 括号路径 |
 | `ref struct` 作 by-val | 不支持；须 ref 路径 |
 
+
+
+
+
+
+
+
 ## 学习路径
 
 | | |
@@ -172,5 +179,5 @@ CSharp.AC.MyGame.Vec2Helper.Normalize(refA)   -- ref 修改 a
 ## 相关文档
 
 - [ref / out / in](./marshal-ref-out-in)
-- [Struct 编组规范](../spec/marshal/struct)
-- [类型系统规范](../spec/type-system-spec) §3.5–§3.6
+- [Struct 编组规范](../spec/marshal/05-STRUCT)
+- [类型系统规范](../spec/02-TYPE-SYSTEM) §3.5–§3.6

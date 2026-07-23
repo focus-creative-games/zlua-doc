@@ -100,7 +100,7 @@ sequenceDiagram
     L->>T: demo:Run(10)
 ```
 
-Il2Cpp Player 在构建期预生成绑定（MVP 为 Demo 子集）；Mono Editor 运行时反射 + 缓存。
+Il2Cpp：Generate stub + 懒绑定；Mono：Expression Emit + 懒绑定。
 
 ## 命名空间与泛型（摘要）
 
@@ -118,11 +118,11 @@ Il2Cpp Player 在构建期预生成绑定（MVP 为 Demo 子集）；Mono Editor
 | 问题 | 文档 |
 |------|------|
 | 成员如何分派？ | [元表模型](./metatable-model) |
-| 重载与别名？ | [方法重载规范](../spec/method-overload-spec) |
-| 数组 / 继承？ | [类型系统规范](../spec/type-system-spec) |
+| 重载与别名？ | [方法重载规范](../spec/04-METHOD-OVERLOAD) |
+| 数组 / 继承？ | [类型系统规范](../spec/02-TYPE-SYSTEM) |
 
 ## 相关文档
 
 - [CSharp 根表参考](../reference/lua/csharp-root)
 - [元表模型](./metatable-model)
-- [类型系统规范](../spec/type-system-spec)
+- [类型系统规范](../spec/02-TYPE-SYSTEM)

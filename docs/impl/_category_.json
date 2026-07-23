@@ -1,0 +1,10 @@
+{
+  "label": "架构与实现",
+  "position": 1,
+  "collapsible": true,
+  "collapsed": false,
+  "link": {
+    "type": "generated-index",
+    "description": "Mono / Il2Cpp 实现对照（不改变 Lua 可见语义）。"
+  }
+}

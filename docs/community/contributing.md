@@ -1,131 +1,122 @@
 ---
 sidebar_position: 2
-title: 贡献指南
-description: 如何参与 ZLua 代码与文档贡献。
+title: "贡献约定"
 ---
 
-# 贡献指南
+# 文档与实现贡献约定
 
-感谢参与 ZLua 与文档建设。本文说明 **文档 PR**、**代码 PR** 与 **规范变更** 流程。
+> 参与 ZLua 文档、规范与代码时的权威顺序、修改流程与路径规则。
 
-## 仓库分工
+---
 
-| 仓库 | 内容 |
+## 1. 权威序（冲突裁决）
+
+当文档与实现冲突时，按以下顺序裁决：
+
+```
+① docs/spec/**      ← 规范性契约（最高；本仓库唯一语义标准）
+② Il2Cpp 源码 zlua/** ← 实现真相（Il2Cpp 已完成；与规范冲突时改规范或实现对齐）
+③ docs/impl/**      ← 实现说明（不改变 Lua 可见语义）
+④ docs/guides/** 等      ← 用户指南 / 社区迁移与贡献
+⑤ docs/compare/**   ← 与其它方案对比（非行为契约）
+```
+
+根目录说明见 [README.md](../intro)。
+
+---
+
+## 2. 改 spec 还是改 impl？
+
+| 变更类型 | 先改什么 | 再改什么 |
+|----------|----------|----------|
+| **Lua 可见行为**（API、错误语义、nil/error） | `spec/**` | Il2Cpp `zlua/**` + Mono `Runtime/Mono/**` + `Tests/Lua/**` |
+| **仅实现策略**（Emit 细节、模块划分） | `impl/**` | 代码；**不**改 spec |
+| **性能 / 对比 / 迁移** | `docs/compare/**` 或 `docs/guides/**` / `docs/community/**` | 无需改 spec |
+| **术语统一** | `concepts/glossary.md` | 相关 spec 交叉引用 |
+
+**禁止：** 长期只改一侧导致 spec 与 Player 行为漂移。
+
+### 2.1 推荐 PR 流程
+
+1. 在 `spec/` 写清行为 / 错误语义 / **测试用例 id**（见 [TESTING.md](./testing)）。
+2. 实现 Il2Cpp + Mono（双端均须满足 spec；无法 Emit 的签名绑定期报错，禁止热路径 `Method.Invoke`）。
+3. 添加或更新 `Tests/Lua/cases/**/tc_*.lua` 与 `manifest.lua`。
+4. 若实现细节需说明，补 `impl/` 分册。
+5. 对比或迁移影响面大时，更新 `compare/` 或 `community/migration/`。
+
+---
+
+## 3. 代码路径规则
+
+### 3.1 Il2Cpp（Player 真相源）
+
+| 允许编辑 | 禁止（除非用户明确要求） |
+|----------|------------------------|
+| `build-win64/Il2CppOutputProject/IL2CPP/libil2cpp/zlua/**` | `Packages/com.code-philosophy.zlua/ZLua~/libil2cpp-2022/**` |
+| 必要时 `libil2cpp/lua/**` | 包内目录为 **手动同步副本** |
+
+权威参考：[README.md](../intro) 双端一致性表。
+
+### 3.2 Mono（Editor）
+
+| 路径 | 说明 |
 |------|------|
-| [zlua](https://github.com/focus-creative-games/zlua) | 运行时、CodeGen、测试工程 |
-| [zlua-doc](https://github.com/focus-creative-games/zlua-doc) | 本站全部用户文档与规范 |
-| [zlua-demo](https://github.com/focus-creative-games/zlua-demo) | 文档 **canonical** 示例工程 |
+| `Packages/com.code-philosophy.zlua/Runtime/Mono/**` | Editor 实现；见 [impl/MONO.md](../impl/MONO) |
+| `_archive/Mono-pre-rewrite-*` | 只读参考，**不**参与编译 |
 
-主仓库 `zlua/Docs` 将在文档站稳定后移除；**新文档只提交 zlua-doc**。
+**Mono 实现硬性规则（摘要）：**
 
-## 文档贡献
+- 三表 Lua indexer（见 [impl/metatable/INDEXER-MONO.md](../impl/metatable/INDEXER-MONO)）。
+- 无法 Expression Emit 的签名 → **绑定期显式错误**，禁止热路径 `Method.Invoke`。
+- 无 Event 专用支持；`add_` / `remove_` 作普通方法。
 
-### 本地预览
+### 3.3 Lua 测试
 
-```bash
-git clone https://github.com/focus-creative-games/zlua-doc.git
-cd zlua-doc
-npm install
-npm start          # 开发预览 http://localhost:3000
-npm run build      # 生产构建（CI 同款，须无 broken links）
-```
+| 允许 | 禁止 |
+|------|------|
+| `Tests/Lua/**` | 手动改 `Assets/StreamingAssets/Tests/**` |
 
-### 文档 PR 检查清单
+构建时 `SyncTestsLuaToStreamingAssets` 自动同步。
 
-- [ ] 简体中文，术语与现有页面一致（`LuaInvoke`、`CSharp`、`zlua`）
-- [ ] 可运行示例链接到 **zlua-demo `main` 分支具体文件**
-- [ ] 涉及能力处标注 **Mono / Il2Cpp** 支持表
-- [ ] 用户向「怎么用」放 `guides/`；语义变更同步 `spec/`
-- [ ] `npm run build` 通过
-- [ ] 规范页（`spec/`）保留 `mdx.format: md` front matter
+---
 
-### 写作模板（`guides/`）
+## 4. 文档写作约定
 
-1. **概述** — 2–3 句
-2. **Canonical 链接** — zlua-demo 文件
-3. **基本用法** — 最小示例
-4. **完整示例** — C# + Lua 成对
-5. **Mono / Il2Cpp 支持** — ✅ / ⚠️ / ❌ 表
-6. **常见错误**
-7. **相关文档** — 指南 + 规范 + API 参考
+1. **简体中文**为主（与 spec 一致）。
+2. 使用 **相对链接** 链到 `spec/`、`impl/`、`compare/`。
+3. 规范条款尽量带 **测试用例 id**。
+4. `compare/**` 保持诚实对比，不写营销话术。
 
-`inject-guide-nav` 会自动在「相关文档」前插入 **学习路径** 表。
+边界约定见 [README.md](../intro) §边界约定。
 
-### 示例来源优先级
+---
 
-1. [zlua-demo](https://github.com/focus-creative-games/zlua-demo)
-2. zlua 仓库 Tests / README
-3. 规范中的 illustrative 示例（须标注）
+## 5. Il2Cpp 编码约定（摘要）
 
-### 规范内链
+| 规则 | 说明 |
+|------|------|
+| 勿主动 `#include "il2cpp-api-types.h"` | 经项目头 transitive include |
+| `Il2CppClass*` / `MethodInfo*` 等 | 默认 **非 null**；勿滥加 nullptr 分支 |
+| 详见 | 仓库 `.cursor/rules/` 中 il2cpp 相关规则 |
 
-从旧 `zlua/Docs` 粘贴时，将 `./LIB_SPEC.md` 等改为站内路径（如 `/docs/spec/lib-spec`）。修改 `spec/` 后务必 `npm run build` 检查链接。
+---
 
-### 运行时徽章
+## 6. 双端一致性验收
 
-页面顶部可使用与首页一致的 **Mono / Il2Cpp 徽章**：
+| 检查 | 要求 |
+|------|------|
+| Editor Play | `TestScene` manifest 全绿 |
+| Il2Cpp Player | 同一 manifest 全绿 |
+| 语义 | Mono 与 Il2Cpp Lua 可见行为 **必须一致** |
 
-```html
-<span class="runtimeBadge">
-  <span class="runtimeBadgeMono">Mono · 全功能</span>
-  <span class="runtimeBadgeIl2cpp">Il2Cpp · MVP</span>
-</span>
-```
+双端语义以 spec 为准；实现路径见 [impl/MONO.md](../impl/MONO) / [impl/IL2CPP.md](../impl/IL2CPP)。
 
-样式见 `src/css/custom.css`；首页 React 组件为 `src/components/RuntimeBadge`。
-
-### 指南学习路径
-
-`docs/guides/` 各页底部含 **上一篇 / 下一篇** 表。增删指南后运行：
-
-```bash
-npm run inject-guide-nav
-```
-
-## 代码贡献
-
-1. 在 [zlua Issues](https://github.com/focus-creative-games/zlua/issues) 讨论方案
-2. Fork → 功能分支 → 实现
-3. **Mono Editor**：打开 ZLuaTest `TestScene` → Play → `[SUMMARY] failed=0`
-4. **Il2Cpp（若触及 Player）**：Build Player + batchmode，exit code 0
-5. 提交 PR，说明影响范围与测试方式
-
-## 规范变更流程
-
-Lua **可见语义**变更（marshal、重载、类型访问等）须：
-
-```mermaid
-flowchart LR
-    A[实现变更 zlua] --> B[更新 docs/spec/ 对应规范]
-    B --> C[更新 guides/ + reference/]
-    C --> D[更新 compatibility 矩阵]
-    D --> E[补充 ZLuaTest 用例]
-    E --> F[zlua-doc PR 可同发或跟进]
-```
-
-| 变更类型 | 必改文档 |
-|----------|----------|
-| 新 Lua API | `spec/lib-spec` + `reference/lua/` + 指南 |
-| Marshal 规则 | `spec/marshal/` + `marshal-cheatsheet` |
-| 重载 / 别名 | `spec/method-overload-spec` + `guides/methods-and-overloads` |
-| Il2Cpp 能力边界 | `getting-started/compatibility` + `roadmap` |
-
-**原则：** 规范为权威语义；指南写任务与示例，不复制整章 SPEC。
-
-## 能力标注约定
-
-```markdown
-| 能力 | Mono (Editor) | Il2Cpp (Player) |
-|------|:-------------:|:---------------:|
-| 某功能 | ✅ | ❌ |
-```
-
-## 联系方式
-
-- Bug / 功能：[GitHub Issues](https://github.com/focus-creative-games/zlua/issues)
-- 社区：[联系](./contact)
+---
 
 ## 相关文档
 
-- [测试框架](./testing)
-- [路线图](./roadmap)
+| 文档 | 内容 |
+|------|------|
+| [TESTING.md](./testing) | 测试与条款映射 |
+| [migration/README.md](./migration/) | 迁移指南 |
+| [spec/00-OVERVIEW.md](../spec/00-OVERVIEW) | 产品总览 |

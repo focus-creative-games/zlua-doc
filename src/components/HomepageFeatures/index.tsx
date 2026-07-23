@@ -11,32 +11,32 @@ type FeatureItem = {
 
 const FeatureList: FeatureItem[] = [
   {
-    title: '极致易用',
+    title: '更易用 · 零配置',
     icon: '⚡',
     description: (
       <>
-        统一 C# 与 Lua 双向调用，类比 P/Invoke 的 <code>[LuaInvoke]</code>、
-        <code>[LuaCallback]</code>、<code>[LuaMarshalAs]</code>，对开发者完全屏蔽底层 Lua C API。
+        声明式 <code>[LuaInvoke]</code> / <code>[LuaMarshalAs]</code>，<code>CSharp</code>{' '}
+        懒加载；无需 per-type C# Wrap 白名单，屏蔽底层 Lua C API。
       </>
     ),
   },
   {
-    title: '极致性能',
+    title: '更快 · 约 2.62×',
     icon: '🚀',
     description: (
       <>
-        Il2Cpp 内嵌 Lua，C++ 层直桥：字段按偏移直读、函数经 <code>methodPointer</code>{' '}
-        调用，数倍甚至十倍以上优化传统 xLua 式 Wrapper 路径。
+        Il2Cpp 实测：约 98% 对齐用例快于 xLua；Lua→C# 平均约 2.62×；常见字段 /
+        属性与调用约 4×。
       </>
     ),
   },
   {
-    title: '零 Wrapper 膨胀',
+    title: '更小桥接 · 更少 GC',
     icon: '📦',
     description: (
       <>
-        不生成 C# Wrap 函数，相同签名的桥接函数共享复用，彻底解决传统方案 wrapper
-        体积庞大的问题。
+        同签名合并的 C++ stub，体积可小一个数量级；引用类型与 struct 默认 0
+        GC，并提供 OpaqueValue 等策略。
       </>
     ),
   },

@@ -18,7 +18,7 @@ Lua 通过 **`__index` / `__newindex`** 访问 C# 静态与实例成员。ZLua �
 
 | 表 | 读 (`__index`) | 写 (`__newindex`) |
 |----|----------------|-------------------|
-| **methodTable** | 方法、dispatch、别名、Event 表 | — |
+| **methodTable** | 方法、dispatch、别名、`add_`/`remove_` | — |
 | **fieldGetterTable** | 字段、无参 property 读 | — |
 | **fieldSetterTable** | — | 字段、无参 property 写 |
 
@@ -95,13 +95,13 @@ demo:PrivateMethod()        -- error（private 未注册）
 
 | 问题 | 文档 |
 |------|------|
-| dispatch 算法 | [方法重载规范](../spec/method-overload-spec) |
-| Property / Event 注册 | [类型系统规范](../spec/type-system-spec) |
-| 完整 obj_indexer 规格 | [元表索引规范](../spec/meta-table-spec) |
-| 远期 VM 快路径 | [VM 索引规范](../spec/vm-index-spec) |
+| dispatch 算法 | [方法重载规范](../spec/04-METHOD-OVERLOAD) |
+| Property / Event | [类型系统规范](../spec/02-TYPE-SYSTEM)；Event 用 `add_`/`remove_` |
+| 完整 obj_indexer 规格 | [元表索引规范](../spec/metatable/) |
+| 远期 VM 快路径 | [VM 索引规范](../spec/metatable/02-INDEX) |
 
 ## 相关文档
 
 - [类型系统概览](./type-system-overview)
 - [CSharp 根表参考](../reference/lua/csharp-root)
-- [元表索引规范](../spec/meta-table-spec)
+- [元表索引规范](../spec/metatable/)

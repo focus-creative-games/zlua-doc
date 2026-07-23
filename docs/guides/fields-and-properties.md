@@ -48,18 +48,18 @@ print(CSharp.AC.Demo.GetSX())
 demo.x = 10    -- 可能绑定到 field 或 property，语义均为读写成员
 ```
 
-Il2Cpp **设计目标** 将 `int X { get; set; }` 优化为 offset 直读（等同字段性能）。Mono 已通过元表 getter/setter 表实现 fast path。
+Il2Cpp **Player** 将 `int X { get; set; }` 优化为 offset 直读（等同字段性能）。Mono Editor 通过元表 getter/setter 表实现 fast path。两端语义以 [规范](../spec/02-TYPE-SYSTEM) 为准。
 
 ## Property（带 index indexer）
 
-带参数的 index 访问器（如 `this[int i]`）在 Mono 上按 **方法** 分派，不能写 `obj[i]` 除非元表专门注册。
+带参数的 index 访问器（如 `this[int i]`）按 **方法** 分派，不能写 `obj[i]` 除非元表专门注册（如 szarray）。
 
 ```lua
 -- 示意：具体 API 取决于类型绑定，见类型系统规范
 -- list[i] 对 Array / List 有专门规则
 ```
 
-详见 [类型系统规范](../spec/type-system-spec) §4 与 [泛型与数组](./generics-and-arrays)（P2）。
+详见 [类型系统规范](../spec/02-TYPE-SYSTEM) §4 与 [泛型与数组](./generics-and-arrays)。
 
 ## 底层分派（概念）
 
@@ -69,21 +69,21 @@ Il2Cpp **设计目标** 将 `int X { get; set; }` 优化为 offset 直读（等�
 
 ## 性能建议
 
-| 写法 | Mono | 说明 |
-|------|------|------|
-| `demo.x` | ✅ 快路径 | 优先直接成员访问 |
-| `demo:GetX()` | ✅ | property getter 有额外调用 |
-| 循环内频繁读写字段 | ✅ | 避免每帧 `get_method` |
+| 写法 | 建议 |
+|------|------|
+| `demo.x` | 优先直接成员访问（Il2Cpp 可走 offset 快路径） |
+| `demo:GetX()` | property getter 有额外调用开销 |
+| 循环内频繁读写字段 | 避免每帧 `get_method` |
 
-Player MVP 下字段直读已实现；Property 优化随 Il2Cpp 完整版落地。
+字段 / Property 语义见 [规范](../spec/02-TYPE-SYSTEM)；性能基准以 Il2Cpp Player 为准（见 [性能对比](../compare/PERFORMANCE)）。
 
 ## Mono / Il2Cpp 支持
 
 | 能力 | Mono | Il2Cpp |
 |------|:----:|:------:|
 | 实例 / 静态字段 | ✅ | ✅ |
-| 无参 Property | ✅ | ⚠️ |
-| index Property | ✅ | ❌ |
+| 无参 Property | ✅ | ✅ |
+| index Property | ✅ | ✅ |
 | 字段写入 | ✅ | ✅ |
 
 ## 常见错误
@@ -93,6 +93,13 @@ Player MVP 下字段直读已实现；Property 优化随 Il2Cpp 完整版落地�
 | `member not writable` | 只读 property / 无 setter |
 | 读到的值不对 | 混淆 field 与 property；检查 C# 定义 |
 | 静态字段用实例访问 | 应使用 `CSharp.AC.Demo.s_x` |
+
+
+
+
+
+
+
 
 ## 学习路径
 
@@ -104,5 +111,5 @@ Player MVP 下字段直读已实现；Property 优化随 Il2Cpp 完整版落地�
 ## 相关文档
 
 - [Lua 访问 C# 基础](./lua-to-csharp-basics)
-- [元表索引规范](../spec/meta-table-spec)
-- [类型系统规范](../spec/type-system-spec)
+- [元表索引规范](../spec/metatable/)
+- [类型系统规范](../spec/02-TYPE-SYSTEM)

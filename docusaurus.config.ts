@@ -4,7 +4,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 
 const config: Config = {
   title: 'ZLua Docs',
-  tagline: 'Unity Il2Cpp 极致优化的现代原生 Lua 方案',
+  tagline: '零配置 · 完备 C# 互操作 · Il2Cpp 上约 2.62× 于 xLua',
 
   // favicon: 'img/favicon.ico',
 
@@ -53,6 +53,8 @@ const config: Config = {
         docs: {
           sidebarPath: './sidebars.ts',
           editUrl: 'https://github.com/focus-creative-games/zlua-doc/tree/main/',
+          // Keep numbered filenames in URLs so synced Docs links (00-OVERVIEW etc.) resolve.
+          numberPrefixParser: false,
         },
         blog: false,
         theme: {
@@ -104,6 +106,8 @@ const config: Config = {
         {
           title: '文档',
           items: [
+            {label: '选型对比', to: '/docs/category/compare'},
+            {label: '规范文档', to: '/docs/category/spec'},
             {label: '快速开始', to: '/docs/getting-started/quick-start'},
             {label: '使用指南', to: '/docs/guides/csharp-to-lua'},
             {label: 'API 参考', to: '/docs/reference/overview'},

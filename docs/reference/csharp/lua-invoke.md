@@ -50,7 +50,7 @@ private static extern int AppAdd(int a, int b);
 | C# → Lua（参数 push） | bool、整型、float/double、string、enum、class、struct（含 OpaqueLightUserData） |
 | Lua → C#（返回值 pop） | 同上；`void` 无返回值 |
 
-:::warning Il2Cpp MVP 限制
+:::warning Il2Cpp 限制
 Player 当前仅覆盖 Demo 级签名（int、bool、string、void 等）。超出类型见 [兼容性](../../getting-started/compatibility)。
 :::
 
@@ -90,7 +90,7 @@ flowchart LR
 | 现象 | 处理 |
 |------|------|
 | 找不到 Lua 函数 | 检查 module 名、return 表键名、是否 `return { fn = fn }` |
-| Marshal 类型错误 | 对照速查表；Player 确认 MVP 是否支持该类型 |
+| Marshal 类型错误 | 对照速查表；对照编组规范与兼容性矩阵 |
 | 编译失败：非 static extern | 修正声明 |
 | 泛型类内 LuaInvoke | 移到非泛型类或 static 辅助类 |
 
@@ -99,4 +99,4 @@ flowchart LR
 - [C# 调用 Lua 指南](../../guides/csharp-to-lua)
 - [LuaAppDomain](./lua-app-domain)
 - [LuaMarshalAs](./lua-marshal-as)
-- [设计规范](../../spec/design-spec)
+- [设计规范](../../spec/00-OVERVIEW)

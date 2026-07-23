@@ -1,0 +1,10 @@
+{
+  "label": "迁移指南",
+  "position": 5,
+  "collapsible": true,
+  "collapsed": true,
+  "link": {
+    "type": "generated-index",
+    "description": "从 xLua / toLua / SLua 迁移到 ZLua。"
+  }
+}

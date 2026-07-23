@@ -1,0 +1,10 @@
+{
+  "label": "选型对比",
+  "position": 1,
+  "collapsible": true,
+  "collapsed": false,
+  "link": {
+    "type": "generated-index",
+    "description": "与 xLua / toLua / SLua 对比（非行为契约）。"
+  }
+}

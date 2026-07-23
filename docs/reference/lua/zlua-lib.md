@@ -159,7 +159,7 @@ local handler = zlua.to_delegate(function(x) print(x) end, CSharp.AC['System.Act
 | to_table / to_bytes | ✅ | ❌ |
 | to_delegate | ✅ | ❌ |
 
-完整语义：[zlua 库规范](../../spec/lib-spec)
+完整语义：[zlua 库规范](../../spec/05-LIB)
 
 ## 相关文档
 

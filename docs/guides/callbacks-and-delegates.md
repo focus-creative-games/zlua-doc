@@ -15,7 +15,7 @@ ZLua 在 **Lua function ↔ C# Delegate** 两个方向上均提供统一编组�
 | **Lua → C#** | `obj:RegisterCallback(function(v) ... end)` | 方法 marshal 层自动 `ReadDelegate` |
 | **C# → Lua** | `handler(42)` 或 `handler:Invoke(42)` | delegate 为普通 class userdata + `__call` |
 
-无需手动 `to_delegate`（除非显式 API 场景）。详见 [函数编组规范](../spec/marshal/function) §4。
+无需手动 `to_delegate`（除非显式 API 场景）。详见 [函数编组规范](../spec/marshal/09-FUNCTION) §4。
 
 ## Lua function 作为 C# delegate 参数
 
@@ -76,12 +76,12 @@ handler:Invoke(42)       -- 显式 Invoke
 `MulticastDelegate` 子类的实例元表注册 `__call`，收集参数并转发 `Invoke`。
 
 :::warning
-**Open delegate**（`target == null`）MVP 不支持。
+**Open delegate**（`target == null`）当前不支持。
 :::
 
 ## 与 Event 的关系
 
-Event 订阅也走 delegate marshal：`event.get` 接受 Lua function 并转为 add 处理器。详见 [Event](./events)。
+Event 订阅走 delegate marshal：通过 `add_Xxx` / `remove_Xxx` 传入 Lua function。详见 [Event](./events)。
 
 ## 完整示例（示意）
 
@@ -108,10 +108,10 @@ print(logic:Run(3, 5))   -- 8
 
 | 能力 | Mono | Il2Cpp |
 |------|:----:|:------:|
-| Lua function → delegate 形参 | ✅ | ❌ |
-| delegate userdata + `__call` | ✅ | ❌ |
-| `Action` / `Func` 常见签名 | ✅ | ❌ |
-| 泛型 delegate | ✅ | ❌ |
+| Lua function → delegate 形参 | ✅ | ✅ |
+| delegate userdata + `__call` | ✅ | ✅ |
+| `Action` / `Func` 常见签名 | ✅ | ✅ |
+| 泛型 delegate | ✅ | ✅ |
 
 ## 常见错误
 
@@ -119,8 +119,15 @@ print(logic:Run(3, 5))   -- 8
 |------|------|
 | `expects delegate X` | 传入非 function 且非 delegate |
 | 回调未执行 | C# 侧未调用；或 delegate 为 null |
-| 重复订阅无效移除 | Event 须用 **同一** function 引用 `set` 移除 |
-| Player 崩溃 | Il2Cpp MVP 不支持 delegate |
+| 重复订阅无效移除 | Event 须用 **同一** function 引用 `remove_*` 取消 |
+| handler 泄漏 | C# 长期持有 delegate 但 Lua 环境已销毁 |
+
+
+
+
+
+
+
 
 ## 学习路径
 
@@ -131,6 +138,6 @@ print(logic:Run(3, 5))   -- 8
 
 ## 相关文档
 
-- [函数编组规范](../spec/marshal/function)
+- [函数编组规范](../spec/marshal/09-FUNCTION)
 - [Event](./events)
-- [类型系统规范](../spec/type-system-spec) — 委托类型表
+- [类型系统规范](../spec/02-TYPE-SYSTEM) — 委托类型表

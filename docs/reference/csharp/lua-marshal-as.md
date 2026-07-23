@@ -73,7 +73,7 @@ public sealed class LuaMarshalAsAttribute : Attribute
 
 **方向过滤：** `OpaqueLightUserData` 标注于纯 **Lua→C# 形参** 时视为非法，Editor 回退 Default 并打错误日志。
 
-完整规则见 [编组规范 §6.2](../../spec/marshal/#62-各类型的合法-luamarshaltype-集合)。
+完整规则见 [LuaMarshalAs 规范](../../spec/marshal/02-MARSHAL-AS)。
 
 ## 非法标注行为
 
@@ -131,11 +131,11 @@ local ud = zlua.to_user_data(opaque) -- 升级为 StructUserData
 | 运行时 | 支持 |
 |--------|:----:|
 | Mono (Editor) | ✅ |
-| Il2Cpp (Player) | ❌（MVP 未实现） |
+| Il2Cpp (Player) | ✅ |
 
 ## 相关文档
 
 - [编组速查表](../marshal-cheatsheet)
 - [ref / out / in 指南](../../guides/marshal-ref-out-in)
-- [编组规范 §6](../../spec/marshal/#6-luamarshalas-与-luamarshaltype)
+- [LuaMarshalAs 规范](../../spec/marshal/02-MARSHAL-AS)
 - [源码 LuaMarshalAsAttribute.cs](https://github.com/focus-creative-games/zlua/blob/main/Runtime/Common/LuaMarshalAsAttribute.cs)

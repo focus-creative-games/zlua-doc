@@ -108,5 +108,5 @@ Demo 约定：
 
 - [C# 调用 Lua 指南](../../guides/csharp-to-lua)
 - [Lua 模块加载](../../guides/lua-module-loading)
-- [设计规范](../../spec/design-spec)
+- [设计规范](../../spec/00-OVERVIEW)
 - [源码 LuaAppDomain.cs](https://github.com/focus-creative-games/zlua/blob/main/Runtime/Common/LuaAppDomain.cs)

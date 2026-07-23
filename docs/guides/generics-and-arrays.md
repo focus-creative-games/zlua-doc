@@ -6,7 +6,7 @@ description: Lua 侧构造泛型类型、数组与元素访问。
 
 # 泛型与数组
 
-Mono 下可通过 `zlua` 标准库构造 **闭合泛型类型**、**数组类型** 与实例，并在 Lua 中像 C# 一样索引与传递。示例模式摘自 [zlua 库规范](../spec/lib-spec) §5、§7。
+可通过 `zlua` 标准库构造 **闭合泛型类型**、**数组类型** 与实例，并在 Lua 中像 C# 一样索引与传递。示例模式摘自 [zlua 库规范](../spec/05-LIB) §5、§7。双端语义一致。
 
 ## 概述
 
@@ -66,7 +66,7 @@ local inst = zlua.make_generic_inst(zlua.types.int32)
 SomeType.Foo(inst, value)
 ```
 
-泛型类上的普通方法（如 `List<int>.Add`）类型已闭合，**不**走此路径。详见 [类型系统规范](../spec/type-system-spec) §6。
+泛型类上的普通方法（如 `List<int>.Add`）类型已闭合，**不**走此路径。详见 [类型系统规范](../spec/02-TYPE-SYSTEM) §6。
 
 ## 数组
 
@@ -87,7 +87,7 @@ print(#arr1)      -- 4，等价 C# Length
 
 ### 元素访问
 
-szarray 实例为 userdata，支持下标读写（规则见 [Class 编组规范](../spec/marshal/class)）。引用类型元素可为 `nil`。
+szarray 实例为 userdata，支持下标读写（规则见 [Class 编组规范](../spec/marshal/06-CLASS)）。引用类型元素可为 `nil`。
 
 ### 与 Lua 互转
 
@@ -125,12 +125,12 @@ local matrix = zlua.new_mdarray_by_mdarray_type(
 
 | 能力 | Mono | Il2Cpp |
 |------|:----:|:------:|
-| `make_generic_type` | ✅ | ❌ |
-| `List<T>` / `Dictionary<,>` 使用 | ✅ | ❌ |
-| szarray 创建与 `#` | ✅ | ❌ |
-| `to_table` / `to_bytes` | ✅ | ❌ |
-| 泛型方法 `make_generic_inst` | ✅ | ❌ |
-| mdarray | ✅ | ❌ |
+| `make_generic_type` | ✅ | ✅ |
+| `List<T>` / `Dictionary<,>` 使用 | ✅ | ✅ |
+| szarray 创建与 `#` | ✅ | ✅ |
+| `to_table` / `to_bytes` | ✅ | ✅ |
+| 泛型方法 `make_generic_inst` | ✅ | ✅ |
+| mdarray | ✅ | ✅ |
 
 ## 常见错误
 
@@ -140,6 +140,13 @@ local matrix = zlua.new_mdarray_by_mdarray_type(
 | `List` 找不到 | 使用 `System.Collections.Generic.List` 全名 |
 | 数组越界 | 与 C# 相同，0 .. Length-1 |
 | `#` 对 mdarray 无效 | 使用 `GetLength(dimension)` |
+
+
+
+
+
+
+
 
 ## 学习路径
 
@@ -151,5 +158,5 @@ local matrix = zlua.new_mdarray_by_mdarray_type(
 ## 相关文档
 
 - [zlua 标准库](../reference/lua/zlua-lib)
-- [类型系统规范](../spec/type-system-spec) §2.4、§7
-- [zlua 库规范](../spec/lib-spec) §5、§7
+- [类型系统规范](../spec/02-TYPE-SYSTEM) §2.4、§7
+- [zlua 库规范](../spec/05-LIB) §5、§7

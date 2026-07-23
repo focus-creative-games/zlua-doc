@@ -57,7 +57,7 @@ return {
 | 必须是 `static extern` | 实例方法、普通 static 方法不可用于 LuaInvoke |
 | 不能是泛型方法 | 也不能位于泛型类的实例成员上 |
 | module / method 与 Lua 一致 | `[LuaInvoke("app","add")]` ↔ `return { add = ... }` |
-| 参数 / 返回值类型 | 遵循默认 [Marshal 规则](../reference/marshal-cheatsheet)；可用 `[LuaMarshalAs]` 覆盖（Mono） |
+| 参数 / 返回值类型 | 遵循默认 [Marshal 规则](../reference/marshal-cheatsheet)；可用 `[LuaMarshalAs]` 覆盖（部分类型见规范） |
 
 构造函数注入在 **程序集编译后** 由 Editor CodeGen（dnlib）或 Player Weaver 完成，开发者只维护 `extern` 声明。
 
@@ -69,7 +69,7 @@ return {
 | 调用路径 | C# 快速桥 + Lua API | C++ 模板 + 直接 lua API |
 | 开发者感知 | **无** | **无** |
 
-Player MVP 对参数 / 返回值类型有限制（int、bool、string、void 等），超出可能需等 Il2Cpp 扩展。见 [兼容性](../getting-started/compatibility)。
+参数 / 返回值遵循 [编组规范](../spec/marshal/01-OVERVIEW)；见 [兼容性](../getting-started/compatibility)。
 
 ## 模块加载约定
 
@@ -102,7 +102,7 @@ private static extern void BattleTick(float dt);
 | `attempt to call a nil value` | Lua 表未导出对应函数名 |
 | 返回值始终 0 | Lua 未 `return`；或 marshal 类型不匹配 |
 | Player 正常 Editor 异常 | 检查 Editor 下 `LuaScripts/*.lua` 路径 |
-| Player 异常 Editor 正常 | 未 Sync StreamingAssets；或使用了 MVP 不支持的签名 |
+| Player 异常 Editor 正常 | 未 Sync StreamingAssets；或未执行 **`ZLua/Generate/All`** |
 
 ## Mono / Il2Cpp 支持
 
@@ -111,8 +111,15 @@ private static extern void BattleTick(float dt);
 | `[LuaInvoke]` void | ✅ | ✅ |
 | 多 int 参数 / int 返回 | ✅ | ✅ |
 | string / bool | ✅ | ✅ |
-| 复杂类型 / `[LuaMarshalAs]` | ✅ | ❌ |
+| 复杂类型 / `[LuaMarshalAs]` | ✅ | ✅ |
 | 多模块 | ✅ | ✅ |
+
+
+
+
+
+
+
 
 ## 学习路径
 
@@ -125,4 +132,4 @@ private static extern void BattleTick(float dt);
 
 - [快速开始](../getting-started/quick-start)
 - [LuaInvoke API](../reference/csharp/lua-invoke)
-- [设计规范](../spec/design-spec) — LuaInvokeAttribute 实现细节
+- [设计规范](../spec/00-OVERVIEW) — LuaInvokeAttribute 实现细节

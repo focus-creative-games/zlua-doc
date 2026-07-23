@@ -72,10 +72,10 @@ local list_int = zlua.make_generic_type(CSharp.mscorlib['System.Collections.Gene
 | 运行时 | 支持 |
 |--------|:----:|
 | Mono | ✅ |
-| Il2Cpp MVP | ⚠️（部分 API 依赖 `signature` / `typeof`） |
+| Il2Cpp | ⚠️（部分 API 依赖 `signature` / `typeof`） |
 
 ## 相关文档
 
 - [zlua 标准库](./zlua-lib)
 - [方法重载](../../guides/methods-and-overloads)
-- [zlua 库规范](../../spec/lib-spec) §3
+- [zlua 库规范](../../spec/05-LIB) §3

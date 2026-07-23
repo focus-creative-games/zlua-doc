@@ -1,0 +1,10 @@
+{
+  "label": "编组实现",
+  "position": 30,
+  "collapsible": true,
+  "collapsed": true,
+  "link": {
+    "type": "generated-index",
+    "description": "Registry / MarshalMeta / Overload。"
+  }
+}

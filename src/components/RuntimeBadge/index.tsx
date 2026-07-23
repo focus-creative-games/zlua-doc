@@ -10,8 +10,8 @@ type RuntimeBadgeProps = {
 
 /** 全站统一的 Mono / Il2Cpp 运行时状态徽章 */
 export default function RuntimeBadge({
-  mono = '全功能',
-  il2cpp = 'MVP',
+  mono = '已完成',
+  il2cpp = '已完成',
   className,
 }: RuntimeBadgeProps): ReactNode {
   return (

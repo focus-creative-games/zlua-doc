@@ -93,7 +93,7 @@ Il2Cpp Player 在 Codegen 阶段预生成绑定；Mono Editor 在运行时反射
 | 消息（示例） | 原因 |
 |--------------|------|
 | `type not found` / 程序集 nil | 程序集名错误、类型未 public、Player 未包含该程序集 |
-| `member 'X' not found` | 成员非 public、拼写错误、Il2Cpp MVP 未生成桥 |
+| `member 'X' not found` | 成员非 public、拼写错误、Il2Cpp 未生成桥 |
 | 含 namespace 点号访问失败 | 须 `CSharp.asm['Ns.Type']` 括号形式 |
 | `invalid userdata` | 实例已释放或类型不匹配 |
 
@@ -101,7 +101,7 @@ Il2Cpp Player 在 Codegen 阶段预生成绑定；Mono Editor 在运行时反射
 
 ## Mono / Il2Cpp 差异（Lua 可见语义一致）
 
-| 项 | Mono | Il2Cpp MVP |
+| 项 | Mono | Il2Cpp |
 |----|------|------------|
 | 懒加载 | ✅ 反射 | ⚠️ 预生成子集 |
 | 字段直读 | ✅ | ✅（Demo 级） |
@@ -112,5 +112,5 @@ Il2Cpp Player 在 Codegen 阶段预生成绑定；Mono Editor 在运行时反射
 
 - [Lua 访问 C# 基础](../../guides/lua-to-csharp-basics)
 - [元表模型](../../concepts/metatable-model)
-- [类型系统规范](../../spec/type-system-spec)
+- [类型系统规范](../../spec/02-TYPE-SYSTEM)
 - [类型系统概览](../../concepts/type-system-overview)

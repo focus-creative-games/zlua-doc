@@ -81,5 +81,5 @@ Player 侧 native 桥由 C++ 生成；游戏 C# 代码 **极少** 需要 MonoLua
 ## 相关文档
 
 - [回调与 Delegate 指南](../../guides/callbacks-and-delegates)
-- [Function 编组规范](../../spec/marshal/function)
-- [设计规范](../../spec/design-spec)
+- [Function 编组规范](../../spec/marshal/09-FUNCTION)
+- [设计规范](../../spec/00-OVERVIEW)

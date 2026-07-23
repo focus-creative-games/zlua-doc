@@ -41,7 +41,7 @@ flowchart TB
 | 基元 / enum | integer / number / boolean | 同左 |
 | string | string | string |
 | class | ClassUserData | userdata / nil |
-| struct | OpaqueValue (lightuserdata) | StructUserData / table |
+| struct | ByValUserData 或 OpaqueValue | StructUserData / `Type(...)`（默认不接受 table） |
 | delegate | DelegateUserData | **function** 或 userdata |
 | array | ArrayUserData | ArrayUserData |
 
@@ -70,22 +70,14 @@ Lua 侧 **不区分** ref/out/in，统一按 ref 语义处理：
 
 ## 分册索引（何时读哪本）
 
-```mermaid
-flowchart TD
-    Q{什么类型?}
-    Q -->|class / 数组 / null| C[class.md]
-    Q -->|struct / enum userdata| S[struct.md]
-    Q -->|Delegate / Lua function| F[function.md]
-    Q -->|默认表 / ref / MarshalAs| M[marshal/index.md]
-    Q -->|日常查表| CH[marshal-cheatsheet]
-```
-
 | 类型 | 规范 |
 |------|------|
-| 总览与 §1 默认表 | [编组规范](../spec/marshal/) |
-| class / 引用 / 数组 | [Class 编组](../spec/marshal/class) |
-| struct / enum userdata | [Struct 编组](../spec/marshal/struct) |
-| Delegate / 回调 | [Function 编组](../spec/marshal/function) |
+| 总览与默认表 | [编组规范](../spec/marshal/01-OVERVIEW) |
+| byref / Opaque | [BYREF](../spec/marshal/03-BYREF)、[OPAQUE](../spec/marshal/04-OPAQUE) |
+| struct | [STRUCT](../spec/marshal/05-STRUCT) |
+| class / 引用 | [CLASS](../spec/marshal/06-CLASS) |
+| Delegate / 回调 | [FUNCTION](../spec/marshal/09-FUNCTION) |
+| 日常查表 | [编组速查表](../reference/marshal-cheatsheet) |
 
 ## 相关文档
 

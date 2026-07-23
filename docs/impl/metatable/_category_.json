@@ -1,0 +1,10 @@
+{
+  "label": "元表实现",
+  "position": 20,
+  "collapsible": true,
+  "collapsed": true,
+  "link": {
+    "type": "generated-index",
+    "description": "Indexer 实现对照。"
+  }
+}

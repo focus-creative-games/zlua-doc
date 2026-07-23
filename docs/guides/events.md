@@ -1,108 +1,95 @@
 ---
 sidebar_position: 9
 title: Event
-description: Lua 侧订阅与触发 C# event。
+description: 通过 add_/remove_ 普通方法订阅 C# event（无专用元表）。
 ---
 
 # Event
 
-C# **event** 在 Lua 侧暴露为特殊表 `{ get, set, fire? }`，分别对应 `add` / `remove` / `raise` 语义（命名对齐 event accessor，**不是** property 的 get/set）。
+ZLua **不提供** Event 专用元表（无 `{ get, set, fire }`）。C# `event` 编译器生成的 **`add_EventName` / `remove_EventName`** 作为普通方法进入 `methodTable`，与其它实例/静态方法相同。
 
-实现见 `EventAccess.cs`；规范见 [类型系统规范](../spec/type-system-spec) §4.5。
+规范见 [类型系统](../spec/02-TYPE-SYSTEM)、[成员绑定](../spec/metatable/03-BINDING)。
 
 ## 概述
 
-| 字段 | C# 语义 | Lua 用法 |
-|------|---------|----------|
-| **get** | `add` 处理器 | 传入 Lua function → 隐式 marshal 为 delegate |
-| **set** | `remove` 处理器 | 须移除 **经 get 注册的同一** handler |
-| **fire** | 触发（若有 raise 元数据） | 测试 / 内部用，视类型而定 |
+| C# | Lua |
+|----|-----|
+| `obj.Foo += handler` | `obj:add_Foo(handler)` |
+| `obj.Foo -= handler` | `obj:remove_Foo(handler)` |
+| 静态 event | `Type.add_Foo(handler)` / `Type.remove_Foo(handler)` |
 
-订阅 handler 走与 [回调与 Delegate](./callbacks-and-delegates) 相同的 Lua function → delegate 路径。
+`handler` 为 Lua `function`，按 [回调与 Delegate](./callbacks-and-delegates) 隐式 marshal。
 
 ## 静态 event
-
-C#：
 
 ```csharp
 public class EventPublisher
 {
     public static event System.Action<int> OnGlobalTick;
-
     public static void RaiseTick(int v) => OnGlobalTick?.Invoke(v);
 }
 ```
-
-Lua：
 
 ```lua
 local handler = function(v)
     print("tick:", v)
 end
 
--- 订阅：get ≈ +=
-CSharp.AC.EventPublisher.OnGlobalTick.get(handler)
-
--- 取消：set ≈ -=（须同一 function 引用）
-CSharp.AC.EventPublisher.OnGlobalTick.set(handler)
+CSharp.AC.EventPublisher.add_OnGlobalTick(handler)
+-- ...
+CSharp.AC.EventPublisher.remove_OnGlobalTick(handler)  -- 须同一 function 引用
 ```
 
-静态 event 的 `get` / `set` **第一个参数不是 self**，直接传 handler。
-
 ## 实例 event
-
-C#：
 
 ```csharp
 public class Player
 {
     public event System.Action<int> OnHealthChanged;
-
     public void Hurt(int dmg) => OnHealthChanged?.Invoke(dmg);
 }
 ```
-
-Lua：
 
 ```lua
 local player = CSharp.AC.Player()
 local handler = function(hp) print("hp:", hp) end
 
-player.OnHealthChanged.get(player, handler)
-player.OnHealthChanged.set(player, handler)
+player:add_OnHealthChanged(handler)
+player:remove_OnHealthChanged(handler)
 ```
 
-实例 event：**第一个参数为对象实例**，第二个为 handler。
+## 与旧文档 / xLua 的差异
 
-## fire（可选）
-
-若类型暴露 raise 方法，event 表可能含 `fire` 字段用于触发（多用于测试或特定 API）。生产逻辑通常由 C# 代码 `Invoke` event。
-
-## 与 delegate 字段的区别
-
-| | event 表 | delegate 字段/属性 |
-|---|----------|------------------|
-| 订阅 | `.get(...)` | 赋值 `=` 或 `add` 不适用 |
-| 取消 | `.set(...)` | 赋 `nil` |
-| 外部触发 | 仅 C# 内 | 可直接 `handler()` |
+| | xLua / 旧 ZLua 文档 | 当前 ZLua |
+|---|------|------|
+| 订阅 | 语法糖或 `.get` | **`add_*` 方法** |
+| 取消 | `.set` / `-` | **`remove_*` 方法** |
+| 专用子表 | 可能有 | **无** |
 
 ## Mono / Il2Cpp 支持
 
 | 能力 | Mono | Il2Cpp |
 |------|:----:|:------:|
-| 静态 event | ✅ | ❌ |
-| 实例 event | ✅ | ❌ |
-| Lua function 订阅 | ✅ | ❌ |
-| 常见 `Action`/`EventHandler` | ✅ | ❌ |
+| `add_Xxx` / `remove_Xxx` | ✅ | ✅ |
+| Event 专用元表（`{get,set,fire}`） | ❌ | ❌ |
+| Lua function 作 handler | ✅ | ✅ |
+
+两端 **Lua 可见语义一致**；`add_` / `remove_` 为普通方法，无专用元表。
 
 ## 常见错误
 
 | 现象 | 处理 |
 |------|------|
-| `handler was not registered through get` | 移除时须用 **同一** Lua function |
-| 实例 event 少传 self | `get(obj, handler)` 两个参数 |
-| 静态 event 多传 self | 静态仅 `get(handler)` |
-| Player 失败 | Il2Cpp 未支持 Event |
+| `OnX.get is nil` | 已废弃；改用 `add_OnX` |
+| remove 无效 | 必须与 add 时为 **同一** Lua function |
+| 找不到 `add_OnX` | 确认 C# event 名为 `OnX`；方法名为 `add_OnX` |
+
+
+
+
+
+
+
 
 ## 学习路径
 
@@ -114,5 +101,5 @@ player.OnHealthChanged.set(player, handler)
 ## 相关文档
 
 - [回调与 Delegate](./callbacks-and-delegates)
-- [类型系统规范](../spec/type-system-spec) §4.5
-- [函数编组规范](../spec/marshal/function)
+- [成员绑定规范](../spec/metatable/03-BINDING)
+- [函数编组](../spec/marshal/09-FUNCTION)

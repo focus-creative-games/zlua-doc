@@ -8,32 +8,34 @@ description: Mono Editor 与 Il2Cpp Player 的实现分工。
 
 ```mermaid
 flowchart LR
-    subgraph Editor["Unity Editor"]
-        Mono["ZLua.Mono"]
-        Reflect["反射 / Expression.Compile"]
-    end
+  subgraph Editor["Unity Editor"]
+    Mono["ZLua.Mono"]
+    Emit["Expression Emit"]
+  end
 
-    subgraph Player["Il2Cpp Player"]
-        Il2Cpp["ZLua.Il2Cpp"]
-        Native["C++ MethodBridge"]
-    end
+  subgraph Player["Il2Cpp Player"]
+    Native["C++ MethodBridge"]
+    Stub["generated stubs"]
+  end
 
-    Lua["Lua VM"] --> Mono
-    Lua --> Native
-    Mono --> Reflect
-    Native --> Il2Cpp
+  Lua["Lua VM"] --> Mono
+  Lua --> Native
+  Mono --> Emit
+  Native --> Stub
 ```
 
-- **Editor（Mono）** — `ZLua.Mono`：v1.0 **全量功能已实现**，基于反射 + 表达式编译，适合日常开发
-- **Player（Il2Cpp）** — `ZLua.Il2Cpp`：**MVP 阶段**，C++ 直桥建设中，当前仅 Demo 级基础互操作
+- **Player（Il2Cpp）** — 权威实现：内嵌 Lua、C++ 直桥、签名 stub 复用（需 `ZLua/Generate/All`）
+- **Editor（Mono）** — Expression Emit；目录对齐 Il2Cpp；与 Player **Lua 可见语义一致**
 
-:::info 进度差异
-Mono 与 Il2Cpp **目标**是 Lua 可见语义一致；**当前** Player 能力远少于 Editor。发布前请查阅 [项目状态](../getting-started/project-status)。
+公共特性（`LuaInvokeAttribute`、`LuaMarshalAsAttribute` 等）在 `ZLua.Common`。
+
+:::info 状态
+**Mono 与 Il2Cpp 均已完成。** 日常在 Editor 开发；发版与性能以 Il2Cpp Player 为准。详见 [项目状态](../getting-started/project-status)。
 :::
 
-公共特性（`LuaInvokeAttribute` 等）定义在 `ZLua.Common` 模块。
+## 相关文档
 
-## 相关规范
-
-- [设计规范](../spec/design-spec)
-- [Il2Cpp 架构](../architecture/il2cpp-architecture)
+- [规范总览](../spec/00-OVERVIEW)
+- [Il2Cpp 实现](../impl/IL2CPP)
+- [Mono 实现](../impl/MONO)
+- [Editor 与 Player](../guides/editor-vs-player)

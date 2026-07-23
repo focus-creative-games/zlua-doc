@@ -58,7 +58,7 @@ Demo 在 [app.lua 第 1 行](https://github.com/focus-creative-games/zlua-demo/b
 local demo = CSharp.AC.Demo()
 ```
 
-等价于 C# 的 `new Demo()`。有参构造在 Mono 上支持重载 dispatch；多构造函数见 [方法重载](./methods-and-overloads)。
+等价于 C# 的 `new Demo()`。有参构造支持重载 dispatch；多构造函数见 [方法重载](./methods-and-overloads)。
 
 ## 静态成员
 
@@ -95,7 +95,7 @@ print(demo.x)
 
 ## 继承
 
-子类实例可调用基类 public 实例成员；静态成员走 **声明类型** 的类型表。继承链上的重载与 `new` 隐藏规则见 [类型系统规范](../spec/type-system-spec) §5。
+子类实例可调用基类 public 实例成员；静态成员走 **声明类型** 的类型表。继承链上的重载与 `new` 隐藏规则见 [类型系统规范](../spec/02-TYPE-SYSTEM) §5。
 
 ## nil 与 null
 
@@ -131,10 +131,10 @@ end
 |------|:----:|:------:|
 | `CSharp` 懒加载 | ✅ | ✅ |
 | 无 namespace 类型 | ✅ | ✅ |
-| namespace 括号访问 | ✅ | ⚠️ 随类型扩展 |
+| namespace 括号访问 | ✅ | ✅ |
 | 静态 / 实例字段 | ✅ | ✅ |
-| 静态 / 实例方法 | ✅ | ⚠️ 手写桥接 |
-| 继承 | ✅ | ⚠️ |
+| 静态 / 实例方法 | ✅ | ✅ |
+| 继承 | ✅ | ✅ |
 
 ## 常见错误
 
@@ -144,6 +144,13 @@ end
 | `static member not found` | 勿通过实例访问静态成员；用类型表 |
 | `instance member not found` | 键名拼写；该成员是否 public |
 | 嵌套类型失败 | 使用 `Outer+Nested` 全名 |
+
+
+
+
+
+
+
 
 ## 学习路径
 
@@ -156,5 +163,5 @@ end
 
 - [字段与属性](./fields-and-properties)
 - [方法重载](./methods-and-overloads)
-- [类型系统规范](../spec/type-system-spec)
+- [类型系统规范](../spec/02-TYPE-SYSTEM)
 - [CSharp API 参考](../reference/lua/csharp-root)

@@ -1,6 +1,10 @@
 {
   "label": "规范文档",
-  "position": 6,
-  "collapsed": true,
-  "collapsible": true
+  "position": 1,
+  "collapsible": true,
+  "collapsed": false,
+  "link": {
+    "type": "generated-index",
+    "description": "Lua 可见语义契约（本仓库唯一标准）。"
+  }
 }

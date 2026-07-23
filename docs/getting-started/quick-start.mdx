@@ -11,7 +11,7 @@ import TabItem from '@theme/TabItem';
 
 本教程基于官方示例 [zlua-demo](https://github.com/focus-creative-games/zlua-demo)，逐步完成 **C# 调用 Lua** 与 **Lua 访问 C#**。建议先 clone Demo 工程对照操作。
 
-<span className="runtimeBadge"><span className="runtimeBadgeMono">Mono · 全功能</span><span className="runtimeBadgeIl2cpp">Il2Cpp · MVP</span></span> — 本页示例在 **Editor** 全可用；Player 见 [兼容性](./compatibility) 与文末支持表。
+<span className="runtimeBadge"><span className="runtimeBadgeMono">Mono · 已完成</span><span className="runtimeBadgeIl2cpp">Il2Cpp · 已完成</span></span> — 本页示例在 **Editor** 与 **Player** 均可用；Player 构建须 **Generate**，见 [兼容性](./compatibility)。
 
 :::tip 示例源码
 
@@ -26,7 +26,7 @@ import TabItem from '@theme/TabItem';
 ## 前置条件
 
 - 已完成 [安装与集成](./installation)，或已 clone zlua-demo
-- Unity **2022.3**，Editor 下 Play 验证（Mono 全功能）
+- Unity **2022.3**，Editor 下 Play 验证
 
 ## 第 1 步：初始化 ZLua
 
@@ -156,7 +156,7 @@ print(CSharp.AC.Demo.GetSX())         -- 10
 
 ## 第 4 步（可选）：方法重载
 
-`Demo.Run` 有 `int` 与 `string` 两个重载。Mono 下可显式绑定；完整可运行示例见 [app.lua `test_overload_signature`](https://github.com/focus-creative-games/zlua-demo/blob/main/LuaScripts/app.lua)：
+`Demo.Run` 有 `int` 与 `string` 两个重载。可显式绑定；完整可运行示例见 [app.lua `test_overload_signature`](https://github.com/focus-creative-games/zlua-demo/blob/main/LuaScripts/app.lua)：
 
 ```lua
 local sig_i32 = zlua.signature(zlua.types.int32)
@@ -168,20 +168,19 @@ run_i32(demo, 10)
 
 ## 构建 Il2Cpp Player
 
-1. 确保已配置 [SyncLuaScriptsToStreamingAssets](https://github.com/focus-creative-games/zlua-demo/blob/main/Assets/Editor/SyncLuaScriptsToStreamingAssets.cs)
-2. Build Settings → Il2Cpp → Build
-3. **仅使用 MVP 已支持能力**（基础字段/方法、`LuaInvoke`），勿依赖泛型、重载 dispatch 等
+1. 执行 **`ZLua/Generate/All`**（生成 C++ stub）
+2. 确保已配置 [SyncLuaScriptsToStreamingAssets](https://github.com/focus-creative-games/zlua-demo/blob/main/Assets/Editor/SyncLuaScriptsToStreamingAssets.cs)
+3. Build Settings → Il2Cpp → Build
 
-详见 [项目状态](./project-status#il2cpp-mvp)。
+详见 [项目状态](./project-status)、[Editor 与 Player](../guides/editor-vs-player)。
 
 ## Mono / Il2Cpp 支持
 
 | 本页示例 | Mono (Editor) | Il2Cpp (Player) |
 |----------|:-------------:|:---------------:|
 | Initialize + LuaInvoke | ✅ | ✅ |
-| 静态/实例方法、字段 | ✅ | ✅（Demo 签名） |
-| Property `x` / `GetX` | ✅ | ⚠️ 部分 |
-| 方法重载显式绑定 | ✅ | ❌ |
+| 静态/实例方法、字段 | ✅ | ✅ |
+| Property / 重载 | ✅ | ✅（语义以规范为准） |
 
 ## 常见错误
 

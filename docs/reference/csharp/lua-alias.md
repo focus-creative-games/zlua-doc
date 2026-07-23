@@ -106,10 +106,10 @@ public int GetValue() => 0;
 | 运行时 | 支持 |
 |--------|:----:|
 | Mono (Editor) | ✅ |
-| Il2Cpp (Player) | ❌（MVP 未实现） |
+| Il2Cpp (Player) | ✅ |
 
 ## 相关文档
 
 - [方法重载指南](../../guides/methods-and-overloads)
-- [方法重载规范](../../spec/method-overload-spec) §5
+- [方法重载规范](../../spec/04-METHOD-OVERLOAD) §5
 - [LuaAlias 源码](https://github.com/focus-creative-games/zlua/blob/main/Runtime/Common/LuaAliasAttribute.cs)
