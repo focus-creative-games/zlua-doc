@@ -19,7 +19,7 @@ title: "从 xLua 迁移"
 | `luaEnv:DoString` / `require` | 同 `require`；loader 由宿主提供 |
 | `[LuaCallCSharp]` + Generate | **无**；public 类型 **懒 Bind** |
 | `[CSharpCallLua]` | `[LuaInvoke("module","func")]` static extern |
-| `LuaFunction` / `xlua.tofunction` | `[LuaInvoke]` 或 delegate 形参隐式 marshal |
+| `LuaFunction` / `xlua.tofunction` | `[LuaInvoke]` 直接调，或 **返回** `Action`/`Func`/`Delegate`（见 [回调 §3](../../guides/callbacks-and-delegates)） |
 | `ObjectTranslator` | `ObjectRegistry` + marshal 分册 |
 | xLua Event 语法 | **无**；`add_Xxx` / `remove_Xxx` |
 | `CS.System.Collections.Generic.List(CS.System.Int32)` | `zlua.make_generic_type(...)` |
@@ -108,7 +108,11 @@ public static extern void OnTick(float dt);
 
 Lua 模块 `game.lua` 须 **return table** 且含全局函数名 `OnTick`（与 `[LuaInvoke]` 第二参数一致）。
 
-### 步骤 5：Lua function → C# delegate
+### 步骤 5：Lua function → C# delegate（含「把函数拿回 C#」）
+
+ZLua **支持** C# 持有并多次调用 Lua 函数，不要误以为只能「单向 `[LuaInvoke]` 调一次」。
+
+#### A. Lua 作为 C# 方法参数（隐式 marshal）
 
 **Before：**
 
@@ -128,7 +132,43 @@ public static void Register(Action<int> cb) { ... }
 obj:Register(function(x) print(x) end)
 ```
 
-详见 [spec/marshal/09-FUNCTION.md](../../spec/marshal/09-FUNCTION)。
+#### B. `[LuaInvoke]` **返回** delegate（替代 `Get<Action>` / `LuaFunction`）
+
+**Before（xLua）：**
+
+```csharp
+Action<float> onTick = luaEnv.Global.Get<Action<float>>("OnTick");
+onTick(dt);
+```
+
+**After（固定签名）：**
+
+```csharp
+[LuaInvoke("game", "get_on_tick")]
+private static extern Action<float> GetOnTick();
+
+var onTick = GetOnTick();
+onTick(dt);
+```
+
+```lua
+-- game.lua
+local function get_on_tick()
+    return function(dt) print(dt) end
+end
+return { get_on_tick = get_on_tick }
+```
+
+**After（动态按名 + 任意委托类型）：** 返回 `System.Delegate`，参数带 `module` / `method` / `Type`，Lua 内 `zlua.to_delegate(fn, type)`。完整写法见指南 [回调与 Delegate §3](../../guides/callbacks-and-delegates)。
+
+```csharp
+[LuaInvoke("bridge", "resolve_delegate")]
+private static extern Delegate ResolveDelegate(string module, string method, Type delegateType);
+
+Action<float> onTick = (Action<float>)ResolveDelegate("game", "OnTick", typeof(Action<float>));
+```
+
+详见 [spec/marshal/09-FUNCTION.md](../../spec/marshal/09-FUNCTION)、[回调与 Delegate](../../guides/callbacks-and-delegates)。
 
 ### 步骤 6：Event
 

@@ -49,7 +49,8 @@ title: "迁移指南"
 
 ### 4. C#→Lua / Delegate
 
-- `[CSharpCallLua]` / `LuaFunction` → `[LuaInvoke("mod","fn")]` static extern
+- `[CSharpCallLua]` / `LuaFunction` → `[LuaInvoke("mod","fn")]` static extern（直接调）
+- **把 Lua 函数拿回 C#：** `[LuaInvoke]` **返回** `Action`/`Func`；或返回 `Delegate` + module/method/`Type` + `zlua.to_delegate`（见 [回调与 Delegate §3](../../guides/callbacks-and-delegates)）
 - Lua function 作 C# 参数 → 方法形参 `Action`/`Func`/delegate（隐式 marshal）
 - 删除 xLua `DelegateBridge` 手动注册（按 ZLua delegate spec）
 

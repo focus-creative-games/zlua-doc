@@ -17,7 +17,7 @@ title: "从 SLua 迁移"
 | `LuaSvr` / `LuaSvrGameObject` | `LuaAppDomain.Initialize` |
 | `LuaState` | 内置于 ZLua 宿主；不直接暴露 |
 | `[CustomLuaClass]` / 导出 XML | **无**；public 懒 Bind |
-| `LuaFunction` / `LuaTable` | `[LuaInvoke]`、delegate、`require` 模块 |
+| `LuaFunction` / `LuaTable` | `[LuaInvoke]`、**返回 delegate**、形参隐式 marshal、`require` 模块 |
 | `SLua.LuaObject` 绑定 | ObjectRegistry + marshal |
 | 自动导出 `UnityEngine.*` | `CSharp[assembly][fullName]` 按需访问 |
 | 值类型 GC 优化（版本相关） | ByVal / Opaque / ObjectRegistry（见 [compare/GC.md](../../compare/GC)） |
@@ -102,12 +102,22 @@ static extern void InvokeCallback(int a, int b);
 
 // 或 Lua function 作参数
 public static void SetHandler(Action<int,int> h) { ... }
+
+// 或把 Lua 函数拿回 C#（替代长期持有 LuaFunction）
+[LuaInvoke("mod", "get_callback")]
+static extern Action<int,int> GetCallback();
 ```
 
 ```lua
 mod.SetHandler(function(a,b) end)
+
+-- get_callback 返回 function，由返回值编组为 Action
+local function get_callback()
+    return function(a, b) print(a, b) end
+end
 ```
 
+动态按名 / 任意委托类型：见 [回调与 Delegate §3](../../guides/callbacks-and-delegates)。
 ### 步骤 6：SLua 特有 API 替换
 
 | SLua | ZLua |
@@ -227,7 +237,7 @@ obj:remove_Click(fn)
 | 调 C# 静态 | 导出类 | `CSharp[asm][type].Method` |
 | 调 C# 实例 | `:` | `:`（同 Lua 语义） |
 | C# 调 Lua | `LuaFunction` | `[LuaInvoke]` |
-| 创建 delegate | SLua 生成 / `LuaFunction` | 形参 delegate |
+| 创建 delegate | SLua 生成 / `LuaFunction` | 形参隐式 marshal，或 `[LuaInvoke]` **返回** delegate / `to_delegate` |
 | 泛型 List | 导出闭合类型 | `zlua.make_generic_type` |
 | 数组 | 导出 | `zlua.make_szarray_type` / `new_*array*` |
 | 反射 | SLua 部分支持 | `zlua.typeof` / `CSharp` 懒 Bind |

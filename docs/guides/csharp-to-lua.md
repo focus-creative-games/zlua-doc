@@ -94,6 +94,12 @@ private static extern void BattleTick(float dt);
 
 每个 module 对应独立 Lua 文件（或同一 loader 内的不同逻辑分支）。
 
+## 返回 Lua 函数给 C#（delegate）
+
+`[LuaInvoke]` 的返回值可以是 `Action` / `Func` / 任意 `Delegate`：Lua `return function ... end`，C# 即可持有并多次 `Invoke`。
+
+动态按名、或一条入口返回任意委托类型（`Delegate` + `Type` + `zlua.to_delegate`），见 **[回调与 Delegate §3](./callbacks-and-delegates)**。
+
 ## 错误排查
 
 | 现象 | 可能原因 |
