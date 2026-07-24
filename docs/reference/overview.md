@@ -12,7 +12,7 @@ description: ZLua C# 特性与 Lua API 索引。
 
 | 特性 | 说明 | 文档 |
 |------|------|------|
-| `[LuaInvoke]` | C# 调用 Lua 函数 | [LuaInvoke](./csharp/lua-invoke) |
+| `GetFunction<T>` | C# 调用 Lua 函数 | [LuaAppDomain](./csharp/lua-app-domain) |
 | `[MonoLuaCallback]` | 原生 `int (IntPtr L)` 回调 | [MonoLuaCallback](./csharp/lua-callback) |
 | `[LuaMarshalAs]` | 覆盖默认 Marshal | [LuaMarshalAs](./csharp/lua-marshal-as) |
 | `[LuaAlias]` | 方法重载 Lua 别名 | [LuaAlias](./csharp/lua-alias) |

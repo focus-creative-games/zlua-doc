@@ -40,7 +40,7 @@ git clone https://github.com/focus-creative-games/zlua-demo.git
 | 文件 | 说明 |
 |------|------|
 | [Packages/manifest.json](https://github.com/focus-creative-games/zlua-demo/blob/main/Packages/manifest.json) | UPM 依赖，含 ZLua Git URL |
-| [Assets/Bootstrap.cs](https://github.com/focus-creative-games/zlua-demo/blob/main/Assets/Bootstrap.cs) | 初始化与 `[LuaInvoke]` |
+| [Assets/Bootstrap.cs](https://github.com/focus-creative-games/zlua-demo/blob/main/Assets/Bootstrap.cs) | 初始化与 `GetFunction` |
 | [Assets/Demo.cs](https://github.com/focus-creative-games/zlua-demo/blob/main/Assets/Demo.cs) | 供 Lua 调用的 C# 类型 |
 | [LuaScripts/app.lua](https://github.com/focus-creative-games/zlua-demo/blob/main/LuaScripts/app.lua) | 主 Lua 模块 |
 
@@ -133,13 +133,13 @@ public class Bootstrap : MonoBehaviour
 ### 5. 验证安装
 
 1. 创建 [Demo.cs](https://github.com/focus-creative-games/zlua-demo/blob/main/Assets/Demo.cs) 与 [app.lua](https://github.com/focus-creative-games/zlua-demo/blob/main/LuaScripts/app.lua)
-2. 在 Bootstrap 上添加 `[LuaInvoke("app", "main")]` 并 Play
+2. 在 Bootstrap 中用 `GetFunction` 调用 `app.main` 并 Play
 3. Console 应输出 `lua main start` 及后续测试日志
 
 ## Assembly Definition 说明
 
 - ZLua Package 自带 asmdef（`ZLua.Common`、`ZLua.Mono`、`ZLua.Il2Cpp` 等），**无需**手动引用 native 插件。
-- 你的游戏脚本程序集（如 `Assembly-CSharp`）引用 `ZLua` 即可使用 `LuaAppDomain`、`[LuaInvoke]` 等 API。
+- 你的游戏脚本程序集（如 `Assembly-CSharp`）引用 `ZLua` 即可使用 `LuaAppDomain`、`GetFunction` 等 API。
 - Lua 中通过 `CSharp['Assembly-CSharp']`（或别名 `CSharp.AC`）访问该程序集下的类型。
 
 ## 常见安装问题
@@ -157,7 +157,7 @@ public class Bootstrap : MonoBehaviour
 |------|:-------------:|:---------------:|
 | UPM 安装 | ✅ | ✅ |
 | `LuaAppDomain.Initialize` | ✅ | ✅ |
-| `[LuaInvoke]` | ✅ | ✅ |
+| `GetFunction<T>` | ✅ | ✅ |
 | 完整 Lua↔C# API | ✅ | ✅（语义一致；实现路径不同） |
 
 ## 下一步

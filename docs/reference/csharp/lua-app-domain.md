@@ -1,12 +1,12 @@
 ---
 sidebar_position: 5
 title: LuaAppDomain
-description: ZLua 全局初始化与双运行时后端转发。
+description: 初始化与 GetFunction — C# 取得 Lua 函数对应的 Delegate。
 ---
 
 # LuaAppDomain
 
-`LuaAppDomain` 是 ZLua 的 **唯一公开初始化入口**。应用启动时调用一次，完成 Lua 状态创建、`zlua` 标准库加载、`CSharp` 根表注册，并按 Editor / Player 转发到对应后端。
+`LuaAppDomain` 是 ZLua 的 **唯一公开宿主入口**：初始化 Lua，以及用 **`GetFunction`** 从模块按名取得 Lua 函数对应的 Delegate。
 
 Canonical 示例：[zlua-demo Bootstrap.cs](https://github.com/focus-creative-games/zlua-demo/blob/main/Assets/Bootstrap.cs)
 
@@ -15,20 +15,25 @@ Canonical 示例：[zlua-demo Bootstrap.cs](https://github.com/focus-creative-ga
 ```csharp
 namespace ZLua
 {
-    public class LuaAppDomain
+    public static class LuaAppDomain
     {
         public static void Initialize(Func<string, object> moduleLoader);
+
+        public static T GetFunction<T>(string luaModule, string luaMethodName)
+            where T : MulticastDelegate;
     }
 }
 ```
+
+权威细则：[spec/01-HOST-API.md](../../spec/01-HOST-API)。
+
+---
 
 ### `Initialize(moduleLoader)`
 
 | 参数 | 说明 |
 |------|------|
 | `moduleLoader` | `Func<string, object>`，按模块名返回 Lua 源码 **string** 或 **byte[]** |
-
-典型挂载点：
 
 ```csharp
 [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
@@ -39,6 +44,31 @@ private static void InitZLuaOnStartup()
 ```
 
 `LoadLuaModule` 负责 Editor（`LuaScripts/*.lua`）与 Player（`StreamingAssets/*.lua.txt`）路径差异，见 [安装指南](../../getting-started/installation)。
+
+---
+
+### `GetFunction<T>(luaModule, luaMethodName)`
+
+按模块名与方法名解析 Lua `function`，绑定为委托类型 `T` 并返回。
+
+```csharp
+var add = LuaAppDomain.GetFunction<Func<int, int, int>>("app", "add");
+int sum = add(10, 20);
+
+var onTick = LuaAppDomain.GetFunction<Action<float>>("game", "OnTick");
+onTick(0.016f);
+```
+
+| 规则 | 说明 |
+|------|------|
+| `T` | 必须是具体 `MulticastDelegate` 类型（如 `Action<>` / `Func<>`） |
+| `luaModule` / `luaMethodName` | 与 `LoadLuaModule` 模块名、Lua `return { ... }` 键名一致 |
+| 缓存 | **由调用方负责**（热路径请存到字段 / 局部变量后再调） |
+| Marshal | 对返回的 delegate `Invoke` 时遵循 [Marshal 速查表](../marshal-cheatsheet)；可用 `[LuaMarshalAs]` |
+
+模块缺失、键不是 function、或无法绑定为 `T` → 抛 C# 异常。
+
+---
 
 ## 初始化流程
 
@@ -53,7 +83,7 @@ sequenceDiagram
     LAD->>BE: 解析 ZLua.Mono 或 ZLua.Il2Cpp
     BE->>L: 创建状态、openlibs、注册 CSharp / zlua
     BE->>BE: 安装 moduleLoader、FramePump
-    LAD-->>App: 就绪，可 LuaInvoke / CSharp 访问
+    LAD-->>App: 就绪，可 GetFunction / CSharp 访问
 ```
 
 ## 双运行时转发
@@ -74,7 +104,7 @@ sequenceDiagram
 - ref / userdata 延迟释放（`ProcessPendingRefReleases`）
 - 与 Lua GC 协同的 pending 清理
 
-一般 **无需** 手动调用；高级调试时可关注 Editor 日志中的 ZLua 初始化信息。
+一般 **无需** 手动调用。
 
 ## 与 `LuaEnv` 的关系
 
@@ -83,13 +113,11 @@ sequenceDiagram
 | `LuaAppDomain` | **public** | 游戏代码唯一入口 |
 | `LuaEnv` | public（Mono 模块） | 底层 `lua_State` 包装；由后端内部创建，**不建议**业务代码自行 `new LuaEnv()` |
 
-标准集成路径：`LuaAppDomain.Initialize` → `[LuaInvoke]` / `CSharp` 访问。
+标准集成路径：`LuaAppDomain.Initialize` → `GetFunction` / `CSharp` 访问。
 
 ## 模块加载约定
 
-`moduleLoader("app")` 的返回值会被 `require` 语义加载。与 `[LuaInvoke("app", "main")]` 的 **module** 参数必须一致。
-
-Demo 约定：
+`moduleLoader("app")` 的返回值会被 `require` 语义加载。与 `GetFunction(..., "app", ...)` 的 **module** 参数必须一致。
 
 | 环境 | 路径 |
 |------|------|
@@ -101,12 +129,14 @@ Demo 约定：
 | 现象 | 处理 |
 |------|------|
 | `Lua module loader is not configured` | 未调用 `Initialize` 或 loader 为 null |
-| `require` 失败 | 检查模块名、文件路径、`.lua.txt` 后缀 |
+| `require` / GetFunction 失败 | 检查模块名、文件路径、`.lua.txt` 后缀、`return` 表键名 |
 | Player 无 Lua 脚本 | 确认 Sync 脚本已执行，StreamingAssets 含目标文件 |
+| Marshal / 绑定失败 | 对照 [Marshal 速查表](../marshal-cheatsheet) 与 `T` 签名 |
 
 ## 相关文档
 
 - [C# 调用 Lua 指南](../../guides/csharp-to-lua)
+- [回调与 Delegate](../../guides/callbacks-and-delegates)
 - [Lua 模块加载](../../guides/lua-module-loading)
 - [设计规范](../../spec/00-OVERVIEW)
 - [源码 LuaAppDomain.cs](https://github.com/focus-creative-games/zlua/blob/main/Runtime/Common/LuaAppDomain.cs)

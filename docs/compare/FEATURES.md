@@ -17,7 +17,7 @@ title: "特性与用法对比"
 | **Lua 引擎** | 独立 **libxlua**（P/Invoke） | 内嵌或绑定原生 lua | 内嵌 lua | 链入 **libil2cpp**（Player）/ 内嵌（Editor） |
 | **类型入口** | `CS.Namespace.Type` | 导出全局 / 包装类 | 类似 toLua + 配置 | `CSharp[assembly]['Full.Name']` 懒加载 |
 | **Lua→C# 桥** | 生成 **C# Wrap** + `LuaDLL` | 生成 `*.Wrap.cs` | 自动绑定 + 导出 | C++ MethodBridge（Il2Cpp）/ Expression Emit（Mono） |
-| **C#→Lua** | `LuaEnv` + `LuaFunction` + 多次 `LuaDLL` | `LuaState` / `LuaFunction` | `LuaSvr` / `LuaFunction` | `[LuaInvoke]` InternalCall + C++ 模板 |
+| **C#→Lua** | `LuaEnv` + `LuaFunction` + 多次 `LuaDLL` | `LuaState` / `LuaFunction` | `LuaSvr` / `LuaFunction` | `GetFunction<T>` + Delegate 桥 |
 | **白名单 / 导出** | `[LuaCallCSharp]` / `[CSharpCallLua]` + Generate | 手动列表 / Binder | 导出配置 / Attribute | **无** LuaCall 白名单；按 **public** + 懒 Bind |
 | **Editor vs Player** | 基本一致（均走 libxlua + Wrap） | 基本一致 | 基本一致 | **双轨**：Mono Emit vs Il2Cpp native（语义须一致） |
 | **侵入 Unity** | 插件包 + native | 插件包 | 插件包 | **fork libil2cpp**（Player） |
@@ -125,17 +125,17 @@ demo:run_hot(1)
 | xLua | `LuaEnv.DoString` / `LuaFunction.Call` / `[CSharpCallLua]` | `LuaFunction` / `Delegate` 桥 |
 | toLua | `LuaState.DoFile` / `LuaFunction` | `LuaFunction.ToDelegate` 等 |
 | SLua | `LuaSvr` + `LuaFunction` | SLua delegate 绑定 |
-| ZLua | `[LuaInvoke("module", "func")]` static extern | 方法形参 **隐式 marshal**（`Action`/`Func` 等） |
+| ZLua | `LuaAppDomain.GetFunction<Action<float>>("game", "OnTick")` | 方法形参 **隐式 marshal**（`Action`/`Func` 等） |
 
-**ZLua `[LuaInvoke]` 示例：**
+**ZLua `GetFunction` 示例：**
 
 ```csharp
-[LuaInvoke("game", "OnTick")]
-public static extern void OnTick(float dt);
+static readonly Action<float> OnTick =
+    LuaAppDomain.GetFunction<Action<float>>("game", "OnTick");
+OnTick(0.016f);
 ```
 
-- Editor：Weaver + Emit 桥（**无** `object[]` legacy）。
-- Player：`InternalCall` → C++ `LuaInvokeRuntime::Call`，构建期解析 `moduleRef`/`funcRef`。
+- Editor / Player：**同一 API**；运行时经 Delegate 桥调 Lua（热路径请缓存 delegate）。
 
 ### 4.2 模块加载
 
@@ -160,7 +160,7 @@ public static extern void OnTick(float dt);
 
 **Opaque 边界（ZLua 特有，迁移易踩坑）：**
 
-- C# `[LuaInvoke]` 的 `ref int` 推到 Lua 侧是 **OpaqueValue**，不是 integer；须 `zlua.get_opaquevalue` / `set_opaquevalue`。
+- C# `GetFunction` 取得的 delegate 上 `ref int` 推到 Lua 侧是 **OpaqueValue**，不是 integer；须 `zlua.get_opaquevalue` / `set_opaquevalue`。
 - Opaque **不可跨 pcall 持久化**。
 
 ---
@@ -170,7 +170,7 @@ public static extern void OnTick(float dt);
 | 维度 | xLua | toLua / SLua | ZLua |
 |------|------|--------------|------|
 | 热更实践 | 大量现成方案（字节码、资源） | 项目自建 | **需自建**；ZLua 不绑定特定热更框架 |
-| 代码生成 | XLua Generate All | 导出 Wrap | Il2Cpp：**Codegen C++ stub** + Weaver `[LuaInvoke]`；Mono：**Emit**（不进 Player 包） |
+| 代码生成 | XLua Generate All | 导出 Wrap | Il2Cpp：**Codegen C++ stub**（Lua→C#）；Mono：**Emit**（不进 Player 包）；C#→Lua **无 codegen** |
 | 反射兜底 | 有（慢路径） | 部分 | **禁止**热路径静默 `Method.Invoke`；无法 Emit 则 **绑定期失败** |
 | 链接 / 裁剪 | 白名单控制 Wrap | 导出列表 | public 类型可懒 Bind；Il2Cpp **ReducedType** 控制 stub 体积（见 [BRIDGE.md](./BRIDGE)） |
 | Unity 升级 | 升 xLua 包为主 | 风险高 | **merge libil2cpp 补丁**（工程债） |
@@ -217,7 +217,7 @@ public static extern void OnTick(float dt);
 | xLua | `[LuaCallCSharp]`、`[CSharpCallLua]`、`[ReflectionUse]`、Generate 配置 |
 | toLua | 自定义 `CustomSettings.cs` 导出列表 |
 | SLua | `[CustomLuaClass]`、导出 XML / 代码 |
-| ZLua | **无** LuaCall 式白名单；**public** 成员可 Bind；`[LuaMarshalAs]` / `[LuaAlias]` 影响 Marshal 与别名；Weaver 处理 `[LuaInvoke]` |
+| ZLua | **无** LuaCall 式白名单；**public** 成员可 Bind；`[LuaMarshalAs]` / `[LuaAlias]` 影响 Marshal 与别名 |
 
 **迁移含义：** 从 xLua 迁出时需 **删除** Generate 配置，改为确认程序集内 public API 是否应暴露给 Lua；敏感 API 应改 **非 public** 而非依赖导出列表。
 

@@ -66,7 +66,7 @@ title: "GC 差异"
 |------|----------|
 | Lua→C# blittable 方法 | C++ 桥直接读栈 → `methodPointer`；**目标零 GC** |
 | Lua→C# string / class | `string` 分配；class **ObjectRegistry** Push（槽位 + 弱缓存） |
-| C#→Lua `[LuaInvoke]` blittable | C++ PushDefault*；**目标零 GC** |
+| C#→Lua `GetFunction` blittable | Delegate 桥 PushDefault*；**目标零 GC** |
 | C#→Lua `ref`/`out` | **OpaqueValue**（lightuserdata，无托管 boxing） |
 | struct ByVal | userdata 内 **payload 拷贝**；non-blittable 可能 boxed companion |
 | Delegate | closed delegate + funcRef；首次绑定有分配，稳态 **待测** |
@@ -112,7 +112,7 @@ __gc → UnregisterObject → 解除 root
 | 生命周期 | **仅当次** C#→Lua 调用帧；跨 pcall 保存 → error |
 | GC | handle 本身 **不** 增加托管对象计数；指向的 ref 槽在 invoke 内有效 |
 
-用于 `[LuaInvoke]` / delegate bridge 的 `ref`/`out`/`in` 默认路径（见 [spec/marshal/04-OPAQUE.md](../spec/marshal/04-OPAQUE)）。
+用于 **GetFunction 取得的 delegate 调用** / delegate bridge 的 `ref`/`out`/`in` 默认路径（见 [spec/marshal/04-OPAQUE.md](../spec/marshal/04-OPAQUE)）。
 
 ### 3.4 Indexer 与分配
 

@@ -67,7 +67,7 @@ lua_pcall
 
 **差异要点：** xLua / toLua / SLua 的 Lua 栈操作常经 **额外 C# / P/Invoke 边界**；ZLua Player 在 **C++ 一次完成** marshal + `methodPointer`。
 
-### 2.2 C# → Lua（例：`[LuaInvoke]` / 脚本回调）
+### 2.2 C# → Lua（例：`GetFunction` / 脚本回调）
 
 **xLua**
 
@@ -91,12 +91,12 @@ C# → LuaState / LuaFunction
 **ZLua**
 
 ```text
-C# [LuaInvoke] → InternalCall（一次进 native）
-  → LuaInvokeRuntime::Call（C++ 模板）
+C# GetFunction → delegate.Invoke（一次绑定，可缓存）
+  → DelegateBridge / LuaCallInvoker（C++ 或 Mono）
       → lua_rawgeti(funcRef) + Push* + lua_pcall + Pop
 ```
 
-构建期解析 `moduleRef` / `funcRef`；运行时 **无按名 getglobal**。
+运行时按 `(module, method)` 解析 function ref；热路径 **缓存 delegate** 避免重复 `GetFunction`。
 
 ### 2.3 Lua function → C# Delegate（已绑定后）
 
@@ -134,7 +134,7 @@ C# [LuaInvoke] → InternalCall（一次进 native）
 | **P2** | 实例无参 `GetX()` | `for i=1,N do o:GetX() end` | 实例 + userdata 解引用 |
 | **P2b** | 实例字段 `obj.x`（`int`） | `for i=1,N do local _=o.x end` | `__index` + 字段快路径 |
 | **P3** | 实例有参 + 简单重载 | 两 overload 交替调用 | dispatch 成本 |
-| **P4** | C#→Lua 少参 | `[LuaInvoke]` 空函数 / `int` 返回循环 | 反向跨界次数 |
+| **P4** | C#→Lua 少参 | `GetFunction` 空函数 / `int` 返回循环 | 反向跨界次数 |
 | **P5** | Delegate 已绑定后回调 | C# `Action` 循环调 Lua function | 稳态回调 |
 | **P6** | `string` / 复杂 object | 传 `string`、`List<int>` 等 | marshal 主导 |
 

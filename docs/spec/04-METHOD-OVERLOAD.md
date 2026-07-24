@@ -424,4 +424,4 @@ assert.equal(CSharp.AC.Demo.add_one(7), 7)
 | `FindMatchingMethod` | applicable + better member |
 | `MetaBinding` | dispatch、direct closure、`register_method` |
 | `ZLuaLib.cpp` | `__zlua_create_signature`、`__zlua_register_method` |
-| Weaver / Codegen | `[LuaAlias]` 写入元数据 |
+| Codegen | `[LuaAlias]` 写入元数据 |

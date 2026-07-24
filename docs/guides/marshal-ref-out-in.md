@@ -12,7 +12,7 @@ description: byref 与 OpaqueValue Marshal 规则摘要。
 
 | 路径 | 默认行为 |
 |------|----------|
-| **C# → Lua**（`[LuaInvoke]` / delegate） | `ref`/`out`/`in` 默认 Push **OpaqueValue**（lightuserdata） |
+| **C# → Lua**（GetFunction 取得的 delegate / delegate bridge） | `ref`/`out`/`in` 默认 Push **OpaqueValue**（lightuserdata） |
 | **Lua → C#** | 不区分 ref/out/in 的 Pop 规则；能否写回取决于实参形态 |
 
 ## Lua → C#：何时能写回

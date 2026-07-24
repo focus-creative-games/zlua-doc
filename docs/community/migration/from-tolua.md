@@ -18,7 +18,7 @@ title: "从 toLua 迁移"
 | `*.Wrap.cs` 导出类 | **无 Wrap**；`EnsureBinding` 写三表 |
 | `CustomSettings.cs` 导出列表 | **无**导出列表；public 懒 Bind |
 | 全局 `UnityEngine.GameObject` | `CSharp['UnityEngine.CoreModule']['UnityEngine.GameObject']` |
-| `LuaFunction` / `LuaTable` | `[LuaInvoke]`、**返回 delegate**、形参隐式 marshal、`require` 模块 table |
+| `LuaFunction` / `LuaTable` | `GetFunction`、形参隐式 marshal、`require` 模块 table |
 | `ToLua.Push` / 手动绑定 | 自动 marshal（spec/marshal） |
 | `out` 多返回值 | StructUserData（`Type(...)`）/ 拷贝语义（视签名） |
 | Binder 注册 | `CSharp` 懒加载 + Codegen（Il2Cpp） |
@@ -107,8 +107,8 @@ func.Dispose();
 **After：**
 
 ```csharp
-[LuaInvoke("game", "Update")]
-static extern void LuaUpdate(float dt);
+static readonly Action<float> LuaUpdate =
+    LuaAppDomain.GetFunction<Action<float>>("game", "Update");
 ```
 
 ### 步骤 6：Delegate 与 tolua 事件
@@ -132,11 +132,11 @@ public static void SetClickHandler(Action cb) { button.onClick.AddListener(() =>
 ui:SetClickHandler(function() print("click") end)
 ```
 
-**After（C# 主动取回 Lua 函数再调）：** 使用 `[LuaInvoke]` **返回** `Action`/`Func`，或返回 `Delegate` + `zlua.to_delegate`。见 [回调与 Delegate §3](../../guides/callbacks-and-delegates)、[from-xlua 步骤 5](./from-xlua)。
+**After（C# 主动取回 Lua 函数再调）：** 使用 `GetFunction<Action>`/`GetFunction<Func<…>>`，或 `GetFunction<Delegate>` + `zlua.to_delegate`。见 [回调与 Delegate §3](../../guides/callbacks-and-delegates)、[from-xlua 步骤 5](./from-xlua)。
 
 ```csharp
-[LuaInvoke("ui", "get_on_click")]
-static extern Action GetOnClick();
+static readonly Func<Action> GetOnClick =
+    LuaAppDomain.GetFunction<Func<Action>>("ui", "get_on_click");
 
 button.onClick.AddListener(GetOnClick());
 ```
@@ -214,8 +214,9 @@ return M
 ```
 
 ```csharp
-[LuaInvoke("game", "OnUpdate")]
-static extern void OnUpdate(float dt);
+```csharp
+static readonly Action<float> OnUpdate =
+    LuaAppDomain.GetFunction<Action<float>>("game", "OnUpdate");
 ```
 
 ### 4.2 数组

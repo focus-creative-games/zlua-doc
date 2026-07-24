@@ -121,7 +121,7 @@ flowchart TB
 | `EnsureInitialized()` | 幂等初始化 + 加载 `bootstrap.lua` |
 | `RunModule(module)` | 执行 `Tests/Lua/{module}.lua` |
 | `RunChunk(lua)` | 执行片段 |
-| `Call<T>(…)` | C# 调 Lua（配合 `[LuaInvoke]`） |
+| `Call<T>(…)` | C# 调 Lua（配合 `GetFunction`） |
 
 ---
 
@@ -195,7 +195,7 @@ public void Run_all_lua_tests()
 
 | 模式 | 适用 |
 |------|------|
-| **A：纯 C#** | `[LuaInvoke]` 探针、纯 C# 可验证逻辑 |
+| **A：纯 C#** | `GetFunction` 探针、纯 C# 可验证逻辑 |
 | **B：Lua 互操作（主路径）** | 新建 `tc_*.lua` + `test_*` + manifest 注册 |
 | **C：C# 内嵌片段** | `LuaTestHelper.RunChunk` 临时调试 |
 
@@ -216,7 +216,7 @@ public void Run_all_lua_tests()
 | [spec/04-METHOD-OVERLOAD.md](../spec/04-METHOD-OVERLOAD) | `method_overload` | `tc_method_call`、`tc_register_method` |
 | [spec/marshal/](../spec/marshal/) | `marshal` | `tc_default_marshal`、`tc_marshal_struct`、`tc_marshal_enum`、`tc_marshal_delegate` 等 |
 | [spec/marshal/09-FUNCTION.md](../spec/marshal/09-FUNCTION) | `function_marshal` | `tc_delegate_marshal` |
-| [spec/01-HOST-API.md](../spec/01-HOST-API) | `luainvoke` | `tc_luainvoke_marshal`、`tc_luainvoke_unity_vector` |
+| [spec/01-HOST-API.md](../spec/01-HOST-API) | `getfunction` | `tc_getfunction_marshal`、`tc_getfunction_unity_vector` |
 | [spec/05-LIB.md](../spec/05-LIB) | `zlualib` | `tc_typeof`、`tc_make_generic_type`、`tc_box`、`tc_to_delegate` 等 |
 | [spec/10-LIFETIME.md](../spec/10-LIFETIME) | 分散在 marshal / delegate | Opaque、ref 相关 `tc_*` |
 
@@ -247,7 +247,7 @@ public void Run_all_lua_tests()
 | `OverloadDemo` | [04-METHOD-OVERLOAD.md](../spec/04-METHOD-OVERLOAD) |
 | `DelegateFixtures` | [marshal/09-FUNCTION.md](../spec/marshal/09-FUNCTION) |
 
-Fixture 须 public，走 ZLua Codegen / Weaver，保证 Il2Cpp 桥接表完整。
+Fixture 须 public，走 ZLua Codegen（Il2Cpp stub），保证桥接表完整。
 
 ---
 

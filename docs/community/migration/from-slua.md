@@ -17,7 +17,7 @@ title: "从 SLua 迁移"
 | `LuaSvr` / `LuaSvrGameObject` | `LuaAppDomain.Initialize` |
 | `LuaState` | 内置于 ZLua 宿主；不直接暴露 |
 | `[CustomLuaClass]` / 导出 XML | **无**；public 懒 Bind |
-| `LuaFunction` / `LuaTable` | `[LuaInvoke]`、**返回 delegate**、形参隐式 marshal、`require` 模块 |
+| `LuaFunction` / `LuaTable` | `GetFunction`、形参隐式 marshal、`require` 模块 |
 | `SLua.LuaObject` 绑定 | ObjectRegistry + marshal |
 | 自动导出 `UnityEngine.*` | `CSharp[assembly][fullName]` 按需访问 |
 | 值类型 GC 优化（版本相关） | ByVal / Opaque / ObjectRegistry（见 [compare/GC.md](../../compare/GC)） |
@@ -97,15 +97,16 @@ laf.call(1, 2);
 **After：**
 
 ```csharp
-[LuaInvoke("mod", "callback")]
-static extern void InvokeCallback(int a, int b);
+static readonly Action<int, int> InvokeCallback =
+    LuaAppDomain.GetFunction<Action<int, int>>("mod", "callback");
+InvokeCallback(1, 2);
 
 // 或 Lua function 作参数
 public static void SetHandler(Action<int,int> h) { ... }
 
 // 或把 Lua 函数拿回 C#（替代长期持有 LuaFunction）
-[LuaInvoke("mod", "get_callback")]
-static extern Action<int,int> GetCallback();
+static readonly Func<Action<int, int>> GetCallback =
+    LuaAppDomain.GetFunction<Func<Action<int, int>>>("mod", "get_callback");
 ```
 
 ```lua
@@ -125,7 +126,7 @@ end
 | `LuaVar` / `LuaArray` | 原生 Lua table 或 C# 数组 marshal |
 | `checkVar` / 手动类型检查 | marshal 错误由 ZLua 抛 |
 | `Slua.CreateClass` | **无**；用 C# 类型 + 构造 |
-| `LuaSvr.doUpdate` | C# `Update` 内 `[LuaInvoke]` |
+| `LuaSvr.doUpdate` | C# `Update` 内 `GetFunction` 取得的 delegate |
 
 ### 步骤 7：值类型
 
@@ -236,8 +237,8 @@ obj:remove_Click(fn)
 | 执行文件 | `doFile` | `require` + loader |
 | 调 C# 静态 | 导出类 | `CSharp[asm][type].Method` |
 | 调 C# 实例 | `:` | `:`（同 Lua 语义） |
-| C# 调 Lua | `LuaFunction` | `[LuaInvoke]` |
-| 创建 delegate | SLua 生成 / `LuaFunction` | 形参隐式 marshal，或 `[LuaInvoke]` **返回** delegate / `to_delegate` |
+| C# 调 Lua | `LuaFunction` | `GetFunction<T>` |
+| 创建 delegate | SLua 生成 / `LuaFunction` | 形参隐式 marshal，或 `GetFunction` / `to_delegate` |
 | 泛型 List | 导出闭合类型 | `zlua.make_generic_type` |
 | 数组 | 导出 | `zlua.make_szarray_type` / `new_*array*` |
 | 反射 | SLua 部分支持 | `zlua.typeof` / `CSharp` 懒 Bind |
@@ -249,7 +250,7 @@ obj:remove_Click(fn)
 | 主题 | 参考 |
 |------|------|
 | 删 Wrap、全局类 | [from-tolua.md](./from-tolua) |
-| `[LuaInvoke]`、Opaque | [from-xlua.md](./from-xlua) |
+| GetFunction、Opaque | [from-xlua.md](./from-xlua) |
 | 性能/GC | [compare/](../../compare/) |
 
 ---

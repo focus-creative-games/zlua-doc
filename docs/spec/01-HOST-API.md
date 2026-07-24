@@ -5,8 +5,8 @@ title: "宿主 API"
 
 # 01 — 宿主 API
 
-> `LuaAppDomain`、**`[LuaInvoke]`**、**`[LuaMarshalAs]`**、**`[LuaAlias]`** 与编译期 Weaver 约束。  
-> C#→Lua / Lua→C# Marshal 细节见 [marshal/](marshal/)；Weaver 实现见 [impl/codegen/WEAVER.md](../impl/codegen/WEAVER)。
+> `LuaAppDomain`（含 **`GetFunction`**）、**`[LuaMarshalAs]`**、**`[LuaAlias]`**。  
+> C#→Lua / Lua→C# Marshal 细节见 [marshal/](marshal/)。
 
 ---
 
@@ -25,6 +25,10 @@ title: "宿主 API"
 public static class LuaAppDomain
 {
     public static void Initialize(Func<string, object> moduleLoader);
+
+    public static T GetFunction<T>(string luaModule, string luaMethodName)
+        where T : MulticastDelegate;
+
     internal static void ProcessPendingRefReleases(); // 由 LuaFramePump 驱动
 }
 ```
@@ -35,7 +39,7 @@ public static class LuaAppDomain
 
 **约定：**
 
-- 模块名与 `[LuaInvoke("module", "func")]` 中的 module 字符串一致
+- 模块名与 `GetFunction` 的 `luaModule` 字符串一致
 - loader 失败应抛出明确异常，避免 silent nil
 
 ### 1.3 帧泵
@@ -44,65 +48,81 @@ public static class LuaAppDomain
 
 ---
 
-## 2. `[LuaInvoke]` — C# 调用 Lua
+## 2. `GetFunction` — C# 调用 Lua
 
-### 2.1 声明形式
+C#→Lua 的 **唯一正式入口**：按模块名与方法名取得绑定好的 **Delegate**，再由调用方 `Invoke`（或直接调用）。
 
-```csharp
-[LuaInvoke("game", "OnTick")]
-public static extern void OnTick(float dt);
-
-[LuaInvoke("game", "GetScore")]
-public static extern int GetScore();
-```
-
-属性定义（`ZLua.Common`）：
+### 2.1 签名
 
 ```csharp
-[AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-public sealed class LuaInvokeAttribute : Attribute
-{
-    public string Module { get; }
-    public string Function { get; }
-    public LuaInvokeAttribute(string module, string function);
-}
+public static T GetFunction<T>(string luaModule, string luaMethodName)
+    where T : MulticastDelegate;
 ```
 
-构造函数 **必须** 提供非空 `moduleName` 与 `methodName`（对应 Lua 模块全局函数名）。
+| 参数 | 说明 |
+|------|------|
+| `luaModule` | 非空；交给 `moduleLoader` / `require` 的模块名 |
+| `luaMethodName` | 非空；模块 `return { ... }` 表中的键名 |
+| `T` | 具体委托类型（如 `Action`、`Action<float>`、`Func<int,int,int>`） |
 
-### 2.2 编译期约束（Weaver 强制）
+### 2.2 行为
 
-| 规则 | 违反时 |
-|------|--------|
-| 必须为 **`static`** | 编译失败 |
-| 必须为 **`extern`**（无方法体） | 编译失败 |
-| 不得位于 **泛型类型** 上 | 编译失败 |
-| 方法本身不得为 **泛型方法** | 编译失败 |
-| **`ref` / `in` / `out` 形参允许** | — |
+1. 按 `luaModule` 加载（或命中已加载）模块表  
+2. 取 `module[luaMethodName]`，须为 Lua `function`  
+3. 按 `T` 的签名将 function **Marshal** 为 closed delegate（规则同 [marshal/09-FUNCTION.md](marshal/09-FUNCTION.md)）  
+4. 返回该 `T` 实例  
 
-> **已移除：** Editor 下通过 `RunLuaFunc(..., object[])` 反射调 Lua 的路径。新 Mono 重写使用 **per-signature Emit 桥**（与 Il2Cpp stub 语义对齐），不再文档化 `object[]` 慢路径。
+**缓存：** API **不保证**跨调用复用同一 delegate 实例；热路径由调用方自行保存（字段 / 局部变量）。须在 `Initialize` **之后**再调用（例如 `Awake`）；**勿**放在与 `RuntimeInitializeOnLoadMethod` 同类型的 static 字段初始化器中。
 
-### 2.3 Editor（Mono）改写
+### 2.3 示例
 
-编译游戏程序集后，`LuaInvokeILPostProcessor`（dnlib）处理带 `[LuaInvoke]` 的方法：
+```csharp
+// 一次性 / 启动期取得
+var add = LuaAppDomain.GetFunction<Func<int, int, int>>("app", "add");
+int sum = add(10, 20);
 
-1. 校验 §2.2 约束
-2. 解析 `(moduleName, methodName)`
-3. 优先：**Emit 快路径** — 改写方法体为调用 `LuaInvokeBridge` / `LuaInvokeSiteRegistry.GetOrCreateFunctionRef`，再 invoke 生成桥
-4. 兜底：legacy `MethodInfo` + `RunLuaFunc`（过渡；新代码应使用 Emit 路径）
-5. 添加 `[LuaInvokeWeaverProcessed]` 标记
+var onTick = LuaAppDomain.GetFunction<Action<float>>("game", "OnTick");
+onTick(0.016f);
+```
 
-参数与返回值 Marshal 与普通 C#→Lua 相同，见 [marshal/01-OVERVIEW.md](marshal/01-OVERVIEW.md)。**`ref` / `in` / `out` 默认 Push OpaqueValue**（[marshal/04-OPAQUE.md](marshal/04-OPAQUE.md)）。
+```lua
+-- app.lua
+local function add(a, b) return a + b end
+return { add = add }
+```
 
-### 2.4 Player（Il2Cpp）改写
+### 2.4 错误
 
-非 Editor 构建时：
+| 条件 | 行为 |
+|------|------|
+| 未 `Initialize` / loader 未配置 | 抛 C# 异常 |
+| 模块加载失败 / 键不存在 / 非 function | 抛 C# 异常（含可诊断信息） |
+| `T` 无法从该 function 绑定（签名不兼容等） | 抛 C# 异常 |
 
-1. 移除 `[LuaInvoke]` 特性（可选，以实现为准）
-2. 设置 `[MethodImpl(MethodImplOptions.InternalCall)]`
-3. C++ 侧生成对应 extern stub，经 `LuaInvokeHelper` 调 Lua
+### 2.5 调用与 Marshal
 
-Il2Cpp C# 层仅保留薄壳：
+对返回的 delegate 执行 `Invoke` 时：
+
+- 参数 / 返回值 Marshal 与普通 **C#→Lua（delegate bridge）** 相同，见 [marshal/01-OVERVIEW.md](marshal/01-OVERVIEW.md)
+- **`ref` / `in` / `out` 默认 Push OpaqueValue**（[marshal/04-OPAQUE.md](marshal/04-OPAQUE.md)）
+
+### 2.6 流程（概念）
+
+```
+GetFunction<T>(module, method)
+  → require / 取模块表
+  → 取 Lua function
+  → Marshal 为 T
+  → 返回 T
+
+此后：T.Invoke(...)
+  → marshal 参数（含 ref → OpaqueValue）
+  → lua_pcall
+  → marshal 返回值 / ref 写回
+  → 异常边界转换（§6）
+```
+
+Il2Cpp C# 层初始化仍为薄壳（与 `GetFunction` 无关）：
 
 ```csharp
 public static class LuaIl2CppAppDomain
@@ -113,17 +133,6 @@ public static class LuaIl2CppAppDomain
     public static void Initialize(Func<string, object> moduleLoader)
         => InitializeInternal(moduleLoader);
 }
-```
-
-### 2.5 调用流程（概念）
-
-```
-C# [LuaInvoke] 入口
-  → marshal 参数（含 ref → OpaqueValue）
-  → native: 按 module+function 取 lua ref
-  → lua_pcall
-  → marshal 返回值 / ref 写回
-  → 异常边界转换（§6）
 ```
 
 ---
@@ -159,7 +168,7 @@ C# [LuaInvoke] 入口
 
 ### 3.3 校验时机
 
-非法组合在 **Bind 期 / Weaver 期** 失败（`LuaMarshalAsConfigurationException`），不延迟到首次 Lua 调用。
+非法组合在 **Bind 期** 失败（`LuaMarshalAsConfigurationException`），不延迟到首次 Lua 调用。
 
 ---
 
@@ -186,7 +195,7 @@ public void Bar(string s) { ... }
 
 Lua 调用 C# 成员时，native 在 **EnsureBinding** 阶段为每个 public 成员生成桥接 closure 并写入三表。**不需要**也 **不提供** 业务侧 `[MonoLuaCallback]` 标记。
 
-每种 **ReducedType（Il2Cpp）** 或 **完整签名（Mono Emit）** 对应唯一桥接入口；与 `[LuaInvoke]` 无关。
+每种 **ReducedType（Il2Cpp）** 或 **完整签名（Mono Emit）** 对应唯一桥接入口。
 
 ---
 
@@ -214,17 +223,16 @@ Opaque handle **仅在** 产生它的那次 C#→Lua 调用返回前有效；跨
 
 ---
 
-## 7. Weaver 与 Codegen 约束（摘要）
+## 7. Codegen 约束（摘要）
 
 | 项 | 约束 |
 |----|------|
-| `[LuaInvoke]` | §2.2；Player → InternalCall |
 | `[LuaAlias]` | 允许与默认名 / 其它别名重复；按最终名分组（见 overload §5） |
 | `[LuaMarshalAs]` | 禁止 method 级；非法 FieldOrPropertyNames → bind 失败 |
 | Mono Emit | 无法 Emit 的签名 **必须显式失败**，禁止 silent `Method.Invoke` 热路径 |
-| Il2Cpp stub | 未覆盖签名 → 构建期或首次绑定失败 |
+| Il2Cpp stub | 未覆盖签名 → 构建期或首次绑定失败（MethodBridge 等，见 `impl/codegen/`） |
 
-Editor 程序集处理入口：`LuaInvokeILPostProcessor`（`Unity.ZLua.LuaInvoke.CodeGen`）。
+C#→Lua **不**依赖 IL weave / 专用 stub：经 `GetFunction` → Delegate 桥完成。
 
 ---
 
@@ -235,5 +243,6 @@ Editor 程序集处理入口：`LuaInvokeILPostProcessor`（`Unity.ZLua.LuaInvok
 | [00-OVERVIEW.md](00-OVERVIEW.md) | 双运行时、初始化 |
 | [04-METHOD-OVERLOAD.md](04-METHOD-OVERLOAD.md) | dispatch、`register_method` |
 | [marshal/01-OVERVIEW.md](marshal/01-OVERVIEW.md) | Marshal 总览 |
+| [marshal/09-FUNCTION.md](marshal/09-FUNCTION.md) | Delegate ↔ Lua function |
 | [10-LIFETIME.md](10-LIFETIME.md) | GC、单 lua_State |
-| [impl/codegen/WEAVER.md](../impl/codegen/WEAVER) | dnlib / ILPP 细节 |
+| [reference/csharp/lua-app-domain.md](../reference/csharp/lua-app-domain.md) | 程序员 API 页 |

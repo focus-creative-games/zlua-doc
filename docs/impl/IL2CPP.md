@@ -20,7 +20,7 @@ zlua/
 ├── lvm/          宿主生命周期、Lua 状态、ZLuaLib、InternalCall、Loader
 ├── mt/           类型注册、元表绑定、成员索引（`Dispatch*` + `MetaBinding`）
 ├── marshal/      Push/Pop、Registry、MarshalMeta、Overload 解析
-├── bridge/       Method / Property / Field / Delegate / LuaInvoke 调用体
+├── bridge/       Method / Property / Field / Delegate 调用体
 ├── generated/    构建期 Codegen 产物（stub 表、BuiltinScripts.inc）
 ├── utils/        横切：MetadataUtil、异常、栈守卫、分配器
 ├── ZLuaCommon.*  公共头、宏门控、与 Lua VM 的 ABI 约定
@@ -48,10 +48,9 @@ Player 进程进入 Il2Cpp 后，托管侧调用 `LuaAppDomain::Initialize()`，
 | 3 | `PropertyBridge::Initialize()` | 加载 `generated/PropertyBridgeStub.h` 中的 getter/setter 函数表 |
 | 4 | `MethodBridge::Initialize()` | 加载 `generated/MethodBridgeStub.h` 中的 `lua2CsInvoker` 表 |
 | 5 | `DelegateBridge::Initialize()` | 加载 `generated/DelegateBridgeStub.h` |
-| 6 | `LuaInternalCalls::RegisterCoreInternalCalls()` | 核心 InternalCall（非 LuaInvoke） |
-| 7 | `luainvoke::RegisterGeneratedInternalCalls()` | `[LuaInvoke]` 生成的 IC 注册（`LuaInvokeStub.cpp`） |
-| 8 | `LuaLoader::RegisterRoots()` | StreamingAssets / 模块搜索根 |
-| 9 | `LuaEnv::Initialize()` | 创建 `lua_State` 并完成 Lua 侧 bootstrap（见下节） |
+| 6 | `LuaInternalCalls::RegisterCoreInternalCalls()` | 核心 InternalCall |
+| 7 | `LuaLoader::RegisterRoots()` | StreamingAssets / 模块搜索根 |
+| 8 | `LuaEnv::Initialize()` | 创建 `lua_State` 并完成 Lua 侧 bootstrap（见下节） |
 
 可选：`LuaAppDomain::InitializeFromManaged(Il2CppDelegate*)` 在步骤 8 之后注入托管 `moduleLoader` delegate。
 
@@ -83,7 +82,7 @@ Player 进程进入 Il2Cpp 后，托管侧调用 `LuaAppDomain::Initialize()`，
 | `LuaAppDomain.cpp/.h` | Il2Cpp 入口：`Initialize` / `InitializeFromManaged` / `Shutdown` 转发 |
 | `LuaEnv.cpp/.h` | 全局 `lua_State`、globals/libs 注册、error handler、dostring、pending ref 队列 |
 | `ZLuaLib.cpp` | C API 实现：`zlua.import_type`、`zlua.cast`、`zlua.box` 等（语义见 [../spec/05-LIB.md](../spec/05-LIB)） |
-| `LuaInternalCalls.cpp/.h` | 非 LuaInvoke 的 InternalCall 注册 |
+| `LuaInternalCalls.cpp/.h` | InternalCall 注册 |
 | `LuaGlobalRefs.cpp/.h` | registry 强引用集中管理 |
 | `LuaLoader.cpp/.h` | 模块搜索、StreamingAssets loader、托管 delegate loader |
 
@@ -129,8 +128,7 @@ Player 进程进入 Il2Cpp 后，托管侧调用 `LuaAppDomain::Initialize()`，
 | `MethodBridge.cpp/.h` | 解析 stub 表 → `FnLua2CsInvoker`；默认 alloca + writer 慢路径 |
 | `PropertyBridge.cpp/.h` | property getter/setter stub 调度 |
 | `FieldBridge.cpp/.h` | 字段 offset 读写（与 `FieldMarshalCtx` 配合） |
-| `DelegateBridge.cpp/.h` | C# delegate ↔ Lua function |
-| `LuaInvokeHelper.cpp/.h` | C#→Lua：`[LuaInvoke]` 站点解析与调用 |
+| `DelegateBridge.cpp/.h` | C# delegate ↔ Lua function；**C#→Lua `GetFunction` 调用** 亦经此路径 |
 | `BridgeDefs.h` | bridge 侧共享 typedef |
 
 ### 3.5 `generated/`（构建产出，勿手改）
@@ -140,7 +138,6 @@ Player 进程进入 Il2Cpp 后，托管侧调用 `LuaAppDomain::Initialize()`，
 | `MethodBridgeStub.h` | `MethodBridgeCodegen` | 每个 AOT 方法一条 `Bridge_*` + `lua2CsInvoker` 条目 |
 | `PropertyBridgeStub.h` | `PropertyBridgdeCodegen` | property accessor stub |
 | `DelegateBridgeStub.h` | `DelegateBridgeCodgen` | delegate invoke stub |
-| `LuaInvokeStub.h/.cpp` | `LuaInvokeCodegen` | `[LuaInvoke]` InternalCall 表 |
 | `MarshalBindings.*` | `MarshalAsCodegen` | `[LuaMarshalAs]` 扩展 writer |
 | `BuiltinScripts.inc` | `BuiltinScriptsCodegen` | 嵌入 `globals.lua` / `zlualib.lua` |
 
@@ -165,7 +162,7 @@ Player 进程进入 Il2Cpp 后，托管侧调用 `LuaAppDomain::Initialize()`，
 |------|--------|------|
 | 成员索引 | `Dispatch*` + `MetaBinding` / `TypeRegistry`（[INDEXER-IL2CPP.md](./metatable/INDEXER-IL2CPP)） | Lua 三表 indexer（[INDEXER-MONO.md](./metatable/INDEXER-MONO)） |
 | Lua→C# 桥 | Codegen **stub 复用**（按 ReducedType 签名） | **Emit/** 每成员 `Expression.Compile` |
-| C#→Lua | generated `LuaInvokeStub` + InternalCall | Weaver → `LuaInvokeBridge` typed catalog |
+| C#→Lua | `GetFunction` + Delegate 桥（`LuaCallInvoker`） | 同左 |
 | Event | 已移除专用元数据；`add_*`/`remove_*` 为普通方法 | 同左 |
 
 ---

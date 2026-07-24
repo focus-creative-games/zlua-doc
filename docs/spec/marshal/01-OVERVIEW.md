@@ -13,7 +13,7 @@ title: "Marshal 总览 — 默认规则矩阵"
 
 - **Mono（Editor）与 Il2Cpp（Player）的 Lua 可见 Marshal 语义一致**；差异仅在实现层（零 GC、生成代码等），不改变脚本可观察行为。
 - **函数 / delegate：** Lua 调用 C# 方法时，delegate 形参接受 Lua `function`，由桥接层隐式 marshal，详见 [09-FUNCTION.md](./09-FUNCTION)。
-- **`[LuaInvoke]` / delegate bridge（C# → Lua）** 上 `ref`/`out`/`in` 的默认 Push 为 **OpaqueValue**，与 Lua→C# 路径不同，见 [03-BYREF.md](./03-BYREF)、[04-OPAQUE.md](./04-OPAQUE)。
+- **GetFunction 取得的 delegate 调用 / delegate bridge（C# → Lua）** 上 `ref`/`out`/`in` 的默认 Push 为 **OpaqueValue**，与 Lua→C# 路径不同，见 [03-BYREF.md](./03-BYREF)、[04-OPAQUE.md](./04-OPAQUE)。
 
 ## 2. 默认 Marshal 矩阵
 

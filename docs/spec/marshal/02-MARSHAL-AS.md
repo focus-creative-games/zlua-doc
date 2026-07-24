@@ -122,7 +122,7 @@ public sealed class LuaMarshalAsAttribute : Attribute
 
 ### 4.2 `Table` / `UnpackedValues` 配置错误（绑定期失败）
 
-下列情况 **不** 回退 Default，须在 **Codegen / Weaver / Mono 首次绑定** 阶段 **失败**（Editor 与 CI 可见）：
+下列情况 **不** 回退 Default，须在 **Codegen / Mono 首次绑定** 阶段 **失败**（Editor 与 CI 可见）：
 
 | 条件 | 行为 |
 |------|------|
@@ -210,7 +210,7 @@ Foo({ X = 1 })                     -- 缺 Y → error
 
 ## 7. `params T[]` 形参与 `ParamsTable`
 
-**范围：** 仅 **普通 C# 方法 / 构造函数** 上带 **`params`** 修饰的一维数组形参。**`[LuaInvoke]` / delegate bridge** 上的 `params` 仍 **不支持**（见 [09-FUNCTION.md](./09-FUNCTION)）。
+**范围：** 仅 **普通 C# 方法 / 构造函数** 上带 **`params`** 修饰的一维数组形参。**GetFunction 取得的 delegate 调用 / delegate bridge** 上的 `params` 仍 **不支持**（见 [09-FUNCTION.md](./09-FUNCTION)）。
 
 **与 szarray 的关系：** `params T[]` 的 Marshal 规则与 [01-OVERVIEW.md §4](./01-OVERVIEW) szarray **相同**（C#→Lua **ByObjUserData**；Lua→C# **ByObjUserData** 或 **数组形态 table**）。差异在于 **Lua 侧传参形态** 与 **空 / null 语义**。
 

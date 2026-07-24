@@ -15,7 +15,7 @@ title: "术语表"
 | **Lua 可见语义** | 脚本侧可观察的行为契约；Mono 与 Il2Cpp **必须一致** | `spec/**` |
 | **双运行时** | `ZLua.Mono`（Editor）+ `ZLua.Il2Cpp`（Player）；门面 `LuaAppDomain` | [spec/00-OVERVIEW.md](spec/00-OVERVIEW.md) |
 | **libil2cpp/zlua** | Player 侧 native 实现根目录 | `build-win64/.../libil2cpp/zlua` |
-| **L/Invoke** | C#→Lua 调用模型，类比 P/Invoke | `[LuaInvoke]` |
+| **GetFunction** | C#→Lua：`LuaAppDomain.GetFunction<T>` 按模块与方法名绑定 Delegate | [spec/01-HOST-API.md](spec/01-HOST-API.md) |
 | **MethodBridge** | Lua→C# 方法桥；Il2Cpp 按 ReducedType 复用 stub；Mono 每成员 Emit | `impl/codegen/` |
 
 ## 类型与命名
@@ -68,17 +68,16 @@ title: "术语表"
 
 | 术语 | 含义 | 实现落点 |
 |------|------|----------|
-| **`[LuaInvoke]`** | 标记 static extern C#→Lua 入口；Editor Weaver 注入桥；Player InternalCall | [spec/01-HOST-API.md](spec/01-HOST-API.md) |
+| **`GetFunction<T>`** | C#→Lua 正式入口；返回 `MulticastDelegate`；调用方负责缓存 | [spec/01-HOST-API.md](spec/01-HOST-API.md) |
 | **`[LuaMarshalAs]`** | 参数 / 返回值 / 字段 / 属性的 Marshal 标注 | [spec/marshal/02-MARSHAL-AS.md](spec/marshal/02-MARSHAL-AS.md) |
 | **`[LuaAlias]`** | 为方法追加最终 Lua 名；可与默认名/其它别名重复，按名分组进 overload | [spec/04-METHOD-OVERLOAD.md](spec/04-METHOD-OVERLOAD.md) §5 |
-| **Weaver** | 编译后 IL 改写（dnlib）；`LuaInvoke` / Mono 引用导入 | `impl/codegen/WEAVER.md` |
+| **Delegate 桥** | C#→Lua 调用路径：`GetFunction` 绑定 function 为 closed delegate 后 `Invoke` | [spec/marshal/09-FUNCTION.md](spec/marshal/09-FUNCTION.md) |
 
 ## 明确不支持（rewrite 规则）
 
 | 术语 | 含义 |
 |------|------|
 | **Event 专用元表** | **无** `{ get, set, fire }` 子表；使用 `add_EventName` / `remove_EventName` 普通方法 |
-| **`RunLuaFunc(object[])`** | 旧 Editor 慢路径；新实现使用 per-signature Emit / stub，**不**文档化 |
 | **运行时继承 promotion** | 实例成员 **不在** `__index` miss 时沿链查找并缓存；改为 Bind 期扁平化 |
 
 ## 文档缩写

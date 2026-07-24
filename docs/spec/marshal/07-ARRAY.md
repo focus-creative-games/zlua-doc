@@ -140,7 +140,7 @@ CS.Demo.Process(nil)
 
 Lua **不支持** C# 式多槽隐式收集（`Sum(1, 2, 3)` **非法**）；须 **单个** 实参占据 `params` 位。
 
-**`[LuaInvoke]` / delegate bridge** 上的 `params` **不支持**；见 [`09-FUNCTION.md`](./09-FUNCTION)。
+**GetFunction 取得的 delegate 调用 / delegate bridge** 上的 `params` **不支持**；见 [`09-FUNCTION.md`](./09-FUNCTION)。
 
 ---
 
@@ -228,7 +228,7 @@ local matrix = zlua.new_mdarray_by_spec(zlua.types.int32, { 0, 0 }, { 2, 3 })
 | 路径 | 规则 |
 |------|------|
 | **Lua → C#** | 见 [`03-BYREF.md`](./03-BYREF)、[`06-CLASS.md`](./06-CLASS) §5：共享引用；**无 rebind** |
-| **C# → Lua**（`[LuaInvoke]` / delegate bridge） | 默认 **OpaqueValue**；见 [`04-OPAQUE.md`](./04-OPAQUE) |
+| **C# → Lua**（GetFunction 取得的 delegate / delegate bridge） | 默认 **OpaqueValue**；见 [`04-OPAQUE.md`](./04-OPAQUE) |
 
 对 **可变数组** 原地修改（`ref int[]` 改元素）→ Lua 侧 **可见**；`ref arr = otherArray` **不回写** Lua 变量。
 

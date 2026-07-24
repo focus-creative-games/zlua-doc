@@ -16,7 +16,7 @@ title: "迁移指南"
 
 | 文件 | 来源方案 | 内容 |
 |------|----------|------|
-| [from-xlua.md](./from-xlua) | xLua | `CS.*` → `CSharp`、Generate 废弃、`[LuaInvoke]` |
+| [from-xlua.md](./from-xlua) | xLua | `CS.*` → `CSharp`、Generate 废弃、`GetFunction` |
 | [from-tolua.md](./from-tolua) | toLua / tolua# | 删除 Wrap、全局类 → 懒绑定 |
 | [from-slua.md](./from-slua) | SLua | 导出配置 → public + 懒 Bind |
 
@@ -49,8 +49,8 @@ title: "迁移指南"
 
 ### 4. C#→Lua / Delegate
 
-- `[CSharpCallLua]` / `LuaFunction` → `[LuaInvoke("mod","fn")]` static extern（直接调）
-- **把 Lua 函数拿回 C#：** `[LuaInvoke]` **返回** `Action`/`Func`；或返回 `Delegate` + module/method/`Type` + `zlua.to_delegate`（见 [回调与 Delegate §3](../../guides/callbacks-and-delegates)）
+- `[CSharpCallLua]` / `LuaFunction` → `LuaAppDomain.GetFunction<T>("mod","fn")` 后 `Invoke`
+- **把 Lua 函数拿回 C#：** `GetFunction<Action>`/`GetFunction<Func<…>>`；或 `GetFunction<Delegate>` + `zlua.to_delegate`（见 [回调与 Delegate §3](../../guides/callbacks-and-delegates)）
 - Lua function 作 C# 参数 → 方法形参 `Action`/`Func`/delegate（隐式 marshal）
 - 删除 xLua `DelegateBridge` 手动注册（按 ZLua delegate spec）
 
@@ -64,7 +64,7 @@ title: "迁移指南"
 
 - 删除 XLua Generate、toLua `CustomSettings`、SLua 导出列表（**不再作为访问控制**）
 - 敏感 API 改 **非 public** 而非白名单
-- Il2Cpp：确保测试与游戏程序集走 ZLua Codegen + Weaver
+- Il2Cpp：确保测试与游戏程序集走 ZLua Codegen（Lua→C# stub）
 
 ### 7. 测试与回归
 

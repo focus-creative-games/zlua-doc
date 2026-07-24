@@ -6,7 +6,7 @@ description: LuaLoader、Editor/Player 路径与模块 return 约定。
 
 # Lua 模块加载
 
-ZLua 通过 **`LuaAppDomain.Initialize(Func<string, object> moduleLoader)`** 注入模块加载器。所有 `[LuaInvoke("module", ...)]` 与 Lua `require` 风格逻辑均依赖 loader 返回的源码字符串。
+ZLua 通过 **`LuaAppDomain.Initialize(Func<string, object> moduleLoader)`** 注入模块加载器。所有 `GetFunction("module", …)` 与 Lua `require` 风格逻辑均依赖 loader 返回的源码字符串。
 
 Canonical 实现：[Bootstrap.cs LoadLuaModule](https://github.com/focus-creative-games/zlua-demo/blob/main/Assets/Bootstrap.cs)、[SyncLuaScriptsToStreamingAssets.cs](https://github.com/focus-creative-games/zlua-demo/blob/main/Assets/Editor/SyncLuaScriptsToStreamingAssets.cs)
 
@@ -42,7 +42,7 @@ private static string LoadLuaModule(string module)
 
 ## 模块 return 约定
 
-`[LuaInvoke("app", "main")]` 要求模块 `app` 执行后，全局/package Loader 能取到 `return` 表中的 `main` 键：
+`GetFunction("app", "main")` 要求模块 `app` 执行后，全局/package Loader 能取到 `return` 表中的 `main` 键：
 
 ```lua
 -- LuaScripts/app.lua
@@ -60,7 +60,7 @@ return {
 }
 ```
 
-键名必须与 `[LuaInvoke]` 的 **method** 参数一致。
+键名必须与 `GetFunction` 的 **luaMethodName** 参数一致。
 
 ## 多模块组织
 
@@ -91,16 +91,16 @@ Player 构建前将 `LuaScripts/*.lua` 复制为 `StreamingAssets/LuaScripts/*.l
 在 CI Build Player 前确保 Sync 已运行（Preprocessor 会在 `OnPreprocessBuild` 触发）。
 :::
 
-## 与 `[LuaInvoke]` 的关系
+## 与 `GetFunction` 的关系
 
 ```
-C# [LuaInvoke("app","main")]
+C# GetFunction<Action>("app","main")
         ↓
 LoadLuaModule("app") → 读取 app.lua 源码
         ↓
 执行并得到 return { main = fn, ... }
         ↓
-调用 return.main()
+绑定为 Action 并 Invoke
 ```
 
 模块在首次需要时加载并缓存；具体缓存策略对 Lua 脚本透明。

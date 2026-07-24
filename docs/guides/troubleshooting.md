@@ -45,10 +45,10 @@ Canonical 工程：[zlua-demo](https://github.com/focus-creative-games/zlua-demo
 
 ## C# 调用 Lua
 
-### `[LuaInvoke]` 无效
+### `GetFunction` 无效
 
-- 须 `static extern`
-- Player：是否执行 **`ZLua/Generate/All`**
+- 是否已 `LuaAppDomain.Initialize`
+- module / method 是否与 Lua `return { ... }` 键名一致
 - Lua 模块是否 `return { method = ... }`
 
 ---

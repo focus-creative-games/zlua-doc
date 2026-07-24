@@ -58,7 +58,7 @@ title: "桥接与体积"
 
 | 后端 | 粒度 | 说明 |
 |------|------|------|
-| **Il2Cpp Player** | **签名 stub 复用** | Codegen 按 **ReducedType**（参数+返回值 marshal 形状）生成 C++ `MethodBridge` / `PropertyBridge` / `DelegateBridge` / `LuaInvokeStub`；**多成员共享同一 stub** |
+| **Il2Cpp Player** | **签名 stub 复用** | Codegen 按 **ReducedType**（参数+返回值 marshal 形状）生成 C++ `MethodBridge` / `PropertyBridge` / `DelegateBridge`；**多成员共享同一 stub** |
 | **Mono Editor** | **每成员 Emit 一条** | Expression.Compile → `lua_pushcfunction` 写入三表；**不进 Player 包** |
 
 ```text
@@ -144,14 +144,14 @@ Mono：  M 个成员 → M 条 Emit 桥（开发期特化，调用更直）
 
 ---
 
-## 7. C#→Lua：LuaInvoke stub
+## 7. C#→Lua：Delegate 桥
 
 | 方案 | 模型 |
 |------|------|
 | xLua | C# DelegateBridge + 多次 LuaDLL |
-| ZLua | **LuaInvokeStub**（C++ 模板）；按 `(param shapes, return shape)` 复用；构建期绑定 funcRef |
+| ZLua | **`GetFunction<T>`** 运行时绑定 function → closed delegate；`Invoke` 经 **Delegate 桥**（Mono / Il2Cpp 实现路径不同，语义一致） |
 
-Weaver 扫描 `[LuaInvoke]` → 写入 catalog → Il2Cpp Codegen 生成 InternalCall 体（见 [spec/01-HOST-API.md](../spec/01-HOST-API)）。
+详见 [spec/01-HOST-API.md](../spec/01-HOST-API) 与 [guides/csharp-to-lua.md](../guides/csharp-to-lua)。
 
 ---
 

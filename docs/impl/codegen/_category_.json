@@ -5,6 +5,6 @@
   "collapsed": true,
   "link": {
     "type": "generated-index",
-    "description": "Weaver / Emit / Stubs。"
+    "description": "Emit / Stubs（Lua→C#）。"
   }
 }

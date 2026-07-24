@@ -7,7 +7,7 @@ title: "Il2Cpp Generated Stubs"
 
 > **输出目录：** `libil2cpp/zlua/generated/`（构建写入 `build-win64/.../zlua/generated/`）  
 > **生成器：** `Packages/com.code-philosophy.zlua/Editor/CppCodeGen/`  
-> **运行时加载：** `LuaAppDomain::Initialize` → `*Bridge::Initialize` + `luainvoke::RegisterGeneratedInternalCalls`
+> **运行时加载：** `LuaAppDomain::Initialize` → `*Bridge::Initialize`
 
 ---
 
@@ -32,11 +32,10 @@ Il2Cpp Player **不能** JIT 或 `Method.Invoke`。Lua→C# 热路径依赖构�
 | 顺序 | 生成器 | 产物 |
 |------|--------|------|
 | 1 | `BuiltinScriptsCodegen` | `BuiltinScripts.inc` |
-| 2 | `LuaInvokeCodegen` | `LuaInvokeStub.h/.cpp` |
-| 3 | `PropertyBridgdeCodegen` | `PropertyBridgeStub.h` |
-| 4 | `MethodBridgeCodegen` | `MethodBridgeStub.h` |
-| 5 | `DelegateBridgeCodgen` | `DelegateBridgeStub.h` |
-| 6 | `MarshalAsCodegen` | `MarshalBindings.h/.cpp`（`[LuaMarshalAs]` 扩展） |
+| 2 | `PropertyBridgdeCodegen` | `PropertyBridgeStub.h` |
+| 3 | `MethodBridgeCodegen` | `MethodBridgeStub.h` |
+| 4 | `DelegateBridgeCodgen` | `DelegateBridgeStub.h` |
+| 5 | `MarshalAsCodegen` | `MarshalBindings.h/.cpp`（`[LuaMarshalAs]` 扩展） |
 
 Unity Editor 构建 Il2Cpp 时写入目标 `zlua/generated/`；**勿手改**生成文件。
 
@@ -102,13 +101,9 @@ C# delegate 类型 invoke 与 Lua function → delegate 的 stub 表。
 
 ---
 
-## 6. `LuaInvokeStub.h/.cpp`
+## 6. C#→Lua（GetFunction）
 
-C#→Lua：`[LuaInvoke("module", "func")]` 标记的 **static extern** 方法。
-
-- `LuaInvokeAnalyzer` 收集 binding；
-- 生成 `RegisterGeneratedInternalCalls()`：向 Il2Cpp 注册 InternalCall，实现体在 C++ 调 `LuaInvokeHelper` 拉取 Lua function ref 并 marshal 参数/返回值；
-- Player 侧方法体被 Weaver 改为 `MethodImplAttributes.InternalCall`（见 [WEAVER.md](./WEAVER)）。
+**不在 `generated/` 内。** C#→Lua 由 `LuaAppDomain.GetFunction<T>` 运行时绑定 module function 为 closed delegate，`Invoke` 经 **Delegate 桥**（与 [../../spec/marshal/09-FUNCTION.md](../../spec/marshal/09-FUNCTION) 一致）。Il2Cpp 与 Mono **API 相同**。
 
 ---
 
@@ -134,7 +129,6 @@ Mono 等价物：`Lvm/BuiltinScripts.cs` 从资源加载同名脚本。
 |------|------|
 | 签名无法生成 stub（unsupported generic 等） | Codegen **报错** 或跳过并记录；不生成 silent slow path 进 Player |
 | Runtime stub 查表 miss | `DefaultInvokeLuaMethod`（显式慢路径，开发期应补 stub） |
-| `[LuaInvoke]` 无 IC 注册 | Player 启动后调用失败 |
 
 Mono 对应：无法 Emit → **绑定期抛异常**（见 [../MONO.md](../MONO) D3）。
 
@@ -156,6 +150,5 @@ Mono 对应：无法 Emit → **绑定期抛异常**（见 [../MONO.md](../MONO)
 | `Editor/CppCodeGen/MethodBridgeCodegen.cs` | Method stub |
 | `Editor/CppCodeGen/PropertyBridgdeCodegen.cs` | Property stub |
 | `Editor/CppCodeGen/DelegateBridgeCodgen.cs` | Delegate stub |
-| `Editor/CppCodeGen/LuaInvokeCodegen.cs` | LuaInvoke IC |
 | `bridge/MethodBridge.cpp` | stub 表加载 |
 | `lvm/LuaAppDomain.cpp` | Initialize 顺序 |

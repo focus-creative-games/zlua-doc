@@ -6,7 +6,7 @@ title: "Delegate / 函数 Marshal"
 # Delegate / 函数 Marshal
 
 > **规范性：** C# `Delegate` 与 Lua 函数之间的双向 Marshal。  
-> **相关：** class ByObj 基础 → [`06-CLASS.md`](./06-CLASS)；`[LuaInvoke]` → [`../01-HOST-API.md`](../01-HOST-API)；C#→Lua byref → [`04-OPAQUE.md`](./04-OPAQUE)；Lua→C# byref → [`03-BYREF.md`](./03-BYREF)；`to_delegate` → [`../05-LIB.md`](../05-LIB)。
+> **相关：** class ByObj 基础 → [`06-CLASS.md`](./06-CLASS)；`GetFunction` → [`../01-HOST-API.md`](../01-HOST-API)；C#→Lua byref → [`04-OPAQUE.md`](./04-OPAQUE)；Lua→C# byref → [`03-BYREF.md`](./03-BYREF)；`to_delegate` → [`../05-LIB.md`](../05-LIB)。
 
 **平台原则：** Mono 与 Il2Cpp 的 **Lua 可见语义一致**；实现路径可不同（Il2Cpp：构建期 C++ bridge；Mono：运行时 Expression Emit）。
 
@@ -25,7 +25,7 @@ title: "Delegate / 函数 Marshal"
 |------|------|
 | 无感 | 与普通参数一样：Lua 传 function，由 **方法调用的 marshal 层** 完成转换 |
 | 性能 | Player 零反射；按 **Invoke 签名** 复用 bridge；Editor 按签名缓存 Emit |
-| 统一 | 与 `[LuaInvoke]` 共用 push/pcall/pop 规则 |
+| 统一 | C#→Lua 经 **GetFunction / delegate bridge** 共用 push/pcall/pop 规则 |
 | 安全 | `funcRef` 生命周期与 delegate 绑定；禁止悬空调用 |
 | 可控 | Il2Cpp 未 codegen 的签名运行时明确报错；**Mono 无法 Emit 的签名明确 `NotSupportedException`（禁止静默降级为反射/`Method.Invoke` 热路径）** |
 
@@ -77,7 +77,7 @@ flowchart TB
 | `DynamicBridgeFactory`（Mono） | 运行时按 `Invoke` 签名 **Expression 编译** bridge，**按签名缓存** |
 | `LuaDelegateBinder` | 创建 delegate：`LuaMethod` + bridge |
 | `ReadDelegate` | 栈上 Lua function → delegate；与方法 `ReadValue` 并列 |
-| `LuaCallInvoker` | `funcRef` + push + `pcall` + pop；Delegate bridge 与 `[LuaInvoke]` 共用 |
+| `LuaCallInvoker` | `funcRef` + push + `pcall` + pop；`GetFunction` 绑定与 delegate bridge 共用 |
 
 ---
 
@@ -221,8 +221,8 @@ static int32_t Bridge_Func_int32__int32(Il2CppObject* target, int32_t a)
 ```
 
 - **void 返回**（`Action` 等）：`LuaPCall(..., 0)`，无 pop。
-- **`Invoke` 上的 `ref` / `out` / `in`**：**支持**；C#→Lua（bridge 调脚本）默认 **OpaqueValue**，与 `[LuaInvoke]` 相同（[`04-OPAQUE.md`](./04-OPAQUE)）。
-- **`[LuaMarshalAs]`** 非默认语义：与普通方法 / `[LuaInvoke]` 同一套解析。
+- **`Invoke` 上的 `ref` / `out` / `in`**：**支持**；C#→Lua（bridge 调脚本）默认 **OpaqueValue**（[`04-OPAQUE.md`](./04-OPAQUE)）。
+- **`[LuaMarshalAs]`** 非默认语义：与普通方法 / **GetFunction 取得的 delegate 调用** 同一套解析。
 
 **未注册签名：** 运行时查表失败 → 明确报错，提示重新 Codegen。
 
@@ -262,21 +262,21 @@ obj:RegisterCallback(d)
 
 ---
 
-## 5. 与 `[LuaInvoke]` 的边界
+## 5. GetFunction 与 delegate bridge
 
-| | `[LuaInvoke]` | Delegate bridge |
-|--|---------------|-----------------|
-| **调用方向** | **C# → Lua**（固定模块函数） | **C# → Lua**（经 closed delegate 回调脚本） |
-| 绑定时机 | 构建期 module + name → `LuaInvokeSite` | 运行时 `luaL_ref` → `funcRef` |
-| 入口 | InternalCall / 生成 IC（Il2Cpp）；C# 包装（Mono） | closed delegate bridge |
+| | `GetFunction<T>` 取得的 closed delegate | 其它 C#→Lua closed delegate |
+|--|----------------------------------------|----------------------------|
+| **调用方向** | **C# → Lua**（按 module + method 绑定） | **C# → Lua**（如 Lua→C# 隐式 marshal 后再调回） |
+| 绑定时机 | 首次 `GetFunction`：`require` 模块 + `luaL_ref` → `funcRef` | 隐式 marshal 或 `to_delegate` 时 `luaL_ref` |
+| 入口 | `LuaAppDomain.GetFunction<T>` → `T.Invoke` | closed delegate bridge |
 | **Marshal** | push / `pcall` / pop | **同一套**（`LuaCallInvoker`） |
 | **`ref`/`out`/`in`（C#→Lua）** | 默认 **OpaqueValue** | 默认 **OpaqueValue**（[`04-OPAQUE.md`](./04-OPAQUE)） |
 | **`params`** | **不支持** | **不支持** |
-| 目标 | 固定 lua 模块函数 | 任意 Lua closure |
+| 缓存 | **调用方负责** | 由持有方决定 |
 
-**共用实现：** `LuaCallInvoker`（Mono）/ `InvokeFromRegistry`（Il2Cpp）被 `LuaInvokeRuntime::Call`、`DelegateBridges`、`DynamicBridgeFactory` 共同调用。
+**共用实现：** `LuaCallInvoker`（Mono）/ `InvokeFromRegistry`（Il2Cpp）被 `GetFunction` 绑定路径、`DelegateBridges`、`DynamicBridgeFactory` 共同调用。
 
-**不属于 `[LuaInvoke]`：** Lua 调用 C# 方法时的 delegate **形参隐式 marshal**（§4.1）走 **MethodBridge → ReadDelegate**，不是 `[LuaInvoke]`。
+**不属于 C#→Lua delegate bridge：** Lua 调用 C# 方法时的 delegate **形参隐式 marshal**（§4.1）走 **MethodBridge → ReadDelegate**。
 
 ---
 
@@ -365,7 +365,7 @@ unsupported delegate signature for Lua callback: System.Func<...>
 | **C# delegate → Lua** | §3.1：Lua 回调源 → **function**；原生 C# → DelegateUserData + `__call` |
 | **`ref`/`out`/`in`（Lua→C# 调 delegate）** | 见 [`03-BYREF.md`](./03-BYREF) |
 | **`ref`/`out`/`in`（delegate bridge C#→Lua）** | **OpaqueValue**；见 [`04-OPAQUE.md`](./04-OPAQUE) |
-| **`params`（bridge / `[LuaInvoke]`）** | **不支持** |
+| **`params`（GetFunction / delegate bridge）** | **不支持** |
 | 开放 delegate | 可不支持 |
 | Multicast 的 Lua 回调 | 隐式 / 显式创建均为 **单播** |
 | 协变 / 逆变 | 仅 **精确** delegate 类型匹配 |
@@ -382,7 +382,7 @@ unsupported delegate signature for Lua callback: System.Func<...>
 | [`03-BYREF.md`](./03-BYREF) | Lua→C# byref |
 | [`04-OPAQUE.md`](./04-OPAQUE) | C#→Lua byref / bridge 回调 |
 | [`02-MARSHAL-AS.md`](./02-MARSHAL-AS) | `[LuaMarshalAs]` 合法集合 |
-| [`../01-HOST-API.md`](../01-HOST-API) | `[LuaInvoke]` 约束 |
+| [`../01-HOST-API.md`](../01-HOST-API) | `GetFunction` 约束 |
 | [`../02-TYPE-SYSTEM.md`](../02-TYPE-SYSTEM) | 委托类型表、`__call` |
 | [`../05-LIB.md`](../05-LIB) | `to_delegate` |
 | [`../../impl/codegen/EMIT-MONO.md`](../../impl/codegen/EMIT-MONO) | Mono Expression Emit |

@@ -1,7 +1,7 @@
 ---
 sidebar_position: 1
 title: 设计概览
-description: ZLua 的核心设计目标与 L/Invoke 模型。
+description: ZLua 的核心设计目标与 GetFunction 模型。
 ---
 
 # 设计概览
@@ -10,26 +10,27 @@ description: ZLua 的核心设计目标与 L/Invoke 模型。
 **选型者、新接入开发者、需要理解「为什么这样设计」的读者。** 日常 API 用法请直接看 [使用指南](../guides/csharp-to-lua)；实现细节见 [规范文档](../spec/00-OVERVIEW)。
 :::
 
-ZLua 把 Lua 当作另一种 **Native**：类比 P/Invoke，用声明式特性统一双向互操作；Il2Cpp 侧生成 **C++ stub**（`ZLua/Generate/All`），**不是** xLua 式 C# Wrap。
+ZLua 把 Lua 当作另一种 **Native**：类比 P/Invoke，用声明式 API 统一双向互操作；Il2Cpp 侧生成 **C++ stub**（`ZLua/Generate/All`），**不是** xLua 式 C# Wrap。
 
-## P/Invoke 与 L/Invoke 对照
+## P/Invoke 与 ZLua 对照
 
 | C# 互操作 | 职责 | ZLua 对应 |
 |-----------|------|-----------|
-| **P/Invoke** | C# 调用 native 函数 | **`[LuaInvoke]`**（L/Invoke）— C# 调用 Lua |
+| **P/Invoke** | C# 调用 native 函数 | **`GetFunction<T>`** — C# 调用 Lua |
 | **MonoPInvokeCallback** | native 回调 C# | **`[MonoLuaCallback]`** — 仅 `int (IntPtr L)` 原生回调 |
 | **MarshalAs** | 覆盖默认 Marshal | **`[LuaMarshalAs]`** — C# ↔ Lua Marshal 覆盖 |
 
 ```mermaid
 flowchart LR
     subgraph CSharp["C# 游戏代码"]
-        LI["[LuaInvoke] static extern"]
+        GF["GetFunction → Invoke"]
         APP["业务类 public API"]
     end
 
     subgraph Bridge["自动生成桥接"]
-        MonoB["Editor: C# 快速桥"]
+        MonoB["Editor: C# MethodBridge Emit"]
         Il2B["Player: C++ 直桥"]
+        DelB["Delegate 桥（C#→Lua）"]
     end
 
     subgraph Lua["Lua 脚本"]
@@ -37,10 +38,8 @@ flowchart LR
         CS["CSharp 类型访问"]
     end
 
-    LI --> MonoB
-    LI --> Il2B
-    MonoB --> MOD
-    Il2B --> MOD
+    GF --> DelB
+    DelB --> MOD
     CS --> MonoB
     CS --> Il2B
     MonoB --> APP
@@ -51,21 +50,21 @@ flowchart LR
 
 | 原则 | 说明 |
 |------|------|
-| **统一双向调用** | C#→Lua：`[LuaInvoke]`；Lua→C#：`CSharp` 懒注册，语法贴近 C# |
-| **自动生成** | Editor 注入 C# 桥；Il2Cpp 发布生成 C++ 桥；开发者只写 `extern` 声明 |
+| **统一双向调用** | C#→Lua：`GetFunction<T>`；Lua→C#：`CSharp` 懒注册，语法贴近 C# |
+| **自动生成（Lua→C#）** | Editor Emit / Il2Cpp Generate C++ stub；C#→Lua 无 per-call codegen |
 | **深度集成** | `LuaAppDomain.Initialize` 一次完成 CLR + `lua_State` + `zlua` 库 |
 | **C++ 直桥** | Player 字段 offset 直读、方法经 `methodPointer`，无海量 C# Wrap |
 | **零 Wrapper 膨胀** | 相同签名共享桥接函数，而非每成员一个 Wrap |
 
-## 自动生成流水线
+## 自动生成流水线（Lua→C#）
 
 ```mermaid
 flowchart TB
     A[开发者编写 C# + Lua] --> B{Unity 构建阶段}
-    B -->|Editor 程序集编译| C[dnlib 扫描 LuaInvoke]
-    C --> D[注入 RunLuaFunc 实现]
-    B -->|Il2Cpp Player 构建| E[扫描 LuaInvoke + 类型绑定]
-    E --> F[生成 C++ MethodBridge / LuaInvoke 模板]
+    B -->|Editor 程序集编译| C[首次 CSharp 访问 EnsureBinding]
+    C --> D[Expression Emit MethodBridge]
+    B -->|Il2Cpp Player 构建| E[扫描类型绑定 + ReducedType]
+    E --> F[生成 C++ MethodBridge / DelegateBridge 模板]
     F --> G[libil2cpp/zlua 链接进 Player]
     D --> H[Mono 运行时: 反射 + Expression 编译缓存]
     G --> I[Il2Cpp 运行时: C++ 直调 lua API]
@@ -73,7 +72,7 @@ flowchart TB
 
 | 阶段 | Mono (Editor) | Il2Cpp (Player) |
 |------|---------------|-----------------|
-| LuaInvoke | dnlib → `RunLuaFunc` | IL → InternalCall + C++ |
+| C#→Lua | `GetFunction` + Delegate 桥 | 同左（native 路径） |
 | Lua→C# 成员 | 首次访问 `EnsureBinding` + Emit | EnsureBinding + C++ stub（Generate） |
 | 开发者感知 | **无 C# Wrap** | **无 C# Wrap**；须 Generate stub |
 
@@ -82,7 +81,7 @@ flowchart TB
 | 维度 | xLua 常见路径 | ZLua |
 |------|---------------|------|
 | 类型暴露 | 生成 C# Wrap / CodeEmit | `CSharp` 根表 + 元表三表 |
-| C#→Lua | `LuaEnv.DoString` / DelegateBridge | `[LuaInvoke]` 声明式 |
+| C#→Lua | `LuaEnv.DoString` / DelegateBridge | `GetFunction<T>` + `Invoke` |
 | Player 性能 | Wrap + 多次 LuaDLL | C++ 直桥 + 签名复用（见 [PERFORMANCE](../compare/PERFORMANCE)） |
 
 详见 [选型对比](../compare/)、[Il2Cpp 实现](../impl/IL2CPP)。

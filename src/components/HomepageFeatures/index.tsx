@@ -15,7 +15,7 @@ const FeatureList: FeatureItem[] = [
     icon: '⚡',
     description: (
       <>
-        声明式 <code>[LuaInvoke]</code> / <code>[LuaMarshalAs]</code>，<code>CSharp</code>{' '}
+        声明式 <code>GetFunction</code> / <code>[LuaMarshalAs]</code>，<code>CSharp</code>{' '}
         懒加载；无需 per-type C# Wrap 白名单，屏蔽底层 Lua C API。
       </>
     ),

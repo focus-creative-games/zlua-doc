@@ -99,7 +99,7 @@ Mono 使用 `GCHandle` / boxed 等等价机制，**同一 Lua 可见语义**（u
 
 | 项 | 规则 |
 |----|------|
-| 产生 | C#→Lua：`[LuaInvoke]`、delegate 回调、标注 `[LuaMarshalAs(OpaqueValue)]` 的 by-val 引用 / struct |
+| 产生 | C#→Lua：`GetFunction` 取得的 delegate 调用、delegate 回调、标注 `[LuaMarshalAs(OpaqueValue)]` 的 by-val 引用 / struct |
 | 形态 | **lightuserdata** handle（generation + index） |
 | 有效 | **仅** 产生它的那次 C#→Lua 调用 **尚未返回** |
 | 失效 | C# 返回后；或 `OpaqueParameterScope` generation 推进 |
@@ -157,7 +157,7 @@ ZLua 宿主默认使用 **单个主 `lua_State`**：
 |------|------|
 | Unity 主线程调 Lua | 默认支持 |
 | 后台线程调 Lua | **须** 宿主显式同步；未定义行为若未序列化 |
-| C# `[LuaInvoke]` / Lua→C# | 应在初始化 `L` 的同一线程或受控队列 |
+| C# `GetFunction` / delegate bridge / Lua→C# | 应在初始化 `L` 的同一线程或受控队列 |
 
 ### 6.3 协程
 
@@ -205,7 +205,7 @@ Player 域重载时须完整 Shutdown，避免 registry 泄漏与 stale root。
 | Lua 栈不平衡 | native 断言 / 异常；不泄漏 |
 | C# 异常穿过 native | **禁止**；边界层 translate 或 abort |
 
-`[LuaInvoke]` 路径在 invoke 前后维护 **OpaqueParameterScope**，确保异常路径也失效 opaque handle。
+**GetFunction 取得的 delegate 调用**在 invoke 前后维护 **OpaqueParameterScope**，确保异常路径也失效 opaque handle。
 
 ### 8.2 Lua 调用 C#
 
@@ -254,7 +254,7 @@ flowchart TB
 
 | 文档 | 内容 |
 |------|------|
-| [01-HOST-API.md](01-HOST-API.md) | `[LuaInvoke]`、异常 |
+| [01-HOST-API.md](01-HOST-API.md) | `GetFunction`、异常 |
 | [marshal/04-OPAQUE.md](marshal/04-OPAQUE.md) | Opaque API |
 | [marshal/06-CLASS.md](marshal/06-CLASS.md) | ByObj、view |
 | [marshal/05-STRUCT.md](marshal/05-STRUCT.md) | struct GC |

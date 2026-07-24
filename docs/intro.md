@@ -9,7 +9,7 @@ description: ZLua 是什么、核心特性与适用场景。
 
 **ZLua** 是一个针对 Unity Il2Cpp **极致优化**的现代原生 Lua 方案。
 
-它用清晰的规则统一 C# 与 Lua 的双向调用，把 Lua 当作另一种 **Native**——类比 P/Invoke，提供 `[LuaInvoke]`、`[LuaMarshalAs]` 等概念，屏蔽底层易错的 Lua C API。
+它用清晰的规则统一 C# 与 Lua 的双向调用，把 Lua 当作另一种 **Native**——类比 P/Invoke，提供 `LuaAppDomain.GetFunction`、`[LuaMarshalAs]` 等概念，屏蔽底层易错的 Lua C API。
 
 ## 为什么选择 ZLua
 
@@ -32,7 +32,7 @@ description: ZLua 是什么、核心特性与适用场景。
 | 能力 | 说明 |
 |------|------|
 | Lua → C# | `CSharp` 根表懒加载；字段/方法/属性；泛型与数组；重载；`add_`/`remove_` 订阅 event |
-| C# → Lua | `[LuaInvoke]` 标记 `static extern`，Weaver / InternalCall 桥接 |
+| C# → Lua | `LuaAppDomain.GetFunction<T>` 取得 Delegate 后 `Invoke` |
 | 双运行时 | **Mono（Editor）与 Il2Cpp（Player）均已完成**；语义一致、实现路径不同 |
 | Marshal | ByVal / ByObj / Opaque 等路径，见 [Marshal 规范](./spec/marshal/) |
 

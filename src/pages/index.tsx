@@ -51,11 +51,14 @@ private static void InitZLuaOnStartup()
     LuaAppDomain.Initialize(LoadLuaModule);
 }
 
-[LuaInvoke("app", "main")]
-private static extern void AppMain();
+Action AppMain;
+Func<int, int, int> AppAdd;
 
-[LuaInvoke("app", "add")]
-private static extern int AppAdd(int a, int b);`;
+void Awake()
+{
+    AppMain = LuaAppDomain.GetFunction<Action>("app", "main");
+    AppAdd = LuaAppDomain.GetFunction<Func<int, int, int>>("app", "add");
+}`;
 
 const CSHARP_INVOKE_LUA = `-- app.lua
 local function main()
@@ -89,7 +92,7 @@ function CodePreview() {
       </Heading>
       <Tabs groupId="homepage-code" className={styles.codeTabs}>
         <TabItem value="csharp" label="C# → Lua" default>
-          <p className={styles.codeBlockLabel}>C# · LuaInvoke</p>
+          <p className={styles.codeBlockLabel}>C# · GetFunction</p>
           <pre className={styles.codeBlock}>
             <code>{CSHARP_INVOKE_CSHARP}</code>
           </pre>

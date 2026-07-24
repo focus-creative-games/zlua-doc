@@ -16,7 +16,7 @@ ZLua 在 Mono 与 Il2Cpp 上 **Lua 可见 Marshal 语义一致**；Il2Cpp 侧重
 
 ```mermaid
 flowchart TB
-    subgraph C2L["C# → Lua（LuaInvoke 等）"]
+    subgraph C2L["C# → Lua（GetFunction / delegate bridge）"]
         C1[C# 参数] --> P1[Push 规则 §1]
         P1 --> L1[Lua 栈]
         L2[Lua 返回值] --> Pop1[Pop 规则]
@@ -56,7 +56,7 @@ Lua 侧 **不区分** ref/out/in，统一按 ref 语义处理：
 | `zlua.new_ref(T)` / struct userdata | **真 ref**，C# 修改写回 |
 | 裸 number / string / table | **拷贝**到临时槽，**不写回** local |
 
-`[LuaInvoke]` 与 delegate bridge **不支持** ref/out 形参。
+**GetFunction 取得的 delegate 调用**与 **delegate bridge** 上 `ref`/`out`/`in` 默认 Push **OpaqueValue**（见 [OPAQUE](../spec/marshal/04-OPAQUE)）；`params` 仍不支持。
 
 ## `[LuaMarshalAs]` 覆盖
 

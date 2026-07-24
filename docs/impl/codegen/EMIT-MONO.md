@@ -108,15 +108,15 @@ Pop/push 逻辑 **复用** `Marshaling/*Marshaling*.cs` 的 typed API，不在 E
 
 ---
 
-## 7. 与 LuaInvoke / Delegate 的边界
+## 7. 与 GetFunction / Delegate 的边界
 
 | 路径 | 实现 |
 |------|------|
 | Lua→C# 成员 | **Emit/**（本文） |
-| C#→Lua `[LuaInvoke]` | `Bridge/LuaInvoke/` + Weaver（非 Emit） |
+| C#→Lua `GetFunction` | `DelegateImpl/` + `LuaCallInvoker`（非 Emit） |
 | Lua function → C# delegate | `DelegateImpl/` Expression（Phase 4） |
 
-勿混用 Emit 目录存放 LuaInvoke bridge。
+勿混用 Emit 目录存放 C#→Lua delegate 桥逻辑。
 
 ---
 

@@ -12,7 +12,7 @@ ZLua 双后端：**Lua 可见语义必须一致**；实现路径不同。
 |---|---------------|-----------------|
 | **状态** | **已完成** | **已完成** |
 | 实现 | Expression Emit + 三表 indexer | C++ stub + native indexer |
-| C#→Lua | `[LuaInvoke]` + Weaver | `[LuaInvoke]` + InternalCall / 生成 stub |
+| C#→Lua | `GetFunction<T>` + Delegate 桥 | 同左 |
 | 性能 | 日常迭代 | 基准以 Player 为准（见 [性能对比](../compare/PERFORMANCE)） |
 | Generate | 无 per-type C# Wrap；Editor 无需 Generate | **`ZLua/Generate/All`**（C++ stub，非 C# Wrap） |
 

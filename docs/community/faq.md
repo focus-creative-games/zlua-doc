@@ -12,7 +12,7 @@ description: ZLua 常见问题与解答。
 
 ### ZLua 与 xLua 有什么区别？
 
-ZLua 在 Il2Cpp 内嵌 Lua、C++ 直桥，**不生成 per-type C# Wrap**（Player 生成 **C++ stub**）。类型访问用 `CSharp` 根表，C# 调 Lua 用 `[LuaInvoke]`。见 [为什么选择 ZLua](../concepts/why-zlua)、[选型对比](../compare/)、[从 xLua 迁移](./migration/from-xlua)。
+ZLua 在 Il2Cpp 内嵌 Lua、C++ 直桥，**不生成 per-type C# Wrap**（Player 生成 **C++ stub**）。类型访问用 `CSharp` 根表，C# 调 Lua 用 `LuaAppDomain.GetFunction<T>`。见 [为什么选择 ZLua](../concepts/why-zlua)、[选型对比](../compare/)、[从 xLua 迁移](./migration/from-xlua)。
 
 ### Mono 和 Il2Cpp 差别有多大？
 
@@ -36,7 +36,7 @@ UPM：`"com.code-philosophy.zlua": "https://github.com/focus-creative-games/zlua
 
 ### 发布前要 Generate 吗？
 
-**Il2Cpp：要。** 菜单 **`ZLua/Generate/All`** 生成 C++ MethodBridge / LuaInvoke stub，**不是** xLua 式 C# Wrap。Editor Mono 不依赖该 C# Wrap 流程。
+**Il2Cpp：要。** 菜单 **`ZLua/Generate/All`** 生成 C++ MethodBridge 等 Lua→C# stub，**不是** xLua 式 C# Wrap。Editor Mono 不依赖该 C# Wrap 流程。**C#→Lua 无 Generate 步骤。**
 
 ### Lua 脚本放哪里？
 
@@ -64,7 +64,7 @@ Lua→C#：ByVal userdata 或 Opaque 可写回；裸 number **不回写**。C#�
 
 ### 如何从 C# 调用 Lua？
 
-`[LuaInvoke("module","method")]` + `static extern`。见 [C# 调用 Lua](../guides/csharp-to-lua)。
+`LuaAppDomain.GetFunction<T>("module","method")` 取得 Delegate 后 `Invoke`。见 [C# 调用 Lua](../guides/csharp-to-lua)。
 
 ### 方法重载怎么选？
 

@@ -13,7 +13,7 @@ title: "`ref` / `in` / `out` Marshal"
 
 | 路径 | `ref` / `out` / `in` |
 |------|----------------------|
-| **C# → Lua**（`[LuaInvoke]`、delegate bridge） | **支持**；默认 Push **OpaqueValue** |
+| **C# → Lua**（GetFunction 取得的 delegate、delegate bridge） | **支持**；默认 Push **OpaqueValue** |
 | **Lua → C#**（普通方法 / 构造、delegate `Invoke` / `__call`） | **支持**；规则见 §3 |
 
 **统一规则（Lua→C#）：** Lua 侧 **不区分** `ref` / `out` / `in`，均按同一 Pop 规则处理；C# 侧仍保留各自 CLR 语义（如 `in` 只读）。
@@ -200,4 +200,4 @@ end
 | ByValUserData / struct | [05-STRUCT.md](./05-STRUCT) |
 | 引用类型门面与 rebind | [06-CLASS.md](./06-CLASS) |
 | 默认 by-val 矩阵 | [01-OVERVIEW.md](./01-OVERVIEW) |
-| `[LuaInvoke]` / delegate | [09-FUNCTION.md](./09-FUNCTION)、[../01-HOST-API.md](../01-HOST-API) |
+| GetFunction / delegate bridge | [09-FUNCTION.md](./09-FUNCTION)、[../01-HOST-API.md](../01-HOST-API) |

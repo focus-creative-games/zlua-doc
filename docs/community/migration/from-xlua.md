@@ -18,8 +18,8 @@ title: "从 xLua 迁移"
 | `LuaEnv` | `LuaAppDomain` + `moduleLoader` |
 | `luaEnv:DoString` / `require` | 同 `require`；loader 由宿主提供 |
 | `[LuaCallCSharp]` + Generate | **无**；public 类型 **懒 Bind** |
-| `[CSharpCallLua]` | `[LuaInvoke("module","func")]` static extern |
-| `LuaFunction` / `xlua.tofunction` | `[LuaInvoke]` 直接调，或 **返回** `Action`/`Func`/`Delegate`（见 [回调 §3](../../guides/callbacks-and-delegates)） |
+| `[CSharpCallLua]` | `LuaAppDomain.GetFunction<T>("module","func")` |
+| `LuaFunction` / `xlua.tofunction` | `GetFunction` 直接调，或 **形参隐式 marshal** / `to_delegate`（见 [回调 §3](../../guides/callbacks-and-delegates)） |
 | `ObjectTranslator` | `ObjectRegistry` + marshal 分册 |
 | xLua Event 语法 | **无**；`add_Xxx` / `remove_Xxx` |
 | `CS.System.Collections.Generic.List(CS.System.Int32)` | `zlua.make_generic_type(...)` |
@@ -102,15 +102,17 @@ public class LuaBridge {
 **After：**
 
 ```csharp
-[LuaInvoke("game", "OnTick")]
-public static extern void OnTick(float dt);
+static readonly Action<float> OnTick =
+    LuaAppDomain.GetFunction<Action<float>>("game", "OnTick");
+
+void Update() => OnTick(Time.deltaTime);
 ```
 
-Lua 模块 `game.lua` 须 **return table** 且含全局函数名 `OnTick`（与 `[LuaInvoke]` 第二参数一致）。
+Lua 模块 `game.lua` 须 **return table** 且含全局函数名 `OnTick`（与 `GetFunction` 的 method 参数一致）。
 
 ### 步骤 5：Lua function → C# delegate（含「把函数拿回 C#」）
 
-ZLua **支持** C# 持有并多次调用 Lua 函数，不要误以为只能「单向 `[LuaInvoke]` 调一次」。
+ZLua **支持** C# 持有并多次调用 Lua 函数，不要误以为只能「单向 `GetFunction` 调一次」。
 
 #### A. Lua 作为 C# 方法参数（隐式 marshal）
 
@@ -132,7 +134,7 @@ public static void Register(Action<int> cb) { ... }
 obj:Register(function(x) print(x) end)
 ```
 
-#### B. `[LuaInvoke]` **返回** delegate（替代 `Get<Action>` / `LuaFunction`）
+#### B. `GetFunction` 按名取 delegate（替代 `Get<Action>` / `LuaFunction`）
 
 **Before（xLua）：**
 
@@ -141,32 +143,21 @@ Action<float> onTick = luaEnv.Global.Get<Action<float>>("OnTick");
 onTick(dt);
 ```
 
-**After（固定签名）：**
+**After：**
 
 ```csharp
-[LuaInvoke("game", "get_on_tick")]
-private static extern Action<float> GetOnTick();
-
-var onTick = GetOnTick();
+static readonly Action<float> onTick =
+    LuaAppDomain.GetFunction<Action<float>>("game", "OnTick");
 onTick(dt);
 ```
 
 ```lua
 -- game.lua
-local function get_on_tick()
-    return function(dt) print(dt) end
-end
-return { get_on_tick = get_on_tick }
+local function OnTick(dt) print(dt) end
+return { OnTick = OnTick }
 ```
 
-**After（动态按名 + 任意委托类型）：** 返回 `System.Delegate`，参数带 `module` / `method` / `Type`，Lua 内 `zlua.to_delegate(fn, type)`。完整写法见指南 [回调与 Delegate §3](../../guides/callbacks-and-delegates)。
-
-```csharp
-[LuaInvoke("bridge", "resolve_delegate")]
-private static extern Delegate ResolveDelegate(string module, string method, Type delegateType);
-
-Action<float> onTick = (Action<float>)ResolveDelegate("game", "OnTick", typeof(Action<float>));
-```
+任意签名只要换成对应的 `T` 即可。Lua 侧已有 function、需显式指定类型时用 `zlua.to_delegate`（见 [回调与 Delegate §3](../../guides/callbacks-and-delegates)）。
 
 详见 [spec/marshal/09-FUNCTION.md](../../spec/marshal/09-FUNCTION)、[回调与 Delegate](../../guides/callbacks-and-delegates)。
 
@@ -209,7 +200,7 @@ obj:Increment(x)   -- x 仍为 0
 **C#→Lua `ref`（Opaque，易踩坑）：**
 
 ```lua
--- C# [LuaInvoke] void Foo(ref int x) 推到 Lua 的不是 number
+-- C# GetFunction 取得的 delegate 上 void Foo(ref int x) 推到 Lua 的不是 number
 local h = ... -- OpaqueValue from invoke
 local v = zlua.get_opaquevalue(h, zlua.types.int32)
 zlua.set_opaquevalue(h, v + 1)
@@ -322,8 +313,8 @@ void Update() {
 **After：**
 
 ```csharp
-[LuaInvoke("game", "update")]
-static extern void LuaUpdate(float dt);
+static readonly Action<float> LuaUpdate =
+    LuaAppDomain.GetFunction<Action<float>>("game", "update");
 
 void Update() => LuaUpdate(Time.deltaTime);
 ```
@@ -347,4 +338,4 @@ void Update() => LuaUpdate(Time.deltaTime);
 |------|------|
 | [migration/README.md](./) | 共用清单 |
 | [spec/02-TYPE-SYSTEM.md](../../spec/02-TYPE-SYSTEM) | 类型语法 |
-| [spec/01-HOST-API.md](../../spec/01-HOST-API) | LuaInvoke |
+| [spec/01-HOST-API.md](../../spec/01-HOST-API) | GetFunction |

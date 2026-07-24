@@ -145,7 +145,7 @@ title: "指针与不支持类型"
 | **ref struct by-val** 形参组合 | **拒绝** |
 | 无法解析的 **byref 修饰符** 组合 | **拒绝** |
 
-**允许：** `[LuaInvoke]` 与 **delegate bridge** 上的 `ref`/`out`/`in`（C#→Lua 见 [`04-OPAQUE.md`](./04-OPAQUE)；Lua→C# 见 [`03-BYREF.md`](./03-BYREF)）。
+**允许：** **GetFunction 取得的 delegate 调用**与 **delegate bridge** 上的 `ref`/`out`/`in`（C#→Lua 见 [`04-OPAQUE.md`](./04-OPAQUE)；Lua→C# 见 [`03-BYREF.md`](./03-BYREF)）。
 
 ---
 

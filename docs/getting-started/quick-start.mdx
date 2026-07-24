@@ -46,17 +46,21 @@ private static void InitZLuaOnStartup()
 
 ## 第 2 步：C# 调用 Lua
 
-用 `[LuaInvoke("module", "method")]` 声明 `static extern` 函数；Lua 模块 `return` 表导出同名函数。
+用 `LuaAppDomain.GetFunction<T>` 取得 Lua 函数对应的 Delegate；Lua 模块 `return` 表导出同名函数。
 
 <Tabs groupId="quickstart-c2l">
 <TabItem value="csharp" label="C#" default>
 
 ```csharp
-[LuaInvoke("app", "main")]
-private static extern void AppMain();
+Action AppMain;
+Func<int, int, int> AppAdd;
 
-[LuaInvoke("app", "add")]
-private static extern int AppAdd(int a, int b);
+void Awake()
+{
+    // 须在 InitZLuaOnStartup（Initialize）之后；勿用 static 字段初始化器
+    AppMain = LuaAppDomain.GetFunction<Action>("app", "main");
+    AppAdd = LuaAppDomain.GetFunction<Func<int, int, int>>("app", "add");
+}
 
 void Start()
 {
@@ -178,7 +182,7 @@ run_i32(demo, 10)
 
 | 本页示例 | Mono (Editor) | Il2Cpp (Player) |
 |----------|:-------------:|:---------------:|
-| Initialize + LuaInvoke | ✅ | ✅ |
+| Initialize + GetFunction | ✅ | ✅ |
 | 静态/实例方法、字段 | ✅ | ✅ |
 | Property / 重载 | ✅ | ✅（语义以规范为准） |
 
@@ -188,7 +192,7 @@ run_i32(demo, 10)
 |------|------|
 | `module 'app' not found` | 检查 `LuaScripts/app.lua` 是否存在；`LoadLuaModule` 路径 |
 | 类型 `Demo` 为 nil | 程序集名错误；应为 `CSharp.AC.Demo` |
-| `AppAdd` 返回 0 | Lua 模块未 `return { add = add }`；或函数名与 `[LuaInvoke]` 不一致 |
+| `AppAdd` 返回 0 | Lua 模块未 `return { add = add }`；或函数名与 `GetFunction` 的 method 参数不一致 |
 | Player 无 Lua 输出 | 未同步 `StreamingAssets/LuaScripts/app.lua.txt` |
 
 ## 下一步

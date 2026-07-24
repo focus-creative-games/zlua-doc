@@ -45,9 +45,9 @@ flowchart TD
 
 ## Il2Cpp（Player）
 
-Player 侧 C++ 直桥、签名 stub 复用、`[LuaInvoke]` InternalCall、懒绑定与 Marshal 路径已落地。实现对照见 [Il2Cpp 实现](../impl/IL2CPP)、Codegen 见 [Stubs](../impl/codegen/STUBS-IL2CPP)。
+Player 侧 C++ 直桥、签名 stub 复用、`GetFunction` Delegate 桥、懒绑定与 Marshal 路径已落地。实现对照见 [Il2Cpp 实现](../impl/IL2CPP)、Codegen 见 [Stubs](../impl/codegen/STUBS-IL2CPP)。
 
-**注意：** 「无 C# Wrap 白名单」≠「完全无 codegen」。Il2Cpp 仍需 **`ZLua/Generate/All`** 生成 **C++ MethodBridge / LuaInvoke stub**。
+**注意：** 「无 C# Wrap 白名单」≠「完全无 codegen」。Il2Cpp 仍需 **`ZLua/Generate/All`** 生成 **C++ MethodBridge** 等 Lua→C# stub；**C#→Lua 无额外 stub**。
 
 ## Mono（Editor）
 

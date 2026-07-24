@@ -25,7 +25,7 @@ description: ZLua 版本计划与功能清单。
 
 - [x] 内嵌 Lua + C++ 直桥
 - [x] ReducedType stub 复用（`ZLua/Generate/All`）
-- [x] `[LuaInvoke]` InternalCall
+- [x] `GetFunction` Delegate 桥
 - [x] 懒绑定、`CSharp` 根表、重载、Marshal 路径
 - [x] vs xLua 性能实测（见 [PERFORMANCE](../compare/PERFORMANCE)）
 - [ ] 多平台工具链与更多设备实测
@@ -34,7 +34,7 @@ description: ZLua 版本计划与功能清单。
 
 - [x] 目录与模块对齐 Il2Cpp
 - [x] Expression Emit 桥、三表 indexer
-- [x] `[LuaInvoke]` Weaver
+- [x] `GetFunction` + Delegate 桥
 - [x] 与 Il2Cpp Lua 可见语义一致
 
 ## 语义与文档

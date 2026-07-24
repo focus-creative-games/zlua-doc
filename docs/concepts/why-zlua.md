@@ -38,13 +38,13 @@ ZLua 把互操作做成接近 **P/Invoke** 的声明式模型：
 
 | 你要做的事 | ZLua |
 |------------|------|
-| C# 调 Lua | `[LuaInvoke("mod", "fn")] static extern …` |
+| C# 调 Lua | `LuaAppDomain.GetFunction<T>(…)` 取得 Delegate 后 `Invoke` |
 | 覆盖 Marshal | `[LuaMarshalAs]` |
 | Lua 访问 C# | `CSharp` 根表懒加载，**无需**为每个类型写 Wrap 配置 |
 
 ```csharp
-[LuaInvoke("app", "add")]
-private static extern int AppAdd(int a, int b);
+// 须在 Initialize 之后（例如 Awake），勿用 static 字段初始化器
+var AppAdd = LuaAppDomain.GetFunction<Func<int, int, int>>("app", "add");
 // AppAdd(10, 20);
 ```
 
@@ -181,7 +181,7 @@ ZLua 由 **全职专业团队** 维护：
 
 | 文档 | 内容 |
 |------|------|
-| [设计概览](./design-overview) | L/Invoke 模型 |
+| [设计概览](./design-overview) | GetFunction 与双向桥接 |
 | [双运行时](./dual-runtime) | Mono / Il2Cpp 分工 |
 | [术语表](./glossary) | Opaque / ByVal / stub 等 |
 | [Il2Cpp 实现](../impl/IL2CPP) | Player 模块图 |
