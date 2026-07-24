@@ -7,7 +7,7 @@ title: "类型系统"
 
 > Lua 侧访问 C# **类型、成员与构造** 的规范。适用于 **Il2Cpp（Player）** 与 **Mono（Editor）**。  
 > **成员索引（`__index` / `__newindex`）** → [metatable/](metatable/)  
-> **参数编组（Push/Pop）** → [marshal/](marshal/)
+> **参数 Marshal（Push/Pop）** → [marshal/](marshal/)
 
 **平台原则：** Il2Cpp 侧重零 GC 与 direct `methodPointer`；Mono 可反射 / Emit，但 **Lua 可见语义必须与 Il2Cpp 一致**。
 
@@ -133,25 +133,32 @@ local md_type = zlua.make_mdarray_type(zlua.types.int32, 2)   -- int[,]
 ### 2.7 `zlua.typeof`
 
 ```lua
+-- 等价于 C# typeof(Demo) / typeof(List<int>)
 local t = zlua.typeof(CSharp.AC.Demo)
+local ListInt = zlua.make_generic_type(
+    CSharp.mscorlib['System.Collections.Generic.List`1'],
+    zlua.types.int32
+)
+local t2 = zlua.typeof(ListInt)   -- 闭合泛型 / 数组等任意类型表均可
 ```
 
-返回 `System.Type` 等价物（Mono：`System.Type`；Il2Cpp：`Il2CppReflectionType`）。供 `__zlua_create_signature` / `zlua.signature` 使用；**不**作为 §2.4 typeArg。
+`typeTable` 为 **任意** ZLua 类型表（`CSharp` 基础表、`make_generic_type` / `make_*array_type` / `get_type_from_name` 等结果）。**返回值** 为该类型的 **`System.Type` 反射对象**（class userdata），语义对应 C# `typeof(T)`。可供需要 `System.Type` 的 API / 签名场景使用；**不**作为 §2.4 typeArg（typeArg 要的是类型表，不是 `Type` 实例）。
 
-### 2.8 `zlua.types`
+### 2.8 `zlua.types` / `zlua.get_type_from_name`
 
-见 [05-LIB.md](05-LIB.md) §4.2。
+见 [05-LIB.md](05-LIB.md) §4.2、§4.3。`get_type_from_name(typeFullName)` 对标 `System.Type.GetType(string)`，返回类型表（支持 AQN、泛型、数组）。
 
 ### 2.9 类型获取途径
 
 | 途径 | 适用 | 示例 |
 |------|------|------|
 | `CSharp[assembly][typeFullName]` | class、struct、enum、delegate、interface、嵌套、**未闭合泛型定义** | `CSharp.AC['Outer+Inner']` |
+| `zlua.get_type_from_name` | 单字符串解析（AQN / 泛型 / 数组） | `zlua.get_type_from_name("System.Int32[]")` |
 | `zlua.make_generic_type` | **闭合泛型** | `List<int>` |
 | `zlua.make_szarray_type` | `T[]` | |
 | `zlua.make_mdarray_type` | `T[,…]` | |
 
-**不**经 `CSharp[...]` 直接解析：闭合泛型、数组类型（须 `make_*`）。
+**不**经 `CSharp[...]` 直接解析：闭合泛型、数组类型（须 `make_*` 或 `get_type_from_name`）。
 
 #### 懒加载
 
@@ -438,7 +445,7 @@ local x = matrix:get(0, 1)
 
 | API | 说明 |
 |-----|------|
-| `zlua.to_bytes` | 当前实现：`byte[]` → string |
+| `zlua.to_bytes` | blittable 元素 szarray（基元或无引用字段的 struct）→ 按内存字节拷贝为 Lua string |
 | `zlua.to_table` | szarray → 1..n Lua 表 |
 
 ---

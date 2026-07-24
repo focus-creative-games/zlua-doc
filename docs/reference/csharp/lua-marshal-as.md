@@ -6,7 +6,7 @@ description: "[LuaMarshalAs] 属性与 LuaMarshalType 枚举。"
 
 # LuaMarshalAs
 
-覆盖 C# ↔ Lua 双向调用时的 **默认编组规则**。标注于参数、返回值、方法或字段。
+覆盖 C# ↔ Lua 双向调用时的 **默认 Marshal 规则**。标注于参数、返回值、方法或字段。
 
 ```csharp
 using ZLua;
@@ -49,7 +49,7 @@ public sealed class LuaMarshalAsAttribute : Attribute
 
 | 值 | 方向 | 效果 |
 |----|------|------|
-| **Default** | 双向 | 使用 [编组速查表](../marshal-cheatsheet) 默认规则 |
+| **Default** | 双向 | 使用 [Marshal 速查表](../marshal-cheatsheet) 默认规则 |
 | **UserData** | 双向 | 强制 **full userdata**（替代默认 boolean/number/string 等） |
 | **Bytes** | 双向 | `byte[]` ↔ Lua **string**（原始 octet，非 UTF-8 文本语义） |
 | **OpaqueLightUserData** | **仅 C# → Lua** | Push **lightuserdata** 临时令牌（StructStackScope handle）；须同步链内使用或 `zlua.to_user_data` 升级 |
@@ -79,7 +79,7 @@ public sealed class LuaMarshalAsAttribute : Attribute
 
 | 行为 | 说明 |
 |------|------|
-| 编组 | 静默回退 **Default**，不中断调用 |
+| Marshal | 静默回退 **Default**，不中断调用 |
 | Editor 日志 | 输出 `[ZLua] Invalid LuaMarshalAs: ... falling back to Default` |
 | Player | 不打印日志，仍回退 Default |
 
@@ -135,7 +135,7 @@ local ud = zlua.to_user_data(opaque) -- 升级为 StructUserData
 
 ## 相关文档
 
-- [编组速查表](../marshal-cheatsheet)
+- [Marshal 速查表](../marshal-cheatsheet)
 - [ref / out / in 指南](../../guides/marshal-ref-out-in)
 - [LuaMarshalAs 规范](../../spec/marshal/02-MARSHAL-AS)
 - [源码 LuaMarshalAsAttribute.cs](https://github.com/focus-creative-games/zlua/blob/main/Runtime/Common/LuaMarshalAsAttribute.cs)

@@ -1,11 +1,11 @@
 ---
 sidebar_position: 9
-title: "`ref` / `in` / `out` 编组"
+title: "`ref` / `in` / `out` Marshal"
 ---
 
-# `ref` / `in` / `out` 编组
+# `ref` / `in` / `out` Marshal
 
-> **规范性：** byref 形参（元素类型记为 **A**）在 C# ↔ Lua 双向调用中的编组语义。  
+> **规范性：** byref 形参（元素类型记为 **A**）在 C# ↔ Lua 双向调用中的 Marshal 语义。  
 > **C#→Lua：** 默认 **OpaqueValue**，细节见 [04-OPAQUE.md](./04-OPAQUE)。  
 > **Lua→C#：** 本节 §3 起。
 
@@ -40,7 +40,7 @@ title: "`ref` / `in` / `out` 编组"
 |--------------|----------|----------------------------------------|
 | **OpaqueValue**（类型兼容） | 使用 handle 指向的地址 | **能**（写回原 C# 栈槽 / 已绑定地址） |
 | **ByValUserData** 且类型与 **A** 相等 | 使用 userdata **payload 地址** | **能**（写回 userdata 载荷） |
-| **其它一切可接受形态** | 先编组出值，写入 **本次调用的栈临时变量**，再传 **临时变量地址** | **不能**（临时槽在 Invoke 后丢弃） |
+| **其它一切可接受形态** | 先 Marshal 出值，写入 **本次调用的栈临时变量**，再传 **临时变量地址** | **不能**（临时槽在 Invoke 后丢弃） |
 
 因此：裸 `number` / Lua `string` / 多数 ByObjUserData 等传入 `ref A` 时 **不报错**，但脚本侧原值 **看不到** C# 的写回（与「无 Lua lvalue」一致）。
 

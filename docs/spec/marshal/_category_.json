@@ -1,10 +1,10 @@
 {
-  "label": "编组",
+  "label": "Marshal",
   "position": 30,
   "collapsible": true,
   "collapsed": true,
   "link": {
     "type": "generated-index",
-    "description": "参数与类型编组规范。"
+    "description": "参数与类型 Marshal 规范。"
   }
 }

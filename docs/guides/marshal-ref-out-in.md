@@ -1,7 +1,7 @@
 ---
 sidebar_position: 7
 title: ref / out / in 参数
-description: byref 与 OpaqueValue 编组规则摘要。
+description: byref 与 OpaqueValue Marshal 规则摘要。
 ---
 
 # ref / out / in 参数
@@ -58,6 +58,6 @@ Opaque 读写：`zlua.get_opaquevalue` / `zlua.set_opaquevalue`（同步调用�
 
 ## 相关文档
 
-- [编组总览](../spec/marshal/01-OVERVIEW)
-- [Struct 编组](../spec/marshal/05-STRUCT)
-- [编组速查](../reference/marshal-cheatsheet)
+- [Marshal 总览](../spec/marshal/01-OVERVIEW)
+- [Struct Marshal](../spec/marshal/05-STRUCT)
+- [Marshal 速查](../reference/marshal-cheatsheet)

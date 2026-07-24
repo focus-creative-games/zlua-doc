@@ -102,4 +102,4 @@ player:remove_OnHealthChanged(handler)
 
 - [回调与 Delegate](./callbacks-and-delegates)
 - [成员绑定规范](../spec/metatable/03-BINDING)
-- [函数编组](../spec/marshal/09-FUNCTION)
+- [函数 Marshal](../spec/marshal/09-FUNCTION)

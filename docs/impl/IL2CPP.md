@@ -173,6 +173,6 @@ Player 进程进入 Il2Cpp 后，托管侧调用 `LuaAppDomain::Initialize()`，
 ## 5. 关联文档
 
 - 元表实现分册：[metatable/README.md](./metatable/)
-- 编组实现分册：[marshal/README.md](./marshal/)
+- Marshal 实现分册：[marshal/README.md](./marshal/)
 - Codegen 分册：[codegen/README.md](./codegen/)
 - Mono 实现对照：[MONO.md](./MONO)

@@ -1,16 +1,16 @@
 ---
 sidebar_position: 15
-title: "Delegate / 函数编组"
+title: "Delegate / 函数 Marshal"
 ---
 
-# Delegate / 函数编组
+# Delegate / 函数 Marshal
 
-> **规范性：** C# `Delegate` 与 Lua 函数之间的双向编组。  
+> **规范性：** C# `Delegate` 与 Lua 函数之间的双向 Marshal。  
 > **相关：** class ByObj 基础 → [`06-CLASS.md`](./06-CLASS)；`[LuaInvoke]` → [`../01-HOST-API.md`](../01-HOST-API)；C#→Lua byref → [`04-OPAQUE.md`](./04-OPAQUE)；Lua→C# byref → [`03-BYREF.md`](./03-BYREF)；`to_delegate` → [`../05-LIB.md`](../05-LIB)。
 
 **平台原则：** Mono 与 Il2Cpp 的 **Lua 可见语义一致**；实现路径可不同（Il2Cpp：构建期 C++ bridge；Mono：运行时 Expression Emit）。
 
-**明确不写 Event 专用子表：** ZLua **无** Event 特殊编组；订阅/退订使用普通方法 `add_*` / `remove_*`（见 [`../02-TYPE-SYSTEM.md`](../02-TYPE-SYSTEM)）。
+**明确不写 Event 专用子表：** ZLua **无** Event 特殊 Marshal；订阅/退订使用普通方法 `add_*` / `remove_*`（见 [`../02-TYPE-SYSTEM.md`](../02-TYPE-SYSTEM)）。
 
 ---
 
@@ -212,8 +212,8 @@ static int32_t Bridge_Func_int32__int32(Il2CppObject* target, int32_t a)
     const int top = lua_gettop(L);
 
     lua_rawgeti(L, LUA_REGISTRYINDEX, m->funcRef);
-    Marshaling::PushDefault<int32_t>(L, a);
-    Marshaling::LuaPCall(L, 1, 1);
+ Marshaling::PushDefault<int32_t>(L, a);
+ Marshaling::LuaPCall(L, 1, 1);
     const int32_t ret = Marshaling::PopDefault<int32_t>(L, -1);
     lua_settop(L, top);
     return ret;

@@ -11,7 +11,7 @@ title: "zlua 标准库"
 
 初始化时 native 注册 `__zlua_*` 全局 C 函数，再 `dostring` 加载 `zlualib.lua` 封装为 `zlua.*`。
 
-**相关：** 类型访问 → [02-TYPE-SYSTEM.md](02-TYPE-SYSTEM.md)；重载 → [04-METHOD-OVERLOAD.md](04-METHOD-OVERLOAD.md)；编组 → [marshal/](marshal/)。
+**相关：** 类型访问 → [02-TYPE-SYSTEM.md](02-TYPE-SYSTEM.md)；重载 → [04-METHOD-OVERLOAD.md](04-METHOD-OVERLOAD.md)；Marshal → [marshal/](marshal/)。
 
 ---
 
@@ -43,9 +43,11 @@ Il2Cpp：脚本嵌入 `BuiltinScripts.inc`；Mono：Resources 或同等路径。
 |------|------|
 | `zlua.types.*` | `zlua.types.int32` → `"System.Int32"` |
 | `CSharp` 类型表 | `CSharp.mscorlib['System.Int32']` |
-| mscorlib 字符串 | `"System.Int32"`（**仅** corlib 类型） |
+| 闭合泛型 / 数组类型表 | `zlua.make_generic_type(...)` / `zlua.make_szarray_type(...)` 的返回值 |
+| `zlua.get_type_from_name` | 按 CLR 类型名解析得到的类型表（见 §4.3） |
+| mscorlib 字符串 | `"System.Int32"`（**仅** corlib 类型；复杂类型优先用类型表或 `get_type_from_name`） |
 
-`zlua.typeof(typeTable)` 返回 `System.Type` 等价物，供签名等场景使用；闭合泛型 / 数组 **不能** 仅用字符串，须用类型表。
+`zlua.typeof(typeTable)` 接受 **任意** ZLua 类型表（含泛型闭合表、数组类型表），返回该类型的 **`System.Type` 反射对象**（Lua 侧为 Type 的 class userdata），语义对应 C# 的 `typeof(T)`。
 
 ---
 
@@ -54,12 +56,28 @@ Il2Cpp：脚本嵌入 `BuiltinScripts.inc`；Mono：Resources 或同等路径。
 ### 4.1 `zlua.typeof`
 
 ```lua
-zlua.typeof(typeTable) → typeDescriptor
+zlua.typeof(typeTable) → System.Type   -- class userdata
 ```
 
-| 参数 | 说明 |
-|------|------|
-| `typeTable` | 须为 `CSharp` 解析出的类型表（含 `__klass` 等元数据） |
+| 参数 / 返回 | 说明 |
+|-------------|------|
+| `typeTable` | **任意** ZLua 类型表：`CSharp` 解析出的类型表，或 `make_generic_type` / `make_*array_type` / `get_type_from_name` 等得到的类型表 |
+| **返回值** | 对应类型的 **`System.Type` 实例**（反射对象），与 C# `typeof(...)` 得到的值同类 |
+
+```lua
+-- 等价于 C#：typeof(int)
+local intType = zlua.typeof(CSharp['mscorlib']['System.Int32'])
+-- intType 为 System.Type userdata，可传给需要 Type 的 C# API
+
+local t1 = zlua.typeof(CSharp.AC.Demo)   -- 同 typeof(Demo)
+local ListInt = zlua.make_generic_type(
+    CSharp.mscorlib['System.Collections.Generic.List`1'],
+    zlua.types.int32
+)
+local t2 = zlua.typeof(ListInt)          -- 同 typeof(List<int>)
+local IntArr = zlua.make_szarray_type(zlua.types.int32)
+local t3 = zlua.typeof(IntArr)           -- 同 typeof(int[])
+```
 
 **Native：** `__zlua_typeof`
 
@@ -83,6 +101,56 @@ zlua.typeof(typeTable) → typeDescriptor
 | `decimal` | `System.Decimal` |
 | `object` | `System.Object` |
 | `string` | `System.String` |
+
+### 4.3 `zlua.get_type_from_name`
+
+```lua
+zlua.get_type_from_name(typeFullName) → typeTable
+```
+
+按名称解析 CLR 类型并返回对应 **类型表**（与 `CSharp` / `make_*` 路径得到的类型表同构；失败 → `luaL_error` 或按实现约定返回 `nil`，以实现为准）。
+
+| 参数 | 说明 |
+|------|------|
+| `typeFullName` | 格式与 **`System.Type.GetType(string name)`** 的 `name` 相同 |
+
+**支持（与 `Type.GetType` 对齐）：**
+
+- 简单名 / 命名空间限定名（解析规则同 CLR，依赖已加载程序集）
+- **Assembly-qualified name**（含程序集名、版本、culture、public key token 等）
+- **泛型**（开放定义与闭合形式，如 `` System.Collections.Generic.List`1[[System.Int32]] ``）
+- **数组**（如 `System.Int32[]`、`System.Int32[,]`）
+- 嵌套类型等 `Type.GetType` 合法写法
+
+```lua
+-- corlib
+local Int32 = zlua.get_type_from_name("System.Int32")
+
+-- 程序集限定名
+local Demo = zlua.get_type_from_name(
+    "Demo, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null"
+)
+
+-- 闭合泛型（GetType 风格）
+local ListInt = zlua.get_type_from_name(
+    "System.Collections.Generic.List`1[[System.Int32, mscorlib]]"
+)
+
+-- 数组
+local IntArr = zlua.get_type_from_name("System.Int32[]")
+
+local t = zlua.typeof(ListInt)   -- 可与 typeof 组合
+```
+
+与 `CSharp[asm][name]` / `make_generic_type` 的关系：
+
+| 途径 | 适用 |
+|------|------|
+| `CSharp[...]` | 按程序集键 + 类型全名懒绑定（常用路径） |
+| `make_generic_type` / `make_*array_type` | 从已有类型表构造闭合泛型 / 数组 |
+| **`get_type_from_name`** | 单字符串解析（含 AQN、泛型、数组），对标 `Type.GetType` |
+
+**Native：** `__zlua_get_type_from_name`
 
 ---
 
@@ -211,12 +279,23 @@ zlua.new_mdarray_by_spec(typeArg, lowbounds, sizes) → mdarrayUserdata
 ### 8.3 `zlua.to_bytes`
 
 ```lua
-zlua.to_bytes(szarray) → string
+zlua.to_bytes(szarray) → string   -- Lua 二进制 string（可含 \0）
 ```
 
-**当前 Il2Cpp 实现：** 参数须为 **`System.Byte[]`（szarray）** userdata；将 `0 .. Length-1` 逐字节拷贝为 Lua 二进制 string（可含 `\0`）。
+将 **一维 szarray** 的托管内存按 **原始字节布局** 拷贝为等长 Lua string。
 
-非 `byte[]` → `luaL_error`。
+| 约束 | 说明 |
+|------|------|
+| 输入 | **仅** szarray userdata（**不支持** mdarray） |
+| 元素类型 | 必须为 **blittable**：基元（`int` / `float` / `byte` 等），或 **不含任何引用类型字段** 的 struct（如 `Vector3`、纯值类型 POD） |
+| 非 blittable | 含 `string`、class、装箱等引用字段的元素类型 → `luaL_error` |
+| 实现 | 将数组在内存中的连续数据视为 C 的 `byte[]`，长度为 **实际数据字节数**（`Length × sizeof(元素)`，含对齐后的 struct 布局），整段 **memcpy** 到 Lua string |
+
+```lua
+local bytes = zlua.to_bytes(byte_arr)     -- byte[]
+local fbytes = zlua.to_bytes(float_arr)   -- float[]；#fbytes == #float_arr * 4
+local vbytes = zlua.to_bytes(vector3_arr) -- Vector3[]（blittable struct）亦可
+```
 
 **Native：** `__zlua_to_bytes`
 
@@ -317,7 +396,8 @@ zlua.register_method(aliasName, methodOrClosure) → void
 
 | Native 全局 | `zlua.*` 封装 | 说明 |
 |-------------|---------------|------|
-| `__zlua_typeof` | `zlua.typeof` | |
+| `__zlua_typeof` | `zlua.typeof` | 任意类型表 |
+| `__zlua_get_type_from_name` | `zlua.get_type_from_name` | 对标 `Type.GetType` |
 | `__zlua_create_signature` | *(无)* | 见 §11.1 |
 | `__zlua_make_generic_type` | `zlua.make_generic_type` | |
 | `__zlua_make_szarray_type` | `zlua.make_szarray_type` | |
@@ -334,7 +414,7 @@ zlua.register_method(aliasName, methodOrClosure) → void
 | `__zlua_to_delegate` | `zlua.to_delegate` | |
 | `__zlua_get_opaquevalue` | `zlua.get_opaquevalue` | |
 | `__zlua_set_opaquevalue` | `zlua.set_opaquevalue` | |
-| `__zlua_to_bytes` | `zlua.to_bytes` | 当前：`byte[]` only |
+| `__zlua_to_bytes` | `zlua.to_bytes` | blittable 元素 szarray → Lua string |
 | `__zlua_to_table` | `zlua.to_table` | szarray |
 
 ---
@@ -357,8 +437,11 @@ local list = ListInt()
 local arr = zlua.new_szarray_by_element_type(zlua.types.int32, 4)
 arr:set(0, 1)   -- 经类型绑定 get/set，见 02-TYPE-SYSTEM §7
 
+-- 数组 → 字节（blittable 元素：byte[] / float[] / Vector3[] 等）
 local byteArr = zlua.new_szarray_by_element_type(zlua.types.byte, 8)
 local raw = zlua.to_bytes(byteArr)
+local floats = zlua.new_szarray_by_element_type(zlua.types.float, 4)
+local fraw = zlua.to_bytes(floats)   -- #fraw == 16
 
 -- opaque（C# 调 Lua 回调内）
 -- local v = zlua.get_opaquevalue(refHandle)
@@ -380,6 +463,7 @@ local child = zlua.cast(demo, CSharp.AC.Child)
 zlua = zlua or {}
 
 function zlua.typeof(typeTable) return __zlua_typeof(typeTable) end
+function zlua.get_type_from_name(typeFullName) return __zlua_get_type_from_name(typeFullName) end
 function zlua.make_generic_type(genericType, ...) return __zlua_make_generic_type(genericType, ...) end
 function zlua.make_generic_method(genericMethodBase, ...) return __zlua_make_generic_method(genericMethodBase, ...) end
 function zlua.make_szarray_type(elementType) return __zlua_make_szarray_type(elementType) end

@@ -5,7 +5,7 @@ title: "特殊类型的元表行为"
 
 # 04 — 特殊类型的元表行为
 
-本文档汇总 **enum**、**Nullable\<T\>**、**struct**、**数组**、**委托（delegate）** 在元表布局与成员索引上的特例。值如何 Push/Pop、ByVal/ByObj payload 布局等编组细节见 [../marshal/](../marshal/) 各分册；本文只描述 **Lua 脚本可见** 的表结构、元方法与索引入口。
+本文档汇总 **enum**、**Nullable\<T\>**、**struct**、**数组**、**委托（delegate）** 在元表布局与成员索引上的特例。值如何 Push/Pop、ByVal/ByObj payload 布局等 Marshal 细节见 [../marshal/](../marshal/) 各分册；本文只描述 **Lua 脚本可见** 的表结构、元方法与索引入口。
 
 **关联文档：** 通用布局 → [01-LAYOUT.md](./01-LAYOUT)；索引算法 → [02-INDEX.md](./02-INDEX)；绑定规则 → [03-BINDING.md](./03-BINDING)。
 
@@ -145,7 +145,7 @@ local cb = SomeDelegate(function(x) return x * 2 end)
 local result = cb(21)   -- 等价 invoke，非 obj:Invoke(21) 必需
 ```
 
-`__call` 实参个数须与 `Invoke` 签名一致；Lua function → delegate 的编组见 [../marshal/09-FUNCTION.md](../marshal/09-FUNCTION)。静态成员（若有）仍经 SMT 三表；**无** event 子表。
+`__call` 实参个数须与 `Invoke` 签名一致；Lua function → delegate 的 Marshal 见 [../marshal/09-FUNCTION.md](../marshal/09-FUNCTION)。静态成员（若有）仍经 SMT 三表；**无** event 子表。
 
 ---
 
@@ -160,7 +160,7 @@ local result = cb(21)   -- 等价 invoke，非 obj:Invoke(21) 必需
 
 ---
 
-## 7. 编组交叉引用
+## 7. Marshal 交叉引用
 
 | 主题 | 文档 |
 |------|------|

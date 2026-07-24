@@ -6,7 +6,7 @@ title: "宿主 API"
 # 01 — 宿主 API
 
 > `LuaAppDomain`、**`[LuaInvoke]`**、**`[LuaMarshalAs]`**、**`[LuaAlias]`** 与编译期 Weaver 约束。  
-> C#→Lua / Lua→C# 编组细节见 [marshal/](marshal/)；Weaver 实现见 [impl/codegen/WEAVER.md](../impl/codegen/WEAVER)。
+> C#→Lua / Lua→C# Marshal 细节见 [marshal/](marshal/)；Weaver 实现见 [impl/codegen/WEAVER.md](../impl/codegen/WEAVER)。
 
 ---
 
@@ -92,7 +92,7 @@ public sealed class LuaInvokeAttribute : Attribute
 4. 兜底：legacy `MethodInfo` + `RunLuaFunc`（过渡；新代码应使用 Emit 路径）
 5. 添加 `[LuaInvokeWeaverProcessed]` 标记
 
-参数与返回值编组与普通 C#→Lua 相同，见 [marshal/01-OVERVIEW.md](marshal/01-OVERVIEW.md)。**`ref` / `in` / `out` 默认 Push OpaqueValue**（[marshal/04-OPAQUE.md](marshal/04-OPAQUE.md)）。
+参数与返回值 Marshal 与普通 C#→Lua 相同，见 [marshal/01-OVERVIEW.md](marshal/01-OVERVIEW.md)。**`ref` / `in` / `out` 默认 Push OpaqueValue**（[marshal/04-OPAQUE.md](marshal/04-OPAQUE.md)）。
 
 ### 2.4 Player（Il2Cpp）改写
 
@@ -128,7 +128,7 @@ C# [LuaInvoke] 入口
 
 ---
 
-## 3. `[LuaMarshalAs]` — 编组标注
+## 3. `[LuaMarshalAs]` — Marshal 标注
 
 ### 3.1 作用范围
 
@@ -234,6 +234,6 @@ Editor 程序集处理入口：`LuaInvokeILPostProcessor`（`Unity.ZLua.LuaInvok
 |------|------|
 | [00-OVERVIEW.md](00-OVERVIEW.md) | 双运行时、初始化 |
 | [04-METHOD-OVERLOAD.md](04-METHOD-OVERLOAD.md) | dispatch、`register_method` |
-| [marshal/01-OVERVIEW.md](marshal/01-OVERVIEW.md) | 编组总览 |
+| [marshal/01-OVERVIEW.md](marshal/01-OVERVIEW.md) | Marshal 总览 |
 | [10-LIFETIME.md](10-LIFETIME.md) | GC、单 lua_State |
 | [impl/codegen/WEAVER.md](../impl/codegen/WEAVER) | dnlib / ILPP 细节 |

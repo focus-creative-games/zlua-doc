@@ -1,21 +1,21 @@
 ---
 sidebar_position: 7
-title: "编组总览 — 默认规则矩阵"
+title: "Marshal 总览 — 默认规则矩阵"
 ---
 
-# 编组总览 — 默认规则矩阵
+# Marshal 总览 — 默认规则矩阵
 
-> **规范性：** 未标注 `[LuaMarshalAs]`（或标注为 `LuaMarshalType.Default`）时，各 CLR 类型在 **C# ↔ Lua** 双向调用中的默认编组。  
+> **规范性：** 未标注 `[LuaMarshalAs]`（或标注为 `LuaMarshalType.Default`）时，各 CLR 类型在 **C# ↔ Lua** 双向调用中的默认 Marshal。  
 > **覆盖：** 参数、返回值、字段、属性上的 `[LuaMarshalAs]` 见 [02-MARSHAL-AS.md](./02-MARSHAL-AS)。  
 > **实现：** → [../../impl/marshal/](../../impl/marshal/)。
 
 ## 1. 平台原则
 
-- **Mono（Editor）与 Il2Cpp（Player）的 Lua 可见编组语义一致**；差异仅在实现层（零 GC、生成代码等），不改变脚本可观察行为。
+- **Mono（Editor）与 Il2Cpp（Player）的 Lua 可见 Marshal 语义一致**；差异仅在实现层（零 GC、生成代码等），不改变脚本可观察行为。
 - **函数 / delegate：** Lua 调用 C# 方法时，delegate 形参接受 Lua `function`，由桥接层隐式 marshal，详见 [09-FUNCTION.md](./09-FUNCTION)。
 - **`[LuaInvoke]` / delegate bridge（C# → Lua）** 上 `ref`/`out`/`in` 的默认 Push 为 **OpaqueValue**，与 Lua→C# 路径不同，见 [03-BYREF.md](./03-BYREF)、[04-OPAQUE.md](./04-OPAQUE)。
 
-## 2. 默认编组矩阵
+## 2. 默认 Marshal 矩阵
 
 | C# 类型 | C# → Lua | Lua → C# | 说明 |
 |---------|----------|----------|------|
@@ -45,7 +45,7 @@ title: "编组总览 — 默认规则矩阵"
 | `enum` | **integer** / **number** | **integer** / **number** 或 **ByObjUserData**（boxed） | 默认 **不** 推 userdata；boxed 仅经 `zlua.box`；详见 [08-ENUM.md](./08-ENUM) |
 | `struct` | **ByValUserData** 或 **OpaqueValue** | **StructUserData** 或 `Type(...)` 产物 | C#→Lua 常规路径见 [05-STRUCT.md](./05-STRUCT)；标注 `OpaqueValue` 或 **`ref`/`in`/`out`** 时为 OpaqueValue（[04-OPAQUE.md](./04-OPAQUE)）。Lua→C# 亦接受 `SMT.__call` 构造的 StructUserData。**不**默认接受 table / 多栈参数；须 `[LuaMarshalAs(Table \| UnpackedValues)]` + `FieldOrPropertyNames`（[02-MARSHAL-AS.md](./02-MARSHAL-AS)） |
 | `Delegate` | **function** 或 **DelegateUserData** | **function** 或 **DelegateUserData** | C#→Lua：若 `target` 为 Lua 回调源则 Push **function**，否则 ByObjUserData；见 [09-FUNCTION.md](./09-FUNCTION) |
-| `object` | **ClassUserData**（`System.Object` 门面） | **boolean** / **number** / **string** / **userdata** | **门面 = 声明类型 `object`**，即使运行时是 `string` 等也 **不** 改走特殊编组；见 [06-CLASS.md](./06-CLASS) |
+| `object` | **ClassUserData**（`System.Object` 门面） | **boolean** / **number** / **string** / **userdata** | **门面 = 声明类型 `object`**，即使运行时是 `string` 等也 **不** 改走特殊 Marshal；见 [06-CLASS.md](./06-CLASS) |
 | `Nullable<T>` | 同 `T` 或 `nil` | 同 `T` 或 `nil` | `T` 为值类型时 `nil` ↔ `null` |
 | `interface` | **ClassUserData**（ByObj） | **ClassUserData** | 与 class 相同：**门面 = 接口声明类型**；亦可 `[LuaMarshalAs(Table \| UnpackedValues)]`（见 [02-MARSHAL-AS.md](./02-MARSHAL-AS)、[06-CLASS.md](./06-CLASS)） |
 | `decimal` | **暂不支持**（默认） | **暂不支持**（默认） | v1 默认路径未纳入 |
@@ -109,11 +109,11 @@ title: "编组总览 — 默认规则矩阵"
 | 概念 | 含义 |
 |------|------|
 | **Identity** | userdata 持有的托管对象引用（运行时实际实例） |
-| **View / 门面** | userdata 挂接的 **IMT** 与成员可见性；**唯一来源 = 本次编组的声明类型** |
+| **View / 门面** | userdata 挂接的 **IMT** 与成员可见性；**唯一来源 = 本次 Marshal 的声明类型** |
 
 **规则摘要：**
 
-1. **C# → Lua**：始终按 **声明类型** 选择默认 marshal 形态与 ByObj IMT；**不** 因运行时实际类型不同而改挂实际类型 mt，也 **不** 因此改走 `string` 等特殊编组。
+1. **C# → Lua**：始终按 **声明类型** 选择默认 marshal 形态与 ByObj IMT；**不** 因运行时实际类型不同而改挂实际类型 mt，也 **不** 因此改走 `string` 等特殊 Marshal。
 2. **Downcast**：仅 `zlua.cast(obj, targetType)`（见 [../05-LIB.md](../05-LIB)）；要求目标类型可从当前门面类型赋值，返回 **新 userdata**（同 identity、新门面）。
 3. **对象缓存**：键为 **`(identity, viewType)`**；同一实例可有多个视图 userdata。
 

@@ -92,7 +92,7 @@ Il2Cpp 在 AppDomain 级额外提前执行 `MethodBridge::Initialize` 等 stub �
 | 4 | ✅ | Delegate Emit、`ZLuaLib` 大部、`LuaInvokeBridge` typed catalog、删 legacy | `DelegateImpl/`、`Bridge/LuaInvoke/`、`Marshaling/DelegateMarshal.cs` |
 | 5 | ✅ 实现 / ⏳ 验收 | NYI 补齐、Vector LuaInvoke、MethodClosureTag、LuaAlias、Pointer/`params`；manifest 待 Editor 跑通 | `Emit/*`、`Marshaling/PointerMarshal`、`ZLuaLib` |
 
-**Phase 5：** `register_method` / `make_generic_method` / opaque get/set 已实装；开放泛型方法写入 throw stub + tag；Unity Vector LuaInvoke catalog 已加；`[LuaAlias]` 与 Il2Cpp 一致（别名替换默认键）；Pointer lightuserdata + DynamicMethod；TypedReference/decimal/ByRefLike 调用期拒绝；`params T[]` 按数组编组。
+**Phase 5：** `register_method` / `make_generic_method` / opaque get/set 已实装；开放泛型方法写入 throw stub + tag；Unity Vector LuaInvoke catalog 已加；`[LuaAlias]` 与 Il2Cpp 一致（别名替换默认键）；Pointer lightuserdata + DynamicMethod；TypedReference/decimal/ByRefLike 调用期拒绝；`params T[]` 按数组 Marshal。
 
 ---
 

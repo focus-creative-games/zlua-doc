@@ -87,7 +87,7 @@ print(#arr1)      -- 4，等价 C# Length
 
 ### 元素访问
 
-szarray 实例为 userdata，支持下标读写（规则见 [Class 编组规范](../spec/marshal/06-CLASS)）。引用类型元素可为 `nil`。
+szarray 实例为 userdata，支持下标读写（规则见 [Class Marshal 规范](../spec/marshal/06-CLASS)）。引用类型元素可为 `nil`。
 
 ### 与 Lua 互转
 
@@ -95,8 +95,9 @@ szarray 实例为 userdata，支持下标读写（规则见 [Class 编组规范]
 -- 任意元素类型 → Lua 表（1-based 索引对应 C# 0-based）
 local t = zlua.to_table(arr1)
 
--- 仅 blittable 基元 szarray → 二进制 string
-local bytes = zlua.to_bytes(int_byte_array)
+-- blittable 元素 szarray → 二进制 string（内存整段拷贝）
+-- 如 byte[] / float[] / Vector3[]（struct 无引用字段）
+local bytes = zlua.to_bytes(float_arr)
 ```
 
 ### 多维数组
@@ -118,7 +119,8 @@ local matrix = zlua.new_mdarray_by_mdarray_type(
 | 形式 | 示例 |
 |------|------|
 | `zlua.types.*` | `zlua.types.int32` |
-| `zlua.typeof(typeTable)` | `zlua.typeof(CSharp.AC.Demo)` |
+| `zlua.typeof(typeTable)` | 返回 `System.Type`（≡ C# `typeof`）；任意类型表均可 |
+| `zlua.get_type_from_name(name)` | 对标 `Type.GetType`；如 `"System.Int32[]"` |
 | 已解析的类型表 | `CSharp.mscorlib['System.String']` |
 
 ## Mono / Il2Cpp 支持

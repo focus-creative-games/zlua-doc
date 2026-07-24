@@ -19,7 +19,7 @@ ZLua 双后端：**Lua 可见语义必须一致**；实现路径不同。
 详见 [Mono 实现](../impl/MONO)、[Il2Cpp 实现](../impl/IL2CPP)、[项目状态](../getting-started/project-status)。
 
 :::info 语义一致
-Event、编组、类型访问等以 [规范](../spec/00-OVERVIEW) 为准；两端均 **无** Event 专用元表（`add_` / `remove_`）。
+Event、Marshal、类型访问等以 [规范](../spec/00-OVERVIEW) 为准；两端均 **无** Event 专用元表（`add_` / `remove_`）。
 :::
 
 ## Player 发布检查清单

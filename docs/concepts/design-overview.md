@@ -18,7 +18,7 @@ ZLua 把 Lua 当作另一种 **Native**：类比 P/Invoke，用声明式特性�
 |-----------|------|-----------|
 | **P/Invoke** | C# 调用 native 函数 | **`[LuaInvoke]`**（L/Invoke）— C# 调用 Lua |
 | **MonoPInvokeCallback** | native 回调 C# | **`[MonoLuaCallback]`** — 仅 `int (IntPtr L)` 原生回调 |
-| **MarshalAs** | 覆盖默认编组 | **`[LuaMarshalAs]`** — C# ↔ Lua 编组覆盖 |
+| **MarshalAs** | 覆盖默认 Marshal | **`[LuaMarshalAs]`** — C# ↔ Lua Marshal 覆盖 |
 
 ```mermaid
 flowchart LR
@@ -93,7 +93,7 @@ flowchart TB
 |----------|----------|
 | 怎么从 C# 调 Lua？ | [C# 调用 Lua 指南](../guides/csharp-to-lua) |
 | Lua 怎么访问 C# 类型？ | [类型系统概览](./type-system-overview) |
-| 参数怎么传递？ | [编组模型概览](./marshal-overview) |
+| 参数怎么传递？ | [Marshal 模型概览](./marshal-overview) |
 | Editor 与 Player 差别？ | [双运行时](./dual-runtime) |
 | 完整设计语义？ | [设计规范](../spec/00-OVERVIEW) |
 

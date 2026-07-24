@@ -1,16 +1,16 @@
 ---
 sidebar_position: 5
-title: 编组模型概览
-description: C# 与 Lua 之间的默认参数编组规则。
+title: Marshal 模型概览
+description: C# 与 Lua 之间的默认参数 Marshal 规则。
 ---
 
-# 编组模型概览
+# Marshal 模型概览
 
 :::tip 谁该读本文
-**需要理解参数如何在 C# 与 Lua 间转换、何时用 `new_ref` / `[LuaMarshalAs]` 的开发者。** 查表用 [编组速查表](../reference/marshal-cheatsheet)；`ref/out` 实操见 [指南](../guides/marshal-ref-out-in)。
+**需要理解参数如何在 C# 与 Lua 间转换、何时用 `new_ref` / `[LuaMarshalAs]` 的开发者。** 查表用 [Marshal 速查表](../reference/marshal-cheatsheet)；`ref/out` 实操见 [指南](../guides/marshal-ref-out-in)。
 :::
 
-ZLua 在 Mono 与 Il2Cpp 上 **Lua 可见编组语义一致**；Il2Cpp 侧重零 GC 与生成代码快速路径。
+ZLua 在 Mono 与 Il2Cpp 上 **Lua 可见 Marshal 语义一致**；Il2Cpp 侧重零 GC 与生成代码快速路径。
 
 ## 双向调用路径
 
@@ -45,7 +45,7 @@ flowchart TB
 | delegate | DelegateUserData | **function** 或 userdata |
 | array | ArrayUserData | ArrayUserData |
 
-完整表格：[编组速查表](../reference/marshal-cheatsheet)。
+完整表格：[Marshal 速查表](../reference/marshal-cheatsheet)。
 
 ## ref / out / in（Lua → C#）
 
@@ -72,15 +72,15 @@ Lua 侧 **不区分** ref/out/in，统一按 ref 语义处理：
 
 | 类型 | 规范 |
 |------|------|
-| 总览与默认表 | [编组规范](../spec/marshal/01-OVERVIEW) |
+| 总览与默认表 | [Marshal 规范](../spec/marshal/01-OVERVIEW) |
 | byref / Opaque | [BYREF](../spec/marshal/03-BYREF)、[OPAQUE](../spec/marshal/04-OPAQUE) |
 | struct | [STRUCT](../spec/marshal/05-STRUCT) |
 | class / 引用 | [CLASS](../spec/marshal/06-CLASS) |
 | Delegate / 回调 | [FUNCTION](../spec/marshal/09-FUNCTION) |
-| 日常查表 | [编组速查表](../reference/marshal-cheatsheet) |
+| 日常查表 | [Marshal 速查表](../reference/marshal-cheatsheet) |
 
 ## 相关文档
 
-- [编组速查表](../reference/marshal-cheatsheet)
+- [Marshal 速查表](../reference/marshal-cheatsheet)
 - [enum / struct 指南](../guides/enums-and-structs)
 - [回调与 Delegate](../guides/callbacks-and-delegates)

@@ -1,14 +1,14 @@
 ---
 sidebar_position: 14
-title: "枚举编组"
+title: "枚举 Marshal"
 ---
 
-# 枚举编组
+# 枚举 Marshal
 
-> **规范性：** C# `enum` 在 Lua 与 C# 之间的默认编组规则。  
+> **规范性：** C# `enum` 在 Lua 与 C# 之间的默认 Marshal 规则。  
 > **相关：** 类型表常量字段 → [`../02-TYPE-SYSTEM.md`](../02-TYPE-SYSTEM) §枚举；boxed 形态 → [`../05-LIB.md`](../05-LIB) `box`/`unbox`；`ref` enum → [`03-BYREF.md`](./03-BYREF)；`[LuaMarshalAs]` → [`02-MARSHAL-AS.md`](./02-MARSHAL-AS)。
 
-**平台原则：** Mono 与 Il2Cpp 的 **Lua 可见语义一致**；枚举默认 **不** 推送 userdata，而按 **integer / number** 编组。
+**平台原则：** Mono 与 Il2Cpp 的 **Lua 可见语义一致**；枚举默认 **不** 推送 userdata，而按 **integer / number** Marshal。
 
 ---
 
@@ -36,7 +36,7 @@ title: "枚举编组"
 | **Lua → C#** | **integer** / **number** | 接受整型 Lua 值，按目标枚举 **底层类型** 转换并 `Enum.ToObject` / 等价路径 |
 | **Lua → C#**（备选） | **ByObjUserData**（boxed enum） | 从 boxed 对象解包 underlying 整型 |
 
-**不接受**（除非 `[LuaMarshalAs]` 另行规定）：默认编组为 **string**（枚举名）、**boolean**、或普通 **table**。
+**不接受**（除非 `[LuaMarshalAs]` 另行规定）：默认 Marshal 为 **string**（枚举名）、**boolean**、或普通 **table**。
 
 ---
 

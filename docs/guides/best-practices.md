@@ -34,7 +34,7 @@ CSharp['AC'] = CSharp['Assembly-CSharp']
 
 ## 值类型与 byref
 
-- 需要写回：ByVal / ByObj / Opaque；裸 number **不回写**（见 [Struct 编组](../spec/marshal/05-STRUCT)、[ref/out/in](./marshal-ref-out-in)）
+- 需要写回：ByVal / ByObj / Opaque；裸 number **不回写**（见 [Struct Marshal](../spec/marshal/05-STRUCT)、[ref/out/in](./marshal-ref-out-in)）
 
 ## 性能
 

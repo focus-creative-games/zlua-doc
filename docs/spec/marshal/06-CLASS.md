@@ -1,18 +1,18 @@
 ---
 sidebar_position: 12
-title: "Class / Interface 编组"
+title: "Class / Interface Marshal"
 ---
 
-# Class / Interface 编组
+# Class / Interface Marshal
 
-> **规范性：** 引用类型（`class`、`interface`、`string`、数组实例、delegate 实例等）在 Lua 与 C# 之间的默认编组规则。  
+> **规范性：** 引用类型（`class`、`interface`、`string`、数组实例、delegate 实例等）在 Lua 与 C# 之间的默认 Marshal 规则。  
 > **相关：** 类型表与成员访问 → [`../02-TYPE-SYSTEM.md`](../02-TYPE-SYSTEM)；`ref`/`out`/`in` 总览 → [`03-BYREF.md`](./03-BYREF)；`[LuaMarshalAs]` → [`02-MARSHAL-AS.md`](./02-MARSHAL-AS)；`zlua.cast` → [`../05-LIB.md`](../05-LIB)。
 
 **平台原则：** Mono 与 Il2Cpp 的 **Lua 可见语义一致**；class 实例默认 **GCHandle + full userdata**（Il2Cpp：`ObjectRegistry` + `Il2CppObject*`）。
 
 ---
 
-## 1. 默认编组（概要）
+## 1. 默认 Marshal（概要）
 
 未标注 `[LuaMarshalAs]` 时，引用类型遵循 [`01-OVERVIEW.md`](./01-OVERVIEW) 总览矩阵；本节补充 class / interface 特有语义。
 
@@ -33,16 +33,16 @@ title: "Class / Interface 编组"
 
 ## 2. 声明类型门面（View / 与实际类型）
 
-对所有 **引用类型** 形参、返回值、字段/属性（`class` / `interface` / `object` / 数组 / delegate 等），编组层区分 **Identity** 与 **View**：
+对所有 **引用类型** 形参、返回值、字段/属性（`class` / `interface` / `object` / 数组 / delegate 等），Marshal 层区分 **Identity** 与 **View**：
 
 | 概念 | 含义 |
 |------|------|
 | **Identity** | userdata 载荷持有的托管对象引用（运行时 **实际实例**） |
-| **View / 门面** | userdata 挂接的 **IMT** 与成员可见性；**唯一来源 = 本次编组的声明类型** |
+| **View / 门面** | userdata 挂接的 **IMT** 与成员可见性；**唯一来源 = 本次 Marshal 的声明类型** |
 
 ### 2.1 规则
 
-1. **C# → Lua**：始终按 **声明类型** 选择默认 marshal 形态与 ByObj IMT；**不**因运行时实际类型不同而改挂更具体类型的 mt，也 **不** 因此改走 `string` 等特殊编组（例如 `object` 形参上的 `string` 实例仍为 Object userdata，不是 Lua string）。
+1. **C# → Lua**：始终按 **声明类型** 选择默认 marshal 形态与 ByObj IMT；**不**因运行时实际类型不同而改挂更具体类型的 mt，也 **不** 因此改走 `string` 等特殊 Marshal（例如 `object` 形参上的 `string` 实例仍为 Object userdata，不是 Lua string）。
 2. **值类型**：无继承门面问题；仍按 [`05-STRUCT.md`](./05-STRUCT) 等规则。
 3. **虚方法**：成员查找使用 **声明类型** 上的 `MethodInfo`；调用时对真实 `this` 做 **虚表派发**（`override` 仍落到实现类）。
 4. **非虚 / `new` 隐藏**：走声明类型槽位（经 `Base` 门面调用 `new` 隐藏的 `Bar` 得到 `Base.Bar`）。
@@ -68,7 +68,7 @@ local c = zlua.cast(o, Child)          -- 门面 Child（须 IsAssignableFrom）
 |----|------|
 | Push | **ClassUserData**，门面为 **`System.Object`** |
 | Pop | 接受 boolean / number / string / userdata |
-| 运行时类型 | **不** 按运行时类型改写编组（运行时 `string` 仍为 Object userdata） |
+| 运行时类型 | **不** 按运行时类型改写 Marshal（运行时 `string` 仍为 Object userdata） |
 
 `Nullable<T>` 其中 `T` 为引用类型时，`null` ↔ `nil`；有值时同 `T` 的 class 规则。见 [`01-OVERVIEW.md`](./01-OVERVIEW)。
 
@@ -91,7 +91,7 @@ Pop 时须能构造 **实现该接口的实例** 或 class 实例（如无参 ct
 
 ---
 
-## 4. Interface 编组
+## 4. Interface Marshal
 
 | 项 | 规则 |
 |----|------|
@@ -134,7 +134,7 @@ CS.Demo.Append(sb, "!")   -- 共享引用，内容可变
 
 ---
 
-## 6. `string` 编组补充
+## 6. `string` Marshal 补充
 
 | 声明类型 | C# → Lua | Lua → C# |
 |----------|----------|----------|
@@ -162,10 +162,10 @@ CS.Demo.Append(sb, "!")   -- 共享引用，内容可变
 
 | 文档 | 内容 |
 |------|------|
-| [`01-OVERVIEW.md`](./01-OVERVIEW) | 默认编组矩阵 |
+| [`01-OVERVIEW.md`](./01-OVERVIEW) | 默认 Marshal 矩阵 |
 | [`03-BYREF.md`](./03-BYREF) | `ref` / `in` / `out` 总规则 |
 | [`04-OPAQUE.md`](./04-OPAQUE) | C#→Lua byref 默认 OpaqueValue |
 | [`07-ARRAY.md`](./07-ARRAY) | 数组 ByObjUserData |
-| [`09-FUNCTION.md`](./09-FUNCTION) | Delegate 编组 |
+| [`09-FUNCTION.md`](./09-FUNCTION) | Delegate Marshal |
 | [`../02-TYPE-SYSTEM.md`](../02-TYPE-SYSTEM) | 类型表、IMT、成员访问 |
 | [`../05-LIB.md`](../05-LIB) | `cast`、`box` |

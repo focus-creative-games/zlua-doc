@@ -39,7 +39,7 @@ ZLua 把互操作做成接近 **P/Invoke** 的声明式模型：
 | 你要做的事 | ZLua |
 |------------|------|
 | C# 调 Lua | `[LuaInvoke("mod", "fn")] static extern …` |
-| 覆盖编组 | `[LuaMarshalAs]` |
+| 覆盖 Marshal | `[LuaMarshalAs]` |
 | Lua 访问 C# | `CSharp` 根表懒加载，**无需**为每个类型写 Wrap 配置 |
 
 ```csharp
@@ -104,7 +104,7 @@ print(CSharp.AC.Demo.Add(3, 5))
 | 策略 | 含义 |
 |------|------|
 | **引用类型** | 默认走对象表 / userdata，避免无意义装箱与临时 `object[]` |
-| **struct** | 无论字段中是否含引用类型，默认可走 **0 GC** 编组路径（ByVal / ByObj 等，见规范） |
+| **struct** | 无论字段中是否含引用类型，默认可走 **0 GC** Marshal 路径（ByVal / ByObj 等，见规范） |
 | **OpaqueValue** | lightuserdata 临时句柄：同步调用链内更灵活的低分配策略 |
 | **enum** | 默认 integer，不强制 boxed userdata |
 

@@ -19,7 +19,7 @@ ZLua 在概念上对齐 P/Invoke、`MonoPInvokeCallback`、`MarshalAs`：
 | 概念 | ZLua 对应 |
 |------|-----------|
 | P/Invoke | **L/Invoke** — Lua 与 C# 互调 |
-| `MarshalAs` | **`[LuaMarshalAs]`** — 参数 / 返回值编组 |
+| `MarshalAs` | **`[LuaMarshalAs]`** — 参数 / 返回值 Marshal |
 | C# 回调 | **`[LuaInvoke]`** — C# 调 Lua |
 
 **统一交互模型：**

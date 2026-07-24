@@ -1,18 +1,18 @@
 ---
 sidebar_position: 13
-title: "数组编组"
+title: "数组 Marshal"
 ---
 
-# 数组编组
+# 数组 Marshal
 
-> **规范性：** 一维向量数组（szarray）、多维数组（mdarray）及 `byte[]` 在 Lua 与 C# 之间的编组规则。  
+> **规范性：** 一维向量数组（szarray）、多维数组（mdarray）及 `byte[]` 在 Lua 与 C# 之间的 Marshal 规则。  
 > **相关：** 类型表、创建、`#`、`get`/`set` → [`../02-TYPE-SYSTEM.md`](../02-TYPE-SYSTEM) §数组；`zlua.to_bytes` / `to_table` → [`../05-LIB.md`](../05-LIB)；class ByObj 基础 → [`06-CLASS.md`](./06-CLASS)；`[LuaMarshalAs]` → [`02-MARSHAL-AS.md`](./02-MARSHAL-AS)。
 
 **平台原则：** Mono 与 Il2Cpp 的 **Lua 可见语义一致**；数组实例为 **ByObjUserData**（引用类型，走 ObjectRegistry / GCHandle 路径）。
 
 ---
 
-## 1. 默认编组矩阵
+## 1. 默认 Marshal 矩阵
 
 未标注 `[LuaMarshalAs]` 时：
 
@@ -91,7 +91,7 @@ CS.Demo.Process(nil)
 
 ---
 
-## 5. 数组元素读写（与编组的关系）
+## 5. 数组元素读写（与 Marshal 的关系）
 
 数组 **实例** 为 ByObjUserData；**元素** 读写走元素类型 marshal，不经整数组 Pop/Push：
 
@@ -127,7 +127,7 @@ CS.Demo.Process(nil)
 
 ## 7. `params T[]` 形参
 
-`params T[]` 编组规则与 §1.2 szarray **相同**（ByObjUserData 或 table）；差异在 Lua 传参形态与空/null 语义。详见 [`02-MARSHAL-AS.md`](./02-MARSHAL-AS) §ParamsTable。
+`params T[]` Marshal 规则与 §1.2 szarray **相同**（ByObjUserData 或 table）；差异在 Lua 传参形态与空/null 语义。详见 [`02-MARSHAL-AS.md`](./02-MARSHAL-AS) §ParamsTable。
 
 要点摘要：
 
@@ -157,17 +157,19 @@ zlua.to_bytes(szarray) → string
 | 约束 | 说明 |
 |------|------|
 | 输入 | **仅** szarray userdata（**不支持** mdarray） |
-| 元素类型 | **blittable 基元** 白名单：`bool`、`byte`、`sbyte`、`char`、`short`、`ushort`、`int`、`uint`、`long`、`ulong`、`float`、`double` |
-| 布局 | 按 C# 下标 `0 .. Length-1` 顺序拼接；**无** 长度头；**平台原生字节序**（通常 little-endian） |
-| `bool` | **1 字节**：`0` / 非 `0` |
+| 元素类型 | **blittable**：基元，或 **不含引用类型字段** 的 struct（如 `float[]`、`Vector3[]`） |
+| 实现 | 将数组实际内存当作 C 的 byte 缓冲区，长度为数据总字节数，**整段拷贝** 为 Lua 二进制 string（可含 `\0`）；字节序 / struct 布局与运行时托管布局一致 |
+| 非法 | 非 szarray、元素含引用类型字段 → `luaL_error` |
 
 ```lua
-local bytes = zlua.to_bytes(int_arr)   -- #bytes == #int_arr * 4（int 为 4 字节）
+local bytes = zlua.to_bytes(int_arr)      -- #bytes == #int_arr * 4
+local fbytes = zlua.to_bytes(float_arr)  -- float[] 亦可
+local vbytes = zlua.to_bytes(vec3_arr)   -- Vector3[]（blittable）亦可
 ```
 
-元素类型不在白名单 → `luaL_error`。
-
 **Native：** `__zlua_to_bytes`
+
+细则亦见 [`../05-LIB.md`](../05-LIB) §8.3。
 
 ### 8.2 `zlua.to_table`
 

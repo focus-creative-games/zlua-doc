@@ -5,7 +5,7 @@ title: "`[LuaMarshalAs]` 与 `LuaMarshalType`"
 
 # `[LuaMarshalAs]` 与 `LuaMarshalType`
 
-> **规范性：** 参数、返回值、字段、属性及类型（`class` / `struct`）上的编组覆盖规则。  
+> **规范性：** 参数、返回值、字段、属性及类型（`class` / `struct`）上的 Marshal 覆盖规则。  
 > **默认矩阵：** 未覆盖时见 [01-OVERVIEW.md](./01-OVERVIEW)。  
 > **源码：** `ZLua.Common` 中的 `LuaMarshalAsAttribute`、`LuaMarshalType`。
 
@@ -56,12 +56,12 @@ public sealed class LuaMarshalAsAttribute : Attribute
 | 值 | 适用方向 | 说明 |
 |----|----------|------|
 | **`Default`** | 双向 | 使用 [01-OVERVIEW.md](./01-OVERVIEW) 默认规则，不做额外转换。 |
-| **`UserData`** | 双向 | **仅** 可标注于 **托管引用类型** 与 **struct**（§3）；**不可** 用于基元 / `enum` / `IntPtr` 等。语义：强制走 **UserData 形态**（ByObjUserData / ByValUserData / ClassUserData 等）。<br>• **实质有效的目标：** 几乎只有 **`string`**——默认 C#↔Lua 为 Lua **string**，标注后改为 **ByObjUserData**（托管 `System.String` 对象）<br>• **class / interface / 数组 / 普通 struct / object：** 默认 marshal **已是** UserData，标注与 `Default` **等价**<br>• **`Delegate`：** 可标注，但 **无实质作用**——仍按 [09-FUNCTION.md](./09-FUNCTION) 编组为 **Lua function** 或既有 bridge |
+| **`UserData`** | 双向 | **仅** 可标注于 **托管引用类型** 与 **struct**（§3）；**不可** 用于基元 / `enum` / `IntPtr` 等。语义：强制走 **UserData 形态**（ByObjUserData / ByValUserData / ClassUserData 等）。<br>• **实质有效的目标：** 几乎只有 **`string`**——默认 C#↔Lua 为 Lua **string**，标注后改为 **ByObjUserData**（托管 `System.String` 对象）<br>• **class / interface / 数组 / 普通 struct / object：** 默认 marshal **已是** UserData，标注与 `Default` **等价**<br>• **`Delegate`：** 可标注，但 **无实质作用**——仍按 [09-FUNCTION.md](./09-FUNCTION) Marshal 为 **Lua function** 或既有 bridge |
 | **`Bytes`** | 双向 | **强制** 在 C# **`byte[]`** 与 Lua **`string`** 之间转换。<br>• C# **`byte[]`**：默认 ByObjUserData → Lua **string**（原始 octet，非 UTF-8 文本语义）<br>• 标注于 **`byte[]` 形参/返回值** 时，Lua 侧须传 **string**；Pop 时 **不接受** ByObjUserData / table<br>• 若标注于 **`string`** 形参/返回值，则走 **`byte[]` ↔ string** 的对偶规则 |
 | **`OpaqueValue`** | **仅 C# → Lua** | Push **OpaqueValue**（lightuserdata，无 metatable），见 [04-OPAQUE.md](./04-OPAQUE)。<br>• **`ref` / `out` / `in T`**（任意 `T`）**默认** 即为本形态（无需标注）<br>• **by-val（任意 CLR 类型）均可** 显式标注强制 Push Opaque；对 **基元 / enum / `IntPtr` 等** 合法但通常 **无实质必要**（默认已是轻量 integer/number）<br>• 脚本经 `zlua.get_opaquevalue` / `zlua.set_opaquevalue` 读写；回传给 C# 时遵循 [04-OPAQUE.md §6](./04-OPAQUE)<br>• **不可** 跨调用持久化；**Lua → C#** 单独形参上标注本类型视为 **非法**（§3.1） |
 | **`UnpackedValues`** | **双向** | **struct / class / interface**（§3）。将 **§5** 中 `FieldOrPropertyNames` 列出的成员与 **多个连续 Lua 栈槽** 互转：<br>• **Lua → C#**：从栈上按名单 **顺序** Pop N 个值，写入对应 field/property<br>• **C# → Lua**：按名单 **顺序** Push N 个值（多返回值或展开 push）<br>须配置 **`FieldOrPropertyNames`**；未配置 → **绑定期错误**（§4.2） |
 | **`Table`** | **双向** | **struct / class / interface**（§3）。将 **§5** 中 `FieldOrPropertyNames` 列出的成员与 **单个 Lua table** 互转：<br>• **Lua → C#**：Pop 一个 table，按 **键名** 读取并写入 field/property<br>• **C# → Lua**：Push 一个 table，键为成员名，值为各成员 marshal 结果<br>须配置 **`FieldOrPropertyNames`**；未配置 → **绑定期错误**（§4.2） |
-| **`ParamsTable`** | **双向** | 仅 **`params T[]` 形参**（§3、§7）。在默认 szarray 规则之上，**强制** 可变参数段 **仅** 以 **顺序 table** 编组：<br>• **C# → Lua**：Push **一个** table，`[1]…[n]` 为各元素<br>• **Lua → C#**：Pop **一个** table（数组形态）；**不** 接受 ByObjUserData 占据 `params` 位<br>**不** 使用 `FieldOrPropertyNames` |
+| **`ParamsTable`** | **双向** | 仅 **`params T[]` 形参**（§3、§7）。在默认 szarray 规则之上，**强制** 可变参数段 **仅** 以 **顺序 table** Marshal：<br>• **C# → Lua**：Push **一个** table，`[1]…[n]` 为各元素<br>• **Lua → C#**：Pop **一个** table（数组形态）；**不** 接受 ByObjUserData 占据 `params` 位<br>**不** 使用 `FieldOrPropertyNames` |
 
 ## 3. 各类型的合法 `LuaMarshalType` 集合
 
@@ -109,7 +109,7 @@ public sealed class LuaMarshalAsAttribute : Attribute
 
 | 行为 | 说明 |
 |------|------|
-| **编组** | **按 `Default` 处理**——与未标注相同；**不** 因非法标注中断调用 |
+| **Marshal** | **按 `Default` 处理**——与未标注相同；**不** 因非法标注中断调用 |
 | **日志** | **仅 Editor** 输出 **错误级** 日志（成员签名、CLR 类型、非法 `LuaMarshalType`、回退 Default） |
 | **Player** | 静默回退 Default |
 
@@ -212,7 +212,7 @@ Foo({ X = 1 })                     -- 缺 Y → error
 
 **范围：** 仅 **普通 C# 方法 / 构造函数** 上带 **`params`** 修饰的一维数组形参。**`[LuaInvoke]` / delegate bridge** 上的 `params` 仍 **不支持**（见 [09-FUNCTION.md](./09-FUNCTION)）。
 
-**与 szarray 的关系：** `params T[]` 的编组规则与 [01-OVERVIEW.md §4](./01-OVERVIEW) szarray **相同**（C#→Lua **ByObjUserData**；Lua→C# **ByObjUserData** 或 **数组形态 table**）。差异在于 **Lua 侧传参形态** 与 **空 / null 语义**。
+**与 szarray 的关系：** `params T[]` 的 Marshal 规则与 [01-OVERVIEW.md §4](./01-OVERVIEW) szarray **相同**（C#→Lua **ByObjUserData**；Lua→C# **ByObjUserData** 或 **数组形态 table**）。差异在于 **Lua 侧传参形态** 与 **空 / null 语义**。
 
 ### 7.1 默认行为（未标注或 `Default`）
 
@@ -310,6 +310,6 @@ Codegen / Mono 反射在 Pop / Push 时按 **由细到粗** 解析：
 |------|------|
 | 默认矩阵 | [01-OVERVIEW.md](./01-OVERVIEW) |
 | OpaqueValue | [04-OPAQUE.md](./04-OPAQUE) |
-| struct 编组 | [05-STRUCT.md](./05-STRUCT) |
+| struct Marshal | [05-STRUCT.md](./05-STRUCT) |
 | 数组 / Bytes | [07-ARRAY.md](./07-ARRAY) |
 | 枚举 boxed | [08-ENUM.md](./08-ENUM) |

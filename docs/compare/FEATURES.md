@@ -217,7 +217,7 @@ public static extern void OnTick(float dt);
 | xLua | `[LuaCallCSharp]`、`[CSharpCallLua]`、`[ReflectionUse]`、Generate 配置 |
 | toLua | 自定义 `CustomSettings.cs` 导出列表 |
 | SLua | `[CustomLuaClass]`、导出 XML / 代码 |
-| ZLua | **无** LuaCall 式白名单；**public** 成员可 Bind；`[LuaMarshalAs]` / `[LuaAlias]` 影响编组与别名；Weaver 处理 `[LuaInvoke]` |
+| ZLua | **无** LuaCall 式白名单；**public** 成员可 Bind；`[LuaMarshalAs]` / `[LuaAlias]` 影响 Marshal 与别名；Weaver 处理 `[LuaInvoke]` |
 
 **迁移含义：** 从 xLua 迁出时需 **删除** Generate 配置，改为确认程序集内 public API 是否应暴露给 Lua；敏感 API 应改 **非 public** 而非依赖导出列表。
 

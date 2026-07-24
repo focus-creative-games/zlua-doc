@@ -1,9 +1,9 @@
 ---
 sidebar_position: 11
-title: "Struct 编组"
+title: "Struct Marshal"
 ---
 
-# Struct 编组
+# Struct Marshal
 
 > **规范性：** C# struct（值类型）与 Lua 互操作的传递、构造与写回规则。  
 > **OpaqueValue / byref（C#→Lua）：** 见 [04-OPAQUE.md](./04-OPAQUE)。  
@@ -25,7 +25,7 @@ title: "Struct 编组"
 - **Blittable struct**：可 `memcpy`，无托管引用字段。
 - **Non-blittable struct**：含 `string`、class 等引用字段；userdata 路径须 GC 能扫到实例内存。
 
-## 2. 默认编组（摘要）
+## 2. 默认 Marshal（摘要）
 
 未标注 `[LuaMarshalAs]` 时，与 [01-OVERVIEW.md](./01-OVERVIEW) 一致：
 

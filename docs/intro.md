@@ -34,7 +34,7 @@ description: ZLua 是什么、核心特性与适用场景。
 | Lua → C# | `CSharp` 根表懒加载；字段/方法/属性；泛型与数组；重载；`add_`/`remove_` 订阅 event |
 | C# → Lua | `[LuaInvoke]` 标记 `static extern`，Weaver / InternalCall 桥接 |
 | 双运行时 | **Mono（Editor）与 Il2Cpp（Player）均已完成**；语义一致、实现路径不同 |
-| 编组 | ByVal / ByObj / Opaque 等路径，见 [编组规范](./spec/marshal/) |
+| Marshal | ByVal / ByObj / Opaque 等路径，见 [Marshal 规范](./spec/marshal/) |
 
 :::info 当前状态
 <span class="runtimeBadge"><span class="runtimeBadgeMono">Mono · 已完成</span><span class="runtimeBadgeIl2cpp">Il2Cpp · 已完成</span></span>

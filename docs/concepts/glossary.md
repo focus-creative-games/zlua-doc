@@ -44,7 +44,7 @@ title: "术语表"
 | **dispatch closure** | 多重重载时默认方法名绑定的运行时分派闭包 | [spec/04-METHOD-OVERLOAD.md](spec/04-METHOD-OVERLOAD.md) |
 | **direct method closure** | 单重重载或别名绑定的桥接闭包；可 `register_method` / `make_generic_method` | MetaBinding |
 
-## 编组形态
+## Marshal 形态
 
 | 术语 | 含义 | 实现落点 |
 |------|------|----------|
@@ -69,7 +69,7 @@ title: "术语表"
 | 术语 | 含义 | 实现落点 |
 |------|------|----------|
 | **`[LuaInvoke]`** | 标记 static extern C#→Lua 入口；Editor Weaver 注入桥；Player InternalCall | [spec/01-HOST-API.md](spec/01-HOST-API.md) |
-| **`[LuaMarshalAs]`** | 参数 / 返回值 / 字段 / 属性的编组标注 | [spec/marshal/02-MARSHAL-AS.md](spec/marshal/02-MARSHAL-AS.md) |
+| **`[LuaMarshalAs]`** | 参数 / 返回值 / 字段 / 属性的 Marshal 标注 | [spec/marshal/02-MARSHAL-AS.md](spec/marshal/02-MARSHAL-AS.md) |
 | **`[LuaAlias]`** | 为方法追加最终 Lua 名；可与默认名/其它别名重复，按名分组进 overload | [spec/04-METHOD-OVERLOAD.md](spec/04-METHOD-OVERLOAD.md) §5 |
 | **Weaver** | 编译后 IL 改写（dnlib）；`LuaInvoke` / Mono 引用导入 | `impl/codegen/WEAVER.md` |
 

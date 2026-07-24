@@ -130,7 +130,7 @@ end
 
 | 细则 | 说明 |
 |------|------|
-| **性能动机** | 基元 Pop 是极热路径；若每次先测 OpaqueValue，会拖慢全部 `int`/`float` 等编组 |
+| **性能动机** | 基元 Pop 是极热路径；若每次先测 OpaqueValue，会拖慢全部 `int`/`float` 等 Marshal |
 | **byref**（`ref`/`in`/`out` A） | **一律** 按 [03-BYREF.md](./03-BYREF)：**先**识别 OpaqueValue，类型兼容则 **直传地址**（含 `ref int`）；**不** 套用上表「简单类型不自动解」规则 |
 | **by-val 简单类型** | 上表「否」：须先 `get_opaquevalue` 再传入 |
 | **类型兼容** | Opaque→byref / 自动解时须与目标类型兼容，否则报错（禁止 `ref object` Opaque → `ref int`） |

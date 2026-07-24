@@ -59,12 +59,14 @@ local n = zlua.new_ref(zlua.types.int32, 5)
 local list_int = zlua.make_generic_type(CSharp.mscorlib['System.Collections.Generic.List`1'], zlua.types.int32)
 ```
 
-## 与 `zlua.typeof` 的选择
+## 与 `zlua.typeof` / `get_type_from_name` 的选择
 
 | 场景 | 推荐 |
 |------|------|
 | corlib 基元 / `string` / `object` | `zlua.types.*` |
-| 游戏程序集类型（`Demo`、`Point2D`） | `zlua.typeof(CSharp.AC.Demo)` 或类型表本身 |
+| 游戏程序集类型（`Demo`、`Point2D`） | `CSharp.AC.Demo` 类型表，或 `zlua.typeof(...)` |
+| 闭合泛型 / 数组类型表 → `System.Type` | `zlua.typeof(ListInt)`（≡ C# `typeof(List<int>)`） |
+| 单字符串解析（AQN / 泛型 / 数组） | `zlua.get_type_from_name(...)` |
 | 泛型定义（未闭合 `List\`1`） | 类型表 + `make_generic_type` |
 
 ## Mono / Il2Cpp 支持

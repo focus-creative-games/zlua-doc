@@ -6,7 +6,7 @@ description: ZLua C# 特性与 Lua API 索引。
 
 # API 概览
 
-程序员查表入口：C# 特性、运行时 API、Lua `CSharp` / `zlua` 标准库与编组规则。
+程序员查表入口：C# 特性、运行时 API、Lua `CSharp` / `zlua` 标准库与 Marshal 规则。
 
 ## C# 特性
 
@@ -14,7 +14,7 @@ description: ZLua C# 特性与 Lua API 索引。
 |------|------|------|
 | `[LuaInvoke]` | C# 调用 Lua 函数 | [LuaInvoke](./csharp/lua-invoke) |
 | `[MonoLuaCallback]` | 原生 `int (IntPtr L)` 回调 | [MonoLuaCallback](./csharp/lua-callback) |
-| `[LuaMarshalAs]` | 覆盖默认编组 | [LuaMarshalAs](./csharp/lua-marshal-as) |
+| `[LuaMarshalAs]` | 覆盖默认 Marshal | [LuaMarshalAs](./csharp/lua-marshal-as) |
 | `[LuaAlias]` | 方法重载 Lua 别名 | [LuaAlias](./csharp/lua-alias) |
 
 ## C# 运行时 API
@@ -32,12 +32,12 @@ description: ZLua C# 特性与 Lua API 索引。
 | `zlua` | 类型构造、重载、ref、数组、delegate | [zlua 标准库](./lua/zlua-lib) |
 | `zlua.types` | corlib 类型常量 | [zlua.types](./lua/zlua-types) |
 
-## 编组
+## Marshal
 
 | 资源 | 说明 |
 |------|------|
-| [编组速查表](./marshal-cheatsheet) | 默认规则 + `[LuaMarshalAs]` 摘要 |
-| [编组规范](../spec/marshal/) | 权威完整规则 |
+| [Marshal 速查表](./marshal-cheatsheet) | 默认规则 + `[LuaMarshalAs]` 摘要 |
+| [Marshal 规范](../spec/marshal/) | 权威完整规则 |
 
 ## 使用指南索引
 

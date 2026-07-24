@@ -1,12 +1,12 @@
 ---
 sidebar_position: 5
 title: 回调与 Delegate
-description: Lua function 与 C# delegate 双向编组；LuaInvoke 返回 delegate。
+description: Lua function 与 C# delegate 双向 Marshal；LuaInvoke 返回 delegate。
 ---
 
 # 回调与 Delegate
 
-ZLua 在 **Lua function ↔ C# Delegate** 上提供统一编组，覆盖三条常用路径：
+ZLua 在 **Lua function ↔ C# Delegate** 上提供统一 Marshal，覆盖三条常用路径：
 
 | 路径 | 写法 | 说明 |
 |------|------|------|
@@ -14,7 +14,7 @@ ZLua 在 **Lua function ↔ C# Delegate** 上提供统一编组，覆盖三条�
 | **C# delegate → Lua** | `handler(42)` / `handler:Invoke(42)` | DelegateUserData + `__call` |
 | **`[LuaInvoke]` 返回值** | `static extern Action<T> GetFn()` | **把 Lua 函数交回 C# 持有并调用**（易遗漏） |
 
-权威细则：[函数编组规范](../spec/marshal/09-FUNCTION)、[`zlua.to_delegate`](../spec/05-LIB)。
+权威细则：[函数 Marshal 规范](../spec/marshal/09-FUNCTION)、[`zlua.to_delegate`](../spec/05-LIB)。
 
 ---
 
@@ -78,7 +78,7 @@ handler:Invoke(42)
 
 ### 3.1 固定签名：返回具体 delegate 类型
 
-C# 声明返回具体委托类型；Lua 侧直接 `return` 一个 function，由返回值编组隐式转为该类型：
+C# 声明返回具体委托类型；Lua 侧直接 `return` 一个 function，由返回值 Marshal 隐式转为该类型：
 
 ```csharp
 // C# 拿到 Action<float> 后可任意次 Invoke
@@ -139,7 +139,7 @@ return { get_action_float = get_action_float }
 
 ### 3.3 技巧：一条 `[LuaInvoke]` 返回「任意」delegate 类型
 
-约束：每个 `[LuaInvoke]` 声明在 C# 侧只有 **一种** 返回类型。若写成 `Action<float>`，就只能编组为该签名。
+约束：每个 `[LuaInvoke]` 声明在 C# 侧只有 **一种** 返回类型。若写成 `Action<float>`，就只能 Marshal 为该签名。
 
 若希望 **同一个** 桥接入口按运行时 `Type` 返回不同委托类型，可用：
 
@@ -199,7 +199,7 @@ return { resolve_delegate = resolve_delegate }
 
 :::info 与「隐式返回 function」的关系
 返回类型为 **具体** `Action`/`Func` 时，Lua `return function...` 即可，**不必** `to_delegate`。  
-返回类型为 **`Delegate` / `object`** 时，编组不知道目标签名，须用 `to_delegate`（或先在 Lua 里构造好对应类型的 delegate userdata）再返回。
+返回类型为 **`Delegate` / `object`** 时，Marshal 不知道目标签名，须用 `to_delegate`（或先在 Lua 里构造好对应类型的 delegate userdata）再返回。
 :::
 
 ### 3.4 与直接 `[LuaInvoke]` 调用的对比
@@ -267,7 +267,7 @@ print(logic:Run(3, 5))   -- 8
 ## 相关文档
 
 - [C# 调用 Lua](./csharp-to-lua) — `[LuaInvoke]` 基础
-- [函数编组规范](../spec/marshal/09-FUNCTION)
+- [函数 Marshal 规范](../spec/marshal/09-FUNCTION)
 - [zlua 库 · to_delegate](../spec/05-LIB)
 - [Event](./events)
 - [从 xLua 迁移](../community/migration/from-xlua) — `LuaFunction` / `Get<Delegate>` 对照

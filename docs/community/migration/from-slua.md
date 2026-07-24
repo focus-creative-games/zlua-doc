@@ -111,7 +111,7 @@ static extern Action<int,int> GetCallback();
 ```lua
 mod.SetHandler(function(a,b) end)
 
--- get_callback 返回 function，由返回值编组为 Action
+-- get_callback 返回 function，由返回值 Marshal 为 Action
 local function get_callback()
     return function(a, b) print(a, b) end
 end

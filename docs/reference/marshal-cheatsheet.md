@@ -1,12 +1,12 @@
 ---
 sidebar_position: 4
-title: 编组速查表
-description: C# 类型默认编组规则与 LuaMarshalAs 覆盖速查。
+title: Marshal 速查表
+description: C# 类型默认 Marshal 规则与 LuaMarshalAs 覆盖速查。
 ---
 
-# 编组速查表
+# Marshal 速查表
 
-权威全文：[编组总览](../spec/marshal/01-OVERVIEW)、[LuaMarshalAs](../spec/marshal/02-MARSHAL-AS)。
+权威全文：[Marshal 总览](../spec/marshal/01-OVERVIEW)、[LuaMarshalAs](../spec/marshal/02-MARSHAL-AS)。
 
 **形态：** ClassUserData、ByObjUserData、ByValUserData 为 full userdata；**OpaqueValue**、非托管 Pointer 为 lightuserdata。
 

@@ -43,7 +43,7 @@ private static extern int AppAdd(int a, int b);
 
 ## 参数与返回值
 
-遵循 [编组速查表](../marshal-cheatsheet) 默认规则；可用 `[LuaMarshalAs]` 覆盖（Mono 全功能）。
+遵循 [Marshal 速查表](../marshal-cheatsheet) 默认规则；可用 `[LuaMarshalAs]` 覆盖（Mono 全功能）。
 
 | 方向 | 常见支持类型 |
 |------|--------------|
@@ -90,7 +90,7 @@ flowchart LR
 | 现象 | 处理 |
 |------|------|
 | 找不到 Lua 函数 | 检查 module 名、return 表键名、是否 `return { fn = fn }` |
-| Marshal 类型错误 | 对照速查表；对照编组规范与兼容性矩阵 |
+| Marshal 类型错误 | 对照速查表；对照 Marshal 规范与兼容性矩阵 |
 | 编译失败：非 static extern | 修正声明 |
 | 泛型类内 LuaInvoke | 移到非泛型类或 static 辅助类 |
 

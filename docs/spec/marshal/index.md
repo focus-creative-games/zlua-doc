@@ -1,9 +1,9 @@
 ---
 sidebar_position: 17
-title: "编组规范（`spec/marshal/`）"
+title: "Marshal 规范（`spec/marshal/`）"
 ---
 
-# 编组规范（`spec/marshal/`）
+# Marshal 规范（`spec/marshal/`）
 
 > **规范性：** C# ↔ Lua 值在栈上的形态与转换规则。  
 > **实现：** → [../../impl/marshal/](../../impl/marshal/)。
@@ -12,7 +12,7 @@ title: "编组规范（`spec/marshal/`）"
 
 | 文件 | 内容 |
 |------|------|
-| [01-OVERVIEW.md](./01-OVERVIEW) | 默认编组矩阵、integer/number、数组摘要、引用门面摘要 |
+| [01-OVERVIEW.md](./01-OVERVIEW) | 默认 Marshal 矩阵、integer/number、数组摘要、引用门面摘要 |
 | [02-MARSHAL-AS.md](./02-MARSHAL-AS) | `[LuaMarshalAs]`、`LuaMarshalType`、合法集合、Table/Unpacked/Params/Bytes/UserData/Opaque |
 | [03-BYREF.md](./03-BYREF) | `ref` / `in` / `out`（C#→Lua Opaque；Lua→C#：Opaque/ByVal 直传地址，其余临时槽） |
 | [04-OPAQUE.md](./04-OPAQUE) | OpaqueValue、`get_opaquevalue` / `set_opaquevalue`、生命周期、回传分流 |
@@ -37,9 +37,9 @@ title: "编组规范（`spec/marshal/`）"
 | `CSharp` 类型表、构造入口 | [../02-TYPE-SYSTEM.md](../02-TYPE-SYSTEM) |
 | 重载与实参匹配 | [../04-METHOD-OVERLOAD.md](../04-METHOD-OVERLOAD) |
 | `zlua.box` / `unbox` / `cast` / `get_opaquevalue` / `set_opaquevalue` | [../05-LIB.md](../05-LIB) |
-| 元表与成员索引（非编组） | [../metatable/](../metatable/) |
+| 元表与成员索引（非 Marshal） | [../metatable/](../metatable/) |
 
 ## 平台原则
 
-- **Mono（Editor）与 Il2Cpp（Player）的 Lua 可见编组语义一致**；差异仅在 `impl/` 层。
+- **Mono（Editor）与 Il2Cpp（Player）的 Lua 可见 Marshal 语义一致**；差异仅在 `impl/` 层。
 - **无 Event 专用支持**；使用 `add_*` / `remove_*` 普通方法（见 [../../README.md](../../intro)）。

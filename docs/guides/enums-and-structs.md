@@ -6,16 +6,16 @@ description: Lua 侧使用 C# enum 与 struct 值类型。
 
 # 枚举与 struct
 
-**enum** 与 **struct** 均为值类型，但在 Lua 中的默认形态与构造方式不同。行为以 [编组规范](../spec/marshal/05-STRUCT) 为准（双端语义一致）。
+**enum** 与 **struct** 均为值类型，但在 Lua 中的默认形态与构造方式不同。行为以 [Marshal 规范](../spec/marshal/05-STRUCT) 为准（双端语义一致）。
 
 ## 概述
 
 | 类型 | 默认跨边界形态 | 构造 userdata |
 |------|----------------|---------------|
 | **enum** | integer / number（常量） | `EnumType(value)` / `_ctor` |
-| **struct** | ByValUserData / OpaqueValue / ByObj（见编组规范） | `Type(...)` |
+| **struct** | ByValUserData / OpaqueValue / ByObj（见 Marshal 规范） | `Type(...)` |
 
-详见 [类型系统规范](../spec/02-TYPE-SYSTEM) 与 [Struct 编组规范](../spec/marshal/05-STRUCT)。
+详见 [类型系统规范](../spec/02-TYPE-SYSTEM) 与 [Struct Marshal 规范](../spec/marshal/05-STRUCT)。
 
 ---
 
@@ -179,5 +179,5 @@ CSharp.AC.MyGame.Vec2Helper.Normalize(refA)   -- ref 修改 a
 ## 相关文档
 
 - [ref / out / in](./marshal-ref-out-in)
-- [Struct 编组规范](../spec/marshal/05-STRUCT)
+- [Struct Marshal 规范](../spec/marshal/05-STRUCT)
 - [类型系统规范](../spec/02-TYPE-SYSTEM) §3.5–§3.6

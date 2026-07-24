@@ -45,7 +45,7 @@ flowchart TD
 
 ## Il2Cpp（Player）
 
-Player 侧 C++ 直桥、签名 stub 复用、`[LuaInvoke]` InternalCall、懒绑定与编组路径已落地。实现对照见 [Il2Cpp 实现](../impl/IL2CPP)、Codegen 见 [Stubs](../impl/codegen/STUBS-IL2CPP)。
+Player 侧 C++ 直桥、签名 stub 复用、`[LuaInvoke]` InternalCall、懒绑定与 Marshal 路径已落地。实现对照见 [Il2Cpp 实现](../impl/IL2CPP)、Codegen 见 [Stubs](../impl/codegen/STUBS-IL2CPP)。
 
 **注意：** 「无 C# Wrap 白名单」≠「完全无 codegen」。Il2Cpp 仍需 **`ZLua/Generate/All`** 生成 **C++ MethodBridge / LuaInvoke stub**。
 
@@ -65,7 +65,7 @@ Player 侧 C++ 直桥、签名 stub 复用、`[LuaInvoke]` InternalCall、懒绑
 |------|------|
 | Event | 无 `{ get, set, fire }`；`obj:add_EventName(fn)` |
 | Generate | 无 per-type C# Wrap；Il2Cpp 有 C++ stub Generate |
-| Opaque / ByVal / ByObj | 见 [Struct 编组](../spec/marshal/05-STRUCT) |
+| Opaque / ByVal / ByObj | 见 [Struct Marshal](../spec/marshal/05-STRUCT) |
 | 双端差异 | 实现路径不同，语义以 spec 为准 |
 
 完整矩阵见 [兼容性](./compatibility)。

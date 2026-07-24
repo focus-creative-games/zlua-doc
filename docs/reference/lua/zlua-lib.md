@@ -14,17 +14,31 @@ description: 全局 zlua 表的 Lua API 参考。
 
 ## 类型与签名
 
-### `zlua.typeof(typeTable) → typeDescriptor`
+### `zlua.typeof(typeTable) → System.Type`
 
-返回类型的 System.Type 等价物（Mono 为真实 `Type`；Il2Cpp 为类型描述对象）。
+返回该类型的 **`System.Type` 反射对象**（Lua 侧为 `System.Type` class userdata），语义对应 C# 的 `typeof(T)`。
 
-| 参数 | 说明 |
-|------|------|
-| `typeTable` | `CSharp` 下的类型表 |
+| 参数 / 返回 | 说明 |
+|-------------|------|
+| `typeTable` | **任意** ZLua 类型表（`CSharp` 基础表、闭合泛型表、数组类型表等） |
+| 返回值 | `System.Type` 实例，如 `zlua.typeof(CSharp['mscorlib']['System.Int32'])` ≡ C# `typeof(int)` |
 
 ```lua
-local t = zlua.typeof(CSharp.AC.Demo)
-local listDef = CSharp.mscorlib['System.Collections.Generic.List`1']
+local intType = zlua.typeof(CSharp['mscorlib']['System.Int32'])  -- ≡ typeof(int)
+local t = zlua.typeof(CSharp.AC.Demo)                            -- ≡ typeof(Demo)
+local ListInt = zlua.make_generic_type(
+    CSharp.mscorlib['System.Collections.Generic.List`1'],
+    zlua.types.int32
+)
+local listType = zlua.typeof(ListInt)                            -- ≡ typeof(List<int>)
+```
+### `zlua.get_type_from_name(typeFullName) → typeTable`
+
+对标 `System.Type.GetType(string name)`：按名称解析并返回类型表。支持 Assembly-qualified name、泛型、数组等。
+
+```lua
+local Int32 = zlua.get_type_from_name("System.Int32")
+local IntArr = zlua.get_type_from_name("System.Int32[]")
 ```
 
 ### `zlua.types.*`
@@ -130,7 +144,7 @@ local out = zlua.new_ref(zlua.types.int32)  -- out 参数
 | `new_mdarray_by_mdarray_type(mdType, low, sizes)` | 类型、下界、尺寸 | ArrayUserData | |
 | `new_mdarray_by_spec(elementType, low, sizes)` | 元素类型、下界、尺寸 | ArrayUserData | 便捷构造 |
 | `to_table(szarray)` | 一维数组 | Lua table | 1-based 索引 |
-| `to_bytes(szarray)` | blittable 数组 | string | 原始字节 |
+| `to_bytes(szarray)` | 元素为 blittable（基元或无引用字段的 struct）的 szarray | string | 按数组内存字节拷贝 |
 
 ---
 

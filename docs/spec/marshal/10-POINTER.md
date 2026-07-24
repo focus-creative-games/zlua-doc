@@ -5,7 +5,7 @@ title: "指针与不支持类型"
 
 # 指针与不支持类型
 
-> **规范性：** 非托管指针、函数指针、以及 v1 默认不支持或受限的 CLR 形态之编组规则。  
+> **规范性：** 非托管指针、函数指针、以及 v1 默认不支持或受限的 CLR 形态之 Marshal 规则。  
 > **相关：** 默认矩阵 → [`01-OVERVIEW.md`](./01-OVERVIEW)；`IntPtr` 整型规则 → [`01-OVERVIEW.md`](./01-OVERVIEW)；OpaqueValue 对比 → [`04-OPAQUE.md`](./04-OPAQUE)；Delegate 对比 → [`09-FUNCTION.md`](./09-FUNCTION)；`ref struct` → [`05-STRUCT.md`](./05-STRUCT)、[`../05-LIB.md`](../05-LIB)。
 
 **平台原则：** Mono 与 Il2Cpp 的 **Lua 可见语义一致**。
@@ -14,7 +14,7 @@ title: "指针与不支持类型"
 
 ## 1. 与 `IntPtr` / `UIntPtr` 的区分
 
-§1 总览中 **`IntPtr` / `UIntPtr` / `nint` / `nuint`** 走 **整型数值** 编组（`ToInt64` / `new IntPtr`），**不是** 本节 Pointer。
+§1 总览中 **`IntPtr` / `UIntPtr` / `nint` / `nuint`** 走 **整型数值** Marshal（`ToInt64` / `new IntPtr`），**不是** 本节 Pointer。
 
 | 类型 | Lua 默认形态 | 脚本可当作整数运算 |
 |------|--------------|-------------------|
@@ -30,7 +30,7 @@ title: "指针与不支持类型"
 
 **不包含** `IntPtr` / `UIntPtr`（见 §1）。
 
-### 2.1 默认编组
+### 2.1 默认 Marshal
 
 | 方向 | 默认形态 | 说明 |
 |------|----------|------|
@@ -57,7 +57,7 @@ title: "指针与不支持类型"
 
 **范围：** CLR 中 `Type.IsFunctionPointer == true` 的类型，例如 C# 9+ 的 `delegate*<int, int>`、`delegate*<void>`。
 
-### 3.1 默认编组
+### 3.1 默认 Marshal
 
 | 方向 | 默认形态 | 说明 |
 |------|----------|------|

@@ -82,7 +82,7 @@ Lua 可见语义两端一致；Indexer / 桥接实现不同。详见 [项目状�
 
 | API | Mono | Il2Cpp |
 |-----|:----:|:------:|
-| `typeof` / `make_generic_*` | ✅ | ✅ |
+| `typeof` / `get_type_from_name` / `make_generic_*` | ✅ | ✅ |
 | szarray / mdarray 工厂 | ✅ | ✅ |
 | opaque get/set、`box`/`unbox` | ✅ | ✅ |
 | `register_method` | ✅ | ✅ |

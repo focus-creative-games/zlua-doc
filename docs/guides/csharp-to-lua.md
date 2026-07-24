@@ -69,7 +69,7 @@ return {
 | 调用路径 | C# 快速桥 + Lua API | C++ 模板 + 直接 lua API |
 | 开发者感知 | **无** | **无** |
 
-参数 / 返回值遵循 [编组规范](../spec/marshal/01-OVERVIEW)；见 [兼容性](../getting-started/compatibility)。
+参数 / 返回值遵循 [Marshal 规范](../spec/marshal/01-OVERVIEW)；见 [兼容性](../getting-started/compatibility)。
 
 ## 模块加载约定
 

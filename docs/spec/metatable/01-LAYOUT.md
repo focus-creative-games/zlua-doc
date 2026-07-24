@@ -112,7 +112,7 @@ IMT（ByVal 或 ByObj）
 | `T.__byobj_instance_mt` → ByObj IMT | 构造 class、boxed struct、boxed enum、数组等时挂接元表 |
 | `IMT.__type` → `T` | 从实例反查类型、`zlua.typeof`、重载注册等 |
 
-同一托管对象可因 **view 类型**不同而对应不同 `T` / IMT，但 identity 仍为同一实例；`zlua.cast` 用于切换门面（编组见 [../marshal/06-CLASS.md](../marshal/06-CLASS)）。
+同一托管对象可因 **view 类型**不同而对应不同 `T` / IMT，但 identity 仍为同一实例；`zlua.cast` 用于切换门面（Marshal 见 [../marshal/06-CLASS.md](../marshal/06-CLASS)）。
 
 ---
 
