@@ -11,7 +11,7 @@ title: "术语表"
 
 | 术语 | 含义 | 实现落点 |
 |------|------|----------|
-| **ZLua** | Unity 下 C# 与 Lua 5.4 互操作框架；Editor 用 Mono，Player 用 Il2Cpp | `Packages/com.code-philosophy.zlua` |
+| **ZLua** | Unity 下 C# 与 Lua（PUC-Rio **5.1–5.5** 等）互操作框架；Editor 用 Mono，Player 用 Il2Cpp | `Packages/com.code-philosophy.zlua` |
 | **Lua 可见语义** | 脚本侧可观察的行为契约；Mono 与 Il2Cpp **必须一致** | `spec/**` |
 | **双运行时** | `ZLua.Mono`（Editor）+ `ZLua.Il2Cpp`（Player）；门面 `LuaAppDomain` | [spec/00-OVERVIEW.md](spec/00-OVERVIEW.md) |
 | **libil2cpp/zlua** | Player 侧 native 实现根目录 | `build-win64/.../libil2cpp/zlua` |

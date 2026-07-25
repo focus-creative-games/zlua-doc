@@ -87,7 +87,7 @@ git clone https://github.com/focus-creative-games/zlua-demo.git
 
 | 种类 | 格式 | 示例 |
 |------|------|------|
-| PUC-Rio | `lua-X.Y.Z` | `lua-5.3.6`、`lua-5.4.8`、`lua-5.5.0` |
+| PUC-Rio | `lua-X.Y.Z` | `lua-5.1.5`、`lua-5.2.4`、`lua-5.3.6`、`lua-5.4.8`、`lua-5.5.0` |
 | LuaJIT | `luajit-M.N` | `luajit-2.1`（源码须自行 clone 到缓存目录） |
 
 改版本后须重新执行 **Install**；若 Editor 原生 DLL / scripting define 随系列变化，按 Console 提示 **重启 Editor**。

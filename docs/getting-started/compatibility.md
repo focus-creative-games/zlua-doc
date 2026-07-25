@@ -10,10 +10,15 @@ description: ZLua 支持的 Unity、Lua 版本、平台与功能矩阵。
 
 | 版本 | Mono (Editor) | Il2Cpp (Player) | 备注 |
 |------|:-------------:|:---------------:|------|
-| Lua 5.4 | ✅ | ✅ | Settings 可选 |
-| Lua 5.1 / 5.3 / 5.5 | ✅ | ✅ | Settings 可选；**默认 `lua-5.3.6`** |
+| Lua **5.1.x** | ✅ | ✅ | Settings 可选（如 `lua-5.1.5`）；无 VM FastMT patch |
+| Lua **5.2.x** | ✅ | ✅ | Settings 可选（如 `lua-5.2.4`）；无 VM FastMT patch |
+| Lua **5.3.x** | ✅ | ✅ | Settings 可选；**默认 `lua-5.3.6`** |
+| Lua **5.4.x** | ✅ | ✅ | Settings 可选 |
+| Lua **5.5.x** | ✅ | ✅ | Settings 可选 |
 | LuaJIT | 🚧 | 🚧 | 开发中，很快会支持 |
 | [Luau](https://luau.org/) | 🔜 | 🔜 | 规划中 |
+
+PUC-Rio 小版本用 Settings 的 `luaVersionId`（`lua-X.Y.Z`）指定；Install 时下载并装入本地树。详见 [安装](./installation)、[多版本管理](../spec/11-MULTI-VERSION)。
 
 ## Unity
 
