@@ -14,6 +14,8 @@ const config: Config = {
 
   url: 'https://doc.zlua.cn',
   baseUrl: '/',
+  // GitHub Pages + nginx 对无尾斜杠会 301；显式 true 避免手机直链 404。
+  trailingSlash: true,
 
   organizationName: 'focus-creative-games',
   projectName: 'zlua-doc',
