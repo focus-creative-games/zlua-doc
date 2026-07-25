@@ -136,11 +136,11 @@ Editor（Mono）用 Expression Emit，**不进 Player 包**；Player 体积由 C
 
 | 维度 | ZLua |
 |------|------|
-| Lua | **5.1 – 5.5**、**LuaJIT**（默认分发与主验证线为 **5.4**） |
-| Unity | **2021+**（主验证 **2022.3 LTS**） |
+| Lua | **5.1 – 5.5**、**LuaJIT**（Settings 默认 **`lua-5.3.6`**） |
+| Unity | **2021.3**、**2022.3**、**Unity 6（6000.0 / 6000.3 / 6000.5）** |
 | 引擎 | **团结引擎** |
 
-多版本意味着更少「卡在某个 Lua/Unity 组合」的选型风险。当前文档与 Demo 默认环境：Unity **2022.3** + Lua **5.4**。
+多版本意味着更少「卡在某个 Lua/Unity 组合」的选型风险。完整矩阵见 [兼容性](../getting-started/compatibility)。
 
 → [支持的版本与平台](../getting-started/compatibility)
 

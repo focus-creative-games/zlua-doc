@@ -10,14 +10,12 @@ description: ZLua 版本计划与功能清单。
 
 ## 运行时实现状态
 
-验证环境：**Unity 2022.3.62f3 + Lua 5.4**
-
 | 运行时 | 环境 | 状态 |
 |--------|------|------|
 | **Il2Cpp** | Player 发布 | **已完成** |
 | **Mono** | Unity Editor | **已完成** |
 
-权威说明见 [项目状态](../getting-started/project-status)、[Mono 实现](../impl/MONO)、[Il2Cpp 实现](../impl/IL2CPP)。
+权威说明见 [项目状态](../getting-started/project-status)、[Mono 实现](../impl/MONO)、[Il2Cpp 实现](../impl/IL2CPP)。支持的 Unity / Lua 版本见 [兼容性](../getting-started/compatibility)。
 
 ---
 

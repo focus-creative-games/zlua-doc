@@ -9,7 +9,7 @@ description: ZLua 当前进度与版本计划。
 ## 当前状态
 
 :::info 双运行时
-ZLua 在 **Unity 2022.3.62f3 + Lua 5.4** 上验证。
+[兼容性矩阵](./compatibility) 所列 Unity / Lua 组合均已覆盖；Mono 与 Il2Cpp 双运行时已完成。
 
 | 运行时 | 环境 | 状态 |
 |--------|------|------|

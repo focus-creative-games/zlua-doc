@@ -10,7 +10,7 @@ description: ZLua 支持的 Unity、Lua 版本、平台与功能矩阵。
 
 | 版本 | Mono (Editor) | Il2Cpp (Player) | 备注 |
 |------|:-------------:|:---------------:|------|
-| Lua 5.4 | ✅ | ✅ | 主验证线之一 |
+| Lua 5.4 | ✅ | ✅ | Settings 可选 |
 | Lua 5.1 / 5.3 / 5.5 | ✅ | ✅ | Settings 可选；**默认 `lua-5.3.6`** |
 | LuaJIT | 🚧 | 🚧 | 开发中，很快会支持 |
 | [Luau](https://luau.org/) | 🔜 | 🔜 | 规划中 |
@@ -19,9 +19,14 @@ description: ZLua 支持的 Unity、Lua 版本、平台与功能矩阵。
 
 | 版本 | 状态 |
 |------|------|
+| Unity **6000.0.x** | ✅ 支持 |
+| Unity **6000.3.x** | ✅ 支持 |
+| Unity **6000.5.x** | ✅ 支持 |
 | Unity 2022.3 LTS | ✅ 支持 |
-| Unity 2021+ LTS | ✅ 支持 |
+| Unity 2021.3 LTS | ✅ 支持 |
 | 团结引擎 LTS | ✅ 支持 |
+
+libil2cpp patch 解析：优先 `patches/libil2cpp/6000.{minor}/`，再回退 `6000/`（见 [多版本管理](../spec/11-MULTI-VERSION)）。
 
 ## Scripting Backend
 

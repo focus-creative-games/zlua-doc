@@ -24,7 +24,7 @@ Il2Cpp Player 可用于完整语义验证与发布；接受 **libil2cpp 集成**
 
 ### 支持哪些 Unity / Lua 版本？
 
-验证环境 **Unity 2022.3 LTS + Lua 5.4**。见 [兼容性](../getting-started/compatibility)。
+见 [兼容性](../getting-started/compatibility)；所列组合均已支持。
 
 ---
 

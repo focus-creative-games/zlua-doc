@@ -26,7 +26,7 @@ ZLua 以 Unity Package（UPM）形式分发。**安装 Package 后还须完成�
 
 | 项 | 要求 |
 |----|------|
-| Unity | **2022.3 LTS**（当前已在 2022.3.62f3 验证；亦支持 2021+ / 团结，见 [兼容性](./compatibility)） |
+| Unity | 见 [兼容性](./compatibility)（2021.3 / 2022.3 / Unity 6 / 团结等） |
 | Scripting Backend | Editor：**Mono**；Player：**Il2Cpp** |
 | Lua | 由 **Settings** 指定（默认 **`lua-5.3.6`**）；Install 时下载 / 装入本地树 |
 | 网络 | 首次 Install 下载 PUC-Rio 源码时需要（LuaJIT 需自行 clone，见多版本规范） |
@@ -40,7 +40,7 @@ ZLua 以 Unity Package（UPM）形式分发。**安装 Package 后还须完成�
 git clone https://github.com/focus-creative-games/zlua-demo.git
 ```
 
-用 Unity 2022.3 打开工程后，仍须执行下文 **Settings → Install**（若 Demo 尚未提交本地安装产物）。然后 Play `SampleScene`。核心文件：
+用任意 [兼容性](./compatibility) 所列 Unity 版本打开工程后，仍须执行下文 **Settings → Install**（若 Demo 尚未完成本地安装）。然后 Play `SampleScene`。核心文件：
 
 | 文件 | 说明 |
 |------|------|
