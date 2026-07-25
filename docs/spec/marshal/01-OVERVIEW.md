@@ -1,4 +1,4 @@
----
+﻿---
 sidebar_position: 7
 title: "Marshal 总览 — 默认规则矩阵"
 ---
@@ -43,7 +43,7 @@ title: "Marshal 总览 — 默认规则矩阵"
 | `T[]`（一维 / szarray） | **ByObjUserData** | **ByObjUserData** 或 **table** | 见 §4、[07-ARRAY.md](./07-ARRAY) |
 | `T[,]` 等多维（mdarray） | **ByObjUserData** | **ByObjUserData** | 见 §4；**不**接受 Lua table |
 | `enum` | **integer** / **number** | **integer** / **number** 或 **ByObjUserData**（boxed） | 默认 **不** 推 userdata；boxed 仅经 `zlua.box`；详见 [08-ENUM.md](./08-ENUM) |
-| `struct` | **ByValUserData** 或 **OpaqueValue** | **StructUserData** 或 `Type(...)` 产物 | C#→Lua 常规路径见 [05-STRUCT.md](./05-STRUCT)；标注 `OpaqueValue` 或 **`ref`/`in`/`out`** 时为 OpaqueValue（[04-OPAQUE.md](./04-OPAQUE)）。Lua→C# 亦接受 `SMT.__call` 构造的 StructUserData。**不**默认接受 table / 多栈参数；须 `[LuaMarshalAs(Table \| UnpackedValues)]` + `FieldOrPropertyNames`（[02-MARSHAL-AS.md](./02-MARSHAL-AS)） |
+| `struct` | **ByValUserData** 或 **OpaqueValue** | **StructUserData** 或 `Type(...)` 产物 | C#→Lua 常规路径见 [05-STRUCT.md](./05-STRUCT)；标注 `OpaqueValue` 或 **`ref`/`in`/`out`** 时为 OpaqueValue（[04-OPAQUE.md](./04-OPAQUE)）。Lua→C# 亦接受 `SMT.__call` 构造的 StructUserData。**不**默认接受 table / 多栈参数；须 `[LuaMarshalAs(Table \| UnpackedValues)]` + `Members`（[02-MARSHAL-AS.md](./02-MARSHAL-AS)） |
 | `Delegate` | **function** 或 **DelegateUserData** | **function** 或 **DelegateUserData** | C#→Lua：若 `target` 为 Lua 回调源则 Push **function**，否则 ByObjUserData；见 [09-FUNCTION.md](./09-FUNCTION) |
 | `object` | **ClassUserData**（`System.Object` 门面） | **boolean** / **number** / **string** / **userdata** | **门面 = 声明类型 `object`**，即使运行时是 `string` 等也 **不** 改走特殊 Marshal；见 [06-CLASS.md](./06-CLASS) |
 | `Nullable<T>` | 同 `T` 或 `nil` | 同 `T` 或 `nil` | `T` 为值类型时 `nil` ↔ `null` |

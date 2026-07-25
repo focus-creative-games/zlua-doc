@@ -1,4 +1,4 @@
----
+﻿---
 sidebar_position: 22
 title: "元表规范（`spec/metatable/`）"
 ---

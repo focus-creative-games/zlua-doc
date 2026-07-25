@@ -146,7 +146,7 @@ public struct Vector2
 }
 ```
 
-**解析优先级**（与 [02-MARSHAL-AS.md §8](./02-MARSHAL-AS) 一致）：参数/返回值 > 类型级 > 默认。
+**解析优先级**（与 [02-MARSHAL-AS.md §8](./02-MARSHAL-AS) 一致）：参数/返回值 > 字段/属性 > 类型级 > 默认；同目标 **Attribute > XML**。
 
 ## 8. 枚举（enum）与 struct 的区别
 

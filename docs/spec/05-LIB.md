@@ -45,7 +45,7 @@ Il2Cpp：脚本嵌入 `BuiltinScripts.inc`；Mono：Resources 或同等路径。
 | `CSharp` 类型表 | `CSharp.mscorlib['System.Int32']` |
 | 闭合泛型 / 数组类型表 | `zlua.make_generic_type(...)` / `zlua.make_szarray_type(...)` 的返回值 |
 | `zlua.get_type_from_name` | 按 CLR 类型名解析得到的类型表（见 §4.3） |
-| mscorlib 字符串 | `"System.Int32"`（**仅** corlib 类型；复杂类型优先用类型表或 `get_type_from_name`） |
+| **类型名字符串** | 与 §4.3 `get_type_from_name(typeFullName)` 的 **`name` 相同**（对标 `System.Type.GetType(string)`：含简单名、AQN、泛型、数组等）。凡接受 `typeArg` 的 API，字符串实参均按此解析，**不限于** mscorlib |
 
 `zlua.typeof(typeTable)` 接受 **任意** ZLua 类型表（含泛型闭合表、数组类型表），返回该类型的 **`System.Type` 反射对象**（Lua 侧为 Type 的 class userdata），语义对应 C# 的 `typeof(T)`。
 
@@ -164,8 +164,8 @@ zlua.make_generic_type(genericBaseType, typeArg1, ...) → typeTable
 
 | 参数 | 说明 |
 |------|------|
-| `genericBaseType` | 未闭合泛型定义类型表（键含 `` ` `` 与 arity） |
-| `typeArg…` | 泛型实参；个数须与定义一致 |
+| `genericBaseType` | 未闭合泛型定义：类型表，或 §3 **typeArg**（含类型名字符串） |
+| `typeArg…` | 泛型实参（§3 typeArg）；个数须与定义一致 |
 
 返回闭合泛型类型表；相同实参 **intern** 为同一表。
 
@@ -284,17 +284,20 @@ zlua.to_bytes(szarray) → string   -- Lua 二进制 string（可含 \0）
 
 将 **一维 szarray** 的托管内存按 **原始字节布局** 拷贝为等长 Lua string。
 
+元素类型须符合 **CLR 互操作意义上的 blittable**（与非托管内存表示一致、可直接 pin/memcpy；对齐 [Blittable and Non-Blittable Types](https://learn.microsoft.com/dotnet/framework/interop/blittable-and-non-blittable-types)）。
+
 | 约束 | 说明 |
 |------|------|
 | 输入 | **仅** szarray userdata（**不支持** mdarray） |
-| 元素类型 | 必须为 **blittable**：基元（`int` / `float` / `byte` 等），或 **不含任何引用类型字段** 的 struct（如 `Vector3`、纯值类型 POD） |
-| 非 blittable | 含 `string`、class、装箱等引用字段的元素类型 → `luaL_error` |
+| 允许的元素类型 | blittable 基元：`byte` / `sbyte` / `short` / `ushort` / `int` / `uint` / `long` / `ulong` / `float` / `double` / `IntPtr` / `UIntPtr`；以及 **仅含上述 blittable 字段** 的 struct（如 `Vector3`、纯值类型 POD） |
+| **不接受** | `bool[]`、`char[]`（`Boolean` / `Char` 在 CLR 中为 non-blittable）；含 `bool` / `char` / 引用字段（`string`、class 等）的元素类型；其它 non-blittable → `luaL_error` |
 | 实现 | 将数组在内存中的连续数据视为 C 的 `byte[]`，长度为 **实际数据字节数**（`Length × sizeof(元素)`，含对齐后的 struct 布局），整段 **memcpy** 到 Lua string |
 
 ```lua
 local bytes = zlua.to_bytes(byte_arr)     -- byte[]
 local fbytes = zlua.to_bytes(float_arr)   -- float[]；#fbytes == #float_arr * 4
 local vbytes = zlua.to_bytes(vector3_arr) -- Vector3[]（blittable struct）亦可
+-- zlua.to_bytes(bool_arr)  / zlua.to_bytes(char_arr)  → error（non-blittable）
 ```
 
 **Native：** `__zlua_to_bytes`
@@ -414,7 +417,7 @@ zlua.register_method(aliasName, methodOrClosure) → void
 | `__zlua_to_delegate` | `zlua.to_delegate` | |
 | `__zlua_get_opaquevalue` | `zlua.get_opaquevalue` | |
 | `__zlua_set_opaquevalue` | `zlua.set_opaquevalue` | |
-| `__zlua_to_bytes` | `zlua.to_bytes` | blittable 元素 szarray → Lua string |
+| `__zlua_to_bytes` | `zlua.to_bytes` | CLR blittable 元素 szarray → Lua string（不含 `bool[]` / `char[]`） |
 | `__zlua_to_table` | `zlua.to_table` | szarray |
 
 ---
@@ -437,7 +440,7 @@ local list = ListInt()
 local arr = zlua.new_szarray_by_element_type(zlua.types.int32, 4)
 arr:set(0, 1)   -- 经类型绑定 get/set，见 02-TYPE-SYSTEM §7
 
--- 数组 → 字节（blittable 元素：byte[] / float[] / Vector3[] 等）
+-- 数组 → 字节（CLR blittable：byte[] / float[] / Vector3[] 等；不含 bool[] / char[]）
 local byteArr = zlua.new_szarray_by_element_type(zlua.types.byte, 8)
 local raw = zlua.to_bytes(byteArr)
 local floats = zlua.new_szarray_by_element_type(zlua.types.float, 4)

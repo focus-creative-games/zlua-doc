@@ -1,4 +1,4 @@
----
+﻿---
 sidebar_position: 1
 title: "总览"
 ---
@@ -79,10 +79,11 @@ Mono（Editor）允许反射 / Emit 慢路径，但 **Lua 可见语义必须与 
 
 **Il2Cpp 源码布局（Unity 构建自动编译）：**
 
-- `libil2cpp/lua` — Lua 5.4 源码
-- `libil2cpp/zlua` — ZLua native 实现
+- `libil2cpp/lua` — 由 Install 按选定版本叠加的 Lua 源码（经 patch）
+- `libil2cpp/zlua` — ZLua native 实现（来自包内 `ZLua~/zlua-runtime`）
 
-权威参考路径：`build-win64/Il2CppOutputProject/IL2CPP/libil2cpp/zlua`（包内 `ZLua~/libil2cpp-2022` 为手动同步副本）。
+开发期可编辑参考：`build-win64/Il2CppOutputProject/IL2CPP/libil2cpp/zlua`。  
+包布局、多 Unity / 多 Lua、patch、DLL 命名、Il2Cpp `ZLuaConf.inc` / Compatible 头 → [11-MULTI-VERSION.md](11-MULTI-VERSION.md)（§12）。
 
 ---
 
@@ -98,6 +99,7 @@ Docs/
 │   ├── 04-METHOD-OVERLOAD.md   dispatch、别名、签名
 │   ├── 05-LIB.md               zlua.* API
 │   ├── 10-LIFETIME.md          Registry、GC、异常边界
+│   ├── 11-MULTI-VERSION.md     Unity/Lua 多版本、Install、DLL、ZLuaConf
 │   ├── metatable/              __index、三表、布局
 │   └── marshal/                Push/Pop、[LuaMarshalAs]
 ├── impl/                       实现说明（不改变 Lua 语义）
@@ -112,6 +114,7 @@ Docs/
 3. [marshal/README.md](marshal/)（参数如何传递）
 4. [04-METHOD-OVERLOAD.md](04-METHOD-OVERLOAD.md) + [05-LIB.md](05-LIB.md)（重载与标准库）
 5. [10-LIFETIME.md](10-LIFETIME.md)（内存与 GC）
+6. 集成包 / 换 Unity 或 Lua 版本 → [11-MULTI-VERSION.md](11-MULTI-VERSION.md)
 
 **冲突裁决：** `spec/**` > Il2Cpp 源码 > `impl/**`。
 

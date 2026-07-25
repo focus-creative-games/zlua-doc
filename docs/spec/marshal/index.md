@@ -13,7 +13,7 @@ title: "Marshal 规范（`spec/marshal/`）"
 | 文件 | 内容 |
 |------|------|
 | [01-OVERVIEW.md](./01-OVERVIEW) | 默认 Marshal 矩阵、integer/number、数组摘要、引用门面摘要 |
-| [02-MARSHAL-AS.md](./02-MARSHAL-AS) | `[LuaMarshalAs]`、`LuaMarshalType`、合法集合、Table/Unpacked/Params/Bytes/UserData/Opaque |
+| [02-MARSHAL-AS.md](./02-MARSHAL-AS) | `[LuaMarshalAs]`、`LuaMarshalType`、合法集合、Table/Unpacked/Params/Bytes/UserData/Opaque、**XML 外部配置** |
 | [03-BYREF.md](./03-BYREF) | `ref` / `in` / `out`（C#→Lua Opaque；Lua→C#：Opaque/ByVal 直传地址，其余临时槽） |
 | [04-OPAQUE.md](./04-OPAQUE) | OpaqueValue、`get_opaquevalue` / `set_opaquevalue`、生命周期、回传分流 |
 | [05-STRUCT.md](./05-STRUCT) | struct ByVal / ByObj / Handle、`box`/`unbox` |

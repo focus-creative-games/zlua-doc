@@ -14,16 +14,24 @@ title: "宿主 API"
 
 ### 1.1 职责
 
-`ZLua.LuaAppDomain` 是宿主唯一推荐的初始化门面，将调用转发至当前后端：
+`ZLua.LuaAppDomain` 是宿主唯一推荐的初始化门面。后端通过 **`ILuaRuntime` + `LuaAppDomain.SetRuntime`** 注册（反转依赖，Common 不引用 Mono/Il2Cpp）：
 
-| 环境 | 后端类型 | 程序集 |
-|------|----------|--------|
-| Editor | `ZLua.LuaMonoAppDomain` | `ZLua.Mono` |
-| Player | `ZLua.LuaIl2CppAppDomain` | `ZLua.Il2Cpp` |
+| 环境 | 后端 | 程序集 | 注册时机 |
+|------|------|--------|----------|
+| Editor | `LuaMonoAppDomain` | `ZLua.Mono` | `RuntimeInitializeOnLoadMethod(SubsystemRegistration)` |
+| Player | `LuaIl2CppAppDomain` | `ZLua.Il2Cpp` | 同上（`#if !UNITY_EDITOR`，避免 Editor 双注册） |
 
 ```csharp
+public interface ILuaRuntime
+{
+    void Initialize(Func<string, object> moduleLoader);
+    void ProcessPendingRefReleases();
+}
+
 public static class LuaAppDomain
 {
+    public static void SetRuntime(ILuaRuntime runtime); // 由后端程序集调用
+
     public static void Initialize(Func<string, object> moduleLoader);
 
     public static T GetFunction<T>(string luaModule, string luaMethodName)

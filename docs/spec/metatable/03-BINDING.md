@@ -1,4 +1,4 @@
----
+﻿---
 sidebar_position: 20
 title: "成员绑定（注册期规则）"
 ---

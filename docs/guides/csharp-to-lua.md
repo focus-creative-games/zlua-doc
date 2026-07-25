@@ -121,3 +121,11 @@ var battleTick = LuaAppDomain.GetFunction<Action<float>>("battle", "tick");
 - [回调与 Delegate](./callbacks-and-delegates)
 - [LuaAppDomain API](../reference/csharp/lua-app-domain)
 - [宿主 API 规范](../spec/01-HOST-API)
+
+## 学习路径
+
+| | |
+|---|---|
+| **上一篇** | [快速开始](../getting-started/quick-start) |
+| **下一篇** | [Lua 访问 C# 基础](./lua-to-csharp-basics) |
+

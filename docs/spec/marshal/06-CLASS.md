@@ -1,4 +1,4 @@
----
+﻿---
 sidebar_position: 12
 title: "Class / Interface Marshal"
 ---
@@ -78,7 +78,7 @@ local c = zlua.cast(o, Child)          -- 门面 Child（须 IsAssignableFrom）
 
 **class** 与 **interface** **默认** 均为 **ByObjUserData**（ClassUserData），**不** 默认接受 Lua table 或多栈参数整对象组装。
 
-须显式标注 [`[LuaMarshalAs]`](./02-MARSHAL-AS) 的 `Table` 或 `UnpackedValues`，并配置 **`FieldOrPropertyNames`**（`string[]`，field/property 可混合）：
+须显式标注 [`[LuaMarshalAs]`](./02-MARSHAL-AS) 的 `Table` 或 `UnpackedValues`，并配置 **`Members`**（`string[]`，field/property 可混合）：
 
 | 形态 | Lua 侧 | 说明 |
 |------|--------|------|

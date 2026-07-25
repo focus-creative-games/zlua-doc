@@ -1,4 +1,4 @@
----
+﻿---
 sidebar_position: 21
 title: "特殊类型的元表行为"
 ---
