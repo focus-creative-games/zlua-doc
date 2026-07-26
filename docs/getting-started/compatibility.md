@@ -15,10 +15,10 @@ description: ZLua 支持的 Unity、Lua 版本、平台与功能矩阵。
 | Lua **5.3.x** | ✅ | ✅ | Settings 可选；**默认 `lua-5.3.6`** |
 | Lua **5.4.x** | ✅ | ✅ | Settings 可选 |
 | Lua **5.5.x** | ✅ | ✅ | Settings 可选 |
-| LuaJIT | 🚧 | 🚧 | 开发中，很快会支持 |
+| LuaJIT | ✅ | ⚠️ | Editor（Mono）可用；**Il2Cpp Player 仅 Android / iOS**（须自备静态库，见 [LuaJIT 构建](../spec/build/02-LUAJIT)） |
 | [Luau](https://luau.org/) | 🔜 | 🔜 | 规划中 |
 
-PUC-Rio 小版本用 Settings 的 `luaVersionId`（`lua-X.Y.Z`）指定；Install 时下载并装入本地树。详见 [安装](./installation)、[多版本管理](../spec/11-MULTI-VERSION)。
+PUC-Rio 小版本用 Settings 的 `luaVersionId`（`lua-X.Y.Z`）指定；LuaJIT 用 `luajit-M.N`（源码须自行 clone）。Install 时装入本地树。详见 [安装](./installation)、[多版本管理](../spec/11-MULTI-VERSION)。
 
 ## Unity
 
@@ -46,7 +46,12 @@ Lua 可见语义两端一致；Indexer / 桥接实现不同。详见 [项目状�
 
 ## 目标平台（Il2Cpp）
 
-设计目标覆盖 Il2Cpp 支持的平台（Windows、macOS、iOS、Android、WebGL、微信小游戏、鸿蒙/车机等）。以 Desktop Player 验证为主；其他平台问题请提交 Issue。
+| 引擎 | Il2Cpp Player 平台 |
+|------|-------------------|
+| **PUC-Rio（Lua 5.1–5.5）** | 设计覆盖 Il2Cpp 常见目标（Windows、macOS、iOS、Android、WebGL、微信小游戏、鸿蒙/车机等） |
+| **LuaJIT** | **仅 Android、iOS**；Win / macOS / Linux / WebGL 等 **不支持**。须自行编译静态 `.a` 放入 Plugins，见 [LuaJIT 构建](../spec/build/02-LUAJIT) |
+
+其它平台问题请提交 Issue。
 
 ---
 

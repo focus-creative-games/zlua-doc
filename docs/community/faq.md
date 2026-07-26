@@ -24,7 +24,7 @@ Il2Cpp Player 可用于完整语义验证与发布；接受 **libil2cpp 集成**
 
 ### 支持哪些 Unity / Lua 版本？
 
-见 [兼容性](../getting-started/compatibility)；所列组合均已支持。
+见 [兼容性](../getting-started/compatibility)。PUC-Rio **5.1–5.5** 已支持；**LuaJIT** 已支持，但 **Il2Cpp Player 仅 Android / iOS**（细则见 [LuaJIT 构建](../spec/build/02-LUAJIT)）。
 
 ---
 

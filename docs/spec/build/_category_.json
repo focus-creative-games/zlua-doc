@@ -1,0 +1,10 @@
+{
+  "label": "构建",
+  "position": 40,
+  "collapsible": true,
+  "collapsed": true,
+  "link": {
+    "type": "generated-index",
+    "description": "官方 Lua 与 LuaJIT 的构建集成，以及 Mono×LuaJIT 的 lua_error callback gate。"
+  }
+}

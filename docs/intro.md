@@ -22,7 +22,7 @@ description: ZLua 是什么、核心特性与适用场景。
 | **更高效** | 约 **98%** 对齐用例快于 xLua；Lua→C# 平均约 **2.62×**；常见访问约 **4×** |
 | **更少 GC** | 引用类型与 struct 默认 **0 GC**；OpaqueValue 等灵活策略 |
 | **极小桥接** | 同签名合并的 C++ stub；体积可小一个数量级；可至 **0 桥接函数** |
-| **版本更广** | Lua 5.1–5.5 / LuaJIT；Unity 2021+；团结引擎 |
+| **版本更广** | Lua 5.1–5.5 / LuaJIT（Il2Cpp 上 JIT 仅 Android / iOS）；Unity 2021+；团结引擎 |
 | **维护更积极** | 全职专业团队 |
 
 完整论述见 **[为什么选择 ZLua](./concepts/why-zlua)**；四方对照见 **[选型对比](./compare/)**。

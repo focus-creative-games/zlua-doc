@@ -29,7 +29,7 @@ ZLua 以 Unity Package（UPM）形式分发。**安装 Package 后还须完成�
 | Unity | 见 [兼容性](./compatibility)（2021.3 / 2022.3 / Unity 6 / 团结等） |
 | Scripting Backend | Editor：**Mono**；Player：**Il2Cpp** |
 | Lua | 由 **Settings** 指定（默认 **`lua-5.3.6`**）；Install 时下载 / 装入本地树 |
-| 网络 | 首次 Install 下载 PUC-Rio 源码时需要（LuaJIT 需自行 clone，见多版本规范） |
+| 网络 | 首次 Install 下载 PUC-Rio 源码时需要；LuaJIT 须自行 clone，且 Il2Cpp 发布仅 Android / iOS（见 [多版本管理](../spec/11-MULTI-VERSION)、[LuaJIT 构建](../spec/build/02-LUAJIT)） |
 | Git | UPM 从 Git URL 安装时需要 |
 
 ---
@@ -88,7 +88,7 @@ git clone https://github.com/focus-creative-games/zlua-demo.git
 | 种类 | 格式 | 示例 |
 |------|------|------|
 | PUC-Rio | `lua-X.Y.Z` | `lua-5.1.5`、`lua-5.2.4`、`lua-5.3.6`、`lua-5.4.8`、`lua-5.5.0` |
-| LuaJIT | `luajit-M.N` | `luajit-2.1`（源码须自行 clone 到缓存目录） |
+| LuaJIT | `luajit-M.N` | `luajit-2.1`（源码须自行 clone 到缓存目录；**Il2Cpp 仅 Android / iOS**，见 [LuaJIT 构建](../spec/build/02-LUAJIT)） |
 
 改版本后须重新执行 **Install**；若 Editor 原生 DLL / scripting define 随系列变化，按 Console 提示 **重启 Editor**。
 

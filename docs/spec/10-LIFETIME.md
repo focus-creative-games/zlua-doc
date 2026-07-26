@@ -214,6 +214,9 @@ Player 域重载时须完整 Shutdown，避免 registry 泄漏与 stale root。
 | C# 抛异常 | `luaL_error` 等价；消息含类型 / 方法上下文（Mono / Il2Cpp 一致或等价） |
 | 脚本 | `pcall` 捕获 string / 错误对象 |
 
+**Editor Mono（所有 Lua 系列）：** 不得在托管 reverse-P/Invoke 帧内调用 `lua_error`。须经 **native callback gate**：托管 push 错误并返回 sentinel，native 在托管返回后再 `lua_error`。规范见 [build/03-MONO-LUAJIT-CALLBACK-GATE.md](build/03-MONO-LUAJIT-CALLBACK-GATE.md)。  
+Il2Cpp 不使用该 gate；另遵守「`lua_error` 时无 C++ 析构依赖」的工程约束。回调内 `Debug.Log` 堆栈抓取问题另见实现 `LuaPrintBuffer`（延迟刷出）。
+
 ### 8.3 错误消息
 
 Bind 失败、marshal 失败、重载无匹配、opaque 无效等错误，Mono 与 Il2Cpp **须** 对同一错误条件给出等价文案（允许前缀差异，语义相同）。

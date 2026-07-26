@@ -77,9 +77,9 @@ Mono（Editor）允许反射 / Emit 慢路径，但 **Lua 可见语义必须与 
 | Indexer | 三表 Lua closure | native `Dispatch*` + `MetaBinding` / `TypeRegistry` |
 | 共享定义 | `ZLua.Common`：`LuaMarshalAsAttribute`、`LuaAliasAttribute`、`LuaAppDomain` | 同左 |
 
-**Il2Cpp 源码布局（Unity 构建自动编译）：**
+**Il2Cpp 源码布局（Unity 构建）：**
 
-- `libil2cpp/lua` — 由 Install 按选定版本叠加的 Lua 源码（经 patch）
+- `libil2cpp/lua` — Install 按选定引擎叠加：**PUC-Rio** 为可编译源码树（经 patch，见 [build/01-OFFICIAL-LUA.md](build/01-OFFICIAL-LUA.md)）；**LuaJIT** 为公共头文件（静态库由开发者放入 Plugins，见 [build/02-LUAJIT.md](build/02-LUAJIT.md)）
 - `libil2cpp/zlua` — ZLua native 实现（来自包内 `ZLua~/zlua-runtime`）
 
 开发期可编辑参考：`build-win64/Il2CppOutputProject/IL2CPP/libil2cpp/zlua`。  
@@ -100,6 +100,7 @@ Docs/
 │   ├── 05-LIB.md               zlua.* API
 │   ├── 10-LIFETIME.md          Registry、GC、异常边界
 │   ├── 11-MULTI-VERSION.md     Unity/Lua 多版本、Install、DLL、ZLuaConf
+│   ├── build/                  官方 Lua / LuaJIT 构建；Mono×JIT callback gate
 │   ├── metatable/              __index、三表、布局
 │   └── marshal/                Push/Pop、[LuaMarshalAs]
 ├── impl/                       实现说明（不改变 Lua 语义）
@@ -115,6 +116,9 @@ Docs/
 4. [04-METHOD-OVERLOAD.md](04-METHOD-OVERLOAD.md) + [05-LIB.md](05-LIB.md)（重载与标准库）
 5. [10-LIFETIME.md](10-LIFETIME.md)（内存与 GC）
 6. 集成包 / 换 Unity 或 Lua 版本 → [11-MULTI-VERSION.md](11-MULTI-VERSION.md)
+7. 官方 Lua 构建 → [build/01-OFFICIAL-LUA.md](build/01-OFFICIAL-LUA.md)
+8. LuaJIT 构建 → [build/02-LUAJIT.md](build/02-LUAJIT.md)
+9. Editor Mono 回调错误边界（全系列） → [build/03-MONO-LUAJIT-CALLBACK-GATE.md](build/03-MONO-LUAJIT-CALLBACK-GATE.md)
 
 **冲突裁决：** `spec/**` > Il2Cpp 源码 > `impl/**`。
 

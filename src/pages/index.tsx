@@ -37,7 +37,7 @@ function HomepageHeader() {
           </Link>
         </div>
         <p className={styles.heroMeta}>
-          Unity 2021+ · 团结引擎 · Lua 5.1–5.5 / LuaJIT
+          Unity 2021+ · 团结引擎 · Lua 5.1–5.5 / LuaJIT（Il2Cpp：Android·iOS）
         </p>
       </div>
     </header>

@@ -6,7 +6,7 @@ const config: Config = {
   title: 'ZLua Docs',
   tagline: '零配置 · 完备 C# 互操作 · Il2Cpp 上约 2.62× 于 xLua',
 
-  // favicon: 'img/favicon.ico',
+  favicon: 'img/logo.png',
 
   future: {
     v4: true,
@@ -75,7 +75,7 @@ const config: Config = {
       title: 'ZLua Docs',
       logo: {
         alt: 'ZLua Logo',
-        src: 'img/logo.svg',
+        src: 'img/logo.png',
       },
       items: [
         {

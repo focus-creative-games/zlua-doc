@@ -118,7 +118,7 @@ Library/ZLua/LuaSrcCache/
 3. 从当前 Editor 复制官方 `il2cpp`（含 **stock** `libil2cpp`）到 Local 目录  
 4. 解析并应用 **libil2cpp patches**（§4）  
 5. 将 `ZLua~/zlua-runtime` **复制/覆盖** 到 `Local.../libil2cpp/zlua`  
-6. 将缓存中的选定 Lua 复制到 `Local.../libil2cpp/lua`，再按 §5 **有条件** 应用 lua patches（5.1 / 5.2 / LuaJIT **不** patch）；并保证 `luaconf.h` 中 `ZLUA_FAST_METATABLE` 符合 §5.4 / §12.5  
+6. 将缓存中的选定 Lua 安装到 `Local.../libil2cpp/lua`：**PUC-Rio** 拷贝（并按 §5 patch）可编译 `src/`；**LuaJIT** 仅安装公共头文件（见 [build/02-LUAJIT.md](build/02-LUAJIT.md)）；并保证 `ZLUA_FAST_METATABLE` 符合 §5.4 / §12.5  
 7. 写入工程 **Scripting Define Symbols**（§7）  
 8. 写入 **`ZLuaConf.inc`**（§12；权威输出在 Local `libil2cpp/zlua/generated/`）  
 9. 若包内缺少对应系列 Editor 插件 DLL，**警告**（不阻断 Install）；DLL 由开发者自行替换（§8）  
@@ -186,23 +186,24 @@ Library/ZLua/LuaSrcCache/
 | 引擎 | 行为 |
 |------|------|
 | **PUC-Rio** | 若 `LuaSrcCache/{id}` 已含完整 `src/` 则复用；否则下载 `https://www.lua.org/ftp/{id}.tar.gz` 并解压到该目录 |
-| **LuaJIT** | **不**自动下载；开发者将源码 clone 到 `LuaSrcCache/luajit-{major}-{minor}/`（如 `luajit-2-1`） |
+| **LuaJIT** | **不**自动下载；开发者将源码 clone 到 `LuaSrcCache/`（目录名以实现为准，如 `luajit-2.1`）。Il2Cpp **不**整树拷贝进 `libil2cpp/lua`，见 [build/02-LUAJIT.md](build/02-LUAJIT.md) |
 
 对 **支持 VM patch 的系列**（见 §5.2），ZLua 对 VM 的修改以包内 **`patches/lua`** 表达；Install 时对缓存中的干净树 apply。
 
 ### 5.2 是否应用 Lua VM patch
 
-| Settings / 引擎 | Install 是否 apply `patches/lua` | `luaPatchKey`（fingerprint） |
-|-----------------|----------------------------------|------------------------------|
-| **PUC-Rio 5.3+**（含 `lua-5.3.0` …） | **是**（§5.3 floor） | 实际选用的 `{X.Y.Z}.patch` 文件名 |
-| **PUC-Rio 5.1.x / 5.2.x** | **否**（拷贝干净上游 `src/`） | `none` |
-| **LuaJIT** | **否**（拷贝干净上游 `src/`） | `none` |
+| Settings / 引擎 | Install 是否 apply `patches/lua` | 写入 `libil2cpp/lua` | `luaPatchKey`（fingerprint） |
+|-----------------|----------------------------------|----------------------|------------------------------|
+| **PUC-Rio 5.3+**（含 `lua-5.3.0` …） | **是**（§5.3 floor） | 完整可编译 `src/`（去入口文件） | 实际选用的 `{X.Y.Z}.patch` 文件名 |
+| **PUC-Rio 5.1.x / 5.2.x** | **否**（拷贝干净上游 `src/`） | 完整可编译 `src/`（去入口文件） | `none` |
+| **LuaJIT** | **否** | **仅公共头文件**；静态库由开发者放 Plugins（[build 文档](build/02-LUAJIT.md)） | `none` |
 
 说明：
 
 - 5.1 / 5.2 / LuaJIT **不得** 尝试查找或 apply 系列 patch（即使误放了 `patches/lua/lua-5.1/` 等目录也应忽略）。  
-- 上述无 patch 路径下，Install **必须** 在本地 `luaconf.h` 写入 / 强制 `#define ZLUA_FAST_METATABLE 0`（见 §5.4）。  
-- fingerprint 的 `luaPatchKey` 在无 patch 时为 `none`（§9）。
+- 上述无 FastMT 路径下，Install **必须** 保证 `ZLUA_FAST_METATABLE 0`（PUC 写入本地 `luaconf.h`；LuaJIT 写入已安装头文件中的 `luaconf.h`，见 §5.4）。  
+- fingerprint 的 `luaPatchKey` 在无 patch 时为 `none`（§9）。  
+- LuaJIT 为何不能整树源码编译、Il2Cpp 平台面（Android/iOS `.a`、WebGL 禁用）以 **[build/02-LUAJIT.md](build/02-LUAJIT.md)** 为准。
 
 ### 5.3 patch 选择算法（仅 §5.2「需要 patch」的系列）
 
@@ -228,7 +229,7 @@ Library/ZLua/LuaSrcCache/
 | **PUC-Rio ≥ 5.3.2**（含 5.3.3…5.3.6、5.4.x、5.5.x） | **可启用**（默认由对应 floor patch 设为 `1`，挂 `luaV_finishget` / `finishset`） | 应用系列 VM patch |
 | **PUC-Rio 5.3.0 / 5.3.1** | **不支持**（必须为 `0`） | 仍应用系列 patch（其它适配），但 `luaconf` **强制** `ZLUA_FAST_METATABLE 0`；不得依赖 gettable 版 FastMT |
 | **PUC-Rio 5.1.x / 5.2.x** | **不支持**（必须为 `0`） | **不** apply VM patch；Install 注入 `ZLUA_FAST_METATABLE 0` |
-| **LuaJIT** | **不支持**（必须为 `0`） | **不** apply VM patch；Install 注入 `ZLUA_FAST_METATABLE 0`；`ZLuaCommon.h` 可对 `ZLUA_USE_LUAJIT && ZLUA_FAST_METATABLE` 做 `#error` |
+| **LuaJIT** | **不支持**（必须为 `0`） | **不** apply VM patch；Install 仅装头文件并注入 `ZLUA_FAST_METATABLE 0`；`ZLuaCommon.h` 可对 `ZLUA_USE_LUAJIT && ZLUA_FAST_METATABLE` 做 `#error` |
 
 **原因摘要：**
 
@@ -237,14 +238,16 @@ Library/ZLua/LuaSrcCache/
 
 手动 `-DZLUA_FAST_METATABLE=1` 覆盖不受支持组合 → **未定义行为**；Installer 应对不支持组合写回 `0`。
 
-### 5.5 Editor DLL 与 Player 内嵌源码的关系
+### 5.5 Editor DLL 与 Player 的关系
 
-| 路径 | 使用什么 |
-|------|----------|
-| **Il2Cpp Player** | 下载/缓存的精确小版本源码；§5.2 需要时再加 `patches/lua` |
-| **Editor（Mono）** | `Plugins` 下系列 DLL（`lua53` / `lua54` / …），**由开发者自行替换**；Mono **不**实现 FastMT |
+| 路径 | PUC-Rio | LuaJIT |
+|------|---------|--------|
+| **Il2Cpp Player** | 缓存中的精确小版本 **源码** 进 `libil2cpp/lua`；§5.2 需要时再加 `patches/lua` | **仅头文件**进 `libil2cpp/lua`；**Android/iOS 静态 `.a` 由开发者放入 Plugins**（见 [build/02-LUAJIT.md](build/02-LUAJIT.md)） |
+| **Editor（Mono）** | `Plugins` 系列 DLL（`lua53` / …），开发者自备；Mono **不**实现 FastMT | `Plugins` 动态库（如 `luajit21`）；Win64 另需 callback gate；Mono **不**实现 FastMT |
 
-二者 patch 号不必一致。缺 DLL 时 Install **仅警告**，不阻断。切换系列后须重启 Editor。
+Editor 与 Player 所用补丁号 / 构建选项不必逐位相同，但 **API 族与关键宏** 应一致。缺 Editor DLL 时 Install **仅警告**，不阻断。切换系列后须重启 Editor。  
+
+**LuaJIT + Il2Cpp：** 发布面 **仅 Android / iOS**（开发者提供静态 `.a`）；**不支持** Win / macOS / Linux / WebGL 等 Il2Cpp Player。细则见 [build/02-LUAJIT.md](build/02-LUAJIT.md)。
 
 ---
 
@@ -331,8 +334,12 @@ namespace ZLua
     {
 #if UNITY_IPHONE && !UNITY_EDITOR
         public const string LUA_DLL = "__Internal";
+#elif ZLUA_LUAJIT_2_1
+        public const string LUA_DLL = "luajit21";
+#elif ZLUA_LUAJIT_2_0
+        public const string LUA_DLL = "luajit20";
 #elif ZLUA_USE_LUAJIT
-        public const string LUA_DLL = "luajit";
+        public const string LUA_DLL = "luajit21";
 #elif ZLUA_LUA_5_5
         public const string LUA_DLL = "lua55";
 #elif ZLUA_LUA_5_4
@@ -344,7 +351,8 @@ namespace ZLua
 #elif ZLUA_LUA_5_1
         public const string LUA_DLL = "lua51";
 #else
-        public const string LUA_DLL = "lua53"; // 与 §6.2 默认系列一致
+        // Default matches Settings default lua-5.3.6 → series lua53.
+        public const string LUA_DLL = "lua53";
 #endif
     }
 }
@@ -393,7 +401,7 @@ Fingerprint（建议 JSON 或等价键值）至少包含：
 |------|------|
 | **P0** | 默认 `lua-5.3.6` + 下载缓存 + `lua-5.3` patch + Unity `2022.3` patch + `zlua-runtime` |
 | **P1** | `lua-5.1.x` / `lua-5.2.x`（无 VM patch）+ `lua-5.4.x` / `lua-5.5.x` 与对应系列 patch / DLL |
-| **P2** | LuaJIT（手动 clone 缓存） |
+| **P2** | LuaJIT（手动 clone；Editor ✅；Il2Cpp **仅 Android / iOS**） |
 
 ---
 
