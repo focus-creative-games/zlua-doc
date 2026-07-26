@@ -97,7 +97,7 @@ Il2Cpp Player 在 Codegen 阶段预生成绑定；Mono Editor 在运行时反射
 | 含 namespace 点号访问失败 | 须 `CSharp.asm['Ns.Type']` 括号形式 |
 | `invalid userdata` | 实例已释放或类型不匹配 |
 
-排错步骤见 [故障排查](../../guides/troubleshooting)。
+排错步骤见 [故障排查](/docs/guides/troubleshooting/)。
 
 ## Mono / Il2Cpp 差异（Lua 可见语义一致）
 
@@ -110,7 +110,7 @@ Il2Cpp Player 在 Codegen 阶段预生成绑定；Mono Editor 在运行时反射
 
 ## 相关文档
 
-- [Lua 访问 C# 基础](../../guides/lua-to-csharp-basics)
-- [元表模型](../../concepts/metatable-model)
-- [类型系统规范](../../spec/02-TYPE-SYSTEM)
-- [类型系统概览](../../concepts/type-system-overview)
+- [Lua 访问 C# 基础](/docs/guides/lua-to-csharp-basics/)
+- [元表模型](/docs/concepts/metatable-model/)
+- [类型系统规范](/docs/spec/02-TYPE-SYSTEM/)
+- [类型系统概览](/docs/concepts/type-system-overview/)

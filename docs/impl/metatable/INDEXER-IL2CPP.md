@@ -6,7 +6,7 @@ title: "Il2Cpp Dispatch* Indexer"
 # Il2Cpp Dispatch* Indexer
 
 > **源码：** `mt/TypeRegistryCommon.cpp`、`mt/MetaBinding.cpp`  
-> **语义权威：** [../../spec/metatable/02-INDEX.md](../../spec/metatable/02-INDEX)
+> **语义权威：** [../../spec/metatable/02-INDEX.md](/docs/spec/metatable/02-INDEX/)
 
 ---
 
@@ -161,14 +161,14 @@ Dispatch closure 额外 upvalue 挂 `MethodGroups*`。
 2. C：`lua_touserdata` + `luaL_checkstring` + `LookupMeta`（字符串哈希）
 3. Method 额外：`lua_rawgeti(REGISTRY, closureRef)`
 
-**注意：** 本路径 **不** 改变 [../../spec/metatable/02-INDEX.md](../../spec/metatable/02-INDEX) 规定的 Lua 可见语义；仅实现机制不同。
+**注意：** 本路径 **不** 改变 [../../spec/metatable/02-INDEX.md](/docs/spec/metatable/02-INDEX/) 规定的 Lua 可见语义；仅实现机制不同。
 
 ---
 
 ## 8. 调试
 
 - `LookupMeta` miss 返回 nil 时 **不** 调用 C# 反射 fallback（规范禁止）。
-- 对照 Mono 行为时，Il2Cpp 与 Mono 的 miss/成员集应一致（Mono 走 Lua 三表 indexer，见 [INDEXER-MONO.md](./INDEXER-MONO)）。
+- 对照 Mono 行为时，Il2Cpp 与 Mono 的 miss/成员集应一致（Mono 走 Lua 三表 indexer，见 [INDEXER-MONO.md](/docs/impl/metatable/INDEXER-MONO/)）。
 
 ---
 

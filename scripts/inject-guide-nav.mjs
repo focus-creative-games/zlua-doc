@@ -11,30 +11,26 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const guidesDir = path.join(__dirname, '..', 'docs', 'guides');
 
 const chain = [
-  {slug: '../getting-started/quick-start', title: '快速开始'},
-  {slug: 'csharp-to-lua', title: 'C# 调用 Lua'},
-  {slug: 'lua-to-csharp-basics', title: 'Lua 访问 C# 基础'},
-  {slug: 'fields-and-properties', title: '字段与属性'},
-  {slug: 'methods-and-overloads', title: '方法重载'},
-  {slug: 'callbacks-and-delegates', title: '回调与 Delegate'},
-  {slug: 'generics-and-arrays', title: '泛型与数组'},
-  {slug: 'marshal-ref-out-in', title: 'ref / out / in'},
-  {slug: 'lua-module-loading', title: 'Lua 模块加载'},
-  {slug: 'events', title: 'Event'},
-  {slug: 'enums-and-structs', title: 'enum 与 struct'},
-  {slug: 'troubleshooting', title: '排错指南'},
-  {slug: 'editor-vs-player', title: 'Editor 与 Player'},
-  {slug: 'best-practices', title: '最佳实践'},
-  {slug: '../concepts/design-overview', title: '设计概览'},
+  {slug: '/docs/getting-started/quick-start/', title: '快速开始'},
+  {slug: '/docs/guides/csharp-to-lua/', title: 'C# 调用 Lua'},
+  {slug: '/docs/guides/lua-to-csharp-basics/', title: 'Lua 访问 C# 基础'},
+  {slug: '/docs/guides/fields-and-properties/', title: '字段与属性'},
+  {slug: '/docs/guides/methods-and-overloads/', title: '方法重载'},
+  {slug: '/docs/guides/callbacks-and-delegates/', title: '回调与 Delegate'},
+  {slug: '/docs/guides/generics-and-arrays/', title: '泛型与数组'},
+  {slug: '/docs/guides/marshal-ref-out-in/', title: 'ref / out / in'},
+  {slug: '/docs/guides/lua-module-loading/', title: 'Lua 模块加载'},
+  {slug: '/docs/guides/events/', title: 'Event'},
+  {slug: '/docs/guides/enums-and-structs/', title: 'enum 与 struct'},
+  {slug: '/docs/guides/troubleshooting/', title: '排错指南'},
+  {slug: '/docs/guides/editor-vs-player/', title: 'Editor 与 Player'},
+  {slug: '/docs/guides/best-practices/', title: '最佳实践'},
+  {slug: '/docs/concepts/design-overview/', title: '设计概览'},
 ];
 
 function buildNavBlock(prev, next) {
-  const prevCell = prev
-    ? `[${prev.title}](${prev.slug.startsWith('../') ? prev.slug : './' + prev.slug})`
-    : '—';
-  const nextCell = next
-    ? `[${next.title}](${next.slug.startsWith('../') ? next.slug : './' + next.slug})`
-    : '—';
+  const prevCell = prev ? `[${prev.title}](${prev.slug})` : '—';
+  const nextCell = next ? `[${next.title}](${next.slug})` : '—';
   return `## 学习路径
 
 | | |
@@ -49,7 +45,10 @@ for (const file of fs.readdirSync(guidesDir)) {
   if (!file.endsWith('.md')) continue;
   const name = file.replace(/\.md$/, '');
   const idx = chain.findIndex(
-    (item, i) => i > 0 && i < chain.length - 1 && item.slug === name,
+    (item, i) =>
+      i > 0 &&
+      i < chain.length - 1 &&
+      item.slug === `/docs/guides/${name}/`,
   );
   if (idx === -1) continue;
 

@@ -7,7 +7,7 @@ description: C# 与 Lua 之间的默认参数 Marshal 规则。
 # Marshal 模型概览
 
 :::tip 谁该读本文
-**需要理解参数如何在 C# 与 Lua 间转换、何时用 `new_ref` / `[LuaMarshalAs]` 的开发者。** 查表用 [Marshal 速查表](../reference/marshal-cheatsheet)；`ref/out` 实操见 [指南](../guides/marshal-ref-out-in)。
+**需要理解参数如何在 C# 与 Lua 间转换、何时用 `new_ref` / `[LuaMarshalAs]` 的开发者。** 查表用 [Marshal 速查表](/docs/reference/marshal-cheatsheet/)；`ref/out` 实操见 [指南](/docs/guides/marshal-ref-out-in/)。
 :::
 
 ZLua 在 Mono 与 Il2Cpp 上 **Lua 可见 Marshal 语义一致**；Il2Cpp 侧重零 GC 与生成代码快速路径。
@@ -45,7 +45,7 @@ flowchart TB
 | delegate | DelegateUserData | **function** 或 userdata |
 | array | ArrayUserData | ArrayUserData |
 
-完整表格：[Marshal 速查表](../reference/marshal-cheatsheet)。
+完整表格：[Marshal 速查表](/docs/reference/marshal-cheatsheet/)。
 
 ## ref / out / in（Lua → C#）
 
@@ -56,7 +56,7 @@ Lua 侧 **不区分** ref/out/in，统一按 ref 语义处理：
 | `zlua.new_ref(T)` / struct userdata | **真 ref**，C# 修改写回 |
 | 裸 number / string / table | **拷贝**到临时槽，**不写回** local |
 
-**GetFunction 取得的 delegate 调用**与 **delegate bridge** 上 `ref`/`out`/`in` 默认 Push **OpaqueValue**（见 [OPAQUE](../spec/marshal/04-OPAQUE)）；`params` 仍不支持。
+**GetFunction 取得的 delegate 调用**与 **delegate bridge** 上 `ref`/`out`/`in` 默认 Push **OpaqueValue**（见 [OPAQUE](/docs/spec/marshal/04-OPAQUE/)）；`params` 仍不支持。
 
 ## `[LuaMarshalAs]` 覆盖
 
@@ -66,21 +66,21 @@ Lua 侧 **不区分** ref/out/in，统一按 ref 语义处理：
 | **Bytes** | `byte[]` ↔ Lua string |
 | **OpaqueLightUserData** | C#→Lua 栈上 struct 临时句柄 → `zlua.to_user_data` |
 
-合法组合见 [LuaMarshalAs 参考](../reference/csharp/lua-marshal-as)。
+合法组合见 [LuaMarshalAs 参考](/docs/reference/csharp/lua-marshal-as/)。
 
 ## 分册索引（何时读哪本）
 
 | 类型 | 规范 |
 |------|------|
-| 总览与默认表 | [Marshal 规范](../spec/marshal/01-OVERVIEW) |
-| byref / Opaque | [BYREF](../spec/marshal/03-BYREF)、[OPAQUE](../spec/marshal/04-OPAQUE) |
-| struct | [STRUCT](../spec/marshal/05-STRUCT) |
-| class / 引用 | [CLASS](../spec/marshal/06-CLASS) |
-| Delegate / 回调 | [FUNCTION](../spec/marshal/09-FUNCTION) |
-| 日常查表 | [Marshal 速查表](../reference/marshal-cheatsheet) |
+| 总览与默认表 | [Marshal 规范](/docs/spec/marshal/01-OVERVIEW/) |
+| byref / Opaque | [BYREF](/docs/spec/marshal/03-BYREF/)、[OPAQUE](/docs/spec/marshal/04-OPAQUE/) |
+| struct | [STRUCT](/docs/spec/marshal/05-STRUCT/) |
+| class / 引用 | [CLASS](/docs/spec/marshal/06-CLASS/) |
+| Delegate / 回调 | [FUNCTION](/docs/spec/marshal/09-FUNCTION/) |
+| 日常查表 | [Marshal 速查表](/docs/reference/marshal-cheatsheet/) |
 
 ## 相关文档
 
-- [Marshal 速查表](../reference/marshal-cheatsheet)
-- [enum / struct 指南](../guides/enums-and-structs)
-- [回调与 Delegate](../guides/callbacks-and-delegates)
+- [Marshal 速查表](/docs/reference/marshal-cheatsheet/)
+- [enum / struct 指南](/docs/guides/enums-and-structs/)
+- [回调与 Delegate](/docs/guides/callbacks-and-delegates/)

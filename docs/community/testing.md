@@ -6,7 +6,7 @@ title: "测试框架"
 # 测试框架
 
 > ZLua **正确性测试**的目录布局、C# Runner、Lua 用例组织与执行方式。  
-> **原则：** 不依赖 Unity Test Framework；**不包含 benchmark**（性能见 [compare/PERFORMANCE.md](../compare/PERFORMANCE)）。
+> **原则：** 不依赖 Unity Test Framework；**不包含 benchmark**（性能见 [compare/PERFORMANCE.md](/docs/compare/PERFORMANCE/)）。
 
 ---
 
@@ -211,14 +211,14 @@ public void Run_all_lua_tests()
 
 | spec 文档 | manifest 套件 | 典型 `tc_*.lua` |
 |-----------|---------------|-----------------|
-| [spec/02-TYPE-SYSTEM.md](../spec/02-TYPE-SYSTEM) | `type_system` | `tc_csharp_path`、`tc_generic_type`、`tc_array_type`、`tc_field_access`、`tc_property_access`、`tc_box_unbox` |
-| [spec/metatable/](../spec/metatable/) | `type_system`（索引/绑定） | `tc_field_*`、`tc_property_*`、`tc_event_access` |
-| [spec/04-METHOD-OVERLOAD.md](../spec/04-METHOD-OVERLOAD) | `method_overload` | `tc_method_call`、`tc_register_method` |
-| [spec/marshal/](../spec/marshal/) | `marshal` | `tc_default_marshal`、`tc_marshal_struct`、`tc_marshal_enum`、`tc_marshal_delegate` 等 |
-| [spec/marshal/09-FUNCTION.md](../spec/marshal/09-FUNCTION) | `function_marshal` | `tc_delegate_marshal` |
-| [spec/01-HOST-API.md](../spec/01-HOST-API) | `getfunction` | `tc_getfunction_marshal`、`tc_getfunction_unity_vector` |
-| [spec/05-LIB.md](../spec/05-LIB) | `zlualib` | `tc_typeof`、`tc_make_generic_type`、`tc_box`、`tc_to_delegate` 等 |
-| [spec/10-LIFETIME.md](../spec/10-LIFETIME) | 分散在 marshal / delegate | Opaque、ref 相关 `tc_*` |
+| [spec/02-TYPE-SYSTEM.md](/docs/spec/02-TYPE-SYSTEM/) | `type_system` | `tc_csharp_path`、`tc_generic_type`、`tc_array_type`、`tc_field_access`、`tc_property_access`、`tc_box_unbox` |
+| [spec/metatable/](/docs/spec/metatable/) | `type_system`（索引/绑定） | `tc_field_*`、`tc_property_*`、`tc_event_access` |
+| [spec/04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) | `method_overload` | `tc_method_call`、`tc_register_method` |
+| [spec/marshal/](/docs/spec/marshal/) | `marshal` | `tc_default_marshal`、`tc_marshal_struct`、`tc_marshal_enum`、`tc_marshal_delegate` 等 |
+| [spec/marshal/09-FUNCTION.md](/docs/spec/marshal/09-FUNCTION/) | `function_marshal` | `tc_delegate_marshal` |
+| [spec/01-HOST-API.md](/docs/spec/01-HOST-API/) | `getfunction` | `tc_getfunction_marshal`、`tc_getfunction_unity_vector` |
+| [spec/05-LIB.md](/docs/spec/05-LIB/) | `zlualib` | `tc_typeof`、`tc_make_generic_type`、`tc_box`、`tc_to_delegate` 等 |
+| [spec/10-LIFETIME.md](/docs/spec/10-LIFETIME/) | 分散在 marshal / delegate | Opaque、ref 相关 `tc_*` |
 
 ### 8.2 条款 → 用例 id 示例
 
@@ -242,10 +242,10 @@ public void Run_all_lua_tests()
 | Fixture（示例） | spec |
 |-----------------|------|
 | `BasicTypes` | marshal 基元 |
-| `StructBox` | [marshal/05-STRUCT.md](../spec/marshal/05-STRUCT) |
-| `ClassHierarchy` | [02-TYPE-SYSTEM.md](../spec/02-TYPE-SYSTEM) 继承 |
-| `OverloadDemo` | [04-METHOD-OVERLOAD.md](../spec/04-METHOD-OVERLOAD) |
-| `DelegateFixtures` | [marshal/09-FUNCTION.md](../spec/marshal/09-FUNCTION) |
+| `StructBox` | [marshal/05-STRUCT.md](/docs/spec/marshal/05-STRUCT/) |
+| `ClassHierarchy` | [02-TYPE-SYSTEM.md](/docs/spec/02-TYPE-SYSTEM/) 继承 |
+| `OverloadDemo` | [04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) |
+| `DelegateFixtures` | [marshal/09-FUNCTION.md](/docs/spec/marshal/09-FUNCTION/) |
 
 Fixture 须 public，走 ZLua Codegen（Il2Cpp stub），保证桥接表完整。
 
@@ -278,9 +278,9 @@ Runner 可在 `[SUMMARY]` 旁只读输出当前后端；**不参与** pass/fail�
 
 | 文档 | 内容 |
 |------|------|
-| [CONTRIBUTING.md](./contributing) | 改 spec 与改代码流程 |
-| [spec/00-OVERVIEW.md](../spec/00-OVERVIEW) | 双运行时 |
-| [compare/PERFORMANCE.md](../compare/PERFORMANCE) | 性能基准（非本框架） |
+| [CONTRIBUTING.md](/docs/community/contributing/) | 改 spec 与改代码流程 |
+| [spec/00-OVERVIEW.md](/docs/spec/00-OVERVIEW/) | 双运行时 |
+| [compare/PERFORMANCE.md](/docs/compare/PERFORMANCE/) | 性能基准（非本框架） |
 
 ---
 

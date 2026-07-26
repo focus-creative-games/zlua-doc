@@ -5,7 +5,7 @@ title: "从 toLua 迁移"
 
 # 从 toLua（tolua#）迁移到 ZLua
 
-> **特性背景：** [compare/FEATURES.md](../../compare/FEATURES)  
+> **特性背景：** [compare/FEATURES.md](/docs/compare/FEATURES/)  
 > toLua / tolua# 以 **预生成 Wrap**、**LuaState**、全局导出类为特征；ZLua 以 **懒绑定**、**CSharp 根表**、**Il2Cpp 内嵌桥** 为特征。
 
 ---
@@ -92,7 +92,7 @@ Func<string, object> loader = module =>
 };
 ```
 
-Player 路径规则见 [TESTING.md](../testing) §5。
+Player 路径规则见 [TESTING.md](/docs/community/testing/) §5。
 
 ### 步骤 5：C# 调 Lua
 
@@ -132,7 +132,7 @@ public static void SetClickHandler(Action cb) { button.onClick.AddListener(() =>
 ui:SetClickHandler(function() print("click") end)
 ```
 
-**After（C# 主动取回 Lua 函数再调）：** 使用 `GetFunction<Action>`/`GetFunction<Func<…>>`，或 `GetFunction<Delegate>` + `zlua.to_delegate`。见 [回调与 Delegate §3](../../guides/callbacks-and-delegates)、[from-xlua 步骤 5](./from-xlua)。
+**After（C# 主动取回 Lua 函数再调）：** 使用 `GetFunction<Action>`/`GetFunction<Func<…>>`，或 `GetFunction<Delegate>` + `zlua.to_delegate`。见 [回调与 Delegate §3](/docs/guides/callbacks-and-delegates/)、[from-xlua 步骤 5](/docs/community/migration/from-xlua/)。
 
 ```csharp
 static readonly Func<Action> GetOnClick =
@@ -182,7 +182,7 @@ toLua 预导出大量 `UnityEngine.*` Wrap。迁移时：
 | tolua `#if UNITY_EDITOR` 双份逻辑 | 合并为 ZLua 双端同一套 Lua |
 | 导出列表当安全边界 | 改 **非 public** API |
 | `LuaTable` 强依赖 | 改用 Lua module return table + `require` |
-| 性能假设 | toLua 与 xLua 类似经 Wrap；ZLua Player 路径不同，见 [compare/PERFORMANCE.md](../../compare/PERFORMANCE) |
+| 性能假设 | toLua 与 xLua 类似经 Wrap；ZLua Player 路径不同，见 [compare/PERFORMANCE.md](/docs/compare/PERFORMANCE/) |
 
 ---
 
@@ -273,6 +273,6 @@ DemoWrap.Register(L);
 
 | 文档 | 内容 |
 |------|------|
-| [from-xlua.md](./from-xlua) | xLua 对照（C#→Lua 更详） |
-| [spec/05-LIB.md](../../spec/05-LIB) | `zlua.*` API |
-| [TESTING.md](../testing) | 回归测试 |
+| [from-xlua.md](/docs/community/migration/from-xlua/) | xLua 对照（C#→Lua 更详） |
+| [spec/05-LIB.md](/docs/spec/05-LIB/) | `zlua.*` API |
+| [TESTING.md](/docs/community/testing/) | 回归测试 |

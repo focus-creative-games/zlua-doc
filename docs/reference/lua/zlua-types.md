@@ -78,6 +78,6 @@ local list_int = zlua.make_generic_type(CSharp.mscorlib['System.Collections.Gene
 
 ## 相关文档
 
-- [zlua 标准库](./zlua-lib)
-- [方法重载](../../guides/methods-and-overloads)
-- [zlua 库规范](../../spec/05-LIB) §3
+- [zlua 标准库](/docs/reference/lua/zlua-lib/)
+- [方法重载](/docs/guides/methods-and-overloads/)
+- [zlua 库规范](/docs/spec/05-LIB/) §3

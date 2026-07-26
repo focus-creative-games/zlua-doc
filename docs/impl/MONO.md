@@ -6,7 +6,7 @@ title: "Mono 实现说明"
 # Mono 实现说明
 
 > **源码根：** `Packages/com.code-philosophy.zlua/Runtime/Mono/`  
-> **Lua 可见语义：** [../spec/](../spec/00-OVERVIEW) — 本文只写 Editor Mono 的目录、初始化与 Il2Cpp 差异。
+> **Lua 可见语义：** [../spec/](/docs/spec/00-OVERVIEW/) — 本文只写 Editor Mono 的目录、初始化与 Il2Cpp 差异。
 
 ---
 
@@ -14,7 +14,7 @@ title: "Mono 实现说明"
 
 旧 `Runtime/Mono` 已备份至 `_archive/Mono-pre-rewrite-20260723/` 并自零重写。目标是 **Editor 开发期** 与 Il2Cpp Player **交互表现一致**，目录与 Il2Cpp `zlua/` 模块可对照阅读。
 
-Mono 成员索引统一走 Lua 三表 closure（见 [metatable/INDEXER-MONO.md](./metatable/INDEXER-MONO)）。
+Mono 成员索引统一走 Lua 三表 closure（见 [metatable/INDEXER-MONO.md](/docs/impl/metatable/INDEXER-MONO/)）。
 
 ---
 
@@ -108,7 +108,7 @@ Il2Cpp 在 AppDomain 级额外提前执行 `MethodBridge::Initialize` 等 stub �
 | **Event** | 无专用 `MetaKind::Event` | 无 Event 子表；`add_*`/`remove_*` 进 `methodTable` |
 | **GC / 性能** | Il2Cpp GC + 槽位 pin | 槽位强引用 + weak cache；non-blittable ByVal 用 boxed companion |
 
-语义一致性验收以 [../spec/](../spec/00-OVERVIEW) 为准；实现路径不同 **允许**，但 miss/strict、overload、cast、struct 等行为须与 Il2Cpp 一致。
+语义一致性验收以 [../spec/](/docs/spec/00-OVERVIEW/) 为准；实现路径不同 **允许**，但 miss/strict、overload、cast、struct 等行为须与 Il2Cpp 一致。
 
 ---
 
@@ -127,7 +127,7 @@ Il2Cpp 在 AppDomain 级额外提前执行 `MethodBridge::Initialize` 等 stub �
 
 ## 8. 关联文档
 
-- Il2Cpp 模块图：[IL2CPP.md](./IL2CPP)
-- 三表 indexer：[metatable/INDEXER-MONO.md](./metatable/INDEXER-MONO)
-- Expression Emit：[codegen/EMIT-MONO.md](./codegen/EMIT-MONO)
-- Codegen：[codegen/index.md](./codegen/) · Emit：[codegen/EMIT-MONO.md](./codegen/EMIT-MONO)
+- Il2Cpp 模块图：[IL2CPP.md](/docs/impl/IL2CPP/)
+- 三表 indexer：[metatable/INDEXER-MONO.md](/docs/impl/metatable/INDEXER-MONO/)
+- Expression Emit：[codegen/EMIT-MONO.md](/docs/impl/codegen/EMIT-MONO/)
+- Codegen：[codegen/index.md](/docs/impl/codegen/) · Emit：[codegen/EMIT-MONO.md](/docs/impl/codegen/EMIT-MONO/)

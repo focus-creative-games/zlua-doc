@@ -6,8 +6,8 @@ title: "Mono 三表 Indexer 实现"
 # Mono 三表 Indexer 实现
 
 > **源码：** `Runtime/Mono/Mt/TypeMemberLuaIndexer.cs`  
-> **语义权威：** [../../spec/metatable/02-INDEX.md](../../spec/metatable/02-INDEX)  
-> **重写约束：** [../MONO.md](../MONO) D2、D5、D7
+> **语义权威：** [../../spec/metatable/02-INDEX.md](/docs/spec/metatable/02-INDEX/)  
+> **重写约束：** [../MONO.md](/docs/impl/MONO/) D2、D5、D7
 
 ---
 
@@ -15,7 +15,7 @@ title: "Mono 三表 Indexer 实现"
 
 Mono Editor **不**实现 Il2Cpp 的 `DispatchInstanceIndex`。成员分派完全在 **Lua VM 内** 完成：IMT/SMT 上的 `__index` / `__newindex` 为 Lua closure，通过 upvalue 持有三张普通 table（method / fieldGetter / fieldSetter）。
 
-这与规范 §2–§4 的算法 **字面一致**，也是 Mono 重写的硬性决策（见 [../MONO.md](../MONO) D2）。
+这与规范 §2–§4 的算法 **字面一致**，也是 Mono 重写的硬性决策（见 [../MONO.md](/docs/impl/MONO/) D2）。
 
 ---
 
@@ -33,7 +33,7 @@ Bootstrap 使用 **`rawget`** 查三表，避免用户篡改 table metatable 影
 
 ### 2.2 静态 SMT 的 extrasTable
 
-`BindStaticMetatable` 将 **SMT 自身** 作为 `extrasTable` 传入工厂。这样 `__index` 在 method/getter miss 后还可 `rawget(extrasTable, key)`，用于 `__call` 等非三表成员（规范 [../../spec/metatable/01-LAYOUT.md](../../spec/metatable/01-LAYOUT) 中挂在 SMT 上的键）。实例 IMT **无** extrasTable（传 `nil`）。
+`BindStaticMetatable` 将 **SMT 自身** 作为 `extrasTable` 传入工厂。这样 `__index` 在 method/getter miss 后还可 `rawget(extrasTable, key)`，用于 `__call` 等非三表成员（规范 [../../spec/metatable/01-LAYOUT.md](/docs/spec/metatable/01-LAYOUT/) 中挂在 SMT 上的键）。实例 IMT **无** extrasTable（传 `nil`）。
 
 ### 2.3 绑定期挂接（`BindInstanceMetatable` / `BindStaticMetatable`）
 
@@ -104,7 +104,7 @@ Emit 失败（无法为签名生成 Expression）→ **`EmitException`**；继�
 
 ## 5. Miss 与错误消息
 
-与 [../../spec/metatable/02-INDEX.md](../../spec/metatable/02-INDEX) §5 一致：
+与 [../../spec/metatable/02-INDEX.md](/docs/spec/metatable/02-INDEX/) §5 一致：
 
 | 场景 | 行为 |
 |------|------|
@@ -123,7 +123,7 @@ Phase 2 空表时，除 enum 常量等写在类型表 `T` 上的键外，任意�
 - method：`__index` 帧 + 1× `rawget(methodTable)`
 - field：+ 1× `rawget(fieldGetterTable)` + getter call
 
-Mono 与 Il2Cpp 实现路径不同，但 Lua 可见语义须一致（见 [../../spec/metatable/02-INDEX.md](../../spec/metatable/02-INDEX)）。
+Mono 与 Il2Cpp 实现路径不同，但 Lua 可见语义须一致（见 [../../spec/metatable/02-INDEX.md](/docs/spec/metatable/02-INDEX/)）。
 
 ---
 

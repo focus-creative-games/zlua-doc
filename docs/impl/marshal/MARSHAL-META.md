@@ -7,7 +7,7 @@ title: "MarshalMeta 与 Writer"
 
 > **Il2Cpp：** `marshal/MarshalMeta.cpp`、`marshal/MarshalDefs.h`  
 > **Mono：** `Runtime/Mono/Marshaling/MarshalDefs.cs` 及 `TypedMarshal` / `PrimitiveMarshal` / `ObjectMarshal` 等
-> **规范：** [../../spec/marshal/](../../spec/marshal/)（Default / MarshalAs / 各类型 push-pop 规则）
+> **规范：** [../../spec/marshal/](/docs/spec/marshal/)（Default / MarshalAs / 各类型 push-pop 规则）
 
 ---
 
@@ -51,7 +51,7 @@ Mono Phase 1+ 在 managed 侧用 delegate / 编译闭包模拟同等「绑定期
 
 1. 根据 `Il2CppType*` 分类（primitive / string / enum / class / struct / array / delegate / pointer …）；
 2. 选择预定义的 `Lua2CSMarshalXxx` / `CS2LuaMarshalXxx` 或 `ObjectMarshal` / `StructMarshal` / `OpaqueValueMarshal` 子路径；
-3. 应用 `[LuaMarshalAs]`（若存在）→ 切换 `LuaMarshalType`（UserData、Bytes、Opaque、ParamsTable 等，见 spec [02-MARSHAL-AS](../../spec/marshal/02-MARSHAL-AS)）；
+3. 应用 `[LuaMarshalAs]`（若存在）→ 切换 `LuaMarshalType`（UserData、Bytes、Opaque、ParamsTable 等，见 spec [02-MARSHAL-AS](/docs/spec/marshal/02-MARSHAL-AS/)）；
 4. 填充 `size`、`passByValue`、`typeKlass`；
 5. `luaByValRefIndex` / `luaByObjRefIndex` 初始为 `LUA_NOREF`，首次 push 时 `EnsureByValMetatableRefSlow` 懒绑定。
 
@@ -155,7 +155,7 @@ Mono Emit 桥 **不应** 在每次 call 时重新 `MarshalMeta::Create`；须绑
 
 ## 8. 性能注记
 
-- Writer 本体 **不在** `Dispatch*` indexer 优化范围内（见 [../metatable/INDEXER-IL2CPP.md](../metatable/INDEXER-IL2CPP)）。
+- Writer 本体 **不在** `Dispatch*` indexer 优化范围内（见 [../metatable/INDEXER-IL2CPP.md](/docs/impl/metatable/INDEXER-IL2CPP/)）。
 - `DefaultInvokeLuaMethod`（无专用 stub 时）使用 alloca + 逐参 writer，慢于 generated stub；Player 应尽量覆盖热路径签名。
 
 ---

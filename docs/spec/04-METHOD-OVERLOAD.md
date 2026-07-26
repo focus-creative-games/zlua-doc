@@ -6,7 +6,7 @@ title: "方法重载"
 # 04 — 方法重载
 
 > C# 方法重载在 Lua 侧的解析与调用策略。适用于 **Il2Cpp（Player）** 与 **Mono（Editor）**。  
-> 继承与 Bind 规则见 [02-TYPE-SYSTEM.md](02-TYPE-SYSTEM.md) §5；`zlua` API 见 [05-LIB.md](05-LIB.md)。
+> 继承与 Bind 规则见 [02-TYPE-SYSTEM.md](/docs/spec/02-TYPE-SYSTEM/) §5；`zlua` API 见 [05-LIB.md](/docs/spec/05-LIB/)。
 
 ---
 
@@ -18,7 +18,7 @@ C# 允许同名方法因参数类型/个数不同而重载；Lua 无静态类型
 |------|------|
 | 易用 | `obj:Run(10)` 在常见场景下应能工作 |
 | 精确 | 脚本可显式绑定某一重载，并缓存或注册别名 |
-| 性能 | 热路径避免每次按字符串键查表；**禁止** `obj[sig](...)` |
+| 性能 | 热路径避免每次按字符串键查表；**禁止** `obj[sig](/docs/spec/.../)` |
 | 一致 | Mono 与 Il2Cpp 选中同一重载，错误信息一致 |
 
 ---
@@ -39,7 +39,7 @@ flowchart LR
 2. **单候选 → direct；多候选 → dispatch**（§3.6）。
 3. **运行时**（§6）：`[LuaAlias]` 单候选键或本地缓存的 direct closure；`register_method` 仅允许挂到 **尚不存在** 的新最终名（§6.1），**不**并入已有函数或重载组。
 
-**不推荐：** 将签名字符串作为元表键做 `obj[sig](...)` 查找——低效，**不保留、不文档化**。
+**不推荐：** 将签名字符串作为元表键做 `obj[sig](/docs/spec/.../)` 查找——低效，**不保留、不文档化**。
 
 ---
 
@@ -74,7 +74,7 @@ flowchart LR
 
 ### 3.3 参数匹配规则
 
-在参数个数可接受的前提下，逐参数判断 Lua 实参是否可绑定到 C# 形参类型。规则与 [marshal/](marshal/) 的 `ReadValue` / `TryPop` 一致，包括但不限于：
+在参数个数可接受的前提下，逐参数判断 Lua 实参是否可绑定到 C# 形参类型。规则与 [marshal/](/docs/spec/marshal/) 的 `ReadValue` / `TryPop` 一致，包括但不限于：
 
 | Lua 实参 | C# 形参 | 规则 |
 |----------|---------|------|
@@ -165,7 +165,7 @@ local sig0 = __zlua_create_signature()
 
 **约定：**
 
-- 参数为 C# 类型：类型表、`zlua.types.*` 或 mscorlib 字符串（与 [05-LIB.md](05-LIB.md) typeArg 相同）
+- 参数为 C# 类型：类型表、`zlua.types.*` 或 mscorlib 字符串（与 [05-LIB.md](/docs/spec/05-LIB/) typeArg 相同）
 - **不包含** 方法名
 - 格式：括号包裹、逗号分隔的 **`Type.FullName`** 列表
 - 泛型、数组格式与 Codegen 元数据一致
@@ -268,7 +268,7 @@ public void Run(int value) { ... }
 
 ### 5.6 与 field / property 同名
 
-若最终方法名与 field / 无参 property 同名，`__index` 仍 **methodTable 优先**（见 [metatable/02-INDEX.md](metatable/02-INDEX.md)）。这与「方法—方法」重名进 overload 组是不同层规则。
+若最终方法名与 field / 无参 property 同名，`__index` 仍 **methodTable 优先**（见 [metatable/02-INDEX.md](/docs/spec/metatable/02-INDEX/)）。这与「方法—方法」重名进 overload 组是不同层规则。
 
 ---
 
@@ -341,7 +341,7 @@ Native：`__zlua_register_method`（Il2Cpp 已实现）。
 
 ### 6.2 `zlua.types`
 
-预置 mscorlib 类型名字符串，见 [05-LIB.md](05-LIB.md) §4.2。
+预置 mscorlib 类型名字符串，见 [05-LIB.md](/docs/spec/05-LIB/) §4.2。
 
 ---
 

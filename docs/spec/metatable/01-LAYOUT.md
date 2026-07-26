@@ -7,7 +7,7 @@ title: "元表布局"
 
 本文档规定 ZLua 在 Lua 侧暴露的**类型表**、**静态元表（SMT）**与**实例元表（IMT）**的结构。所有键名与 `LuaConsts.h` 一致；Lua 脚本通过成员访问、`typeof`、构造等 API 间接依赖这些布局，但不应依赖 native 实现细节（如 Dispatch 闭包、三表 upvalue 布局等——见 `impl/metatable/`）。
 
-**关联文档：** 成员索引算法 → [02-INDEX.md](./02-INDEX)；注册期规则 → [03-BINDING.md](./03-BINDING)；特殊类型 → [04-SPECIAL-TYPES.md](./04-SPECIAL-TYPES)；类型解析与 `CSharp` 路径 → [../02-TYPE-SYSTEM.md](../02-TYPE-SYSTEM)。
+**关联文档：** 成员索引算法 → [02-INDEX.md](/docs/spec/metatable/02-INDEX/)；注册期规则 → [03-BINDING.md](/docs/spec/metatable/03-BINDING/)；特殊类型 → [04-SPECIAL-TYPES.md](/docs/spec/metatable/04-SPECIAL-TYPES/)；类型解析与 `CSharp` 路径 → [../02-TYPE-SYSTEM.md](/docs/spec/02-TYPE-SYSTEM/)。
 
 ---
 
@@ -15,9 +15,9 @@ title: "元表布局"
 
 每个已绑定的 C# 类型在 Lua 中对应一张**类型表** `T`。`T` 是访问**静态成员**的门面：脚本写 `Type.StaticField`、`Type.StaticMethod()` 时，实际经由 `T` 的元表 **SMT** 上的 `__index` / `__newindex` 分派。
 
-**实例成员**挂在 userdata 的元表上。引用类型（class、interface、数组、委托、boxed enum 等）仅使用 **ByObj** 形态的 userdata 与一套 **ByObj 实例元表**。值类型 struct 同时支持 **ByVal**（payload 在 userdata 内）与 **ByObj**（boxed `Il2CppObject*`）两种 userdata，各挂接**独立**的实例元表；二者共享同一套成员名集合，但 bridge 在解析 `this` 时策略不同（摘要见 [04-SPECIAL-TYPES.md](./04-SPECIAL-TYPES)，细节见 [../marshal/05-STRUCT.md](../marshal/05-STRUCT)）。
+**实例成员**挂在 userdata 的元表上。引用类型（class、interface、数组、委托、boxed enum 等）仅使用 **ByObj** 形态的 userdata 与一套 **ByObj 实例元表**。值类型 struct 同时支持 **ByVal**（payload 在 userdata 内）与 **ByObj**（boxed `Il2CppObject*`）两种 userdata，各挂接**独立**的实例元表；二者共享同一套成员名集合，但 bridge 在解析 `this` 时策略不同（摘要见 [04-SPECIAL-TYPES.md](/docs/spec/metatable/04-SPECIAL-TYPES/)，细节见 [../marshal/05-STRUCT.md](/docs/spec/marshal/05-STRUCT/)）。
 
-静态绑定与实例绑定在注册期各自构建**独立的三张成员表**（`methodTable`、`fieldGetterTable`、`fieldSetterTable`，见 [02-INDEX.md](./02-INDEX)）。三表作为 indexer 闭包的 upvalue 或 registry 引用持有，**不**作为普通键挂在 `T` 或 `IMT` 的可见字段上，避免用户脚本误改分派表。
+静态绑定与实例绑定在注册期各自构建**独立的三张成员表**（`methodTable`、`fieldGetterTable`、`fieldSetterTable`，见 [02-INDEX.md](/docs/spec/metatable/02-INDEX/)）。三表作为 indexer 闭包的 upvalue 或 registry 引用持有，**不**作为普通键挂在 `T` 或 `IMT` 的可见字段上，避免用户脚本误改分派表。
 
 类型在**首次被访问**时通过 `EnsureBinding` 完整构建元表与成员表（延迟绑定），而非启动时全量注册。
 
@@ -43,7 +43,7 @@ title: "元表布局"
 
 `T` 的元表为 **SMT**（`lua_setmetatable(T, SMT)`）。静态成员读写一律经 SMT 的 `__index` / `__newindex`，不得把静态成员混入实例 userdata 的元表。
 
-**禁止**在 `T` 上注册与 `SMT.__call` 等价的 `_ctor` 字段；class / struct 带参构造仅通过 `Type(...)` 触发 `SMT.__call`（见 [04-SPECIAL-TYPES.md](./04-SPECIAL-TYPES)）。
+**禁止**在 `T` 上注册与 `SMT.__call` 等价的 `_ctor` 字段；class / struct 带参构造仅通过 `Type(...)` 触发 `SMT.__call`（见 [04-SPECIAL-TYPES.md](/docs/spec/metatable/04-SPECIAL-TYPES/)）。
 
 ---
 
@@ -60,9 +60,9 @@ SMT
 └─ _default     → 可选；**仅 struct** 的无参默认实例 closure（键名 LuaConsts::Default）
 ```
 
-`__call` 与 `_default` 挂在 **SMT 本体**上，不进入三表。静态 `__index` 在三表均未命中时，须能回退到对 SMT 的 `rawget`（例如取 `_default` closure），再未命中则返回 `nil`（见 [02-INDEX.md](./02-INDEX)）。
+`__call` 与 `_default` 挂在 **SMT 本体**上，不进入三表。静态 `__index` 在三表均未命中时，须能回退到对 SMT 的 `rawget`（例如取 `_default` closure），再未命中则返回 `nil`（见 [02-INDEX.md](/docs/spec/metatable/02-INDEX/)）。
 
-enum 的 SMT **无** `__call`；Nullable 的 SMT **仅** `__call`（构造 element 类型 `T` 的值），**无** `__index` / `__newindex`（见 [04-SPECIAL-TYPES.md](./04-SPECIAL-TYPES)）。
+enum 的 SMT **无** `__call`；Nullable 的 SMT **仅** `__call`（构造 element 类型 `T` 的值），**无** `__index` / `__newindex`（见 [04-SPECIAL-TYPES.md](/docs/spec/metatable/04-SPECIAL-TYPES/)）。
 
 ---
 
@@ -78,8 +78,8 @@ IMT（ByVal 或 ByObj）
 ├─ __type       → 指回类型表 T（静实例互查）
 ├─ __zlua_ud_kind → "byval" | "byobj"（LuaConsts::UdKindByVal / UdKindByObj）
 ├─ __tostring   → 可选（如 boxed struct / enum 走 Object.ToString）
-├─ __len        → 可选（**数组** szarray / mdarray，见 [04-SPECIAL-TYPES.md](./04-SPECIAL-TYPES)）
-└─ __call       → 可选（**仅委托** ByObj userdata，见 [04-SPECIAL-TYPES.md](./04-SPECIAL-TYPES)）
+├─ __len        → 可选（**数组** szarray / mdarray，见 [04-SPECIAL-TYPES.md](/docs/spec/metatable/04-SPECIAL-TYPES/)）
+└─ __call       → 可选（**仅委托** ByObj userdata，见 [04-SPECIAL-TYPES.md](/docs/spec/metatable/04-SPECIAL-TYPES/)）
 ```
 
 ### 4.1 ByVal 实例元表（`T.__byval_instance_mt`）
@@ -98,7 +98,7 @@ IMT（ByVal 或 ByObj）
 - struct 除 ByVal IMT 外**另建** ByObj IMT；enum 仅有 ByObj IMT（供 `zlua.box` 产物）。
 - 委托在 ByObj IMT 上额外挂 `__call`，使 `delegate(arg1, …)` 直接 invoke。
 
-**禁止**在 IMT 根上重复挂载与三表同名的成员键。实例 userdata **不得**通过 `__index` 隐式访问静态成员；须使用类型表 `T`（见 [../02-TYPE-SYSTEM.md](../02-TYPE-SYSTEM) §3.3）。
+**禁止**在 IMT 根上重复挂载与三表同名的成员键。实例 userdata **不得**通过 `__index` 隐式访问静态成员；须使用类型表 `T`（见 [../02-TYPE-SYSTEM.md](/docs/spec/02-TYPE-SYSTEM/) §3.3）。
 
 ---
 
@@ -112,7 +112,7 @@ IMT（ByVal 或 ByObj）
 | `T.__byobj_instance_mt` → ByObj IMT | 构造 class、boxed struct、boxed enum、数组等时挂接元表 |
 | `IMT.__type` → `T` | 从实例反查类型、`zlua.typeof`、重载注册等 |
 
-同一托管对象可因 **view 类型**不同而对应不同 `T` / IMT，但 identity 仍为同一实例；`zlua.cast` 用于切换门面（Marshal 见 [../marshal/06-CLASS.md](../marshal/06-CLASS)）。
+同一托管对象可因 **view 类型**不同而对应不同 `T` / IMT，但 identity 仍为同一实例；`zlua.cast` 用于切换门面（Marshal 见 [../marshal/06-CLASS.md](/docs/spec/marshal/06-CLASS/)）。
 
 ---
 
@@ -137,4 +137,4 @@ enum 常量等可直接写入 `T` 的步骤可在挂接 SMT 之前或之后，�
 
 ## 8. 延迟绑定 `EnsureBinding`
 
-`EnsureBinding(klass)` 在类型**第一次**需要成员分派或构造元表时执行：扫描 public 成员、沿继承链扁平化写入静/实例三表（见 [03-BINDING.md](./03-BINDING)），创建 SMT / IMT 并建立 §5 互查引用。未闭合泛型定义、含未绑定泛型参数的类型的绑定策略由类型系统分册规定；本目录仅要求：**一旦绑定完成，Lua 可见布局与索引语义稳定且与本文一致**。
+`EnsureBinding(klass)` 在类型**第一次**需要成员分派或构造元表时执行：扫描 public 成员、沿继承链扁平化写入静/实例三表（见 [03-BINDING.md](/docs/spec/metatable/03-BINDING/)），创建 SMT / IMT 并建立 §5 互查引用。未闭合泛型定义、含未绑定泛型参数的类型的绑定策略由类型系统分册规定；本目录仅要求：**一旦绑定完成，Lua 可见布局与索引语义稳定且与本文一致**。

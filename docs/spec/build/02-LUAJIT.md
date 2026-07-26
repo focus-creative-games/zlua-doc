@@ -6,16 +6,16 @@ title: "LuaJIT 构建"
 # 构建 — LuaJIT
 
 > 本文约定 ZLua 在 **Editor（Mono）** 与 **Il2Cpp Player** 上如何接入 **LuaJIT**。  
-> 官方 Lua（PUC-Rio）见 [01-OFFICIAL-LUA.md](01-OFFICIAL-LUA.md)。  
-> Mono × JIT 的 `lua_error` gate 见 [03-MONO-LUAJIT-CALLBACK-GATE.md](03-MONO-LUAJIT-CALLBACK-GATE.md)。  
-> 包布局、Install、Define 总规范见 [11-MULTI-VERSION.md](../11-MULTI-VERSION.md)。  
+> 官方 Lua（PUC-Rio）见 [01-OFFICIAL-LUA.md](/docs/spec/build/01-OFFICIAL-LUA/)。  
+> Mono × JIT 的 `lua_error` gate 见 [03-MONO-LUAJIT-CALLBACK-GATE.md](/docs/spec/build/03-MONO-LUAJIT-CALLBACK-GATE/)。  
+> 包布局、Install、Define 总规范见 [11-MULTI-VERSION.md](/docs/spec/11-MULTI-VERSION/)。  
 > 本文不改变 Lua 可见互操作语义。若与旧述「将完整 LuaJIT `src/` 拷入 `libil2cpp/lua`」冲突，**以本文为准**。
 
 ---
 
 ## 1. 与 PUC-Rio 的对比（摘要）
 
-| | **LuaJIT（本文）** | **PUC-Rio**（[01-OFFICIAL-LUA.md](01-OFFICIAL-LUA.md)） |
+| | **LuaJIT（本文）** | **PUC-Rio**（[01-OFFICIAL-LUA.md](/docs/spec/build/01-OFFICIAL-LUA/)） |
 |--|--------------------|----------------------------------------------------------|
 | Settings id | `luajit-{major}.{minor}`（如 `luajit-2.1`） | `lua-X.Y.Z` |
 | 源码缓存 | `LuaSrcCache/` 下 **手动 clone**（不自动下载；目录名以实现为准，常见 `luajit-2.1`） | 可自动下载 |
@@ -63,7 +63,7 @@ LuaJIT 构建是 **两阶段**：
 | Define | `ZLUA_USE_LUAJIT`（及实现所用的 `ZLUA_LUAJIT_2_0` / `ZLUA_LUAJIT_2_1` 等） |
 | 动态库 | 开发者自备，逻辑名以实现为准（如 `luajit21` → `Plugins/x64/luajit21.dll`） |
 | 源码 | 不强制编进 Editor；与 Il2Cpp 头文件 / `.a` 使用 **同一上游版本与关键宏** |
-| `lua_error` | **不得**在托管 reverse-P/Invoke 帧内直接调用。须经 **native callback gate**（与 PUC Editor 相同）→ [03-MONO-LUAJIT-CALLBACK-GATE.md](03-MONO-LUAJIT-CALLBACK-GATE.md) |
+| `lua_error` | **不得**在托管 reverse-P/Invoke 帧内直接调用。须经 **native callback gate**（与 PUC Editor 相同）→ [03-MONO-LUAJIT-CALLBACK-GATE.md](/docs/spec/build/03-MONO-LUAJIT-CALLBACK-GATE/) |
 
 ---
 
@@ -103,7 +103,7 @@ LuaJIT 构建是 **两阶段**：
 
 | 项 | 态度 |
 |----|------|
-| **WebGL / Win / macOS / Linux Il2Cpp + LuaJIT** | **不支持**；Il2Cpp + LuaJIT **仅 Android / iOS**。其它平台请改用 PUC-Rio（[01-OFFICIAL-LUA.md](01-OFFICIAL-LUA.md)）。Settings 为 JIT 时构建不支持的目标应 **失败并明确提示** |
+| **WebGL / Win / macOS / Linux Il2Cpp + LuaJIT** | **不支持**；Il2Cpp + LuaJIT **仅 Android / iOS**。其它平台请改用 PUC-Rio（[01-OFFICIAL-LUA.md](/docs/spec/build/01-OFFICIAL-LUA/)）。Settings 为 JIT 时构建不支持的目标应 **失败并明确提示** |
 | **Win / macOS / Linux Il2Cpp Player + 仅动态库** | **不支持**（与上同；不以动态库作为 Il2Cpp 交付路径） |
 | **Il2Cpp 内现场跑 DynASM/buildvm** | **不做** |
 
@@ -123,7 +123,7 @@ LuaJIT 构建是 **两阶段**：
 
 - [ ] 已 clone 源码到 `LuaSrcCache`；执行 Install  
 - [ ] `Local.../libil2cpp/lua` **仅有头文件**（无 `lj_*.c` 等）  
-- [ ] Editor：`luajit21`（或约定名）动态库就位；具备 [callback gate](03-MONO-LUAJIT-CALLBACK-GATE.md) 原生库  
+- [ ] Editor：`luajit21`（或约定名）动态库就位；具备 [callback gate](/docs/spec/build/03-MONO-LUAJIT-CALLBACK-GATE/) 原生库  
 - [ ] Define：`ZLUA_USE_LUAJIT`；`ZLUA_FAST_METATABLE` 为 `0`  
 - [ ] Il2Cpp Android/iOS：对应 ABI 的 **`libluajit.a`（或约定名）已在 Plugins 且平台已启用**  
 - [ ] 不在 WebGL 上使用本配置  
@@ -134,7 +134,7 @@ LuaJIT 构建是 **两阶段**：
 
 | 文档 | 内容 |
 |------|------|
-| [11-MULTI-VERSION.md](../11-MULTI-VERSION.md) | UPM、Install、Define、fingerprint |
-| [01-OFFICIAL-LUA.md](01-OFFICIAL-LUA.md) | PUC-Rio 源码进树 |
+| [11-MULTI-VERSION.md](/docs/spec/11-MULTI-VERSION/) | UPM、Install、Define、fingerprint |
+| [01-OFFICIAL-LUA.md](/docs/spec/build/01-OFFICIAL-LUA/) | PUC-Rio 源码进树 |
 | **本文** | LuaJIT 头文件 + `.a`、平台限制 |
-| [03-MONO-LUAJIT-CALLBACK-GATE.md](03-MONO-LUAJIT-CALLBACK-GATE.md) | Editor Mono × JIT 的 `lua_error` 安全边界 |
+| [03-MONO-LUAJIT-CALLBACK-GATE.md](/docs/spec/build/03-MONO-LUAJIT-CALLBACK-GATE/) | Editor Mono × JIT 的 `lua_error` 安全边界 |

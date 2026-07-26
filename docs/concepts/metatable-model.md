@@ -7,7 +7,7 @@ description: obj_indexer 三表分派与 strict miss 策略。
 # 元表模型
 
 :::tip 谁该读本文
-**需要理解 `obj:Member` 底层如何查表、为何报错「member not found」的开发者。** 日常用法见 [字段与属性](../guides/fields-and-properties)、[方法重载](../guides/methods-and-overloads)。
+**需要理解 `obj:Member` 底层如何查表、为何报错「member not found」的开发者。** 日常用法见 [字段与属性](/docs/guides/fields-and-properties/)、[方法重载](/docs/guides/methods-and-overloads/)。
 :::
 
 Lua 通过 **`__index` / `__newindex`** 访问 C# 静态与实例成员。ZLua 采用 **三表分派 + strict miss**：未注册成员直接 `luaL_error`，**不**回退到 C# 反射。
@@ -95,13 +95,13 @@ demo:PrivateMethod()        -- error（private 未注册）
 
 | 问题 | 文档 |
 |------|------|
-| dispatch 算法 | [方法重载规范](../spec/04-METHOD-OVERLOAD) |
-| Property / Event | [类型系统规范](../spec/02-TYPE-SYSTEM)；Event 用 `add_`/`remove_` |
-| 完整 obj_indexer 规格 | [元表索引规范](../spec/metatable/) |
-| 远期 VM 快路径 | [VM 索引规范](../spec/metatable/02-INDEX) |
+| dispatch 算法 | [方法重载规范](/docs/spec/04-METHOD-OVERLOAD/) |
+| Property / Event | [类型系统规范](/docs/spec/02-TYPE-SYSTEM/)；Event 用 `add_`/`remove_` |
+| 完整 obj_indexer 规格 | [元表索引规范](/docs/spec/metatable/) |
+| 远期 VM 快路径 | [VM 索引规范](/docs/spec/metatable/02-INDEX/) |
 
 ## 相关文档
 
-- [类型系统概览](./type-system-overview)
-- [CSharp 根表参考](../reference/lua/csharp-root)
-- [元表索引规范](../spec/metatable/)
+- [类型系统概览](/docs/concepts/type-system-overview/)
+- [CSharp 根表参考](/docs/reference/lua/csharp-root/)
+- [元表索引规范](/docs/spec/metatable/)

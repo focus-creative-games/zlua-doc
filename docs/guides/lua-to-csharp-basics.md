@@ -58,7 +58,7 @@ Demo 在 [app.lua 第 1 行](https://github.com/focus-creative-games/zlua-demo/b
 local demo = CSharp.AC.Demo()
 ```
 
-等价于 C# 的 `new Demo()`。有参构造支持重载 dispatch；多构造函数见 [方法重载](./methods-and-overloads)。
+等价于 C# 的 `new Demo()`。有参构造支持重载 dispatch；多构造函数见 [方法重载](/docs/guides/methods-and-overloads/)。
 
 ## 静态成员
 
@@ -95,7 +95,7 @@ print(demo.x)
 
 ## 继承
 
-子类实例可调用基类 public 实例成员；静态成员走 **声明类型** 的类型表。继承链上的重载与 `new` 隐藏规则见 [类型系统规范](../spec/02-TYPE-SYSTEM) §5。
+子类实例可调用基类 public 实例成员；静态成员走 **声明类型** 的类型表。继承链上的重载与 `new` 隐藏规则见 [类型系统规范](/docs/spec/02-TYPE-SYSTEM/) §5。
 
 ## nil 与 null
 
@@ -153,16 +153,22 @@ end
 
 
 
+
+
+
+
+
+
 ## 学习路径
 
 | | |
 |---|---|
-| **上一篇** | [C# 调用 Lua](./csharp-to-lua) |
-| **下一篇** | [字段与属性](./fields-and-properties) |
+| **上一篇** | [C# 调用 Lua](/docs/guides/csharp-to-lua/) |
+| **下一篇** | [字段与属性](/docs/guides/fields-and-properties/) |
 
 ## 相关文档
 
-- [字段与属性](./fields-and-properties)
-- [方法重载](./methods-and-overloads)
-- [类型系统规范](../spec/02-TYPE-SYSTEM)
-- [CSharp API 参考](../reference/lua/csharp-root)
+- [字段与属性](/docs/guides/fields-and-properties/)
+- [方法重载](/docs/guides/methods-and-overloads/)
+- [类型系统规范](/docs/spec/02-TYPE-SYSTEM/)
+- [CSharp API 参考](/docs/reference/lua/csharp-root/)

@@ -56,7 +56,7 @@ delegate int LuaCSFunction(IntPtr L);
 | 场景 | 是否需要 |
 |------|----------|
 | `obj:Method()` / `Type.Static()` | ❌ 自动桥接 |
-| Lua function → C# delegate 形参 | ❌ 隐式 marshal，见 [回调指南](../../guides/callbacks-and-delegates) |
+| Lua function → C# delegate 形参 | ❌ 隐式 marshal，见 [回调指南](/docs/guides/callbacks-and-delegates/) |
 | ZLua 内部 `__zlua_*` native 回调注册 | ✅ 框架内部使用 |
 | 扩展 native 模块、自定义 `lua_pushcfunction` | ✅ 高级场景 |
 
@@ -80,6 +80,6 @@ Player 侧 native 桥由 C++ 生成；游戏 C# 代码 **极少** 需要 MonoLua
 
 ## 相关文档
 
-- [回调与 Delegate 指南](../../guides/callbacks-and-delegates)
-- [Function Marshal 规范](../../spec/marshal/09-FUNCTION)
-- [设计规范](../../spec/00-OVERVIEW)
+- [回调与 Delegate 指南](/docs/guides/callbacks-and-delegates/)
+- [Function Marshal 规范](/docs/spec/marshal/09-FUNCTION/)
+- [设计规范](/docs/spec/00-OVERVIEW/)

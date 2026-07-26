@@ -6,7 +6,7 @@ title: "枚举 Marshal"
 # 枚举 Marshal
 
 > **规范性：** C# `enum` 在 Lua 与 C# 之间的默认 Marshal 规则。  
-> **相关：** 类型表常量字段 → [`../02-TYPE-SYSTEM.md`](../02-TYPE-SYSTEM) §枚举；boxed 形态 → [`../05-LIB.md`](../05-LIB) `box`/`unbox`；`ref` enum → [`03-BYREF.md`](./03-BYREF)；`[LuaMarshalAs]` → [`02-MARSHAL-AS.md`](./02-MARSHAL-AS)。
+> **相关：** 类型表常量字段 → [`../02-TYPE-SYSTEM.md`](/docs/spec/02-TYPE-SYSTEM/) §枚举；boxed 形态 → [`../05-LIB.md`](/docs/spec/05-LIB/) `box`/`unbox`；`ref` enum → [`03-BYREF.md`](/docs/spec/marshal/03-BYREF/)；`[LuaMarshalAs]` → [`02-MARSHAL-AS.md`](/docs/spec/marshal/02-MARSHAL-AS/)。
 
 **平台原则：** Mono 与 Il2Cpp 的 **Lua 可见语义一致**；枚举默认 **不** 推送 userdata，而按 **integer / number** Marshal。
 
@@ -19,7 +19,7 @@ title: "枚举 Marshal"
 | 场景 | 形态 |
 |------|------|
 | **默认传参** | **integer**（Lua 5.4+ 优先）或 **number** |
-| **boxed 实例** | **ByObjUserData**；**仅** 经显式 [`zlua.box`](../05-LIB) |
+| **boxed 实例** | **ByObjUserData**；**仅** 经显式 [`zlua.box`](/docs/spec/05-LIB/) |
 | **类型表常量** | **integer / number** 字段（**非** userdata） |
 
 枚举类型表 **无** `SMT.__call`；**不可** 像 struct 那样 `EnumType(...)` 构造 ByVal userdata。
@@ -51,7 +51,7 @@ Codegen / 反射须读取枚举 **underlying type**（`System.Int32`、`System.B
 
 Pop 时校验 Lua 整型值是否落在底层类型可表示范围内；越界 → `luaL_error`。
 
-整型基元规则（integer vs number）见 [`01-OVERVIEW.md`](./01-OVERVIEW) §1.1。
+整型基元规则（integer vs number）见 [`01-OVERVIEW.md`](/docs/spec/marshal/01-OVERVIEW/) §1.1。
 
 ---
 
@@ -75,7 +75,7 @@ foo(Color.Red)
 foo(1)   -- 裸整型，须能转换为该 enum
 ```
 
-详见 [`../02-TYPE-SYSTEM.md`](../02-TYPE-SYSTEM) §枚举类型。
+详见 [`../02-TYPE-SYSTEM.md`](/docs/spec/02-TYPE-SYSTEM/) §枚举类型。
 
 ---
 
@@ -99,13 +99,13 @@ local boxed2 = zlua.box(Color, 2)
 
 作为 **enum 形参** 传入 C# 时，ByObjUserData 与 integer/number **均接受**（§2）。
 
-**`zlua.box` 产物用于 `ref Color`：** 为 ByObjUserData，走 [`03-BYREF.md`](./03-BYREF) **引用/临时槽** 路径（非 ByValUserData payload 直传）。
+**`zlua.box` 产物用于 `ref Color`：** 为 ByObjUserData，走 [`03-BYREF.md`](/docs/spec/marshal/03-BYREF/) **引用/临时槽** 路径（非 ByValUserData payload 直传）。
 
 ---
 
 ## 6. `ref` / `out` / `in` enum 形参
 
-见 [`03-BYREF.md`](./03-BYREF)：
+见 [`03-BYREF.md`](/docs/spec/marshal/03-BYREF/)：
 
 | Lua 实参 | 行为 |
 |----------|------|
@@ -114,7 +114,7 @@ local boxed2 = zlua.box(Color, 2)
 | **integer / number** | 拷贝进栈临时变量，传临时地址；Lua 裸值 **不变** |
 | **`zlua.box` 产物**（ByObj） | 指针写入临时槽，传临时地址 |
 
-C#→Lua：`ref enum` 默认 **OpaqueValue**；见 [`04-OPAQUE.md`](./04-OPAQUE)。
+C#→Lua：`ref enum` 默认 **OpaqueValue**；见 [`04-OPAQUE.md`](/docs/spec/marshal/04-OPAQUE/)。
 
 ---
 
@@ -129,7 +129,7 @@ C#→Lua：`ref enum` 默认 **OpaqueValue**；见 [`04-OPAQUE.md`](./04-OPAQUE)
 
 boxed 形态仍须 **`zlua.box`**；**无** enum `SMT.__call`。
 
-非法标注行为见 [`02-MARSHAL-AS.md`](./02-MARSHAL-AS) §非法标注。
+非法标注行为见 [`02-MARSHAL-AS.md`](/docs/spec/marshal/02-MARSHAL-AS/) §非法标注。
 
 ---
 
@@ -141,7 +141,7 @@ boxed 形态仍须 **`zlua.box`**；**无** enum `SMT.__call`。
 | 类型表 `__call` | **无** | `.ctor` | `.ctor` |
 | boxed / 实例构造 | 仅 `zlua.box` | `Type(...)` / `_default` | `Type(...)` |
 | 类型表常量 | integer/number | 通常无 | 静态成员 |
-| `ref` 写回 | Opaque / 匹配 ByValUserData | ByValUserData / Opaque；其它进临时槽 | 见 [`06-CLASS.md`](./06-CLASS) |
+| `ref` 写回 | Opaque / 匹配 ByValUserData | ByValUserData / Opaque；其它进临时槽 | 见 [`06-CLASS.md`](/docs/spec/marshal/06-CLASS/) |
 
 ---
 
@@ -161,9 +161,9 @@ boxed 形态仍须 **`zlua.box`**；**无** enum `SMT.__call`。
 
 | 文档 | 内容 |
 |------|------|
-| [`01-OVERVIEW.md`](./01-OVERVIEW) | 默认矩阵、integer/number |
-| [`03-BYREF.md`](./03-BYREF) | `ref` / `out` / `in` |
-| [`04-OPAQUE.md`](./04-OPAQUE) | C#→Lua byref |
-| [`05-STRUCT.md`](./05-STRUCT) | ByVal / ByObj 与 box 对比 |
-| [`../02-TYPE-SYSTEM.md`](../02-TYPE-SYSTEM) | 枚举类型表结构 |
-| [`../05-LIB.md`](../05-LIB) | `box`、`unbox` |
+| [`01-OVERVIEW.md`](/docs/spec/marshal/01-OVERVIEW/) | 默认矩阵、integer/number |
+| [`03-BYREF.md`](/docs/spec/marshal/03-BYREF/) | `ref` / `out` / `in` |
+| [`04-OPAQUE.md`](/docs/spec/marshal/04-OPAQUE/) | C#→Lua byref |
+| [`05-STRUCT.md`](/docs/spec/marshal/05-STRUCT/) | ByVal / ByObj 与 box 对比 |
+| [`../02-TYPE-SYSTEM.md`](/docs/spec/02-TYPE-SYSTEM/) | 枚举类型表结构 |
+| [`../05-LIB.md`](/docs/spec/05-LIB/) | `box`、`unbox` |

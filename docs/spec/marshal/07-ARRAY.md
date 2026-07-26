@@ -6,7 +6,7 @@ title: "数组 Marshal"
 # 数组 Marshal
 
 > **规范性：** 一维向量数组（szarray）、多维数组（mdarray）及 `byte[]` 在 Lua 与 C# 之间的 Marshal 规则。  
-> **相关：** 类型表、创建、`#`、`get`/`set` → [`../02-TYPE-SYSTEM.md`](../02-TYPE-SYSTEM) §数组；`zlua.to_bytes` / `to_table` → [`../05-LIB.md`](../05-LIB)；class ByObj 基础 → [`06-CLASS.md`](./06-CLASS)；`[LuaMarshalAs]` → [`02-MARSHAL-AS.md`](./02-MARSHAL-AS)。
+> **相关：** 类型表、创建、`#`、`get`/`set` → [`../02-TYPE-SYSTEM.md`](/docs/spec/02-TYPE-SYSTEM/) §数组；`zlua.to_bytes` / `to_table` → [`../05-LIB.md`](/docs/spec/05-LIB/)；class ByObj 基础 → [`06-CLASS.md`](/docs/spec/marshal/06-CLASS/)；`[LuaMarshalAs]` → [`02-MARSHAL-AS.md`](/docs/spec/marshal/02-MARSHAL-AS/)。
 
 **平台原则：** Mono 与 Il2Cpp 的 **Lua 可见语义一致**；数组实例为 **ByObjUserData**（引用类型，走 ObjectRegistry / GCHandle 路径）。
 
@@ -22,7 +22,7 @@ title: "数组 Marshal"
 | **`T[,…]`（mdarray）** | **ByObjUserData** | **仅** **ByObjUserData** | **不** 接受 table |
 | **`byte[]`** | 同 szarray | 同 szarray | 除非 `[LuaMarshalAs(Bytes)]` → ↔ Lua **string**（§6） |
 
-数组实例统一 Push 为 **ByObjUserData**（`ObjectUserData` + 数组 ByObj 实例元表；载荷为 `Il2CppArray*` / 托管数组引用）。脚本侧经 `get` / `set`、`#arr`、`GetValue` / `SetValue` 等访问，见 [`../02-TYPE-SYSTEM.md`](../02-TYPE-SYSTEM)。
+数组实例统一 Push 为 **ByObjUserData**（`ObjectUserData` + 数组 ByObj 实例元表；载荷为 `Il2CppArray*` / 托管数组引用）。脚本侧经 `get` / `set`、`#arr`、`GetValue` / `SetValue` 等访问，见 [`../02-TYPE-SYSTEM.md`](/docs/spec/02-TYPE-SYSTEM/)。
 
 ---
 
@@ -34,8 +34,8 @@ title: "数组 Marshal"
 | **`null`** | **`nil`** |
 | 元素 Push | 按元素类型 `T` 的默认 marshal（基元 → integer/number；引用类型 → userdata；enum → integer/number） |
 | **`[LuaMarshalAs(Bytes)]` on `byte[]`** | Push Lua **string**（原始 octet 序列，非 UTF-8 文本语义） |
-| **`[LuaMarshalAs(OpaqueValue)]`** | Push **OpaqueValue**（仅 C#→Lua）；见 [`04-OPAQUE.md`](./04-OPAQUE) |
-| **`params T[]` 返回值 / 形参（C#→Lua）** | 与 szarray 相同：Push **ByObjUserData**（**不** 默认 Push table）；`ParamsTable` 例外见 [`02-MARSHAL-AS.md`](./02-MARSHAL-AS) |
+| **`[LuaMarshalAs(OpaqueValue)]`** | Push **OpaqueValue**（仅 C#→Lua）；见 [`04-OPAQUE.md`](/docs/spec/marshal/04-OPAQUE/) |
+| **`params T[]` 返回值 / 形参（C#→Lua）** | 与 szarray 相同：Push **ByObjUserData**（**不** 默认 Push table）；`ParamsTable` 例外见 [`02-MARSHAL-AS.md`](/docs/spec/marshal/02-MARSHAL-AS/) |
 
 ---
 
@@ -51,7 +51,7 @@ title: "数组 Marshal"
 
 ### 3.1 table 形态约束
 
-与 [`02-MARSHAL-AS.md`](./02-MARSHAL-AS) 中顺序 table 规则相同：
+与 [`02-MARSHAL-AS.md`](/docs/spec/marshal/02-MARSHAL-AS/) 中顺序 table 规则相同：
 
 | 接受 | 拒绝 |
 |------|------|
@@ -101,7 +101,7 @@ CS.Demo.Process(nil)
 | **`GetValue` / `SetValue`** | 仍可用；`GetValue` 返回 **`object`（装箱）** |
 | **`#arr`** | szarray → `Length`；mdarray → 各维长度之积 |
 
-详见 [`../02-TYPE-SYSTEM.md`](../02-TYPE-SYSTEM) 数组章节。
+详见 [`../02-TYPE-SYSTEM.md`](/docs/spec/02-TYPE-SYSTEM/) 数组章节。
 
 > **与 `zlua.to_table` 的下标差异：** `to_table` 产出 **1 基** Lua 表（`t[i]` ↔ `arr[i-1]`）；`get`/`set` 使用 **C# 下标**。
 
@@ -127,7 +127,7 @@ CS.Demo.Process(nil)
 
 ## 7. `params T[]` 形参
 
-`params T[]` Marshal 规则与 §1.2 szarray **相同**（ByObjUserData 或 table）；差异在 Lua 传参形态与空/null 语义。详见 [`02-MARSHAL-AS.md`](./02-MARSHAL-AS) §ParamsTable。
+`params T[]` Marshal 规则与 §1.2 szarray **相同**（ByObjUserData 或 table）；差异在 Lua 传参形态与空/null 语义。详见 [`02-MARSHAL-AS.md`](/docs/spec/marshal/02-MARSHAL-AS/) §ParamsTable。
 
 要点摘要：
 
@@ -140,13 +140,13 @@ CS.Demo.Process(nil)
 
 Lua **不支持** C# 式多槽隐式收集（`Sum(1, 2, 3)` **非法**）；须 **单个** 实参占据 `params` 位。
 
-**GetFunction 取得的 delegate 调用 / delegate bridge** 上的 `params` **不支持**；见 [`09-FUNCTION.md`](./09-FUNCTION)。
+**GetFunction 取得的 delegate 调用 / delegate bridge** 上的 `params` **不支持**；见 [`09-FUNCTION.md`](/docs/spec/marshal/09-FUNCTION/)。
 
 ---
 
 ## 8. `zlua.to_bytes` / `zlua.to_table`
 
-由 [`../05-LIB.md`](../05-LIB) 提供的 **szarray 辅助转换**（不改变默认 Pop/Push 规则，仅便利 API）。
+由 [`../05-LIB.md`](/docs/spec/05-LIB/) 提供的 **szarray 辅助转换**（不改变默认 Pop/Push 规则，仅便利 API）。
 
 ### 8.1 `zlua.to_bytes`
 
@@ -169,7 +169,7 @@ local vbytes = zlua.to_bytes(vec3_arr)   -- Vector3[]（blittable）亦可
 
 **Native：** `__zlua_to_bytes`
 
-细则亦见 [`../05-LIB.md`](../05-LIB) §8.3。
+细则亦见 [`../05-LIB.md`](/docs/spec/05-LIB/) §8.3。
 
 ### 8.2 `zlua.to_table`
 
@@ -219,7 +219,7 @@ local arr = zlua.new_szarray_by_element_type(zlua.types.int32, 10)
 local matrix = zlua.new_mdarray_by_spec(zlua.types.int32, { 0, 0 }, { 2, 3 })
 ```
 
-详见 [`../02-TYPE-SYSTEM.md`](../02-TYPE-SYSTEM) 与 [`../05-LIB.md`](../05-LIB)。
+详见 [`../02-TYPE-SYSTEM.md`](/docs/spec/02-TYPE-SYSTEM/) 与 [`../05-LIB.md`](/docs/spec/05-LIB/)。
 
 ---
 
@@ -227,8 +227,8 @@ local matrix = zlua.new_mdarray_by_spec(zlua.types.int32, { 0, 0 }, { 2, 3 })
 
 | 路径 | 规则 |
 |------|------|
-| **Lua → C#** | 见 [`03-BYREF.md`](./03-BYREF)、[`06-CLASS.md`](./06-CLASS) §5：共享引用；**无 rebind** |
-| **C# → Lua**（GetFunction 取得的 delegate / delegate bridge） | 默认 **OpaqueValue**；见 [`04-OPAQUE.md`](./04-OPAQUE) |
+| **Lua → C#** | 见 [`03-BYREF.md`](/docs/spec/marshal/03-BYREF/)、[`06-CLASS.md`](/docs/spec/marshal/06-CLASS/) §5：共享引用；**无 rebind** |
+| **C# → Lua**（GetFunction 取得的 delegate / delegate bridge） | 默认 **OpaqueValue**；见 [`04-OPAQUE.md`](/docs/spec/marshal/04-OPAQUE/) |
 
 对 **可变数组** 原地修改（`ref int[]` 改元素）→ Lua 侧 **可见**；`ref arr = otherArray` **不回写** Lua 变量。
 
@@ -250,8 +250,8 @@ local matrix = zlua.new_mdarray_by_spec(zlua.types.int32, { 0, 0 }, { 2, 3 })
 
 | 文档 | 内容 |
 |------|------|
-| [`06-CLASS.md`](./06-CLASS) | ByObjUserData、门面、ref 引用类型 |
-| [`02-MARSHAL-AS.md`](./02-MARSHAL-AS) | `Bytes`、`ParamsTable`、`OpaqueValue` |
-| [`03-BYREF.md`](./03-BYREF) | `ref` / `out` / `in` |
-| [`../02-TYPE-SYSTEM.md`](../02-TYPE-SYSTEM) | 数组类型表、`get`/`set`、`#` |
-| [`../05-LIB.md`](../05-LIB) | `make_szarray_type`、`to_bytes`、`to_table` |
+| [`06-CLASS.md`](/docs/spec/marshal/06-CLASS/) | ByObjUserData、门面、ref 引用类型 |
+| [`02-MARSHAL-AS.md`](/docs/spec/marshal/02-MARSHAL-AS/) | `Bytes`、`ParamsTable`、`OpaqueValue` |
+| [`03-BYREF.md`](/docs/spec/marshal/03-BYREF/) | `ref` / `out` / `in` |
+| [`../02-TYPE-SYSTEM.md`](/docs/spec/02-TYPE-SYSTEM/) | 数组类型表、`get`/`set`、`#` |
+| [`../05-LIB.md`](/docs/spec/05-LIB/) | `make_szarray_type`、`to_bytes`、`to_table` |

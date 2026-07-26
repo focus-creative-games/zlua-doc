@@ -6,7 +6,7 @@ description: ZLua 常见问题诊断与解决方案。
 
 # 排错指南
 
-开发期可在 **Editor（Mono）** 快速迭代；Player 问题先确认 **`ZLua/Generate/All`** 与 [兼容性](../getting-started/compatibility)。
+开发期可在 **Editor（Mono）** 快速迭代；Player 问题先确认 **`ZLua/Generate/All`** 与 [兼容性](/docs/getting-started/compatibility/)。
 
 Canonical 工程：[zlua-demo](https://github.com/focus-creative-games/zlua-demo)
 
@@ -39,7 +39,7 @@ Canonical 工程：[zlua-demo](https://github.com/focus-creative-games/zlua-demo
 
 ### Event `.get` / `.set` 为 nil
 
-已废弃。改用 `add_OnX` / `remove_OnX`。见 [Event](./events)。
+已废弃。改用 `add_OnX` / `remove_OnX`。见 [Event](/docs/guides/events/)。
 
 ---
 
@@ -70,14 +70,20 @@ Canonical 工程：[zlua-demo](https://github.com/focus-creative-games/zlua-demo
 
 
 
+
+
+
+
+
+
 ## 学习路径
 
 | | |
 |---|---|
-| **上一篇** | [enum 与 struct](./enums-and-structs) |
-| **下一篇** | [Editor 与 Player](./editor-vs-player) |
+| **上一篇** | [enum 与 struct](/docs/guides/enums-and-structs/) |
+| **下一篇** | [Editor 与 Player](/docs/guides/editor-vs-player/) |
 
 ## 相关文档
 
-- [FAQ](../community/faq)
-- [Editor 与 Player](./editor-vs-player)
+- [FAQ](/docs/community/faq/)
+- [Editor 与 Player](/docs/guides/editor-vs-player/)

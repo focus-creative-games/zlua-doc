@@ -6,8 +6,8 @@ title: "Mono Expression Emit"
 # Mono Expression Emit
 
 > **目标目录：** `Runtime/Mono/Emit/`（Phase 3 起）  
-> **对照 Il2Cpp：** [STUBS-IL2CPP.md](./STUBS-IL2CPP)（构建期 stub 表）  
-> **约束：** [../MONO.md](../MONO) D3、D6、D7
+> **对照 Il2Cpp：** [STUBS-IL2CPP.md](/docs/impl/codegen/STUBS-IL2CPP/)（构建期 stub 表）  
+> **约束：** [../MONO.md](/docs/impl/MONO/) D3、D6、D7
 
 ---
 
@@ -38,14 +38,14 @@ System.Linq.Expressions → Compile() → LuaCSFunction / delegate
 
 ## 3. 实施顺序（Phase 3）
 
-[../MONO.md](../MONO) 建议按依赖从简到繁：
+[../MONO.md](/docs/impl/MONO/) 建议按依赖从简到繁：
 
 | 步骤 | 成员 | 写入表 | 备注 |
 |------|------|--------|------|
 | 1 | **Field** static/instance | getter → `fieldGetterTable`；可写 → `fieldSetterTable` | 直接 `FieldInfo.Get/SetValue` 的 Expression 或 emit IL |
 | 2 | **Property** 无参 | 同 Field，调 property getter/setter MethodInfo | 索引器 property → **methodTable**（dispatch） |
 | 3 | **Method** 单重载 | `methodTable` direct closure | 捕获 `MethodInfo` + typed pop/push |
-| 4 | **Method** 多重载 | `methodTable` dispatch closure | 内调 managed `MethodOverloadResolver`（对齐 [../marshal/OVERLOAD-RESOLVER.md](../marshal/OVERLOAD-RESOLVER)） |
+| 4 | **Method** 多重载 | `methodTable` dispatch closure | 内调 managed `MethodOverloadResolver`（对齐 [../marshal/OVERLOAD-RESOLVER.md](/docs/impl/marshal/OVERLOAD-RESOLVER/)） |
 | 5 | **Constructor** | `SMT.__call` | 复用 ctor overload 分组 |
 | 6 | **别名** | `methodTable` 额外键 | `[LuaAlias]`、`zlua.register_method` |
 
@@ -79,7 +79,7 @@ LuaDll.lua_setfield(L, -2, methodName);
 LuaDll.lua_pop(L, 1);
 ```
 
-与 [../metatable/INDEXER-MONO.md](../metatable/INDEXER-MONO) 一致：method 表存 **closure 本身**，非 wrapper。
+与 [../metatable/INDEXER-MONO.md](/docs/impl/metatable/INDEXER-MONO/) 一致：method 表存 **closure 本身**，非 wrapper。
 
 ---
 
@@ -104,7 +104,7 @@ Pop/push 逻辑 **复用** `Marshaling/*Marshaling*.cs` 的 typed API，不在 E
 - 绑定期为每个参数/返回值构建 **delegate 链**（等同 Il2Cpp `MarshalMetaInfo` writer）；
 - 热路径 **无** 每 call 分配 `object[]`（除非 spec 要求的 boxing 本身）。
 
-`[LuaMarshalAs]`：Emit 读 attribute 选择 pop/push 策略（对齐 [../../spec/marshal/02-MARSHAL-AS.md](../../spec/marshal/02-MARSHAL-AS)）。
+`[LuaMarshalAs]`：Emit 读 attribute 选择 pop/push 策略（对齐 [../../spec/marshal/02-MARSHAL-AS.md](/docs/spec/marshal/02-MARSHAL-AS/)）。
 
 ---
 
@@ -152,6 +152,6 @@ Emit/
 
 ## 10. 相关文档
 
-- 三表挂载：[../metatable/INDEXER-MONO.md](../metatable/INDEXER-MONO)
-- Overload：[../marshal/OVERLOAD-RESOLVER.md](../marshal/OVERLOAD-RESOLVER)
-- Il2Cpp stub 对照：[STUBS-IL2CPP.md](./STUBS-IL2CPP)
+- 三表挂载：[../metatable/INDEXER-MONO.md](/docs/impl/metatable/INDEXER-MONO/)
+- Overload：[../marshal/OVERLOAD-RESOLVER.md](/docs/impl/marshal/OVERLOAD-RESOLVER/)
+- Il2Cpp stub 对照：[STUBS-IL2CPP.md](/docs/impl/codegen/STUBS-IL2CPP/)

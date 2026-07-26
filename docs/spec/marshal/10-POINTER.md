@@ -6,7 +6,7 @@ title: "指针与不支持类型"
 # 指针与不支持类型
 
 > **规范性：** 非托管指针、函数指针、以及 v1 默认不支持或受限的 CLR 形态之 Marshal 规则。  
-> **相关：** 默认矩阵 → [`01-OVERVIEW.md`](./01-OVERVIEW)；`IntPtr` 整型规则 → [`01-OVERVIEW.md`](./01-OVERVIEW)；OpaqueValue 对比 → [`04-OPAQUE.md`](./04-OPAQUE)；Delegate 对比 → [`09-FUNCTION.md`](./09-FUNCTION)；`ref struct` → [`05-STRUCT.md`](./05-STRUCT)、[`../05-LIB.md`](../05-LIB)。
+> **相关：** 默认矩阵 → [`01-OVERVIEW.md`](/docs/spec/marshal/01-OVERVIEW/)；`IntPtr` 整型规则 → [`01-OVERVIEW.md`](/docs/spec/marshal/01-OVERVIEW/)；OpaqueValue 对比 → [`04-OPAQUE.md`](/docs/spec/marshal/04-OPAQUE/)；Delegate 对比 → [`09-FUNCTION.md`](/docs/spec/marshal/09-FUNCTION/)；`ref struct` → [`05-STRUCT.md`](/docs/spec/marshal/05-STRUCT/)、[`../05-LIB.md`](/docs/spec/05-LIB/)。
 
 **平台原则：** Mono 与 Il2Cpp 的 **Lua 可见语义一致**。
 
@@ -49,7 +49,7 @@ title: "指针与不支持类型"
 
 ### 2.3 `[LuaMarshalAs]`
 
-非托管指针允许 `Default` 与 **`OpaqueValue`**（仅 C#→Lua）。`UserData`、`Table` 等仍 **非法**（见 [`02-MARSHAL-AS.md`](./02-MARSHAL-AS)）。`OpaqueValue` 与默认 Pointer lightuserdata 不同：走 Opaque 槽与 `get_opaquevalue` / `set_opaquevalue` 生命周期规则。
+非托管指针允许 `Default` 与 **`OpaqueValue`**（仅 C#→Lua）。`UserData`、`Table` 等仍 **非法**（见 [`02-MARSHAL-AS.md`](/docs/spec/marshal/02-MARSHAL-AS/)）。`OpaqueValue` 与默认 Pointer lightuserdata 不同：走 Opaque 槽与 `get_opaquevalue` / `set_opaquevalue` 生命周期规则。
 
 ---
 
@@ -76,7 +76,7 @@ title: "指针与不支持类型"
 
 | 类型 | Lua 默认形态 | Lua 侧可调用 |
 |------|--------------|--------------|
-| **`Action` / `Func<…>` 等 Delegate** | DelegateUserData 或 Lua function | **可以**（见 [`09-FUNCTION.md`](./09-FUNCTION)） |
+| **`Action` / `Func<…>` 等 Delegate** | DelegateUserData 或 Lua function | **可以**（见 [`09-FUNCTION.md`](/docs/spec/marshal/09-FUNCTION/)） |
 | **`delegate*<…>` 函数指针** | Pointer（lightuserdata） | **不可以** |
 
 ---
@@ -87,9 +87,9 @@ title: "指针与不支持类型"
 
 | 方向 | 规则 |
 |------|------|
-| **C# → Lua** | **默认** Push **OpaqueValue**（[04-OPAQUE.md](./04-OPAQUE)）；脚本经 `get_opaquevalue` / `set_opaquevalue` 读写 |
+| **C# → Lua** | **默认** Push **OpaqueValue**（[04-OPAQUE.md](/docs/spec/marshal/04-OPAQUE/)）；脚本经 `get_opaquevalue` / `set_opaquevalue` 读写 |
 | **Lua → C#** | **仅** 接受兼容的 **OpaqueValue** handle（类型校验后绑定地址）；其它 Lua 形态 → 错误 |
-| **其它 `[LuaMarshalAs]`** | **非法**（回退或绑定期拒绝，见 [`02-MARSHAL-AS.md`](./02-MARSHAL-AS)） |
+| **其它 `[LuaMarshalAs]`** | **非法**（回退或绑定期拒绝，见 [`02-MARSHAL-AS.md`](/docs/spec/marshal/02-MARSHAL-AS/)） |
 
 **原因：** `TypedReference` 绑定受控栈上的类型化槽位，无法稳定映射为普通 Lua 值或 userdata；OpaqueValue 仅暴露当前调用期内的槽地址，与其语义匹配。
 
@@ -97,7 +97,7 @@ title: "指针与不支持类型"
 
 ## 5. 其他不支持或受限类型
 
-下列类型在 [`01-OVERVIEW.md`](./01-OVERVIEW) 总览中已简要列出；此处集中说明。
+下列类型在 [`01-OVERVIEW.md`](/docs/spec/marshal/01-OVERVIEW/) 总览中已简要列出；此处集中说明。
 
 ### 5.1 `decimal`
 
@@ -112,9 +112,9 @@ title: "指针与不支持类型"
 | 方向 | 规则 |
 |------|------|
 | **by-val 形参** | **不能** 作为普通默认 marshal |
-| 受控路径 | 仅 `ref` StructUserData / [`04-OPAQUE.md`](./04-OPAQUE) OpaqueValue 等 |
+| 受控路径 | 仅 `ref` StructUserData / [`04-OPAQUE.md`](/docs/spec/marshal/04-OPAQUE/) OpaqueValue 等 |
 
-详见 [`05-STRUCT.md`](./05-STRUCT)、[`../05-LIB.md`](../05-LIB)。
+详见 [`05-STRUCT.md`](/docs/spec/marshal/05-STRUCT/)、[`../05-LIB.md`](/docs/spec/05-LIB/)。
 
 ### 5.3 `Nullable<T>`
 
@@ -124,7 +124,7 @@ title: "指针与不支持类型"
 | **`null`** | **`nil`** |
 | `T` 为值类型 | Pop 接受 `nil` |
 
-见 [`01-OVERVIEW.md`](./01-OVERVIEW)、[`../02-TYPE-SYSTEM.md`](../02-TYPE-SYSTEM) §Nullable。
+见 [`01-OVERVIEW.md`](/docs/spec/marshal/01-OVERVIEW/)、[`../02-TYPE-SYSTEM.md`](/docs/spec/02-TYPE-SYSTEM/) §Nullable。
 
 ### 5.4 `dynamic`
 
@@ -132,7 +132,7 @@ title: "指针与不支持类型"
 
 ### 5.5 开放泛型形参
 
-如 `void M<T>(T x)` 且 `T` 未实例化：由 **调用时类型实参** 决定 marshal；见 [`../02-TYPE-SYSTEM.md`](../02-TYPE-SYSTEM)。
+如 `void M<T>(T x)` 且 `T` 未实例化：由 **调用时类型实参** 决定 marshal；见 [`../02-TYPE-SYSTEM.md`](/docs/spec/02-TYPE-SYSTEM/)。
 
 ---
 
@@ -145,7 +145,7 @@ title: "指针与不支持类型"
 | **ref struct by-val** 形参组合 | **拒绝** |
 | 无法解析的 **byref 修饰符** 组合 | **拒绝** |
 
-**允许：** **GetFunction 取得的 delegate 调用**与 **delegate bridge** 上的 `ref`/`out`/`in`（C#→Lua 见 [`04-OPAQUE.md`](./04-OPAQUE)；Lua→C# 见 [`03-BYREF.md`](./03-BYREF)）。
+**允许：** **GetFunction 取得的 delegate 调用**与 **delegate bridge** 上的 `ref`/`out`/`in`（C#→Lua 见 [`04-OPAQUE.md`](/docs/spec/marshal/04-OPAQUE/)；Lua→C# 见 [`03-BYREF.md`](/docs/spec/marshal/03-BYREF/)）。
 
 ---
 
@@ -165,7 +165,7 @@ title: "指针与不支持类型"
 | 种类 | 用途 | metatable | 脚本读写 |
 |------|------|-----------|----------|
 | **Pointer**（§2、§3） | 非托管指针 / 函数指针透传 | **无** | **不可**解引用 |
-| **OpaqueValue**（[`04-OPAQUE.md`](./04-OPAQUE)） | C# 栈帧参数槽 handle | **无** | 经 `get_opaquevalue` / `set_opaquevalue` |
+| **OpaqueValue**（[`04-OPAQUE.md`](/docs/spec/marshal/04-OPAQUE/)） | C# 栈帧参数槽 handle | **无** | 经 `get_opaquevalue` / `set_opaquevalue` |
 | **（非 lightuserdata）** ClassUserData 等 | 托管对象 | **有** IMT | `:` / `.` 成员访问 |
 
 ---
@@ -186,9 +186,9 @@ title: "指针与不支持类型"
 
 | 文档 | 内容 |
 |------|------|
-| [`01-OVERVIEW.md`](./01-OVERVIEW) | 默认矩阵、`IntPtr` |
-| [`02-MARSHAL-AS.md`](./02-MARSHAL-AS) | 指针类型合法标注集合 |
-| [`04-OPAQUE.md`](./04-OPAQUE) | OpaqueValue vs Pointer |
-| [`09-FUNCTION.md`](./09-FUNCTION) | Delegate vs 函数指针 |
-| [`05-STRUCT.md`](./05-STRUCT) | `ref struct` |
-| [`../02-TYPE-SYSTEM.md`](../02-TYPE-SYSTEM) | Nullable、特殊类型族 |
+| [`01-OVERVIEW.md`](/docs/spec/marshal/01-OVERVIEW/) | 默认矩阵、`IntPtr` |
+| [`02-MARSHAL-AS.md`](/docs/spec/marshal/02-MARSHAL-AS/) | 指针类型合法标注集合 |
+| [`04-OPAQUE.md`](/docs/spec/marshal/04-OPAQUE/) | OpaqueValue vs Pointer |
+| [`09-FUNCTION.md`](/docs/spec/marshal/09-FUNCTION/) | Delegate vs 函数指针 |
+| [`05-STRUCT.md`](/docs/spec/marshal/05-STRUCT/) | `ref struct` |
+| [`../02-TYPE-SYSTEM.md`](/docs/spec/02-TYPE-SYSTEM/) | Nullable、特殊类型族 |

@@ -6,7 +6,7 @@ title: "GC 差异"
 # GC 差异 — 理论分析对比
 
 > **性质：** 理论分析，非 benchmark。  
-> **ZLua 细节：** 以 [spec/10-LIFETIME.md](../spec/10-LIFETIME)、[spec/marshal/](../spec/marshal/) 为准。
+> **ZLua 细节：** 以 [spec/10-LIFETIME.md](/docs/spec/10-LIFETIME/)、[spec/marshal/](/docs/spec/marshal/) 为准。
 
 ---
 
@@ -92,7 +92,7 @@ __gc → UnregisterObject → 解除 root
 | 弱缓存 | 命中时不新 Push；未命中一次 Push 成本 |
 | Pop | 不分配；仅查 slot |
 
-详见 [spec/10-LIFETIME.md](../spec/10-LIFETIME) §2。
+详见 [spec/10-LIFETIME.md](/docs/spec/10-LIFETIME/) §2。
 
 ### 3.2 ByVal struct
 
@@ -112,7 +112,7 @@ __gc → UnregisterObject → 解除 root
 | 生命周期 | **仅当次** C#→Lua 调用帧；跨 pcall 保存 → error |
 | GC | handle 本身 **不** 增加托管对象计数；指向的 ref 槽在 invoke 内有效 |
 
-用于 **GetFunction 取得的 delegate 调用** / delegate bridge 的 `ref`/`out`/`in` 默认路径（见 [spec/marshal/04-OPAQUE.md](../spec/marshal/04-OPAQUE)）。
+用于 **GetFunction 取得的 delegate 调用** / delegate bridge 的 `ref`/`out`/`in` 默认路径（见 [spec/marshal/04-OPAQUE.md](/docs/spec/marshal/04-OPAQUE/)）。
 
 ### 3.4 Indexer 与分配
 
@@ -175,7 +175,7 @@ __gc → UnregisterObject → 解除 root
 |------|------|
 | xLua | DelegateBridge 持有 ref；需在适当时机 Dispose / GC |
 | toLua / SLua | LuaFunction 生命周期手动管理 |
-| ZLua | funcRef + closed delegate；`ProcessPendingRefReleases` 帧泵延迟释放（[spec/10-LIFETIME.md](../spec/10-LIFETIME)） |
+| ZLua | funcRef + closed delegate；`ProcessPendingRefReleases` 帧泵延迟释放（[spec/10-LIFETIME.md](/docs/spec/10-LIFETIME/)） |
 
 **迁移注意：** 不要以为「C# delegate 已不被引用」Lua 侧 function 会立刻释放；须理解 ZLua ref 释放语义。
 
@@ -198,7 +198,7 @@ xLua / toLua / SLua **一般不改** Boehm/Il2Cpp GC root 策略；ZLua 为正�
 1. **先定场景：** P1 式热循环 vs P6 式 string 密集。
 2. **Profiler 看 Alloc：** 若每 call 有 `System.String` / `Box` / `object[]`，互调优化收益有限。
 3. **双端跑：** Mono 与 Player GC 行为可能不同；**以 Player 为准**。
-4. **读 spec：** struct/ref 路径见 [spec/marshal/03-BYREF.md](../spec/marshal/03-BYREF)、[05-STRUCT.md](../spec/marshal/05-STRUCT)。
+4. **读 spec：** struct/ref 路径见 [spec/marshal/03-BYREF.md](/docs/spec/marshal/03-BYREF/)、[05-STRUCT.md](/docs/spec/marshal/05-STRUCT/)。
 
 ---
 
@@ -206,9 +206,9 @@ xLua / toLua / SLua **一般不改** Boehm/Il2Cpp GC root 策略；ZLua 为正�
 
 | 文档 | 内容 |
 |------|------|
-| [PERFORMANCE.md](./PERFORMANCE) | 性能场景 P1–P6 |
-| [impl/marshal/REGISTRIES.md](../impl/marshal/REGISTRIES) | Registry 实现 |
-| [FEATURES.md](./FEATURES) | 值类型用法差异 |
+| [PERFORMANCE.md](/docs/compare/PERFORMANCE/) | 性能场景 P1–P6 |
+| [impl/marshal/REGISTRIES.md](/docs/impl/marshal/REGISTRIES/) | Registry 实现 |
+| [FEATURES.md](/docs/compare/FEATURES/) | 值类型用法差异 |
 
 ---
 

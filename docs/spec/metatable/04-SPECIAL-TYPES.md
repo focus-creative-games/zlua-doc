@@ -5,9 +5,9 @@ title: "特殊类型的元表行为"
 
 # 04 — 特殊类型的元表行为
 
-本文档汇总 **enum**、**Nullable\<T\>**、**struct**、**数组**、**委托（delegate）** 在元表布局与成员索引上的特例。值如何 Push/Pop、ByVal/ByObj payload 布局等 Marshal 细节见 [../marshal/](../marshal/) 各分册；本文只描述 **Lua 脚本可见** 的表结构、元方法与索引入口。
+本文档汇总 **enum**、**Nullable\<T\>**、**struct**、**数组**、**委托（delegate）** 在元表布局与成员索引上的特例。值如何 Push/Pop、ByVal/ByObj payload 布局等 Marshal 细节见 [../marshal/](/docs/spec/marshal/) 各分册；本文只描述 **Lua 脚本可见** 的表结构、元方法与索引入口。
 
-**关联文档：** 通用布局 → [01-LAYOUT.md](./01-LAYOUT)；索引算法 → [02-INDEX.md](./02-INDEX)；绑定规则 → [03-BINDING.md](./03-BINDING)。
+**关联文档：** 通用布局 → [01-LAYOUT.md](/docs/spec/metatable/01-LAYOUT/)；索引算法 → [02-INDEX.md](/docs/spec/metatable/02-INDEX/)；绑定规则 → [03-BINDING.md](/docs/spec/metatable/03-BINDING/)。
 
 ---
 
@@ -25,7 +25,7 @@ SMT 提供 **`__index` / `__newindex`**（静态三表），但 **无 `__call`**
 
 ### 1.2 Boxed 实例
 
-需要 **boxed enum**（ByObj userdata）时使用 **`zlua.box`**（[../05-LIB.md](../05-LIB)），**不**提供类型表构造入口：
+需要 **boxed enum**（ByObj userdata）时使用 **`zlua.box`**（[../05-LIB.md](/docs/spec/05-LIB/)），**不**提供类型表构造入口：
 
 ```lua
 local Color = CSharp.AC['MyGame.Color']
@@ -34,7 +34,7 @@ local redBox = zlua.box(Color, Color.Red)
 
 产物挂接 **`E.__byobj_instance_mt`**，`__zlua_ud_kind` 为 `"byobj"`。实例三表通常为空或极少成员（enum 无 public 实例 field/method）；`__tostring` 建议形如 `EnumFullName(value)`。
 
-默认跨边界传参仍用 **integer/number**（[../marshal/08-ENUM.md](../marshal/08-ENUM)）；`zlua.box` 仅用于需要 **object 形参**、装箱语义的场景。
+默认跨边界传参仍用 **integer/number**（[../marshal/08-ENUM.md](/docs/spec/marshal/08-ENUM/)）；`zlua.box` 仅用于需要 **object 形参**、装箱语义的场景。
 
 ### 1.3 与 class / struct 对比（元表）
 
@@ -81,13 +81,13 @@ local p = NullablePoint(1, 2)   -- Point2D ByVal userdata
 | struct | **`T` 的 ByVal userdata** |
 | enum | **不支持**此入口（enum 无 `__call`） |
 
-**null / 无值** 不经 `N(...)` 表达；向 C# 传 `Nullable<T>` 的 null 时直接传 Lua **`nil`**（[../marshal/01-OVERVIEW.md](../marshal/01-OVERVIEW)）。
+**null / 无值** 不经 `N(...)` 表达；向 C# 传 `Nullable<T>` 的 null 时直接传 Lua **`nil`**（[../marshal/01-OVERVIEW.md](/docs/spec/marshal/01-OVERVIEW/)）。
 
 ---
 
 ## 3. 值类型 struct
 
-struct 类型表含 **`__struct : true`**，同时挂 **`__byval_instance_mt`** 与 **`__byobj_instance_mt`**（见 [01-LAYOUT.md](./01-LAYOUT) §4）。
+struct 类型表含 **`__struct : true`**，同时挂 **`__byval_instance_mt`** 与 **`__byobj_instance_mt`**（见 [01-LAYOUT.md](/docs/spec/metatable/01-LAYOUT/) §4）。
 
 ### 3.1 静态入口
 
@@ -100,7 +100,7 @@ struct 类型表含 **`__struct : true`**，同时挂 **`__byval_instance_mt`** 
 
 ### 3.2 实例成员与双 MT
 
-- **ByVal userdata**：metatable = `T.__byval_instance_mt`；字段/方法经 ByVal 三表索引；`this` 指向 payload（[../marshal/05-STRUCT.md](../marshal/05-STRUCT)）。
+- **ByVal userdata**：metatable = `T.__byval_instance_mt`；字段/方法经 ByVal 三表索引；`this` 指向 payload（[../marshal/05-STRUCT.md](/docs/spec/marshal/05-STRUCT/)）。
 - **ByObj userdata**（boxed struct）：metatable = `T.__byobj_instance_mt`；同一成员名，ByObj 三表 closure。
 - **静态成员**经 `T` / SMT 访问，与 class 路径相同。
 
@@ -110,7 +110,7 @@ struct **无** C# 实例继承；Bind 期 **不** 合并基类实例成员（值
 
 ## 4. 数组（szarray / mdarray）
 
-数组类型表结构与普通引用类型类似：**仅 ByObj IMT**（数组对象为 `Il2CppArray*` / 等价引用）。`SMT.__call` **无**（数组实例由 `zlua.new_szarray_*` / `zlua.new_mdarray_*` 创建，见 [../02-TYPE-SYSTEM.md](../02-TYPE-SYSTEM)）。
+数组类型表结构与普通引用类型类似：**仅 ByObj IMT**（数组对象为 `Il2CppArray*` / 等价引用）。`SMT.__call` **无**（数组实例由 `zlua.new_szarray_*` / `zlua.new_mdarray_*` 创建，见 [../02-TYPE-SYSTEM.md](/docs/spec/02-TYPE-SYSTEM/)）。
 
 ### 4.1 实例元方法
 
@@ -132,7 +132,7 @@ matrix:set(0, 1, 7) -- mdarray：rank 个下标 + value
 
 实参个数：`get` 须等于 **rank**；`set` 须等于 **rank + 1**（末参为 value）。下标为 **C# 各维下标**（含 `lowerBound`），须为整数。越界 → `luaL_error`。
 
-仍可通过三表绑定的 **`GetValue` / `SetValue`** 等方法访问；基元断言优先 `get`（未装箱）。与 `zlua.to_table` 的 1 基 Lua 表语义不同，见 [../marshal/07-ARRAY.md](../marshal/07-ARRAY)。
+仍可通过三表绑定的 **`GetValue` / `SetValue`** 等方法访问；基元断言优先 `get`（未装箱）。与 `zlua.to_table` 的 1 基 Lua 表语义不同，见 [../marshal/07-ARRAY.md](/docs/spec/marshal/07-ARRAY/)。
 
 ---
 
@@ -145,7 +145,7 @@ local cb = SomeDelegate(function(x) return x * 2 end)
 local result = cb(21)   -- 等价 invoke，非 obj:Invoke(21) 必需
 ```
 
-`__call` 实参个数须与 `Invoke` 签名一致；Lua function → delegate 的 Marshal 见 [../marshal/09-FUNCTION.md](../marshal/09-FUNCTION)。静态成员（若有）仍经 SMT 三表；**无** event 子表。
+`__call` 实参个数须与 `Invoke` 签名一致；Lua function → delegate 的 Marshal 见 [../marshal/09-FUNCTION.md](/docs/spec/marshal/09-FUNCTION/)。静态成员（若有）仍经 SMT 三表；**无** event 子表。
 
 ---
 
@@ -164,11 +164,11 @@ local result = cb(21)   -- 等价 invoke，非 obj:Invoke(21) 必需
 
 | 主题 | 文档 |
 |------|------|
-| enum 默认 integer 与 box | [../marshal/08-ENUM.md](../marshal/08-ENUM) |
-| struct ByVal / ByObj | [../marshal/05-STRUCT.md](../marshal/05-STRUCT) |
-| class / 引用门面 | [../marshal/06-CLASS.md](../marshal/06-CLASS) |
-| 数组创建与 `get`/`set` | [../marshal/07-ARRAY.md](../marshal/07-ARRAY) |
-| Delegate ↔ Lua function | [../marshal/09-FUNCTION.md](../marshal/09-FUNCTION) |
-| Nullable null / 有值 | [../marshal/01-OVERVIEW.md](../marshal/01-OVERVIEW) |
+| enum 默认 integer 与 box | [../marshal/08-ENUM.md](/docs/spec/marshal/08-ENUM/) |
+| struct ByVal / ByObj | [../marshal/05-STRUCT.md](/docs/spec/marshal/05-STRUCT/) |
+| class / 引用门面 | [../marshal/06-CLASS.md](/docs/spec/marshal/06-CLASS/) |
+| 数组创建与 `get`/`set` | [../marshal/07-ARRAY.md](/docs/spec/marshal/07-ARRAY/) |
+| Delegate ↔ Lua function | [../marshal/09-FUNCTION.md](/docs/spec/marshal/09-FUNCTION/) |
+| Nullable null / 有值 | [../marshal/01-OVERVIEW.md](/docs/spec/marshal/01-OVERVIEW/) |
 
 元表层只保证 **入口与索引语义** 与上表一致；具体栈上类型校验与 GC 行为以 marshal 分册为准。

@@ -7,7 +7,7 @@ title: "Mono 回调 Gate"
 
 > 解决 **Unity Editor（`ZLua.Mono`）** 下，Lua→C# 回调帧上执行 `lua_error` / 不安全堆栈抓取导致的崩溃。  
 > **适用于所有 Editor Lua 系列**（PUC-Rio 5.1–5.5 与 LuaJIT）。Il2Cpp Player **不**使用本 gate。  
-> 引擎构建见 [01-OFFICIAL-LUA.md](01-OFFICIAL-LUA.md)、[02-LUAJIT.md](02-LUAJIT.md)；异常语义见 [10-LIFETIME.md](../10-LIFETIME.md) §8。  
+> 引擎构建见 [01-OFFICIAL-LUA.md](/docs/spec/build/01-OFFICIAL-LUA/)、[02-LUAJIT.md](/docs/spec/build/02-LUAJIT/)；异常语义见 [10-LIFETIME.md](/docs/spec/10-LIFETIME/) §8。  
 > **不**修改 Lua / LuaJIT 上游；**不**改变 `pcall` 可见语义。
 
 ---
@@ -240,7 +240,7 @@ bash Packages/com.code-philosophy.zlua/ZLua~/mono-native/build_zlua_mono_gate_un
 
 | 文档 | 关系 |
 |------|------|
-| [01-OFFICIAL-LUA.md](01-OFFICIAL-LUA.md) / [02-LUAJIT.md](02-LUAJIT.md) | 引擎构建 |
-| [10-LIFETIME.md](../10-LIFETIME.md) §8 | C#↔Lua 异常对外语义 |
+| [01-OFFICIAL-LUA.md](/docs/spec/build/01-OFFICIAL-LUA/) / [02-LUAJIT.md](/docs/spec/build/02-LUAJIT/) | 引擎构建 |
+| [10-LIFETIME.md](/docs/spec/10-LIFETIME/) §8 | C#↔Lua 异常对外语义 |
 | 实现 `LuaPrintBuffer` | 延迟 `Debug.Log`（与 gate 互补） |
 | 包内 `Plugins/README.md` | 插件文件名速查 |

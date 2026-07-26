@@ -6,7 +6,7 @@ title: "特性与用法对比"
 # 特性与用法对比（xLua / toLua / SLua / ZLua）
 
 > **性质：** 选型材料，非 ZLua 行为规范。  
-> **ZLua 状态：** Mono（Editor）与 Il2Cpp（Player）**均已完成**（见 [impl/MONO.md](../impl/MONO)）。
+> **ZLua 状态：** Mono（Editor）与 Il2Cpp（Player）**均已完成**（见 [impl/MONO.md](/docs/impl/MONO/)）。
 
 ---
 
@@ -43,7 +43,7 @@ title: "特性与用法对比"
 - 嵌套类型用 `+`：`CSharp.AC['Outer+Inner']`。
 - 程序集名为简单名：`Assembly-CSharp`、`mscorlib`。
 
-详见 [spec/02-TYPE-SYSTEM.md](../spec/02-TYPE-SYSTEM) §2。
+详见 [spec/02-TYPE-SYSTEM.md](/docs/spec/02-TYPE-SYSTEM/) §2。
 
 ### 2.2 懒加载 vs 预导出
 
@@ -92,7 +92,7 @@ ZLua 静/实例 **分离三表**（method / fieldGetter / fieldSetter）；继�
 |------|------|
 | xLua | 生成 Wrap 内 overload 分派 |
 | toLua / SLua | Wrap 内分派或单一签名 |
-| ZLua | Bind 期注册；默认 **最佳匹配**；`[LuaAlias]` / `register_method` 显式绑定（见 [spec/04-METHOD-OVERLOAD.md](../spec/04-METHOD-OVERLOAD)） |
+| ZLua | Bind 期注册；默认 **最佳匹配**；`[LuaAlias]` / `register_method` 显式绑定（见 [spec/04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/)） |
 
 **ZLua 特有能力：**
 
@@ -143,7 +143,7 @@ OnTick(0.016f);
 |------|------|
 | xLua | `require` + 自定义 loader |
 | toLua / SLua | 自定义 loader |
-| ZLua | `LuaAppDomain.Initialize(moduleLoader)`；与 `require` 集成（见 [spec/01-HOST-API.md](../spec/01-HOST-API)） |
+| ZLua | `LuaAppDomain.Initialize(moduleLoader)`；与 `require` 集成（见 [spec/01-HOST-API.md](/docs/spec/01-HOST-API/)） |
 
 ---
 
@@ -152,7 +152,7 @@ OnTick(0.016f);
 | 主题 | xLua | toLua / SLua | ZLua |
 |------|------|--------------|------|
 | struct 传参 | 多装箱或 table | 视 Wrap | **ByVal userdata** 拷贝 / **ByObj** boxed |
-| struct 返回值 | 常分配 | 同左 | ByVal payload 或 boxed（见 [spec/marshal/05-STRUCT.md](../spec/marshal/05-STRUCT)） |
+| struct 返回值 | 常分配 | 同左 | ByVal payload 或 boxed（见 [spec/marshal/05-STRUCT.md](/docs/spec/marshal/05-STRUCT/)） |
 | `ref`/`out` Lua→C# | 多返回值或 table | 多返回值 | StructUserData（`Type(...)` / C# 推送）或拷贝语义 |
 | C#→Lua `ref`/`out` | 视版本 | 有限 | **OpaqueValue**（仅当次调用帧有效） |
 | enum | number / 导出类型 | 导出 | integer 默认；可 ByObj boxed |
@@ -172,7 +172,7 @@ OnTick(0.016f);
 | 热更实践 | 大量现成方案（字节码、资源） | 项目自建 | **需自建**；ZLua 不绑定特定热更框架 |
 | 代码生成 | XLua Generate All | 导出 Wrap | Il2Cpp：**Codegen C++ stub**（Lua→C#）；Mono：**Emit**（不进 Player 包）；C#→Lua **无 codegen** |
 | 反射兜底 | 有（慢路径） | 部分 | **禁止**热路径静默 `Method.Invoke`；无法 Emit 则 **绑定期失败** |
-| 链接 / 裁剪 | 白名单控制 Wrap | 导出列表 | public 类型可懒 Bind；Il2Cpp **ReducedType** 控制 stub 体积（见 [BRIDGE.md](./BRIDGE)） |
+| 链接 / 裁剪 | 白名单控制 Wrap | 导出列表 | public 类型可懒 Bind；Il2Cpp **ReducedType** 控制 stub 体积（见 [BRIDGE.md](/docs/compare/BRIDGE/)） |
 | Unity 升级 | 升 xLua 包为主 | 风险高 | **merge libil2cpp 补丁**（工程债） |
 
 ---
@@ -184,9 +184,9 @@ OnTick(0.016f);
 | xLua / toLua / SLua | 通常同一套 lib + Wrap，Editor ≈ Player |
 | ZLua | **必须** Mono 与 Il2Cpp **Lua 可见语义一致**；实现不同（Emit vs C++ stub） |
 
-**测试要求：** 同一套用例在 Editor 与 Il2Cpp Player 各跑一遍；任一失败即失败（见 [guides/TESTING.md](../community/testing)）。
+**测试要求：** 同一套用例在 Editor 与 Il2Cpp Player 各跑一遍；任一失败即失败（见 [guides/TESTING.md](/docs/community/testing/)）。
 
-**索引器 Property / 开放泛型等**：见 [兼容性矩阵](https://doc.zlua.cn/docs/getting-started/compatibility) 与 [spec](../spec/00-OVERVIEW)；双端语义一致，有限制项两端相同。
+**索引器 Property / 开放泛型等**：见 [兼容性矩阵](https://doc.zlua.cn/docs/getting-started/compatibility) 与 [spec](/docs/spec/00-OVERVIEW/)；双端语义一致，有限制项两端相同。
 
 ---
 
@@ -232,7 +232,7 @@ OnTick(0.016f);
 | `CS.` 全局 | 有 | N/A | 用 **`CSharp`** |
 | 热路径反射 Invoke | 兜底 | 部分 | **显式错误** |
 | 跨帧 Opaque | N/A | N/A | **禁止** |
-| 任意 Lua function 存成永久 delegate 无 GC 顾虑 | 需注意 translator | 需注意 | 须理解 [spec/10-LIFETIME.md](../spec/10-LIFETIME) |
+| 任意 Lua function 存成永久 delegate 无 GC 顾虑 | 需注意 translator | 需注意 | 须理解 [spec/10-LIFETIME.md](/docs/spec/10-LIFETIME/) |
 
 ---
 
@@ -276,7 +276,7 @@ local x = obj.x
 | Player 性能边界是瓶颈、愿维护 libil2cpp、要 C# 语义一致 | **ZLua** |
 | 不愿改引擎层、不需极致互调性能 | **xLua** 优于 ZLua |
 
-迁移步骤见 [guides/migration/](../community/migration/)。
+迁移步骤见 [guides/migration/](/docs/community/migration/)。
 
 ---
 
@@ -284,6 +284,6 @@ local x = obj.x
 
 | 文档 | 内容 |
 |------|------|
-| [PERFORMANCE.md](./PERFORMANCE) | 性能对比 |
-| [GC.md](./GC) | GC 对比 |
-| [spec/02-TYPE-SYSTEM.md](../spec/02-TYPE-SYSTEM) | ZLua 类型系统规范 |
+| [PERFORMANCE.md](/docs/compare/PERFORMANCE/) | 性能对比 |
+| [GC.md](/docs/compare/GC/) | GC 对比 |
+| [spec/02-TYPE-SYSTEM.md](/docs/spec/02-TYPE-SYSTEM/) | ZLua 类型系统规范 |

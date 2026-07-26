@@ -48,7 +48,7 @@ print(CSharp.AC.Demo.GetSX())
 demo.x = 10    -- 可能绑定到 field 或 property，语义均为读写成员
 ```
 
-Il2Cpp **Player** 将 `int X { get; set; }` 优化为 offset 直读（等同字段性能）。Mono Editor 通过元表 getter/setter 表实现 fast path。两端语义以 [规范](../spec/02-TYPE-SYSTEM) 为准。
+Il2Cpp **Player** 将 `int X { get; set; }` 优化为 offset 直读（等同字段性能）。Mono Editor 通过元表 getter/setter 表实现 fast path。两端语义以 [规范](/docs/spec/02-TYPE-SYSTEM/) 为准。
 
 ## Property（带 index indexer）
 
@@ -59,11 +59,11 @@ Il2Cpp **Player** 将 `int X { get; set; }` 优化为 offset 直读（等同字�
 -- list[i] 对 Array / List 有专门规则
 ```
 
-详见 [类型系统规范](../spec/02-TYPE-SYSTEM) §4 与 [泛型与数组](./generics-and-arrays)。
+详见 [类型系统规范](/docs/spec/02-TYPE-SYSTEM/) §4 与 [泛型与数组](/docs/guides/generics-and-arrays/)。
 
 ## 底层分派（概念）
 
-成员访问经 **三表分派**（method / field-getter / field-setter），在 Lua VM 内完成 lookup，热路径不经过 C# 字符串反射。详见 [元表模型](../concepts/metatable-model)。
+成员访问经 **三表分派**（method / field-getter / field-setter），在 Lua VM 内完成 lookup，热路径不经过 C# 字符串反射。详见 [元表模型](/docs/concepts/metatable-model/)。
 
 未注册成员 **strict miss** — 直接 `error`，不会 fallback 到反射。
 
@@ -75,7 +75,7 @@ Il2Cpp **Player** 将 `int X { get; set; }` 优化为 offset 直读（等同字�
 | `demo:GetX()` | property getter 有额外调用开销 |
 | 循环内频繁读写字段 | 避免每帧 `get_method` |
 
-字段 / Property 语义见 [规范](../spec/02-TYPE-SYSTEM)；性能基准以 Il2Cpp Player 为准（见 [性能对比](../compare/PERFORMANCE)）。
+字段 / Property 语义见 [规范](/docs/spec/02-TYPE-SYSTEM/)；性能基准以 Il2Cpp Player 为准（见 [性能对比](/docs/compare/PERFORMANCE/)）。
 
 ## Mono / Il2Cpp 支持
 
@@ -102,15 +102,21 @@ Il2Cpp **Player** 将 `int X { get; set; }` 优化为 offset 直读（等同字�
 
 
 
+
+
+
+
+
+
 ## 学习路径
 
 | | |
 |---|---|
-| **上一篇** | [Lua 访问 C# 基础](./lua-to-csharp-basics) |
-| **下一篇** | [方法重载](./methods-and-overloads) |
+| **上一篇** | [Lua 访问 C# 基础](/docs/guides/lua-to-csharp-basics/) |
+| **下一篇** | [方法重载](/docs/guides/methods-and-overloads/) |
 
 ## 相关文档
 
-- [Lua 访问 C# 基础](./lua-to-csharp-basics)
-- [元表索引规范](../spec/metatable/)
-- [类型系统规范](../spec/02-TYPE-SYSTEM)
+- [Lua 访问 C# 基础](/docs/guides/lua-to-csharp-basics/)
+- [元表索引规范](/docs/spec/metatable/)
+- [类型系统规范](/docs/spec/02-TYPE-SYSTEM/)

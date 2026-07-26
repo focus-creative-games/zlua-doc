@@ -38,7 +38,7 @@ flowchart TD
 
 仅 **一个** public 重载时，`obj:Method(args)` 直接绑定 closure，零分派开销。
 
-多个重载时，按实参 **个数 + Lua 类型** 与 C# 形参匹配（详见 [方法重载规范](../spec/04-METHOD-OVERLOAD) §3）。
+多个重载时，按实参 **个数 + Lua 类型** 与 C# 形参匹配（详见 [方法重载规范](/docs/spec/04-METHOD-OVERLOAD/) §3）。
 
 ```lua
 local demo = CSharp.AC.Demo()
@@ -91,7 +91,7 @@ zlua.register_method(demo, "run_i32", run_i32)
 | `zlua.get_method(target, name, sig, isStatic)` | target 为实例或类型表 |
 | `zlua.register_method(target, alias, closure)` | 注册实例或静态别名 |
 
-`typeArg` 可为 `zlua.types.int32`、`zlua.typeof(CSharp.AC.Demo)` 等，见 [zlua 库规范](../spec/05-LIB) §3。
+`typeArg` 可为 `zlua.types.int32`、`zlua.typeof(CSharp.AC.Demo)` 等，见 [zlua 库规范](/docs/spec/05-LIB/) §3。
 
 ### 静态方法
 
@@ -103,7 +103,7 @@ local add = zlua.get_method(CSharp.AC.Demo, "Add", sig, true)
 
 ## 构造函数重载
 
-多构造函数与实例方法相同：默认 dispatch 或 `get_method` + `_ctor` 签名。见 [类型系统规范](../spec/02-TYPE-SYSTEM) §4.6。
+多构造函数与实例方法相同：默认 dispatch 或 `get_method` + `_ctor` 签名。见 [类型系统规范](/docs/spec/02-TYPE-SYSTEM/) §4.6。
 
 ## 已废弃写法
 
@@ -141,15 +141,21 @@ local add = zlua.get_method(CSharp.AC.Demo, "Add", sig, true)
 
 
 
+
+
+
+
+
+
 ## 学习路径
 
 | | |
 |---|---|
-| **上一篇** | [字段与属性](./fields-and-properties) |
-| **下一篇** | [回调与 Delegate](./callbacks-and-delegates) |
+| **上一篇** | [字段与属性](/docs/guides/fields-and-properties/) |
+| **下一篇** | [回调与 Delegate](/docs/guides/callbacks-and-delegates/) |
 
 ## 相关文档
 
-- [方法重载规范](../spec/04-METHOD-OVERLOAD)
-- [zlua 标准库](../reference/lua/zlua-lib)
-- [最佳实践](./best-practices)
+- [方法重载规范](/docs/spec/04-METHOD-OVERLOAD/)
+- [zlua 标准库](/docs/reference/lua/zlua-lib/)
+- [最佳实践](/docs/guides/best-practices/)

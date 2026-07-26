@@ -7,13 +7,13 @@ title: "Il2Cpp 实现对照"
 
 > **源码根（可编辑）：** `build-win64/Il2CppOutputProject/IL2CPP/libil2cpp/zlua`  
 > **包内镜像（手动同步，勿直接改）：** `Packages/com.code-philosophy.zlua/ZLua~/libil2cpp-2022/zlua`  
-> **Lua 可见语义：** [../spec/](../spec/00-OVERVIEW) — 本文只描述 C++ 模块划分、初始化顺序与文件职责。
+> **Lua 可见语义：** [../spec/](/docs/spec/00-OVERVIEW/) — 本文只描述 C++ 模块划分、初始化顺序与文件职责。
 
 ---
 
 ## 1. 模块图
 
-Il2Cpp runtime 按职责拆成七个顶层目录，与 Mono 重写后的 `Runtime/Mono/` 一一对应（见 [MONO.md](./MONO) §2）。
+Il2Cpp runtime 按职责拆成七个顶层目录，与 Mono 重写后的 `Runtime/Mono/` 一一对应（见 [MONO.md](/docs/impl/MONO/) §2）。
 
 ```
 zlua/
@@ -81,7 +81,7 @@ Player 进程进入 Il2Cpp 后，托管侧调用 `LuaAppDomain::Initialize()`，
 |------|------|
 | `LuaAppDomain.cpp/.h` | Il2Cpp 入口：`Initialize` / `InitializeFromManaged` / `Shutdown` 转发 |
 | `LuaEnv.cpp/.h` | 全局 `lua_State`、globals/libs 注册、error handler、dostring、pending ref 队列 |
-| `ZLuaLib.cpp` | C API 实现：`zlua.import_type`、`zlua.cast`、`zlua.box` 等（语义见 [../spec/05-LIB.md](../spec/05-LIB)） |
+| `ZLuaLib.cpp` | C API 实现：`zlua.import_type`、`zlua.cast`、`zlua.box` 等（语义见 [../spec/05-LIB.md](/docs/spec/05-LIB/)） |
 | `LuaInternalCalls.cpp/.h` | InternalCall 注册 |
 | `LuaGlobalRefs.cpp/.h` | registry 强引用集中管理 |
 | `LuaLoader.cpp/.h` | 模块搜索、StreamingAssets loader、托管 delegate loader |
@@ -117,9 +117,9 @@ Player 进程进入 Il2Cpp 后，托管侧调用 `LuaAppDomain::Initialize()`，
 | `DelegateMarshal.cpp/.h` | delegate / Lua function |
 | `OpaqueValueMarshal.cpp/.h` | opaque / lightuserdata 路径 |
 | `IntrinsicTypes.cpp/.h` | Vector2/3/4 等内建 struct 特化 |
-| `MethodOverloadResolver.cpp/.h` | 运行时 overload 选择（规范 [../spec/04-METHOD-OVERLOAD.md](../spec/04-METHOD-OVERLOAD)） |
+| `MethodOverloadResolver.cpp/.h` | 运行时 overload 选择（规范 [../spec/04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/)） |
 
-详见 [marshal/README.md](./marshal/)。
+详见 [marshal/README.md](/docs/impl/marshal/)。
 
 ### 3.4 `bridge/`
 
@@ -141,7 +141,7 @@ Player 进程进入 Il2Cpp 后，托管侧调用 `LuaAppDomain::Initialize()`，
 | `MarshalBindings.*` | `MarshalAsCodegen` | `[LuaMarshalAs]` 扩展 writer |
 | `BuiltinScripts.inc` | `BuiltinScriptsCodegen` | 嵌入 `globals.lua` / `zlualib.lua` |
 
-详见 [codegen/STUBS-IL2CPP.md](./codegen/STUBS-IL2CPP)。
+详见 [codegen/STUBS-IL2CPP.md](/docs/impl/codegen/STUBS-IL2CPP/)。
 
 ### 3.6 `utils/`
 
@@ -160,7 +160,7 @@ Player 进程进入 Il2Cpp 后，托管侧调用 `LuaAppDomain::Initialize()`，
 
 | 维度 | Il2Cpp | Mono |
 |------|--------|------|
-| 成员索引 | `Dispatch*` + `MetaBinding` / `TypeRegistry`（[INDEXER-IL2CPP.md](./metatable/INDEXER-IL2CPP)） | Lua 三表 indexer（[INDEXER-MONO.md](./metatable/INDEXER-MONO)） |
+| 成员索引 | `Dispatch*` + `MetaBinding` / `TypeRegistry`（[INDEXER-IL2CPP.md](/docs/impl/metatable/INDEXER-IL2CPP/)） | Lua 三表 indexer（[INDEXER-MONO.md](/docs/impl/metatable/INDEXER-MONO/)） |
 | Lua→C# 桥 | Codegen **stub 复用**（按 ReducedType 签名） | **Emit/** 每成员 `Expression.Compile` |
 | C#→Lua | `GetFunction` + Delegate 桥（`LuaCallInvoker`） | 同左 |
 | Event | 已移除专用元数据；`add_*`/`remove_*` 为普通方法 | 同左 |
@@ -169,7 +169,7 @@ Player 进程进入 Il2Cpp 后，托管侧调用 `LuaAppDomain::Initialize()`，
 
 ## 5. 关联文档
 
-- 元表实现分册：[metatable/README.md](./metatable/)
-- Marshal 实现分册：[marshal/README.md](./marshal/)
-- Codegen 分册：[codegen/README.md](./codegen/)
-- Mono 实现对照：[MONO.md](./MONO)
+- 元表实现分册：[metatable/README.md](/docs/impl/metatable/)
+- Marshal 实现分册：[marshal/README.md](/docs/impl/marshal/)
+- Codegen 分册：[codegen/README.md](/docs/impl/codegen/)
+- Mono 实现对照：[MONO.md](/docs/impl/MONO/)

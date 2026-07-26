@@ -6,7 +6,7 @@ const config: Config = {
   title: 'ZLua Docs',
   tagline: '零配置 · 完备 C# 互操作 · Il2Cpp 上约 2.62× 于 xLua',
 
-  favicon: 'img/logo.png',
+  favicon: 'img/logo.jpg',
 
   future: {
     v4: true,
@@ -20,20 +20,21 @@ const config: Config = {
   organizationName: 'focus-creative-games',
   projectName: 'zlua-doc',
 
-  onBrokenLinks: 'warn',
-  onBrokenMarkdownLinks: 'warn',
+  onBrokenLinks: 'throw',
+
+  markdown: {
+    format: 'detect',
+    mermaid: true,
+    hooks: {
+      onBrokenMarkdownLinks: 'throw',
+    },
+  },
 
   i18n: {
     defaultLocale: 'zh-CN',
     // 英文文档：添加 'en' 至 locales 并创建 i18n/en/ 翻译文件（P5 预留）
     locales: ['zh-CN'],
   },
-
-  markdown: {
-    format: 'detect',
-    mermaid: true,
-  },
-
   themes: ['@docusaurus/theme-mermaid'],
 
   plugins: [
@@ -75,7 +76,7 @@ const config: Config = {
       title: 'ZLua Docs',
       logo: {
         alt: 'ZLua Logo',
-        src: 'img/logo.png',
+        src: 'img/logo.jpg',
       },
       items: [
         {
@@ -108,11 +109,11 @@ const config: Config = {
         {
           title: '文档',
           items: [
-            {label: '选型对比', to: '/docs/category/compare'},
-            {label: '规范文档', to: '/docs/category/spec'},
-            {label: '快速开始', to: '/docs/getting-started/quick-start'},
-            {label: '使用指南', to: '/docs/guides/csharp-to-lua'},
-            {label: 'API 参考', to: '/docs/reference/overview'},
+            {label: '选型对比', to: '/docs/category/compare/'},
+            {label: '规范文档', to: '/docs/category/spec/'},
+            {label: '快速开始', to: '/docs/getting-started/quick-start/'},
+            {label: '使用指南', to: '/docs/guides/csharp-to-lua/'},
+            {label: 'API 参考', to: '/docs/reference/overview/'},
           ],
         },
         {
@@ -126,7 +127,7 @@ const config: Config = {
               label: 'Discord',
               href: 'https://discord.gg/htmr44jW6A',
             },
-            {label: '联系与 FAQ', to: '/docs/community/contact'},
+            {label: '联系与 FAQ', to: '/docs/community/contact/'},
           ],
         },
         {

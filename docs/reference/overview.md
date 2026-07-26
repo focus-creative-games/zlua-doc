@@ -12,46 +12,46 @@ description: ZLua C# 特性与 Lua API 索引。
 
 | 特性 | 说明 | 文档 |
 |------|------|------|
-| `GetFunction<T>` | C# 调用 Lua 函数 | [LuaAppDomain](./csharp/lua-app-domain) |
-| `[MonoLuaCallback]` | 原生 `int (IntPtr L)` 回调 | [MonoLuaCallback](./csharp/lua-callback) |
-| `[LuaMarshalAs]` | 覆盖默认 Marshal | [LuaMarshalAs](./csharp/lua-marshal-as) |
-| `[LuaAlias]` | 方法重载 Lua 别名 | [LuaAlias](./csharp/lua-alias) |
+| `GetFunction<T>` | C# 调用 Lua 函数 | [LuaAppDomain](/docs/reference/csharp/lua-app-domain/) |
+| `[MonoLuaCallback]` | 原生 `int (IntPtr L)` 回调 | [MonoLuaCallback](/docs/reference/csharp/lua-callback/) |
+| `[LuaMarshalAs]` | 覆盖默认 Marshal | [LuaMarshalAs](/docs/reference/csharp/lua-marshal-as/) |
+| `[LuaAlias]` | 方法重载 Lua 别名 | [LuaAlias](/docs/reference/csharp/lua-alias/) |
 
 ## C# 运行时 API
 
 | 类型 | 说明 | 文档 |
 |------|------|------|
-| `LuaAppDomain` | **公开**初始化入口 | [LuaAppDomain](./csharp/lua-app-domain) |
+| `LuaAppDomain` | **公开**初始化入口 | [LuaAppDomain](/docs/reference/csharp/lua-app-domain/) |
 | `LuaEnv` | 底层 `lua_State`（后端内部，一般不直接使用） | — |
 
 ## Lua API
 
 | 模块 | 说明 | 文档 |
 |------|------|------|
-| `CSharp` | 程序集 / 类型懒加载根表 | [CSharp 根表](./lua/csharp-root) |
-| `zlua` | 类型构造、重载、ref、数组、delegate | [zlua 标准库](./lua/zlua-lib) |
-| `zlua.types` | corlib 类型常量 | [zlua.types](./lua/zlua-types) |
+| `CSharp` | 程序集 / 类型懒加载根表 | [CSharp 根表](/docs/reference/lua/csharp-root/) |
+| `zlua` | 类型构造、重载、ref、数组、delegate | [zlua 标准库](/docs/reference/lua/zlua-lib/) |
+| `zlua.types` | corlib 类型常量 | [zlua.types](/docs/reference/lua/zlua-types/) |
 
 ## Marshal
 
 | 资源 | 说明 |
 |------|------|
-| [Marshal 速查表](./marshal-cheatsheet) | 默认规则 + `[LuaMarshalAs]` 摘要 |
-| [Marshal 规范](../spec/marshal/) | 权威完整规则 |
+| [Marshal 速查表](/docs/reference/marshal-cheatsheet/) | 默认规则 + `[LuaMarshalAs]` 摘要 |
+| [Marshal 规范](/docs/spec/marshal/) | 权威完整规则 |
 
 ## 使用指南索引
 
 | 主题 | 文档 |
 |------|------|
-| C# → Lua | [csharp-to-lua](../guides/csharp-to-lua) |
-| Lua → C# | [lua-to-csharp-basics](../guides/lua-to-csharp-basics) |
-| 重载 | [methods-and-overloads](../guides/methods-and-overloads) |
-| Delegate | [callbacks-and-delegates](../guides/callbacks-and-delegates) |
-| Event | [events](../guides/events) |
-| 泛型 / 数组 | [generics-and-arrays](../guides/generics-and-arrays) |
-| ref / out / in | [marshal-ref-out-in](../guides/marshal-ref-out-in) |
-| enum / struct | [enums-and-structs](../guides/enums-and-structs) |
+| C# → Lua | [csharp-to-lua](/docs/guides/csharp-to-lua/) |
+| Lua → C# | [lua-to-csharp-basics](/docs/guides/lua-to-csharp-basics/) |
+| 重载 | [methods-and-overloads](/docs/guides/methods-and-overloads/) |
+| Delegate | [callbacks-and-delegates](/docs/guides/callbacks-and-delegates/) |
+| Event | [events](/docs/guides/events/) |
+| 泛型 / 数组 | [generics-and-arrays](/docs/guides/generics-and-arrays/) |
+| ref / out / in | [marshal-ref-out-in](/docs/guides/marshal-ref-out-in/) |
+| enum / struct | [enums-and-structs](/docs/guides/enums-and-structs/) |
 
 ## 权威规范
 
-完整 API 语义以 [规范文档](../spec/00-OVERVIEW) 为准；本区为 **查表摘要**，细节变更以规范为准。
+完整 API 语义以 [规范文档](/docs/spec/00-OVERVIEW/) 为准；本区为 **查表摘要**，细节变更以规范为准。

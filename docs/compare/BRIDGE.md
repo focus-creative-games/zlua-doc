@@ -66,7 +66,7 @@ Il2Cpp：类型 T 有 M 个成员、S 种 distinct ReducedType → O(S) stub，S
 Mono：  M 个成员 → M 条 Emit 桥（开发期特化，调用更直）
 ```
 
-详见 [impl/codegen/](../impl/codegen/)、[impl/MONO.md](../impl/MONO) D6。
+详见 [impl/codegen/](/docs/impl/codegen/)、[impl/MONO.md](/docs/impl/MONO/) D6。
 
 ---
 
@@ -88,7 +88,7 @@ Mono：  M 个成员 → M 条 Emit 桥（开发期特化，调用更直）
 
 **代价：**
 
-- stub 入口需 **methodId / dispatch 元数据**（一次表查，~0–50 ns 量级，见 [PERFORMANCE.md](./PERFORMANCE)）。
+- stub 入口需 **methodId / dispatch 元数据**（一次表查，~0–50 ns 量级，见 [PERFORMANCE.md](/docs/compare/PERFORMANCE/)）。
 - Codegen + 元数据表维护复杂度高于 xLua Generate。
 
 ---
@@ -127,7 +127,7 @@ Mono：  M 个成员 → M 条 Emit 桥（开发期特化，调用更直）
 
 **结论（理论）：**
 
-- Il2Cpp：**stub 间接一层** 通常远小于 xLua **多次 LuaDLL** 的开销（见 P1 [PERFORMANCE.md](./PERFORMANCE)）。
+- Il2Cpp：**stub 间接一层** 通常远小于 xLua **多次 LuaDLL** 的开销（见 P1 [PERFORMANCE.md](/docs/compare/PERFORMANCE/)）。
 - Mono Emit：**Per-member 直调** 利于 Editor profiling；与 Player stub 语义一致但 **实现不同**。
 
 ---
@@ -151,7 +151,7 @@ Mono：  M 个成员 → M 条 Emit 桥（开发期特化，调用更直）
 | xLua | C# DelegateBridge + 多次 LuaDLL |
 | ZLua | **`GetFunction<T>`** 运行时绑定 function → closed delegate；`Invoke` 经 **Delegate 桥**（Mono / Il2Cpp 实现路径不同，语义一致） |
 
-详见 [spec/01-HOST-API.md](../spec/01-HOST-API) 与 [guides/csharp-to-lua.md](../guides/csharp-to-lua)。
+详见 [spec/01-HOST-API.md](/docs/spec/01-HOST-API/) 与 [guides/csharp-to-lua.md](/docs/guides/csharp-to-lua/)。
 
 ---
 
@@ -199,10 +199,10 @@ ZLua **不是** HybridCLR 替代品；桥接层设计可类比「native stub 表
 
 | 文档 | 内容 |
 |------|------|
-| [PERFORMANCE.md](./PERFORMANCE) | ns/call 与间接层 |
-| [impl/codegen/STUBS-IL2CPP.md](../impl/codegen/STUBS-IL2CPP) | stub 类型清单 |
-| [impl/codegen/EMIT-MONO.md](../impl/codegen/EMIT-MONO) | Mono Emit |
-| [FEATURES.md](./FEATURES) | 生成与白名单差异 |
+| [PERFORMANCE.md](/docs/compare/PERFORMANCE/) | ns/call 与间接层 |
+| [impl/codegen/STUBS-IL2CPP.md](/docs/impl/codegen/STUBS-IL2CPP/) | stub 类型清单 |
+| [impl/codegen/EMIT-MONO.md](/docs/impl/codegen/EMIT-MONO/) | Mono Emit |
+| [FEATURES.md](/docs/compare/FEATURES/) | 生成与白名单差异 |
 
 ---
 

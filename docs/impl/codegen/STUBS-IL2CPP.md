@@ -15,7 +15,7 @@ title: "Il2Cpp Generated Stubs"
 
 Il2Cpp Player **不能** JIT 或 `Method.Invoke`。Lua→C# 热路径依赖构建期扫描用户程序集，为每个 **AOT 可达签名** 生成 C++ stub，并在 runtime 通过 **函数指针表** 查找。
 
-与 Mono 对比（[EMIT-MONO.md](./EMIT-MONO)）：
+与 Mono 对比（[EMIT-MONO.md](/docs/impl/codegen/EMIT-MONO/)）：
 
 | Il2Cpp | Mono |
 |--------|------|
@@ -97,13 +97,13 @@ Field **不**单独 stub 表：field 读写走 `MarshalMetaInfo::cs2luaWriter` /
 
 C# delegate 类型 invoke 与 Lua function → delegate 的 stub 表。
 
-`DelegateBridge::Initialize()` 在 AppDomain 级加载；与 [../../spec/marshal/09-FUNCTION.md](../../spec/marshal/09-FUNCTION) 一致。
+`DelegateBridge::Initialize()` 在 AppDomain 级加载；与 [../../spec/marshal/09-FUNCTION.md](/docs/spec/marshal/09-FUNCTION/) 一致。
 
 ---
 
 ## 6. C#→Lua（GetFunction）
 
-**不在 `generated/` 内。** C#→Lua 由 `LuaAppDomain.GetFunction<T>` 运行时绑定 module function 为 closed delegate，`Invoke` 经 **Delegate 桥**（与 [../../spec/marshal/09-FUNCTION.md](../../spec/marshal/09-FUNCTION) 一致）。Il2Cpp 与 Mono **API 相同**。
+**不在 `generated/` 内。** C#→Lua 由 `LuaAppDomain.GetFunction<T>` 运行时绑定 module function 为 closed delegate，`Invoke` 经 **Delegate 桥**（与 [../../spec/marshal/09-FUNCTION.md](/docs/spec/marshal/09-FUNCTION/) 一致）。Il2Cpp 与 Mono **API 相同**。
 
 ---
 
@@ -111,7 +111,7 @@ C# delegate 类型 invoke 与 Lua function → delegate 的 stub 表。
 
 `MarshalAsCodegen` 为带 `[LuaMarshalAs]` 的 **非默认** 签名生成额外 writer/reader，供 stub 或 `MarshalMeta::Create` 引用。
 
-规则见 [../../spec/marshal/02-MARSHAL-AS.md](../../spec/marshal/02-MARSHAL-AS)。
+规则见 [../../spec/marshal/02-MARSHAL-AS.md](/docs/spec/marshal/02-MARSHAL-AS/)。
 
 ---
 
@@ -130,7 +130,7 @@ Mono 等价物：`Lvm/BuiltinScripts.cs` 从资源加载同名脚本。
 | 签名无法生成 stub（unsupported generic 等） | Codegen **报错** 或跳过并记录；不生成 silent slow path 进 Player |
 | Runtime stub 查表 miss | `DefaultInvokeLuaMethod`（显式慢路径，开发期应补 stub） |
 
-Mono 对应：无法 Emit → **绑定期抛异常**（见 [../MONO.md](../MONO) D3）。
+Mono 对应：无法 Emit → **绑定期抛异常**（见 [../MONO.md](/docs/impl/MONO/) D3）。
 
 ---
 

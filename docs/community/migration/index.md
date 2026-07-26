@@ -7,8 +7,8 @@ title: "迁移指南"
 
 从常见 Unity Lua 绑定方案迁移到 **ZLua** 的索引与共用清单。
 
-> **背景差异：** 见 [compare/FEATURES.md](../../compare/FEATURES)。  
-> **ZLua 状态：** Mono（Editor）与 Il2Cpp（Player）**均已完成**；迁移验收以 [spec](../../spec/00-OVERVIEW) 与双端冒烟为准。
+> **背景差异：** 见 [compare/FEATURES.md](/docs/compare/FEATURES/)。  
+> **ZLua 状态：** Mono（Editor）与 Il2Cpp（Player）**均已完成**；迁移验收以 [spec](/docs/spec/00-OVERVIEW/) 与双端冒烟为准。
 
 ---
 
@@ -16,9 +16,9 @@ title: "迁移指南"
 
 | 文件 | 来源方案 | 内容 |
 |------|----------|------|
-| [from-xlua.md](./from-xlua) | xLua | `CS.*` → `CSharp`、Generate 废弃、`GetFunction` |
-| [from-tolua.md](./from-tolua) | toLua / tolua# | 删除 Wrap、全局类 → 懒绑定 |
-| [from-slua.md](./from-slua) | SLua | 导出配置 → public + 懒 Bind |
+| [from-xlua.md](/docs/community/migration/from-xlua/) | xLua | `CS.*` → `CSharp`、Generate 废弃、`GetFunction` |
+| [from-tolua.md](/docs/community/migration/from-tolua/) | toLua / tolua# | 删除 Wrap、全局类 → 懒绑定 |
+| [from-slua.md](/docs/community/migration/from-slua/) | SLua | 导出配置 → public + 懒 Bind |
 
 ---
 
@@ -50,13 +50,13 @@ title: "迁移指南"
 ### 4. C#→Lua / Delegate
 
 - `[CSharpCallLua]` / `LuaFunction` → `LuaAppDomain.GetFunction<T>("mod","fn")` 后 `Invoke`
-- **把 Lua 函数拿回 C#：** `GetFunction<Action>`/`GetFunction<Func<…>>`；或 `GetFunction<Delegate>` + `zlua.to_delegate`（见 [回调与 Delegate §3](../../guides/callbacks-and-delegates)）
+- **把 Lua 函数拿回 C#：** `GetFunction<Action>`/`GetFunction<Func<…>>`；或 `GetFunction<Delegate>` + `zlua.to_delegate`（见 [回调与 Delegate §3](/docs/guides/callbacks-and-delegates/)）
 - Lua function 作 C# 参数 → 方法形参 `Action`/`Func`/delegate（隐式 marshal）
 - 删除 xLua `DelegateBridge` 手动注册（按 ZLua delegate spec）
 
 ### 5. 值类型、ref、GC 敏感路径
 
-- struct / `ref` / `out` 对照 [spec/marshal/](../../spec/marshal/)
+- struct / `ref` / `out` 对照 [spec/marshal/](/docs/spec/marshal/)
 - C#→Lua 的 `ref` → **OpaqueValue**（非 integer）
 - 热路径避免每帧 new string / 依赖跨帧 Opaque
 
@@ -68,9 +68,9 @@ title: "迁移指南"
 
 ### 7. 测试与回归
 
-- 按 [TESTING.md](../testing) 建立 `Tests/Lua` 用例
+- 按 [TESTING.md](/docs/community/testing/) 建立 `Tests/Lua` 用例
 - **Editor + Il2Cpp Player** 双端全绿
-- 对比 [compare/PERFORMANCE.md](../../compare/PERFORMANCE) 确认性能预期
+- 对比 [compare/PERFORMANCE.md](/docs/compare/PERFORMANCE/) 确认性能预期
 
 ---
 
@@ -96,6 +96,6 @@ title: "迁移指南"
 
 | 文档 | 内容 |
 |------|------|
-| [compare/README.md](../../compare/) | 四方对比索引 |
-| [spec/02-TYPE-SYSTEM.md](../../spec/02-TYPE-SYSTEM) | ZLua 类型规范 |
-| [CONTRIBUTING.md](../contributing) | 贡献与路径规则 |
+| [compare/README.md](/docs/compare/) | 四方对比索引 |
+| [spec/02-TYPE-SYSTEM.md](/docs/spec/02-TYPE-SYSTEM/) | ZLua 类型规范 |
+| [CONTRIBUTING.md](/docs/community/contributing/) | 贡献与路径规则 |

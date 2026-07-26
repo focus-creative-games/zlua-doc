@@ -6,14 +6,14 @@ title: "OpaqueValue（临时不透明参数）"
 # OpaqueValue（临时不透明参数）
 
 > **规范性：** C# 调用 Lua 时，将形参/局部在 C# 调用栈上的存储地址暴露给脚本的临时令牌；以及 `[LuaMarshalAs(OpaqueValue)]` 强制路径。  
-> **byref 默认（C#→Lua）：** `ref`/`in`/`out` 形参 **默认** 即为 OpaqueValue，见 [03-BYREF.md §2](./03-BYREF)。  
-> **API：** `zlua.get_opaquevalue` / `zlua.set_opaquevalue`（native：`__zlua_get_opaquevalue` / `__zlua_set_opaquevalue`），签名见 [../05-LIB.md](../05-LIB)。
+> **byref 默认（C#→Lua）：** `ref`/`in`/`out` 形参 **默认** 即为 OpaqueValue，见 [03-BYREF.md §2](/docs/spec/marshal/03-BYREF/)。  
+> **API：** `zlua.get_opaquevalue` / `zlua.set_opaquevalue`（native：`__zlua_get_opaquevalue` / `__zlua_set_opaquevalue`），签名见 [../05-LIB.md](/docs/spec/05-LIB/)。
 
 ## 1. 定义
 
 OpaqueValue 是 **C# 调用 Lua** 时，将某个 **形参/局部在 C# 调用栈上的存储地址** 暴露给脚本的临时令牌。脚本可在 **本次调用有效期内** 读取、写回；在 **目标形参类型允许** 时亦可将 handle **原样** 作为 **Lua→C#** 实参传回（§6）；**不可** 持久化后跨调用使用。
 
-参数/返回值标注 **`[LuaMarshalAs(LuaMarshalType.OpaqueValue)]`** 时 **强制** Push OpaqueValue（[02-MARSHAL-AS.md](./02-MARSHAL-AS)）；**`ref` / `out` / `in`** 形参在 C#→Lua 路径上 **默认** 即为 OpaqueValue（§3）。
+参数/返回值标注 **`[LuaMarshalAs(LuaMarshalType.OpaqueValue)]`** 时 **强制** Push OpaqueValue（[02-MARSHAL-AS.md](/docs/spec/marshal/02-MARSHAL-AS/)）；**`ref` / `out` / `in`** 形参在 C#→Lua 路径上 **默认** 即为 OpaqueValue（§3）。
 
 ## 2. Lua 可见形态
 
@@ -34,7 +34,7 @@ OpaqueValue 是 **C# 调用 Lua** 时，将某个 **形参/局部在 C# 调用�
 |------|------|
 | **仅 C# → Lua 创建** | 只由 native 在 C# 调 Lua 的 marshal 路径 Push；**无** Lua API 伪造合法 handle |
 | **可产生 OpaqueValue 的形参** | ① **`ref` / `in` / `out T`**（**任意** `T`）——**默认**即为 OpaqueValue（§3.1）；② **任意 by-val CLR 类型**——标注 `[LuaMarshalAs(OpaqueValue)]` 即可 Push Opaque（含基元 / enum；对后者通常无实质必要） |
-| **方向限制** | `OpaqueValue` 标注仅用于 **C#→Lua**；标在纯 Lua→C# 形参上非法（见 [02-MARSHAL-AS.md §3.1](./02-MARSHAL-AS)） |
+| **方向限制** | `OpaqueValue` 标注仅用于 **C#→Lua**；标在纯 Lua→C# 形参上非法（见 [02-MARSHAL-AS.md §3.1](/docs/spec/marshal/02-MARSHAL-AS/)） |
 | 槽义 | `valueAddress` 指向该实参在 **当前 C# 栈帧** 上的存储位置（by-val 为值槽；`ref`/`in`/`out` 为 **指针槽**） |
 
 ### 3.1 `ref` / `out` / `in` 默认即为 OpaqueValue
@@ -42,7 +42,7 @@ OpaqueValue 是 **C# 调用 Lua** 时，将某个 **形参/局部在 C# 调用�
 | 方向 | 规则 |
 |------|------|
 | **C# → Lua** | 形参为 **`ref` / `out` / `in T`** 时，**默认** Push **OpaqueValue**（登记 byref 类型 + 指针槽地址）；**无需** 再标 `OpaqueValue` |
-| **非 byref** | 默认走 [01-OVERVIEW.md](./01-OVERVIEW)；任意类型标注 `OpaqueValue` 时 Push Opaque（基元 / enum 合法但通常无实质必要） |
+| **非 byref** | 默认走 [01-OVERVIEW.md](/docs/spec/marshal/01-OVERVIEW/)；任意类型标注 `OpaqueValue` 时 Push Opaque（基元 / enum 合法但通常无实质必要） |
 
 因此 Lua 回调收到的 `ref int x` **不是** integer，而是 **lightuserdata handle**；须用 §5 API 读整数 / 写回。若再传给其它 C# 方法：对 **struct / 托管引用类型** 形参可将 handle **原样** 传回（§6）；对 **`int` 等简单类型** 形参 **必须** 先 `get_opaquevalue`（§6）。
 
@@ -72,7 +72,7 @@ end
 -- C# 返回后仍持有 h → 下次使用报错
 ```
 
-**长生命周期：** 须用 **`zlua.to_user_data(opaque)`**（**拷贝** 到 StructUserData / ClassUserData）或 C#→Lua 默认 Push 的 StructUserData 路径，见 [05-STRUCT.md](./05-STRUCT)。
+**长生命周期：** 须用 **`zlua.to_user_data(opaque)`**（**拷贝** 到 StructUserData / ClassUserData）或 C#→Lua 默认 Push 的 StructUserData 路径，见 [05-STRUCT.md](/docs/spec/marshal/05-STRUCT/)。
 
 ## 5. 读写 API：`get_opaquevalue` / `set_opaquevalue`
 
@@ -84,7 +84,7 @@ OpaqueValue **无** 成员访问；脚本侧读写指向内存须通过下列 AP
 
 | handle 指向类型 | 行为 |
 |-----------------|------|
-| **非** `ref`/`in`/`out` | 对槽上值走 [01-OVERVIEW.md](./01-OVERVIEW) **默认 marshal** Push（如 `int` → integer，`string` → string） |
+| **非** `ref`/`in`/`out` | 对槽上值走 [01-OVERVIEW.md](/docs/spec/marshal/01-OVERVIEW/) **默认 marshal** Push（如 `int` → integer，`string` → string） |
 | **`ref` / `in` / `out T`** | **先解引用** 指针槽，再对 **`T`**（去 byref）做默认 Push。例：`ref int` → **integer**，**不是** 指针 / lightuserdata |
 
 ### 5.2 `zlua.set_opaquevalue(opaque_handle, new_value)`
@@ -93,7 +93,7 @@ OpaqueValue **无** 成员访问；脚本侧读写指向内存须通过下列 AP
 
 | handle 指向类型 | 行为 |
 |-----------------|------|
-| **非** `ref`/`in`/`out` | 按 [01-OVERVIEW.md](./01-OVERVIEW) **默认 Lua→C#** marshal 写入槽 |
+| **非** `ref`/`in`/`out` | 按 [01-OVERVIEW.md](/docs/spec/marshal/01-OVERVIEW/) **默认 Lua→C#** marshal 写入槽 |
 | **`ref` / `in` / `out T`** | **先解引用**，再按 **`T`** 的默认 Lua→C# 规则写入目标内存。例：`ref int` ← integer，更新指针所指单元 |
 
 ```lua
@@ -131,7 +131,7 @@ end
 | 细则 | 说明 |
 |------|------|
 | **性能动机** | 基元 Pop 是极热路径；若每次先测 OpaqueValue，会拖慢全部 `int`/`float` 等 Marshal |
-| **byref**（`ref`/`in`/`out` A） | **一律** 按 [03-BYREF.md](./03-BYREF)：**先**识别 OpaqueValue，类型兼容则 **直传地址**（含 `ref int`）；**不** 套用上表「简单类型不自动解」规则 |
+| **byref**（`ref`/`in`/`out` A） | **一律** 按 [03-BYREF.md](/docs/spec/marshal/03-BYREF/)：**先**识别 OpaqueValue，类型兼容则 **直传地址**（含 `ref int`）；**不** 套用上表「简单类型不自动解」规则 |
 | **by-val 简单类型** | 上表「否」：须先 `get_opaquevalue` 再传入 |
 | **类型兼容** | Opaque→byref / 自动解时须与目标类型兼容，否则报错（禁止 `ref object` Opaque → `ref int`） |
 | **过期 handle** | 仅在 **会走自动解** 的路径上才执行 OpaqueValue 校验 |
@@ -145,7 +145,7 @@ struct 的 **默认 C#→Lua by-val** 路径在同步调用链内也可能产出
 - `zlua.to_user_data(opaque)` **拷贝** 为 StructUserData 后再 `:` / `.`；或
 - 在 §6 允许的类型上 **原样传回** C# 形参。
 
-详细 struct 形态见 [05-STRUCT.md](./05-STRUCT)。
+详细 struct 形态见 [05-STRUCT.md](/docs/spec/marshal/05-STRUCT/)。
 
 ## 8. 设计要点摘要
 
@@ -162,8 +162,8 @@ struct 的 **默认 C#→Lua by-val** 路径在同步调用链内也可能产出
 
 | 主题 | 文档 |
 |------|------|
-| Lua→C# byref | [03-BYREF.md](./03-BYREF)（Opaque / ByValUserData 直传地址；其余临时槽） |
-| `[LuaMarshalAs(OpaqueValue)]` | [02-MARSHAL-AS.md](./02-MARSHAL-AS) |
-| struct ByVal / StructUserData | [05-STRUCT.md](./05-STRUCT) |
-| `zlua.*` 签名 | [../05-LIB.md](../05-LIB) |
-| 实现细节 | [../../impl/marshal/](../../impl/marshal/) |
+| Lua→C# byref | [03-BYREF.md](/docs/spec/marshal/03-BYREF/)（Opaque / ByValUserData 直传地址；其余临时槽） |
+| `[LuaMarshalAs(OpaqueValue)]` | [02-MARSHAL-AS.md](/docs/spec/marshal/02-MARSHAL-AS/) |
+| struct ByVal / StructUserData | [05-STRUCT.md](/docs/spec/marshal/05-STRUCT/) |
+| `zlua.*` 签名 | [../05-LIB.md](/docs/spec/05-LIB/) |
+| 实现细节 | [../../impl/marshal/](/docs/impl/marshal/) |

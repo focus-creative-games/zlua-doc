@@ -6,7 +6,7 @@ title: "`ref` / `in` / `out` Marshal"
 # `ref` / `in` / `out` Marshal
 
 > **规范性：** byref 形参（元素类型记为 **A**）在 C# ↔ Lua 双向调用中的 Marshal 语义。  
-> **C#→Lua：** 默认 **OpaqueValue**，细节见 [04-OPAQUE.md](./04-OPAQUE)。  
+> **C#→Lua：** 默认 **OpaqueValue**，细节见 [04-OPAQUE.md](/docs/spec/marshal/04-OPAQUE/)。  
 > **Lua→C#：** 本节 §3 起。
 
 ## 1. 适用范围
@@ -28,7 +28,7 @@ title: "`ref` / `in` / `out` Marshal"
 
 - 脚本经 `zlua.get_opaquevalue` / `zlua.set_opaquevalue` 读写。
 - **不** 在此路径 Push ByValUserData / ClassUserData。
-- 完整规则：[04-OPAQUE.md](./04-OPAQUE)。
+- 完整规则：[04-OPAQUE.md](/docs/spec/marshal/04-OPAQUE/)。
 
 ---
 
@@ -60,7 +60,7 @@ CS.Demo.Offset(p, 10, 20)        -- 传 payload 地址；Invoke 后 p 的字段�
 
 ### 4.1 OpaqueValue
 
-1. 校验 handle 有效（generation / scope，见 [04-OPAQUE.md](./04-OPAQUE)）。
+1. 校验 handle 有效（generation / scope，见 [04-OPAQUE.md](/docs/spec/marshal/04-OPAQUE/)）。
 2. 校验 handle 登记的元素类型与 **A** **兼容**（须精确匹配或实现定义的可赋值规则；**禁止** 如 `ref object` → `ref int` 这类不相容配对）。
 3. 将 **handle 指向的地址** 交给 C# byref（**不** 再拷贝到临时槽）。
 
@@ -76,7 +76,7 @@ CS.Demo.Offset(p, 10, 20)        -- 传 payload 地址；Invoke 后 p 的字段�
 
 | Lua 实参 | 行为 |
 |----------|------|
-| 对应 **primitive** Lua 值（integer / number / boolean 等，规则同 [01-OVERVIEW.md](./01-OVERVIEW)） | **复制** 到栈上临时变量，传临时地址 |
+| 对应 **primitive** Lua 值（integer / number / boolean 等，规则同 [01-OVERVIEW.md](/docs/spec/marshal/01-OVERVIEW/)） | **复制** 到栈上临时变量，传临时地址 |
 | **OpaqueValue**（类型兼容） | 见 §4.1 |
 | **ByValUserData** | 通常不用于基元；若实现不提供基元 ByValUserData，则按非法或不走 payload 直传 |
 
@@ -100,7 +100,7 @@ CS.Demo.Offset(p, 10, 20)        -- 传 payload 地址；Invoke 后 p 的字段�
 | 可 Pop 为托管对象的形态（ByObjUserData、`nil`、以及声明类型允许的其它 by-val 形态） | 取得托管对象指针（或 `null`）→ 写入栈临时变量 → 传临时地址 |
 | **OpaqueValue**（类型兼容） | 见 §4.1 |
 
-同样：**临时槽** ⇒ C# **`ref` 重新绑定**（`refParam = other`）**不** 反映到 Lua；对象 **原地可变字段** 仍可通过共享引用可见（见 [06-CLASS.md](./06-CLASS)）。
+同样：**临时槽** ⇒ C# **`ref` 重新绑定**（`refParam = other`）**不** 反映到 Lua；对象 **原地可变字段** 仍可通过共享引用可见（见 [06-CLASS.md](/docs/spec/marshal/06-CLASS/)）。
 
 ---
 
@@ -196,8 +196,8 @@ end
 
 | 主题 | 文档 |
 |------|------|
-| OpaqueValue 生命周期与 get/set | [04-OPAQUE.md](./04-OPAQUE) |
-| ByValUserData / struct | [05-STRUCT.md](./05-STRUCT) |
-| 引用类型门面与 rebind | [06-CLASS.md](./06-CLASS) |
-| 默认 by-val 矩阵 | [01-OVERVIEW.md](./01-OVERVIEW) |
-| GetFunction / delegate bridge | [09-FUNCTION.md](./09-FUNCTION)、[../01-HOST-API.md](../01-HOST-API) |
+| OpaqueValue 生命周期与 get/set | [04-OPAQUE.md](/docs/spec/marshal/04-OPAQUE/) |
+| ByValUserData / struct | [05-STRUCT.md](/docs/spec/marshal/05-STRUCT/) |
+| 引用类型门面与 rebind | [06-CLASS.md](/docs/spec/marshal/06-CLASS/) |
+| 默认 by-val 矩阵 | [01-OVERVIEW.md](/docs/spec/marshal/01-OVERVIEW/) |
+| GetFunction / delegate bridge | [09-FUNCTION.md](/docs/spec/marshal/09-FUNCTION/)、[../01-HOST-API.md](/docs/spec/01-HOST-API/) |

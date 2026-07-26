@@ -7,7 +7,7 @@ title: "ObjectRegistry / StructRegistry"
 
 > **Il2Cpp：** `marshal/ObjectRegistry.cpp`、`marshal/StructRegistry.cpp`  
 > **Mono：** `Runtime/Mono/Marshaling/ObjectRegistry.cs`、`StructRegistry.cs`  
-> **语义：** [../../spec/10-LIFETIME.md](../../spec/10-LIFETIME)、[../../spec/marshal/06-CLASS.md](../../spec/marshal/06-CLASS)、[../../spec/marshal/05-STRUCT.md](../../spec/marshal/05-STRUCT)
+> **语义：** [../../spec/10-LIFETIME.md](/docs/spec/10-LIFETIME/)、[../../spec/marshal/06-CLASS.md](/docs/spec/marshal/06-CLASS/)、[../../spec/marshal/05-STRUCT.md](/docs/spec/marshal/05-STRUCT/)
 
 ---
 
@@ -68,7 +68,7 @@ Mono：同等语义，`Dictionary<ObjectViewKey, int>` + registry weak table。
 
 - `Pop(L, idx)` → 还原 `Il2CppObject*` / `object`，校验 kind；
 - `PopThis` → 仅 ByObj，供 bridge 热路径；
-- 与 [../../spec/marshal/06-CLASS.md](../../spec/marshal/06-CLASS) 的 identity 规则一致。
+- 与 [../../spec/marshal/06-CLASS.md](/docs/spec/marshal/06-CLASS/) 的 identity 规则一致。
 
 ### 2.5 `__gc`：`OnReleaseObjectUserData`
 

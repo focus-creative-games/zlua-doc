@@ -26,7 +26,7 @@ title: "性能对比"
 - 互调即使快 5 倍，若脚本边界只占帧时间 2%，整帧仅省 ~1.6%。**先 profiling** 确认热点。
 - `string`、复杂 object、`List` 等 **marshal 占主导** 时，方案差距缩小。
 - 首次 `EnsureBinding`、重载 dispatch、泛型 inflation 为 **稳态外** 成本。
-- 本基准 **暂未测 GC Alloc**（Il2Cpp Player 无可靠 `GetAllocatedBytesForCurrentThread`）；GC 见 [GC.md](./GC)。
+- 本基准 **暂未测 GC Alloc**（Il2Cpp Player 无可靠 `GetAllocatedBytesForCurrentThread`）；GC 见 [GC.md](/docs/compare/GC/)。
 
 ---
 
@@ -238,7 +238,7 @@ C# GetFunction → delegate.Invoke（一次绑定，可缓存）
 | 消灭生成 C# Wrap 层（Lua→C#） | C++ 一次 marshal + `methodPointer` |
 | C#→Lua 单次 InternalCall | 非 C# 循环调 LuaDLL |
 | 字段 / 无参属性快路径 | Il2Cpp offset + `methodPointer` 同级 |
-| 签名复用 stub | 控制体积同时避免 per-member C# 委托链（见 [BRIDGE.md](./BRIDGE)） |
+| 签名复用 stub | 控制体积同时避免 per-member C# 委托链（见 [BRIDGE.md](/docs/compare/BRIDGE/)） |
 
 **不是**单一黑科技 10 倍，而是 **减少重复的 native↔managed↔native 折返**。
 
@@ -337,9 +337,9 @@ ZLua 热路径 **接近** 该下限；xLua 因多次 LuaDLL，通常 **高一个
 
 | 文档 | 内容 |
 |------|------|
-| [GC.md](./GC) | 分配与「零 GC」边界 |
-| [BRIDGE.md](./BRIDGE) | stub 体积与间接层 |
-| [FEATURES.md](./FEATURES) | 功能差异 |
+| [GC.md](/docs/compare/GC/) | 分配与「零 GC」边界 |
+| [BRIDGE.md](/docs/compare/BRIDGE/) | stub 体积与间接层 |
+| [FEATURES.md](/docs/compare/FEATURES/) | 功能差异 |
 
 ---
 

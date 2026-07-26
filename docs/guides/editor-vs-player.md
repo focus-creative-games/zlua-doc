@@ -13,21 +13,27 @@ ZLua 双后端：**Lua 可见语义必须一致**；实现路径不同。
 | **状态** | **已完成** | **已完成** |
 | 实现 | Expression Emit + 三表 indexer | C++ stub + native indexer |
 | C#→Lua | `GetFunction<T>` + Delegate 桥 | 同左 |
-| 性能 | 日常迭代 | 基准以 Player 为准（见 [性能对比](../compare/PERFORMANCE)） |
+| 性能 | 日常迭代 | 基准以 Player 为准（见 [性能对比](/docs/compare/PERFORMANCE/)） |
 | Generate | 无 per-type C# Wrap；Editor 无需 Generate | **`ZLua/Generate/All`**（C++ stub，非 C# Wrap） |
 
-详见 [Mono 实现](../impl/MONO)、[Il2Cpp 实现](../impl/IL2CPP)、[项目状态](../getting-started/project-status)。
+详见 [Mono 实现](/docs/impl/MONO/)、[Il2Cpp 实现](/docs/impl/IL2CPP/)、[项目状态](/docs/getting-started/project-status/)。
 
 :::info 语义一致
-Event、Marshal、类型访问等以 [规范](../spec/00-OVERVIEW) 为准；两端均 **无** Event 专用元表（`add_` / `remove_`）。
+Event、Marshal、类型访问等以 [规范](/docs/spec/00-OVERVIEW/) 为准；两端均 **无** Event 专用元表（`add_` / `remove_`）。
 :::
 
 ## Player 发布检查清单
 
 - [ ] 执行 **`ZLua/Generate/All`**
 - [ ] Lua 已 Sync 到 StreamingAssets（见 [zlua-demo](https://github.com/focus-creative-games/zlua-demo)）
-- [ ] 脚本行为符合 [规范](../spec/00-OVERVIEW)（勿依赖已废弃的 Event `.get` / `.set`）
-- [ ] 对照 [兼容性矩阵](../getting-started/compatibility) 做冒烟
+- [ ] 脚本行为符合 [规范](/docs/spec/00-OVERVIEW/)（勿依赖已废弃的 Event `.get` / `.set`）
+- [ ] 对照 [兼容性矩阵](/docs/getting-started/compatibility/) 做冒烟
+
+
+
+
+
+
 
 
 
@@ -41,11 +47,11 @@ Event、Marshal、类型访问等以 [规范](../spec/00-OVERVIEW) 为准；两�
 
 | | |
 |---|---|
-| **上一篇** | [排错指南](./troubleshooting) |
-| **下一篇** | [最佳实践](./best-practices) |
+| **上一篇** | [排错指南](/docs/guides/troubleshooting/) |
+| **下一篇** | [最佳实践](/docs/guides/best-practices/) |
 
 ## 相关文档
 
-- [双运行时](../concepts/dual-runtime)
-- [选型对比](../compare/)
-- [排错指南](./troubleshooting)
+- [双运行时](/docs/concepts/dual-runtime/)
+- [选型对比](/docs/compare/)
+- [排错指南](/docs/guides/troubleshooting/)

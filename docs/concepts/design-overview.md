@@ -7,7 +7,7 @@ description: ZLua 的核心设计目标与 GetFunction 模型。
 # 设计概览
 
 :::tip 谁该读本文
-**选型者、新接入开发者、需要理解「为什么这样设计」的读者。** 日常 API 用法请直接看 [使用指南](../guides/csharp-to-lua)；实现细节见 [规范文档](../spec/00-OVERVIEW)。
+**选型者、新接入开发者、需要理解「为什么这样设计」的读者。** 日常 API 用法请直接看 [使用指南](/docs/guides/csharp-to-lua/)；实现细节见 [规范文档](/docs/spec/00-OVERVIEW/)。
 :::
 
 ZLua 把 Lua 当作另一种 **Native**：类比 P/Invoke，用声明式 API 统一双向互操作；Il2Cpp 侧生成 **C++ stub**（`ZLua/Generate/All`），**不是** xLua 式 C# Wrap。
@@ -82,22 +82,22 @@ flowchart TB
 |------|---------------|------|
 | 类型暴露 | 生成 C# Wrap / CodeEmit | `CSharp` 根表 + 元表三表 |
 | C#→Lua | `LuaEnv.DoString` / DelegateBridge | `GetFunction<T>` + `Invoke` |
-| Player 性能 | Wrap + 多次 LuaDLL | C++ 直桥 + 签名复用（见 [PERFORMANCE](../compare/PERFORMANCE)） |
+| Player 性能 | Wrap + 多次 LuaDLL | C++ 直桥 + 签名复用（见 [PERFORMANCE](/docs/compare/PERFORMANCE/)） |
 
-详见 [选型对比](../compare/)、[Il2Cpp 实现](../impl/IL2CPP)。
+详见 [选型对比](/docs/compare/)、[Il2Cpp 实现](/docs/impl/IL2CPP/)。
 
 ## 何时读哪份文档
 
 | 你的问题 | 推荐阅读 |
 |----------|----------|
-| 怎么从 C# 调 Lua？ | [C# 调用 Lua 指南](../guides/csharp-to-lua) |
-| Lua 怎么访问 C# 类型？ | [类型系统概览](./type-system-overview) |
-| 参数怎么传递？ | [Marshal 模型概览](./marshal-overview) |
-| Editor 与 Player 差别？ | [双运行时](./dual-runtime) |
-| 完整设计语义？ | [设计规范](../spec/00-OVERVIEW) |
+| 怎么从 C# 调 Lua？ | [C# 调用 Lua 指南](/docs/guides/csharp-to-lua/) |
+| Lua 怎么访问 C# 类型？ | [类型系统概览](/docs/concepts/type-system-overview/) |
+| 参数怎么传递？ | [Marshal 模型概览](/docs/concepts/marshal-overview/) |
+| Editor 与 Player 差别？ | [双运行时](/docs/concepts/dual-runtime/) |
+| 完整设计语义？ | [设计规范](/docs/spec/00-OVERVIEW/) |
 
 ## 相关文档
 
-- [设计规范](../spec/00-OVERVIEW)
-- [双运行时架构](./dual-runtime)
-- [Il2Cpp 架构](../impl/IL2CPP)
+- [设计规范](/docs/spec/00-OVERVIEW/)
+- [双运行时架构](/docs/concepts/dual-runtime/)
+- [Il2Cpp 架构](/docs/impl/IL2CPP/)

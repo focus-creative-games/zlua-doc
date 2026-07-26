@@ -6,7 +6,7 @@ description: byref 与 OpaqueValue Marshal 规则摘要。
 
 # ref / out / in 参数
 
-权威细则：[BYREF](../spec/marshal/03-BYREF)、[OPAQUE](../spec/marshal/04-OPAQUE)。
+权威细则：[BYREF](/docs/spec/marshal/03-BYREF/)、[OPAQUE](/docs/spec/marshal/04-OPAQUE/)。
 
 ## 双路径摘要
 
@@ -41,7 +41,13 @@ Opaque 读写：`zlua.get_opaquevalue` / `zlua.set_opaquevalue`（同步调用�
 | ByValUserData 写回 | ✅ | ✅ |
 | 裸 number / string 写回 | ❌ | ❌ |
 
-细则以 [BYREF](../spec/marshal/03-BYREF)、[OPAQUE](../spec/marshal/04-OPAQUE) 为准；两端语义一致。
+细则以 [BYREF](/docs/spec/marshal/03-BYREF/)、[OPAQUE](/docs/spec/marshal/04-OPAQUE/) 为准；两端语义一致。
+
+
+
+
+
+
 
 
 
@@ -54,11 +60,11 @@ Opaque 读写：`zlua.get_opaquevalue` / `zlua.set_opaquevalue`（同步调用�
 
 | | |
 |---|---|
-| **上一篇** | [泛型与数组](./generics-and-arrays) |
-| **下一篇** | [Lua 模块加载](./lua-module-loading) |
+| **上一篇** | [泛型与数组](/docs/guides/generics-and-arrays/) |
+| **下一篇** | [Lua 模块加载](/docs/guides/lua-module-loading/) |
 
 ## 相关文档
 
-- [Marshal 总览](../spec/marshal/01-OVERVIEW)
-- [Struct Marshal](../spec/marshal/05-STRUCT)
-- [Marshal 速查](../reference/marshal-cheatsheet)
+- [Marshal 总览](/docs/spec/marshal/01-OVERVIEW/)
+- [Struct Marshal](/docs/spec/marshal/05-STRUCT/)
+- [Marshal 速查](/docs/reference/marshal-cheatsheet/)

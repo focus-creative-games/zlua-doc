@@ -6,10 +6,10 @@ title: "Struct Marshal"
 # Struct Marshal
 
 > **规范性：** C# struct（值类型）与 Lua 互操作的传递、构造与写回规则。  
-> **OpaqueValue / byref（C#→Lua）：** 见 [04-OPAQUE.md](./04-OPAQUE)。  
-> **Lua→C# byref 真 ref：** 见 [03-BYREF.md](./03-BYREF)。  
-> **Table / UnpackedValues：** 见 [02-MARSHAL-AS.md §5–§6](./02-MARSHAL-AS)。  
-> **实现细节（GC、Registry 等）：** → [../../impl/marshal/](../../impl/marshal/)。
+> **OpaqueValue / byref（C#→Lua）：** 见 [04-OPAQUE.md](/docs/spec/marshal/04-OPAQUE/)。  
+> **Lua→C# byref 真 ref：** 见 [03-BYREF.md](/docs/spec/marshal/03-BYREF/)。  
+> **Table / UnpackedValues：** 见 [02-MARSHAL-AS.md §5–§6](/docs/spec/marshal/02-MARSHAL-AS/)。  
+> **实现细节（GC、Registry 等）：** → [../../impl/marshal/](/docs/impl/marshal/)。
 
 ## 1. 设计目标
 
@@ -27,12 +27,12 @@ title: "Struct Marshal"
 
 ## 2. 默认 Marshal（摘要）
 
-未标注 `[LuaMarshalAs]` 时，与 [01-OVERVIEW.md](./01-OVERVIEW) 一致：
+未标注 `[LuaMarshalAs]` 时，与 [01-OVERVIEW.md](/docs/spec/marshal/01-OVERVIEW/) 一致：
 
 | 方向 | 默认形态 | 说明 |
 |------|----------|------|
 | **C# → Lua**（by-val） | **ByValUserData** 或 **OpaqueValue** | 长生命周期 / 显式 StructUserData 路径 Push **ByValUserData**；同步调用链内 by-val 亦可能为 **OpaqueValue** handle |
-| **C# → Lua**（`ref`/`in`/`out`） | **OpaqueValue** | 见 [04-OPAQUE.md](./04-OPAQUE) |
+| **C# → Lua**（`ref`/`in`/`out`） | **OpaqueValue** | 见 [04-OPAQUE.md](/docs/spec/marshal/04-OPAQUE/) |
 | **Lua → C#** | **StructUserData** 或 **`Type(...)`** 产物 | 默认 **不** 接受 table / 多栈参数；须 `[LuaMarshalAs(Table \| UnpackedValues)]` |
 
 ## 3. 三种 Lua 可见形态
@@ -108,7 +108,7 @@ title: "Struct Marshal"
 
 ## 6. 写回语义与 `ref` / `out` / `in`
 
-总览与完整分支见 [03-BYREF.md](./03-BYREF)。值类型要点：
+总览与完整分支见 [03-BYREF.md](/docs/spec/marshal/03-BYREF/)。值类型要点：
 
 | Lua 实参 | `ref`/`out`/`in` A（A 为值类型） |
 |----------|----------------------------------|
@@ -125,7 +125,7 @@ assert.equal(p.x, 11)
 
 ## 7. `Table` / `UnpackedValues`（struct）
 
-规则以 [02-MARSHAL-AS.md §5–§6](./02-MARSHAL-AS) 为准；struct 特例如下。
+规则以 [02-MARSHAL-AS.md §5–§6](/docs/spec/marshal/02-MARSHAL-AS/) 为准；struct 特例如下。
 
 | `LuaMarshalType` | Lua → C# | C# → Lua |
 |------------------|----------|----------|
@@ -146,11 +146,11 @@ public struct Vector2
 }
 ```
 
-**解析优先级**（与 [02-MARSHAL-AS.md §8](./02-MARSHAL-AS) 一致）：参数/返回值 > 字段/属性 > 类型级 > 默认；同目标 **Attribute > XML**。
+**解析优先级**（与 [02-MARSHAL-AS.md §8](/docs/spec/marshal/02-MARSHAL-AS/) 一致）：参数/返回值 > 字段/属性 > 类型级 > 默认；同目标 **Attribute > XML**。
 
 ## 8. 枚举（enum）与 struct 的区别
 
-枚举 **默认** C#↔Lua 为 integer/number，**不** 走 struct userdata（见 [08-ENUM.md](./08-ENUM)）。
+枚举 **默认** C#↔Lua 为 integer/number，**不** 走 struct userdata（见 [08-ENUM.md](/docs/spec/marshal/08-ENUM/)）。
 
 | 能力 | struct | enum |
 |------|--------|------|
@@ -175,7 +175,7 @@ SetColor(boxed)                        -- 默认形参 OK
 |-----|-------------|
 | **`zlua.box(typeArg, value)`** | 将值类型 **装箱** 为 **ByObjUserData**；`value` 可为 ByVal userdata、标量或构造参数 |
 | **`zlua.unbox(boxedValue)`** | 从 **ByObjUserData** 解箱为 **ByVal StructUserData**（或等价可访问实例） |
-| **`zlua.cast(obj, targetType)`** | 引用类型门面切换；struct 场景见 [06-CLASS.md](./06-CLASS) 与类型系统 |
+| **`zlua.cast(obj, targetType)`** | 引用类型门面切换；struct 场景见 [06-CLASS.md](/docs/spec/marshal/06-CLASS/) 与类型系统 |
 
 **`unbox` 不接受** ByVal userdata（已是 unboxed 形态）→ 报错。
 
@@ -209,7 +209,7 @@ Blittable struct 仅 `memcpy` 到 userdata payload，无额外 GC 登记。
 
 ## 12. 与元表 / 类型表的衔接
 
-- value type 类型表：`__struct = true`（见 [../02-TYPE-SYSTEM.md](../02-TYPE-SYSTEM)）。
+- value type 类型表：`__struct = true`（见 [../02-TYPE-SYSTEM.md](/docs/spec/02-TYPE-SYSTEM/)）。
 - **ByVal**：`ByValUserData` + **ByVal 实例元表**（`__instance_mt`）。
 - **ByObj**：`ObjectUserData` + **ByObj 实例元表**。
 - **Opaque**：**无** 实例 metatable；不可 `:` / `.`。
@@ -229,10 +229,10 @@ Blittable struct 仅 `memcpy` 到 userdata payload，无额外 GC 登记。
 
 | 主题 | 文档 |
 |------|------|
-| 默认矩阵 | [01-OVERVIEW.md](./01-OVERVIEW) |
-| `[LuaMarshalAs]` | [02-MARSHAL-AS.md](./02-MARSHAL-AS) |
-| byref | [03-BYREF.md](./03-BYREF) |
-| OpaqueValue | [04-OPAQUE.md](./04-OPAQUE) |
-| 枚举 | [08-ENUM.md](./08-ENUM) |
-| `zlua.*` API | [../05-LIB.md](../05-LIB) |
-| 类型表 / `__call` | [../02-TYPE-SYSTEM.md](../02-TYPE-SYSTEM) |
+| 默认矩阵 | [01-OVERVIEW.md](/docs/spec/marshal/01-OVERVIEW/) |
+| `[LuaMarshalAs]` | [02-MARSHAL-AS.md](/docs/spec/marshal/02-MARSHAL-AS/) |
+| byref | [03-BYREF.md](/docs/spec/marshal/03-BYREF/) |
+| OpaqueValue | [04-OPAQUE.md](/docs/spec/marshal/04-OPAQUE/) |
+| 枚举 | [08-ENUM.md](/docs/spec/marshal/08-ENUM/) |
+| `zlua.*` API | [../05-LIB.md](/docs/spec/05-LIB/) |
+| 类型表 / `__call` | [../02-TYPE-SYSTEM.md](/docs/spec/02-TYPE-SYSTEM/) |

@@ -6,7 +6,7 @@ description: ZLua 日常开发的建议与常见陷阱。
 
 # 最佳实践
 
-面向 **Mono Editor 与 Il2Cpp Player** 双运行时的日常约定。Lua 可见语义一致；发布 Player 前另阅 [Editor 与 Player](./editor-vs-player) 与 [排错指南](./troubleshooting)。
+面向 **Mono Editor 与 Il2Cpp Player** 双运行时的日常约定。Lua 可见语义一致；发布 Player 前另阅 [Editor 与 Player](/docs/guides/editor-vs-player/) 与 [排错指南](/docs/guides/troubleshooting/)。
 
 ## 工程组织
 
@@ -34,21 +34,27 @@ CSharp['AC'] = CSharp['Assembly-CSharp']
 
 ## 值类型与 byref
 
-- 需要写回：ByVal / ByObj / Opaque；裸 number **不回写**（见 [Struct Marshal](../spec/marshal/05-STRUCT)、[ref/out/in](./marshal-ref-out-in)）
+- 需要写回：ByVal / ByObj / Opaque；裸 number **不回写**（见 [Struct Marshal](/docs/spec/marshal/05-STRUCT/)、[ref/out/in](/docs/guides/marshal-ref-out-in/)）
 
 ## 性能
 
 | 项 | 建议 |
 |----|------|
 | 字段 | 优先 `obj.field` |
-| 基准 | **Il2Cpp Player**；Lua→C# 平均约 **2.6×** vs xLua（见 [PERFORMANCE](../compare/PERFORMANCE)） |
+| 基准 | **Il2Cpp Player**；Lua→C# 平均约 **2.6×** vs xLua（见 [PERFORMANCE](/docs/compare/PERFORMANCE/)） |
 
 ## Player 发布检查清单
 
 - [ ] **`ZLua/Generate/All`**
 - [ ] Sync LuaScripts → StreamingAssets
 - [ ] 未使用已废弃 Event API
-- [ ] 对照 [兼容性](../getting-started/compatibility)
+- [ ] 对照 [兼容性](/docs/getting-started/compatibility/)
+
+
+
+
+
+
 
 
 
@@ -61,11 +67,11 @@ CSharp['AC'] = CSharp['Assembly-CSharp']
 
 | | |
 |---|---|
-| **上一篇** | [Editor 与 Player](./editor-vs-player) |
-| **下一篇** | [设计概览](../concepts/design-overview) |
+| **上一篇** | [Editor 与 Player](/docs/guides/editor-vs-player/) |
+| **下一篇** | [设计概览](/docs/concepts/design-overview/) |
 
 ## 相关文档
 
-- [FAQ](../community/faq)
-- [Editor 与 Player](./editor-vs-player)
-- [规范](../spec/00-OVERVIEW)
+- [FAQ](/docs/community/faq/)
+- [Editor 与 Player](/docs/guides/editor-vs-player/)
+- [规范](/docs/spec/00-OVERVIEW/)

@@ -5,8 +5,8 @@ title: "从 xLua 迁移"
 
 # 从 xLua 迁移到 ZLua
 
-> **特性背景：** [compare/FEATURES.md](../../compare/FEATURES)  
-> **性能/GC：** [compare/PERFORMANCE.md](../../compare/PERFORMANCE)、[compare/GC.md](../../compare/GC)
+> **特性背景：** [compare/FEATURES.md](/docs/compare/FEATURES/)  
+> **性能/GC：** [compare/PERFORMANCE.md](/docs/compare/PERFORMANCE/)、[compare/GC.md](/docs/compare/GC/)
 
 ---
 
@@ -19,7 +19,7 @@ title: "从 xLua 迁移"
 | `luaEnv:DoString` / `require` | 同 `require`；loader 由宿主提供 |
 | `[LuaCallCSharp]` + Generate | **无**；public 类型 **懒 Bind** |
 | `[CSharpCallLua]` | `LuaAppDomain.GetFunction<T>("module","func")` |
-| `LuaFunction` / `xlua.tofunction` | `GetFunction` 直接调，或 **形参隐式 marshal** / `to_delegate`（见 [回调 §3](../../guides/callbacks-and-delegates)） |
+| `LuaFunction` / `xlua.tofunction` | `GetFunction` 直接调，或 **形参隐式 marshal** / `to_delegate`（见 [回调 §3](/docs/guides/callbacks-and-delegates/)） |
 | `ObjectTranslator` | `ObjectRegistry` + marshal 分册 |
 | xLua Event 语法 | **无**；`add_Xxx` / `remove_Xxx` |
 | `CS.System.Collections.Generic.List(CS.System.Int32)` | `zlua.make_generic_type(...)` |
@@ -157,9 +157,9 @@ local function OnTick(dt) print(dt) end
 return { OnTick = OnTick }
 ```
 
-任意签名只要换成对应的 `T` 即可。Lua 侧已有 function、需显式指定类型时用 `zlua.to_delegate`（见 [回调与 Delegate §3](../../guides/callbacks-and-delegates)）。
+任意签名只要换成对应的 `T` 即可。Lua 侧已有 function、需显式指定类型时用 `zlua.to_delegate`（见 [回调与 Delegate §3](/docs/guides/callbacks-and-delegates/)）。
 
-详见 [spec/marshal/09-FUNCTION.md](../../spec/marshal/09-FUNCTION)、[回调与 Delegate](../../guides/callbacks-and-delegates)。
+详见 [spec/marshal/09-FUNCTION.md](/docs/spec/marshal/09-FUNCTION/)、[回调与 Delegate](/docs/guides/callbacks-and-delegates/)。
 
 ### 步骤 6：Event
 
@@ -209,7 +209,7 @@ zlua.set_opaquevalue(h, v + 1)
 
 ### 步骤 8：测试与 Player 验证
 
-- 按 [TESTING.md](../testing) 添加 `tc_*.lua`
+- 按 [TESTING.md](/docs/community/testing/) 添加 `tc_*.lua`
 - **Il2Cpp Player** 跑全量 manifest（xLua 与 ZLua 双端行为须分别验证）
 
 ---
@@ -225,8 +225,8 @@ zlua.set_opaquevalue(h, v + 1)
 | Opaque 跨帧 | 规范禁止 | 仅在单次 C#→Lua 调用内使用 |
 | 继承成员找不到 | Bind 期扁平化 | 确认成员在声明类型 public API 中 |
 | `__index` 无成员不报错 | ZLua 返回 **nil** | 勿依赖 xLua 式 error |
-| Editor 某 API 为 nil | 类型未绑定 / 非 public / 用法错误 | 查 [spec](../../spec/00-OVERVIEW) 与 [impl/MONO.md](../../impl/MONO) |
-| 性能预期 | xLua 与 ZLua 架构不同 | 见 [compare/PERFORMANCE.md](../../compare/PERFORMANCE) |
+| Editor 某 API 为 nil | 类型未绑定 / 非 public / 用法错误 | 查 [spec](/docs/spec/00-OVERVIEW/) 与 [impl/MONO.md](/docs/impl/MONO/) |
+| 性能预期 | xLua 与 ZLua 架构不同 | 见 [compare/PERFORMANCE.md](/docs/compare/PERFORMANCE/) |
 | libil2cpp merge | Unity 升级成本 | 评估工程债后再迁 |
 
 ---
@@ -336,6 +336,6 @@ void Update() => LuaUpdate(Time.deltaTime);
 
 | 文档 | 内容 |
 |------|------|
-| [migration/README.md](./) | 共用清单 |
-| [spec/02-TYPE-SYSTEM.md](../../spec/02-TYPE-SYSTEM) | 类型语法 |
-| [spec/01-HOST-API.md](../../spec/01-HOST-API) | GetFunction |
+| [migration/README.md](/docs/community/migration/) | 共用清单 |
+| [spec/02-TYPE-SYSTEM.md](/docs/spec/02-TYPE-SYSTEM/) | 类型语法 |
+| [spec/01-HOST-API.md](/docs/spec/01-HOST-API/) | GetFunction |

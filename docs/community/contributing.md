@@ -21,7 +21,7 @@ title: "贡献约定"
 ⑤ docs/compare/**   ← 与其它方案对比（非行为契约）
 ```
 
-根目录说明见 [README.md](../intro)。
+根目录说明见 [README.md](/docs/intro/)。
 
 ---
 
@@ -38,7 +38,7 @@ title: "贡献约定"
 
 ### 2.1 推荐 PR 流程
 
-1. 在 `spec/` 写清行为 / 错误语义 / **测试用例 id**（见 [TESTING.md](./testing)）。
+1. 在 `spec/` 写清行为 / 错误语义 / **测试用例 id**（见 [TESTING.md](/docs/community/testing/)）。
 2. 实现 Il2Cpp + Mono（双端均须满足 spec；无法 Emit 的签名绑定期报错，禁止热路径 `Method.Invoke`）。
 3. 添加或更新 `Tests/Lua/cases/**/tc_*.lua` 与 `manifest.lua`。
 4. 若实现细节需说明，补 `impl/` 分册。
@@ -55,18 +55,18 @@ title: "贡献约定"
 | `build-win64/Il2CppOutputProject/IL2CPP/libil2cpp/zlua/**` | `Packages/com.code-philosophy.zlua/ZLua~/libil2cpp-2022/**` |
 | 必要时 `libil2cpp/lua/**` | 包内目录为 **手动同步副本** |
 
-权威参考：[README.md](../intro) 双端一致性表。
+权威参考：[README.md](/docs/intro/) 双端一致性表。
 
 ### 3.2 Mono（Editor）
 
 | 路径 | 说明 |
 |------|------|
-| `Packages/com.code-philosophy.zlua/Runtime/Mono/**` | Editor 实现；见 [impl/MONO.md](../impl/MONO) |
+| `Packages/com.code-philosophy.zlua/Runtime/Mono/**` | Editor 实现；见 [impl/MONO.md](/docs/impl/MONO/) |
 | `_archive/Mono-pre-rewrite-*` | 只读参考，**不**参与编译 |
 
 **Mono 实现硬性规则（摘要）：**
 
-- 三表 Lua indexer（见 [impl/metatable/INDEXER-MONO.md](../impl/metatable/INDEXER-MONO)）。
+- 三表 Lua indexer（见 [impl/metatable/INDEXER-MONO.md](/docs/impl/metatable/INDEXER-MONO/)）。
 - 无法 Expression Emit 的签名 → **绑定期显式错误**，禁止热路径 `Method.Invoke`。
 - 无 Event 专用支持；`add_` / `remove_` 作普通方法。
 
@@ -87,7 +87,7 @@ title: "贡献约定"
 3. 规范条款尽量带 **测试用例 id**。
 4. `compare/**` 保持诚实对比，不写营销话术。
 
-边界约定见 [README.md](../intro) §边界约定。
+边界约定见 [README.md](/docs/intro/) §边界约定。
 
 ---
 
@@ -109,7 +109,7 @@ title: "贡献约定"
 | Il2Cpp Player | 同一 manifest 全绿 |
 | 语义 | Mono 与 Il2Cpp Lua 可见行为 **必须一致** |
 
-双端语义以 spec 为准；实现路径见 [impl/MONO.md](../impl/MONO) / [impl/IL2CPP.md](../impl/IL2CPP)。
+双端语义以 spec 为准；实现路径见 [impl/MONO.md](/docs/impl/MONO/) / [impl/IL2CPP.md](/docs/impl/IL2CPP/)。
 
 ---
 
@@ -117,6 +117,6 @@ title: "贡献约定"
 
 | 文档 | 内容 |
 |------|------|
-| [TESTING.md](./testing) | 测试与条款映射 |
-| [migration/README.md](./migration/) | 迁移指南 |
-| [spec/00-OVERVIEW.md](../spec/00-OVERVIEW) | 产品总览 |
+| [TESTING.md](/docs/community/testing/) | 测试与条款映射 |
+| [migration/README.md](/docs/community/migration/) | 迁移指南 |
+| [spec/00-OVERVIEW.md](/docs/spec/00-OVERVIEW/) | 产品总览 |

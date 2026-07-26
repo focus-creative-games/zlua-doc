@@ -6,15 +6,15 @@ title: "官方 Lua（PUC-Rio）构建"
 # 构建 — 官方 Lua（PUC-Rio 5.1.x–5.5.x）
 
 > 本文约定 ZLua 在 **Editor（Mono）** 与 **Il2Cpp Player** 上如何接入 **PUC-Rio Lua**。  
-> LuaJIT 见 [02-LUAJIT.md](02-LUAJIT.md)。  
-> 包布局、Install 流水线、Define、`ZLuaConf.inc` 见 [11-MULTI-VERSION.md](../11-MULTI-VERSION.md)。  
+> LuaJIT 见 [02-LUAJIT.md](/docs/spec/build/02-LUAJIT/)。  
+> 包布局、Install 流水线、Define、`ZLuaConf.inc` 见 [11-MULTI-VERSION.md](/docs/spec/11-MULTI-VERSION/)。  
 > 本文不改变 Lua 可见互操作语义。
 
 ---
 
 ## 1. 与 LuaJIT 的对比（摘要）
 
-| | **PUC-Rio（本文）** | **LuaJIT**（[02-LUAJIT.md](02-LUAJIT.md)） |
+| | **PUC-Rio（本文）** | **LuaJIT**（[02-LUAJIT.md](/docs/spec/build/02-LUAJIT/)） |
 |--|---------------------|---------------------------------------------|
 | Settings id | `lua-{major}.{minor}.{patch}`（如 `lua-5.3.6`） | `luajit-{major}.{minor}` |
 | 源码缓存 | `LuaSrcCache/{id}/`（可自动下载） | 手动 clone |
@@ -45,7 +45,7 @@ PUC-Rio 是可移植纯 C 库：无宿主代码生成、无架构专用 VM 目�
 5. 按矩阵写入 / 强制 `ZLUA_FAST_METATABLE`；必要时对 5.1/5.2 做 Il2Cpp lump 相关的 `luaconf` 适配。  
 6. 写入 Scripting Define（`ZLUA_LUA_5_1` … `ZLUA_LUA_5_5`）与 `ZLuaConf.inc`。
 
-细节与 patch floor 算法见 [11-MULTI-VERSION.md](../11-MULTI-VERSION.md) §3、§5。
+细节与 patch floor 算法见 [11-MULTI-VERSION.md](/docs/spec/11-MULTI-VERSION/) §3、§5。
 
 ---
 
@@ -62,7 +62,7 @@ PUC-Rio 是可移植纯 C 库：无宿主代码生成、无架构专用 VM 目�
 缺 DLL 时 Install **警告不失败**。换系列后须 **重启 Editor**。  
 Editor 与 Player 所用小版本不必完全一致，但 API 族应匹配当前 Define。
 
-Editor **须**使用 native callback gate（[03-MONO-LUAJIT-CALLBACK-GATE.md](03-MONO-LUAJIT-CALLBACK-GATE.md)）；与 LuaJIT 相同协议。
+Editor **须**使用 native callback gate（[03-MONO-LUAJIT-CALLBACK-GATE.md](/docs/spec/build/03-MONO-LUAJIT-CALLBACK-GATE/)）；与 LuaJIT 相同协议。
 
 ---
 
@@ -86,6 +86,6 @@ Editor **须**使用 native callback gate（[03-MONO-LUAJIT-CALLBACK-GATE.md](03
 
 | 文档 | 内容 |
 |------|------|
-| [11-MULTI-VERSION.md](../11-MULTI-VERSION.md) | UPM 布局、Install 顺序、patch floor、Define、DLL 逻辑名、`ZLuaConf.inc` |
+| [11-MULTI-VERSION.md](/docs/spec/11-MULTI-VERSION/) | UPM 布局、Install 顺序、patch floor、Define、DLL 逻辑名、`ZLuaConf.inc` |
 | **本文** | PUC-Rio 的 Editor DLL 与 Il2Cpp **源码进树**构建形态 |
-| [02-LUAJIT.md](02-LUAJIT.md) | LuaJIT 头文件 + 静态库模型 |
+| [02-LUAJIT.md](/docs/spec/build/02-LUAJIT/) | LuaJIT 头文件 + 静态库模型 |

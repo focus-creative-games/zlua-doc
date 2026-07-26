@@ -43,7 +43,7 @@ local IntArr = zlua.get_type_from_name("System.Int32[]")
 
 ### `zlua.types.*`
 
-内置 corlib 类型名字符串，见 **[zlua.types 完整表](./zlua-types)**。
+内置 corlib 类型名字符串，见 **[zlua.types 完整表](/docs/reference/lua/zlua-types/)**。
 
 ### `zlua.signature(typeArg, ...) → signature`
 
@@ -173,12 +173,12 @@ local handler = zlua.to_delegate(function(x) print(x) end, CSharp.AC['System.Act
 | to_table / to_bytes | ✅ | ❌ |
 | to_delegate | ✅ | ❌ |
 
-完整语义：[zlua 库规范](../../spec/05-LIB)
+完整语义：[zlua 库规范](/docs/spec/05-LIB/)
 
 ## 相关文档
 
-- [zlua.types 常量表](./zlua-types)
-- [API 概览](../overview)
-- [方法重载](../../guides/methods-and-overloads)
-- [泛型与数组](../../guides/generics-and-arrays)
-- [ref / out / in](../../guides/marshal-ref-out-in)
+- [zlua.types 常量表](/docs/reference/lua/zlua-types/)
+- [API 概览](/docs/reference/overview/)
+- [方法重载](/docs/guides/methods-and-overloads/)
+- [泛型与数组](/docs/guides/generics-and-arrays/)
+- [ref / out / in](/docs/guides/marshal-ref-out-in/)

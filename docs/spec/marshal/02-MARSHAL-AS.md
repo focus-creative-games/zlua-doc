@@ -6,7 +6,7 @@ title: "`[LuaMarshalAs]` 与 `LuaMarshalType`"
 # `[LuaMarshalAs]` 与 `LuaMarshalType`
 
 > **规范性：** 参数、返回值、字段、属性及类型（`class` / `struct`）上的 Marshal 覆盖规则。  
-> **默认矩阵：** 未覆盖时见 [01-OVERVIEW.md](./01-OVERVIEW)。  
+> **默认矩阵：** 未覆盖时见 [01-OVERVIEW.md](/docs/spec/marshal/01-OVERVIEW/)。  
 > **源码：** `ZLua.Common` 中的 `LuaMarshalAsAttribute`、`LuaMarshalType`（枚举名以本文为准，含 **`OpaqueValue`**）。  
 > **外部配置：** 预编译程序集可通过 XML 配置等价规则，见 **§9**。
 
@@ -75,10 +75,10 @@ public sealed class LuaMarshalAsAttribute : Attribute
 
 | 值 | 适用方向 | 说明 |
 |----|----------|------|
-| **`Default`** | 双向 | 使用 [01-OVERVIEW.md](./01-OVERVIEW) 默认规则，不做额外转换。 |
-| **`UserData`** | 双向 | **仅** 可标注于 **托管引用类型** 与 **struct**（§3）；**不可** 用于基元 / `enum` / `IntPtr` 等。语义：强制走 **UserData 形态**（ByObjUserData / ByValUserData / ClassUserData 等）。<br>• **实质有效的目标：** 几乎只有 **`string`**——默认 C#↔Lua 为 Lua **string**，标注后改为 **ByObjUserData**（托管 `System.String` 对象）<br>• **class / interface / 数组 / 普通 struct / object：** 默认 marshal **已是** UserData，标注与 `Default` **等价**<br>• **`Delegate`：** 可标注，但 **无实质作用**——仍按 [09-FUNCTION.md](./09-FUNCTION) Marshal 为 **Lua function** 或既有 bridge |
+| **`Default`** | 双向 | 使用 [01-OVERVIEW.md](/docs/spec/marshal/01-OVERVIEW/) 默认规则，不做额外转换。 |
+| **`UserData`** | 双向 | **仅** 可标注于 **托管引用类型** 与 **struct**（§3）；**不可** 用于基元 / `enum` / `IntPtr` 等。语义：强制走 **UserData 形态**（ByObjUserData / ByValUserData / ClassUserData 等）。<br>• **实质有效的目标：** 几乎只有 **`string`**——默认 C#↔Lua 为 Lua **string**，标注后改为 **ByObjUserData**（托管 `System.String` 对象）<br>• **class / interface / 数组 / 普通 struct / object：** 默认 marshal **已是** UserData，标注与 `Default` **等价**<br>• **`Delegate`：** 可标注，但 **无实质作用**——仍按 [09-FUNCTION.md](/docs/spec/marshal/09-FUNCTION/) Marshal 为 **Lua function** 或既有 bridge |
 | **`Bytes`** | 双向 | **强制** 在 C# **`byte[]`** 与 Lua **`string`** 之间转换。<br>• C# **`byte[]`**：默认 ByObjUserData → Lua **string**（原始 octet，非 UTF-8 文本语义）<br>• 标注于 **`byte[]` 形参/返回值** 时，Lua 侧须传 **string**；Pop 时 **不接受** ByObjUserData / table<br>• 若标注于 **`string`** 形参/返回值，则走 **`byte[]` ↔ string** 的对偶规则 |
-| **`OpaqueValue`** | **仅 C# → Lua** | Push **OpaqueValue**（lightuserdata，无 metatable），见 [04-OPAQUE.md](./04-OPAQUE)。<br>• **`ref` / `out` / `in T`**（任意 `T`）**默认** 即为本形态（无需标注）<br>• **by-val（任意 CLR 类型）均可** 显式标注强制 Push Opaque；对 **基元 / enum / `IntPtr` 等** 合法但通常 **无实质必要**（默认已是轻量 integer/number）<br>• 脚本经 `zlua.get_opaquevalue` / `zlua.set_opaquevalue` 读写；回传给 C# 时遵循 [04-OPAQUE.md §6](./04-OPAQUE)<br>• **不可** 跨调用持久化；**Lua → C#** 单独形参上标注本类型视为 **非法**（§3.1） |
+| **`OpaqueValue`** | **仅 C# → Lua** | Push **OpaqueValue**（lightuserdata，无 metatable），见 [04-OPAQUE.md](/docs/spec/marshal/04-OPAQUE/)。<br>• **`ref` / `out` / `in T`**（任意 `T`）**默认** 即为本形态（无需标注）<br>• **by-val（任意 CLR 类型）均可** 显式标注强制 Push Opaque；对 **基元 / enum / `IntPtr` 等** 合法但通常 **无实质必要**（默认已是轻量 integer/number）<br>• 脚本经 `zlua.get_opaquevalue` / `zlua.set_opaquevalue` 读写；回传给 C# 时遵循 [04-OPAQUE.md §6](/docs/spec/marshal/04-OPAQUE/)<br>• **不可** 跨调用持久化；**Lua → C#** 单独形参上标注本类型视为 **非法**（§3.1） |
 | **`UnpackedValues`** | **双向** | **struct / class / interface**（§3）。将 **§5** 中 `Members` 列出的成员与 **多个连续 Lua 栈槽** 互转：<br>• **Lua → C#**：从栈上按名单 **顺序** Pop N 个值，写入对应 field/property<br>• **C# → Lua**：按名单 **顺序** Push N 个值（多返回值或展开 push）<br>须配置 **`Members`**；未配置 → **绑定期错误**（§4.2） |
 | **`Table`** | **双向** | **struct / class / interface**（§3）。将 **§5** 中 `Members` 列出的成员与 **单个 Lua table** 互转：<br>• **Lua → C#**：Pop 一个 table，按 **键名** 读取并写入 field/property<br>• **C# → Lua**：Push 一个 table，键为成员名，值为各成员 marshal 结果<br>须配置 **`Members`**；未配置 → **绑定期错误**（§4.2） |
 | **`ParamsTable`** | **双向** | 仅 **`params T[]` 形参**（§3、§7）。在默认 szarray 规则之上，**强制** 可变参数段 **仅** 以 **顺序 table** Marshal：<br>• **C# → Lua**：Push **一个** table，`[1]…[n]` 为各元素<br>• **Lua → C#**：Pop **一个** table（数组形态）；**不** 接受 ByObjUserData 占据 `params` 位<br>**不** 使用 `Members` |
@@ -99,17 +99,17 @@ public sealed class LuaMarshalAsAttribute : Attribute
 | **`byte[]`** | `Bytes`、`UserData`、`OpaqueValue` | `Bytes`：↔ Lua string；`UserData` 与默认等价；`OpaqueValue`：**仅 C#→Lua** |
 | **`T[]`（szarray）** | `UserData`、`OpaqueValue` | `UserData` 与默认等价；`OpaqueValue`：**仅 C#→Lua** |
 | **`T[,…]`（mdarray）** | `UserData`、`OpaqueValue` | 同上；Lua→C# **不** 因标注接受 table |
-| **`enum`** | `OpaqueValue` | by-val **不可** `UserData`；boxed 用 `zlua.box`（[08-ENUM.md](./08-ENUM)）。`OpaqueValue` 合法但通常无实质必要。**`ref`/`in`/`out` enum** → 见「byref」 |
+| **`enum`** | `OpaqueValue` | by-val **不可** `UserData`；boxed 用 `zlua.box`（[08-ENUM.md](/docs/spec/marshal/08-ENUM/)）。`OpaqueValue` 合法但通常无实质必要。**`ref`/`in`/`out` enum** → 见「byref」 |
 | **`struct`**（普通值类型 struct） | `UserData`、`OpaqueValue`、`Table`、`UnpackedValues` | `UserData` 与默认等价；`OpaqueValue`：**仅 C#→Lua**；`Table` / `UnpackedValues` 须名单 |
 | **`class`** | `UserData`、`Table`、`UnpackedValues`、`OpaqueValue` | `UserData` 与默认等价；`OpaqueValue`：**仅 C#→Lua** |
 | **`interface`** | `UserData`、`OpaqueValue`、`Table`、`UnpackedValues` | 默认 ByObjUserData；`UserData` 与默认等价；`Table` / `UnpackedValues` 须名单（同 class） |
 | **`Delegate` 及子类** | `UserData`、`OpaqueValue` | `UserData` 无实质作用；`OpaqueValue`：**仅 C#→Lua** |
 | **`object`** | `UserData`、`OpaqueValue` | `OpaqueValue`：**仅 C#→Lua** |
-| **`ref` / `in` / `out T`（任意 T）** | （通常无需标注） | C#→Lua **默认** OpaqueValue（[04-OPAQUE.md](./04-OPAQUE)）。显式 `[OpaqueValue]` **合法** |
+| **`ref` / `in` / `out T`（任意 T）** | （通常无需标注） | C#→Lua **默认** OpaqueValue（[04-OPAQUE.md](/docs/spec/marshal/04-OPAQUE/)）。显式 `[OpaqueValue]` **合法** |
 | **`Nullable<T>`** | 同 **`T`** 的合法集合（含 `OpaqueValue`） | `T` 为基元/enum 时 by-val 除 `Default`/`OpaqueValue` 外无其它合法值 |
-| **非托管指针**（`T*`、`void*` 等） | `OpaqueValue` | 默认可 `Default`（Pointer 透传，见 [10-POINTER.md](./10-POINTER)）；亦可标 `OpaqueValue`（C#→Lua） |
+| **非托管指针**（`T*`、`void*` 等） | `OpaqueValue` | 默认可 `Default`（Pointer 透传，见 [10-POINTER.md](/docs/spec/marshal/10-POINTER/)）；亦可标 `OpaqueValue`（C#→Lua） |
 | **函数指针**（`delegate*<…>`） | `OpaqueValue` | 同非托管指针 |
-| **`TypedReference`** | （通常无需标注） | **默认即 OpaqueValue**（双向均 **仅** 此形态，见 [10-POINTER.md](./10-POINTER)）。显式 `[OpaqueValue]` 合法且等价；`UserData` / `Table` 等 **非法** |
+| **`TypedReference`** | （通常无需标注） | **默认即 OpaqueValue**（双向均 **仅** 此形态，见 [10-POINTER.md](/docs/spec/marshal/10-POINTER/)）。显式 `[OpaqueValue]` 合法且等价；`UserData` / `Table` 等 **非法** |
 | **`decimal`** | `OpaqueValue` | v1 默认 by-val 仍可不支持；`OpaqueValue`（C#→Lua）合法 |
 | **`ref struct`**（`Span<T>` 等） | `OpaqueValue` | 不能作为普通 by-val 默认 marshal；`OpaqueValue`（C#→Lua）合法 |
 | **`params T[]` 形参** | `ParamsTable`、`OpaqueValue` | 默认同 szarray（§7）；`ParamsTable` 强制仅 table；`OpaqueValue`：**仅 C#→Lua** |
@@ -201,7 +201,7 @@ Foo({ X = 1, Y = 2 })
 
 ### 5.4 class 补充
 
-Pop 时须能构造实例（如无参 ctor + property setter，或实现层文档规定的工厂）；名单内 **引用类型成员** 按该成员类型的 [01-OVERVIEW.md](./01-OVERVIEW) 默认规则递归 Pop/Push。
+Pop 时须能构造实例（如无参 ctor + property setter，或实现层文档规定的工厂）；名单内 **引用类型成员** 按该成员类型的 [01-OVERVIEW.md](/docs/spec/marshal/01-OVERVIEW/) 默认规则递归 Pop/Push。
 
 ### 5.5 嵌套限制
 
@@ -230,9 +230,9 @@ Foo({ X = 1 })                     -- 缺 Y → error
 
 ## 7. `params T[]` 形参与 `ParamsTable`
 
-**范围：** 仅 **普通 C# 方法 / 构造函数** 上带 **`params`** 修饰的一维数组形参。**GetFunction 取得的 delegate 调用 / delegate bridge** 上的 `params` 仍 **不支持**（见 [09-FUNCTION.md](./09-FUNCTION)）。
+**范围：** 仅 **普通 C# 方法 / 构造函数** 上带 **`params`** 修饰的一维数组形参。**GetFunction 取得的 delegate 调用 / delegate bridge** 上的 `params` 仍 **不支持**（见 [09-FUNCTION.md](/docs/spec/marshal/09-FUNCTION/)）。
 
-**与 szarray 的关系：** `params T[]` 的 Marshal 规则与 [01-OVERVIEW.md §4](./01-OVERVIEW) szarray **相同**（C#→Lua **ByObjUserData**；Lua→C# **ByObjUserData** 或 **数组形态 table**）。差异在于 **Lua 侧传参形态** 与 **空 / null 语义**。
+**与 szarray 的关系：** `params T[]` 的 Marshal 规则与 [01-OVERVIEW.md §4](/docs/spec/marshal/01-OVERVIEW/) szarray **相同**（C#→Lua **ByObjUserData**；Lua→C# **ByObjUserData** 或 **数组形态 table**）。差异在于 **Lua 侧传参形态** 与 **空 / null 语义**。
 
 ### 7.1 默认行为（未标注或 `Default`）
 
@@ -274,7 +274,7 @@ CS.Demo.Sum(nil)
 -- CS.Demo.Prefix(0, 1, 2)
 ```
 
-**与重载分派：** `params` 形参在 overload 匹配时仍计为 **单个** 形参位；**不** 将后续栈槽并入 `params` 段（见 [../04-METHOD-OVERLOAD.md](../04-METHOD-OVERLOAD)）。
+**与重载分派：** `params` 形参在 overload 匹配时仍计为 **单个** 形参位；**不** 将后续栈槽并入 `params` 段（见 [../04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/)）。
 
 ### 7.2 `ParamsTable`（显式标注）
 
@@ -283,7 +283,7 @@ CS.Demo.Sum(nil)
 | 方向 | 规则 |
 |------|------|
 | **C# → Lua** | Push **一个** table；键 **`1`…`n`**，`t[i]` 为第 `i-1` 个元素 |
-| **Lua → C#** | Pop **一个** table（[01-OVERVIEW.md §4.4](./01-OVERVIEW) 数组形态约束）；**不** 接受 ByObjUserData |
+| **Lua → C#** | Pop **一个** table（[01-OVERVIEW.md §4.4](/docs/spec/marshal/01-OVERVIEW/) 数组形态约束）；**不** 接受 ByObjUserData |
 
 **空 / null：** **`{}`** → **`T[0]`**；**`nil`** → **`null`**。
 
@@ -313,7 +313,7 @@ Codegen / Mono 反射在 Pop / Push 时按 **由细到粗** 解析；**同一目
 3. **声明类型**（`class` / `struct` 类型级；**仅非泛型**类型，§1.1）
    1. 类型上的 `[LuaMarshalAs]`（若 `≠ Default`）
    2. 否则 XML 中该 `Type` 下直接子元素 `MarshalAs`（§9）
-4. **[01-OVERVIEW.md](./01-OVERVIEW) 内置默认**
+4. **[01-OVERVIEW.md](/docs/spec/marshal/01-OVERVIEW/) 内置默认**
 
 **不** 支持方法级 `[LuaMarshalAs]` / 方法级 XML `MarshalAs`；须对每个参数/返回值分别配置。方法上若出现该属性，绑定层应视为 **配置错误** 或 **忽略并告警**（推荐 Editor 绑定期失败）。
 
@@ -407,7 +407,7 @@ Codegen / Mono 反射在 Pop / Push 时按 **由细到粗** 解析；**同一目
 | `Assembly/@name` | `Assembly.GetName().Name`（非路径、非 `.dll` 文件名） |
 | `Type/@fullName` | CLR 全名：`Namespace.Type`；嵌套 `Outer+Inner`；泛型声明类型写 **开放定义** ``Foo`1``（仅作成员挂载容器，见 §9.3.1）。**禁止**写闭合实例名作 `Type` 容器 |
 | `Method/@name` | 方法名（CLR `Name`，不含签名） |
-| `Method/@signature` | 参数类型列表，**圆括号包裹**，与 [04-METHOD-OVERLOAD.md](../04-METHOD-OVERLOAD.md) §5.4 风格一致：无参 `()`；有参 `(T1,T2)`；byref 类型名后加 `&`；数组 `T[]`。**不含**返回类型。签名中的类型须与元数据一致（闭合写闭合全名，形参 `T` 仅当该方法签名本身如此——但含未确定类型的槽位 **不得** 配 `MarshalAs`） |
+| `Method/@signature` | 参数类型列表，**圆括号包裹**，与 [04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) §5.4 风格一致：无参 `()`；有参 `(T1,T2)`；byref 类型名后加 `&`；数组 `T[]`。**不含**返回类型。签名中的类型须与元数据一致（闭合写闭合全名，形参 `T` 仅当该方法签名本身如此——但含未确定类型的槽位 **不得** 配 `MarshalAs`） |
 | `Param/@index` | **必填**；`0`-based；**不含**实例 `this`。**不得**使用参数名定位 |
 | `Return` | 等价 `[return: LuaMarshalAs(...)]` |
 | `Field/@name` / `Property/@name` | CLR 成员名 |
@@ -491,9 +491,9 @@ Codegen / Mono 反射在 Pop / Push 时按 **由细到粗** 解析；**同一目
 
 | 主题 | 文档 |
 |------|------|
-| 默认矩阵 | [01-OVERVIEW.md](./01-OVERVIEW) |
-| OpaqueValue | [04-OPAQUE.md](./04-OPAQUE) |
-| struct Marshal | [05-STRUCT.md](./05-STRUCT) |
-| 数组 / Bytes | [07-ARRAY.md](./07-ARRAY) |
-| 枚举 boxed | [08-ENUM.md](./08-ENUM) |
-| 方法别名 XML（风格参考） | [../04-METHOD-OVERLOAD.md](../04-METHOD-OVERLOAD.md) §5.4 |
+| 默认矩阵 | [01-OVERVIEW.md](/docs/spec/marshal/01-OVERVIEW/) |
+| OpaqueValue | [04-OPAQUE.md](/docs/spec/marshal/04-OPAQUE/) |
+| struct Marshal | [05-STRUCT.md](/docs/spec/marshal/05-STRUCT/) |
+| 数组 / Bytes | [07-ARRAY.md](/docs/spec/marshal/07-ARRAY/) |
+| 枚举 boxed | [08-ENUM.md](/docs/spec/marshal/08-ENUM/) |
+| 方法别名 XML（风格参考） | [../04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) §5.4 |

@@ -14,7 +14,7 @@ ZLua 在 **Lua function ↔ C# Delegate** 上提供统一 Marshal，覆盖三条
 | **C# delegate → Lua** | `handler(42)` / `handler:Invoke(42)` | DelegateUserData + `__call` |
 | **C# 按名取 Lua 函数** | `LuaAppDomain.GetFunction<T>(mod, name)` | 绑定为 `T` 后由 C# 持有并调用 |
 
-权威细则：[函数 Marshal 规范](../spec/marshal/09-FUNCTION)、[`GetFunction`](../spec/01-HOST-API)、[`zlua.to_delegate`](../spec/05-LIB)。
+权威细则：[函数 Marshal 规范](/docs/spec/marshal/09-FUNCTION/)、[`GetFunction`](/docs/spec/01-HOST-API/)、[`zlua.to_delegate`](/docs/spec/05-LIB/)。
 
 ---
 
@@ -54,7 +54,7 @@ end)
 
 - C# multicast 保持多播语义
 - Lua function 被 ref 到 registry；避免 C# 长期持有 delegate 却销毁 Lua 环境
-- Event：`add_` / `remove_`，取消订阅须同一 function 引用，见 [Event](./events)
+- Event：`add_` / `remove_`，取消订阅须同一 function 引用，见 [Event](/docs/guides/events/)
 
 ---
 
@@ -99,9 +99,9 @@ end
 return { OnTick = OnTick }
 ```
 
-热路径请自行缓存返回的 delegate（见 [C# 调用 Lua](./csharp-to-lua)）。
+热路径请自行缓存返回的 delegate（见 [C# 调用 Lua](/docs/guides/csharp-to-lua/)）。
 
-权威规范：[宿主 API §2](../spec/01-HOST-API)、[LuaAppDomain](../reference/csharp/lua-app-domain)。
+权威规范：[宿主 API §2](/docs/spec/01-HOST-API/)、[LuaAppDomain](/docs/reference/csharp/lua-app-domain/)。
 
 ### 3.2 与 `zlua.to_delegate`
 
@@ -111,7 +111,7 @@ return { OnTick = OnTick }
 | Lua 侧已有 function，要指定委托类型 | `zlua.to_delegate(fn, delegateType)` |
 | C# 方法形参已是具体 `Action`/`Func` | Lua 直接传 `function`，**隐式** marshal |
 
-`zlua.to_delegate` 见 [zlua 库规范](../spec/05-LIB)。
+`zlua.to_delegate` 见 [zlua 库规范](/docs/spec/05-LIB/)。
 
 ### 3.3 与形参隐式 marshal 的对比
 
@@ -119,7 +119,7 @@ return { OnTick = OnTick }
 |------|------|
 | C# 调某个 Lua 导出函数 | `GetFunction<T>(mod, name)` |
 | Lua 调用 C# 时传入回调 | 形参类型为 delegate，直接传 `function` |
-| 从 xLua `Get<Action>` / `LuaFunction` 迁移 | `GetFunction`；见 [从 xLua 迁移](../community/migration/from-xlua) |
+| 从 xLua `Get<Action>` / `LuaFunction` 迁移 | `GetFunction`；见 [从 xLua 迁移](/docs/community/migration/from-xlua/) |
 
 ---
 
@@ -169,17 +169,23 @@ print(logic:Run(3, 5))   -- 8
 ---
 
 
+
+
+
+
+
+
 ## 学习路径
 
 | | |
 |---|---|
-| **上一篇** | [方法重载](./methods-and-overloads) |
-| **下一篇** | [泛型与数组](./generics-and-arrays) |
+| **上一篇** | [方法重载](/docs/guides/methods-and-overloads/) |
+| **下一篇** | [泛型与数组](/docs/guides/generics-and-arrays/) |
 
 ## 相关文档
 
-- [C# 调用 Lua](./csharp-to-lua) — `GetFunction` 基础
-- [函数 Marshal 规范](../spec/marshal/09-FUNCTION)
-- [zlua 库 · to_delegate](../spec/05-LIB)
-- [Event](./events)
-- [从 xLua 迁移](../community/migration/from-xlua) — `LuaFunction` / `Get<Delegate>` 对照
+- [C# 调用 Lua](/docs/guides/csharp-to-lua/) — `GetFunction` 基础
+- [函数 Marshal 规范](/docs/spec/marshal/09-FUNCTION/)
+- [zlua 库 · to_delegate](/docs/spec/05-LIB/)
+- [Event](/docs/guides/events/)
+- [从 xLua 迁移](/docs/community/migration/from-xlua/) — `LuaFunction` / `Get<Delegate>` 对照

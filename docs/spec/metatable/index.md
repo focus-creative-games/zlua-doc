@@ -11,17 +11,17 @@ title: "元表规范（`spec/metatable/`）"
 
 | 文件 | 内容 |
 |------|------|
-| [01-LAYOUT.md](./01-LAYOUT) | SMT / IMT、ByVal·ByObj 双实例元表、类型表键（`LuaConsts.h`） |
-| [02-INDEX.md](./02-INDEX) | `__index` / `__newindex` 算法、三表职责、miss 语义 |
-| [03-BINDING.md](./03-BINDING) | public 可见性、Bind 期继承扁平化、成员归类 |
-| [04-SPECIAL-TYPES.md](./04-SPECIAL-TYPES) | enum、Nullable、struct、array、delegate 特例 |
+| [01-LAYOUT.md](/docs/spec/metatable/01-LAYOUT/) | SMT / IMT、ByVal·ByObj 双实例元表、类型表键（`LuaConsts.h`） |
+| [02-INDEX.md](/docs/spec/metatable/02-INDEX/) | `__index` / `__newindex` 算法、三表职责、miss 语义 |
+| [03-BINDING.md](/docs/spec/metatable/03-BINDING/) | public 可见性、Bind 期继承扁平化、成员归类 |
+| [04-SPECIAL-TYPES.md](/docs/spec/metatable/04-SPECIAL-TYPES/) | enum、Nullable、struct、array、delegate 特例 |
 
 ## 与其它规范的边界
 
-- 类型命名、`CSharp` 路径、泛型/数组类型入口 → [../02-TYPE-SYSTEM.md](../02-TYPE-SYSTEM)
-- C# ↔ Lua 值形态与 Push/Pop → [../marshal/](../marshal/)
-- 方法重载 dispatch、`register_method` → [../04-METHOD-OVERLOAD.md](../04-METHOD-OVERLOAD)
-- **Event：无专用元表子表**；脚本使用 `add_EventName` / `remove_EventName` 普通方法（见 [03-BINDING.md](./03-BINDING)）
+- 类型命名、`CSharp` 路径、泛型/数组类型入口 → [../02-TYPE-SYSTEM.md](/docs/spec/02-TYPE-SYSTEM/)
+- C# ↔ Lua 值形态与 Push/Pop → [../marshal/](/docs/spec/marshal/)
+- 方法重载 dispatch、`register_method` → [../04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/)
+- **Event：无专用元表子表**；脚本使用 `add_EventName` / `remove_EventName` 普通方法（见 [03-BINDING.md](/docs/spec/metatable/03-BINDING/)）
 
 ## 核心语义（速览）
 

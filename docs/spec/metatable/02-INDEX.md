@@ -7,7 +7,7 @@ title: "成员索引（`__index` / `__newindex`）"
 
 本文档规定 Lua 通过 **`__index` / `__newindex`** 访问 C# **静态成员**（类型表 `T` + 静态元表 SMT）与 **实例成员**（userdata + 实例元表 IMT）的分派规则。规范描述的是 **Lua 可见语义**；Mono 以 Lua closure + 三表 upvalue 实现，Il2Cpp 以 native indexer 实现，二者（以及任何未来 VM 快路径）**必须表现一致**。
 
-**关联文档：** 元表布局 → [01-LAYOUT.md](./01-LAYOUT)；成员如何写入三表 → [03-BINDING.md](./03-BINDING)；方法重载 closure → [../04-METHOD-OVERLOAD.md](../04-METHOD-OVERLOAD)。
+**关联文档：** 元表布局 → [01-LAYOUT.md](/docs/spec/metatable/01-LAYOUT/)；成员如何写入三表 → [03-BINDING.md](/docs/spec/metatable/03-BINDING/)；方法重载 closure → [../04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/)。
 
 ---
 
@@ -30,7 +30,7 @@ Lua 曾考虑令 `methodTable` 的 metatable 再挂一层 field 用 `__index` �
 | 实例 / 静态 **方法**（含重载 dispatch closure） | compiled bridge closure | **直接返回**，不 call |
 | **索引器 property**（`this[...]`，带参 property） | 包装 closure / `get_Item` / `set_Item` 等 dispatch | **直接返回** |
 | C# **event** 的 `add_*` / `remove_*` | 与普通方法相同，注册为 **方法 closure** | **直接返回** |
-| 构造函数元数据 | **不在此表**（`SMT.__call` 见 [01-LAYOUT.md](./01-LAYOUT)） | — |
+| 构造函数元数据 | **不在此表**（`SMT.__call` 见 [01-LAYOUT.md](/docs/spec/metatable/01-LAYOUT/)） | — |
 
 **不得**将 field getter 或无参 property 的 getter 放入 `methodTable`。
 
@@ -92,7 +92,7 @@ end
 
 - method / 有参 property / `add_*` / `remove_*`：**返回 closure**，由脚本自行 `obj:Method()` 或 `obj.add_Xxx(handler)` 调用。
 - field / 无参 property：**调用 getter** 并将返回值交给 Lua。
-- **miss：返回 `nil`**。不调用 C# 反射 fallback，不沿继承链在运行时查找（继承已在 Bind 期扁平化，见 [03-BINDING.md](./03-BINDING)）。
+- **miss：返回 `nil`**。不调用 C# 反射 fallback，不沿继承链在运行时查找（继承已在 Bind 期扁平化，见 [03-BINDING.md](/docs/spec/metatable/03-BINDING/)）。
 
 ### 3.2 静态类型表（SMT）
 
@@ -148,7 +148,7 @@ enum 常量、静态 readonly 字面量等不可写键：miss 后报错，与 C#
 
 **禁止**在 miss 时调用 C# 反射或 `InstanceIndex` / `StaticTypeIndex` 兜底。未在 Bind 期注册进三表的 public 成员，对 Lua 等同于不存在（读为 nil，写报错）。
 
-继承的实例/静态成员须在 **EnsureBinding** 时**扁平写入**当前类型三表（见 [03-BINDING.md](./03-BINDING)），因此运行时 **不**沿继承链向上查找。
+继承的实例/静态成员须在 **EnsureBinding** 时**扁平写入**当前类型三表（见 [03-BINDING.md](/docs/spec/metatable/03-BINDING/)），因此运行时 **不**沿继承链向上查找。
 
 ---
 
@@ -184,7 +184,7 @@ end
 
 ## 8. 与 `register_method` 的交互
 
-`zlua.register_method`（及 Mono 等价 API）在运行时向目标类型的 method 表挂一个 **新的** 最终名 → **direct** closure（完整规则见 [../04-METHOD-OVERLOAD.md](../04-METHOD-OVERLOAD) §6.1）。
+`zlua.register_method`（及 Mono 等价 API）在运行时向目标类型的 method 表挂一个 **新的** 最终名 → **direct** closure（完整规则见 [../04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) §6.1）。
 
 - `aliasName` **尚不存在** → 写入；之后 `__index` 返回该 closure。
 - `aliasName` **已存在**（单个方法或 overload 组）→ **`luaL_error`**，不覆盖、不并入。

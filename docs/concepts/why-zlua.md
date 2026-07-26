@@ -8,7 +8,7 @@ description: 更易用、更完备、更快、更少 GC、更小桥接 —— ZL
 
 xLua、toLua、SLua 已经证明「在 Unity 里用 Lua」可行。ZLua 要解决的是下一层问题：**把 Lua↔C# 做成真正现代、完备、且在 Il2Cpp 上足够快、足够省的互操作**——而不是再堆一套配置、白名单和海量 Wrap。
 
-详细矩阵见 **[选型对比](../compare/)**；迁移见 **[migration](../community/migration/)**。
+详细矩阵见 **[选型对比](/docs/compare/)**；迁移见 **[migration](/docs/community/migration/)**。
 
 ---
 
@@ -55,7 +55,7 @@ print(CSharp.AC.Demo.Add(3, 5))
 
 **零配置**指：不需要 per-type C# Wrap 白名单与成员级 Wrap 工程。Editor 开箱即用；发 Il2Cpp Player 时执行一次 **`ZLua/Generate/All`**（生成 **C++ stub**，不是 xLua 式 C# Wrap）。
 
-→ [快速开始](../getting-started/quick-start) · [C# 调用 Lua](../guides/csharp-to-lua)
+→ [快速开始](/docs/getting-started/quick-start/) · [C# 调用 Lua](/docs/guides/csharp-to-lua/)
 
 ---
 
@@ -70,15 +70,15 @@ print(CSharp.AC.Demo.Add(3, 5))
 | 高级 | 泛型类、泛型方法、delegate、数组（含多维） |
 | 语言细节 | 方法重载、`ref` / `out` / `in`、Event（`add_` / `remove_`） |
 
-语义以 [规范](../spec/00-OVERVIEW) 为契约；双端（Mono Editor / Il2Cpp Player）**Lua 可见行为一致**。
+语义以 [规范](/docs/spec/00-OVERVIEW/) 为契约；双端（Mono Editor / Il2Cpp Player）**Lua 可见行为一致**。
 
-→ [兼容性矩阵](../getting-started/compatibility) · [特性对比](../compare/FEATURES)
+→ [兼容性矩阵](/docs/getting-started/compatibility/) · [特性对比](/docs/compare/FEATURES/)
 
 ---
 
 ## 3. 更高效：不是「理论上快一点」
 
-在 **Il2Cpp Win64 Release** 上与 xLua 对齐基准（见 [PERFORMANCE](../compare/PERFORMANCE)）：
+在 **Il2Cpp Win64 Release** 上与 xLua 对齐基准（见 [PERFORMANCE](/docs/compare/PERFORMANCE/)）：
 
 | 指标 | 结果 |
 |------|------|
@@ -93,7 +93,7 @@ print(CSharp.AC.Demo.Add(3, 5))
 互调再快，也要先 profiling。若脚本边界只占帧时间 2%，五倍互调也只省约 1.6%。ZLua 适合 **战斗公式、UI、每帧大量小调用** 这类边界热点。
 :::
 
-→ [性能对比](../compare/PERFORMANCE)
+→ [性能对比](/docs/compare/PERFORMANCE/)
 
 ---
 
@@ -108,9 +108,9 @@ print(CSharp.AC.Demo.Add(3, 5))
 | **OpaqueValue** | lightuserdata 临时句柄：同步调用链内更灵活的低分配策略 |
 | **enum** | 默认 integer，不强制 boxed userdata |
 
-需要写回时用 Opaque / ByVal userdata；裸 number **不回写**（与 C# `ref` 语义对齐，见 [ref/out/in](../guides/marshal-ref-out-in)）。
+需要写回时用 Opaque / ByVal userdata；裸 number **不回写**（与 C# `ref` 语义对齐，见 [ref/out/in](/docs/guides/marshal-ref-out-in/)）。
 
-→ [GC 对比](../compare/GC) · [生命周期规范](../spec/10-LIFETIME)
+→ [GC 对比](/docs/compare/GC/) · [生命周期规范](/docs/spec/10-LIFETIME/)
 
 ---
 
@@ -128,7 +128,7 @@ print(CSharp.AC.Demo.Add(3, 5))
 
 Editor（Mono）用 Expression Emit，**不进 Player 包**；Player 体积由 C++ stub 决定。
 
-→ [桥接与体积](../compare/BRIDGE)
+→ [桥接与体积](/docs/compare/BRIDGE/)
 
 ---
 
@@ -140,9 +140,9 @@ Editor（Mono）用 Expression Emit，**不进 Player 包**；Player 体积由 C
 | Unity | **2021.3**、**2022.3**、**Unity 6（6000.0 / 6000.3 / 6000.5）** |
 | 引擎 | **团结引擎** |
 
-多版本意味着更少「卡在某个 Lua/Unity 组合」的选型风险。完整矩阵见 [兼容性](../getting-started/compatibility)。
+多版本意味着更少「卡在某个 Lua/Unity 组合」的选型风险。完整矩阵见 [兼容性](/docs/getting-started/compatibility/)。
 
-→ [支持的版本与平台](../getting-started/compatibility)
+→ [支持的版本与平台](/docs/getting-started/compatibility/)
 
 ---
 
@@ -166,22 +166,22 @@ ZLua 由 **全职专业团队** 维护：
 |------|------|
 | **不愿维护 libil2cpp 集成** | 插件形态的 xLua / toLua 更轻 |
 | **强依赖 xLua Hotfix 管线** | 继续使用 xLua |
-| **已有大量 xLua 资产、短期无迁移预算** | 先读 [从 xLua 迁移](../community/migration/from-xlua) |
+| **已有大量 xLua 资产、短期无迁移预算** | 先读 [从 xLua 迁移](/docs/community/migration/from-xlua/) |
 
 ---
 
 ## 下一步
 
-1. [5 分钟快速开始](../getting-started/quick-start) + [zlua-demo](https://github.com/focus-creative-games/zlua-demo)
-2. [性能对比](../compare/PERFORMANCE) · [GC](../compare/GC) · [BRIDGE](../compare/BRIDGE)
-3. [特性对比](../compare/FEATURES)
-4. [规范总览](../spec/00-OVERVIEW)
+1. [5 分钟快速开始](/docs/getting-started/quick-start/) + [zlua-demo](https://github.com/focus-creative-games/zlua-demo)
+2. [性能对比](/docs/compare/PERFORMANCE/) · [GC](/docs/compare/GC/) · [BRIDGE](/docs/compare/BRIDGE/)
+3. [特性对比](/docs/compare/FEATURES/)
+4. [规范总览](/docs/spec/00-OVERVIEW/)
 
 ## 延伸阅读
 
 | 文档 | 内容 |
 |------|------|
-| [设计概览](./design-overview) | GetFunction 与双向桥接 |
-| [双运行时](./dual-runtime) | Mono / Il2Cpp 分工 |
-| [术语表](./glossary) | Opaque / ByVal / stub 等 |
-| [Il2Cpp 实现](../impl/IL2CPP) | Player 模块图 |
+| [设计概览](/docs/concepts/design-overview/) | GetFunction 与双向桥接 |
+| [双运行时](/docs/concepts/dual-runtime/) | Mono / Il2Cpp 分工 |
+| [术语表](/docs/concepts/glossary/) | Opaque / ByVal / stub 等 |
+| [Il2Cpp 实现](/docs/impl/IL2CPP/) | Player 模块图 |

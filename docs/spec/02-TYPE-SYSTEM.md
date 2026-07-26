@@ -6,8 +6,8 @@ title: "类型系统"
 # 02 — 类型系统
 
 > Lua 侧访问 C# **类型、成员与构造** 的规范。适用于 **Il2Cpp（Player）** 与 **Mono（Editor）**。  
-> **成员索引（`__index` / `__newindex`）** → [metatable/](metatable/)  
-> **参数 Marshal（Push/Pop）** → [marshal/](marshal/)
+> **成员索引（`__index` / `__newindex`）** → [metatable/](/docs/spec/metatable/)  
+> **参数 Marshal（Push/Pop）** → [marshal/](/docs/spec/marshal/)
 
 **平台原则：** Il2Cpp 侧重零 GC 与 direct `methodPointer`；Mono 可反射 / Emit，但 **Lua 可见语义必须与 Il2Cpp 一致**。
 
@@ -22,7 +22,7 @@ title: "类型系统"
 | 静实例隔离 | 静态与实例使用 **独立** 元数据与三表 |
 | 仅 public | Lua 仅可访问 `public` 成员 |
 | Bind 期扁平继承 | 静/实例成员均在 **EnsureBinding** 写入当前类型三表；**无**运行时沿继承链查找 |
-| 索引 miss | `__index` → **`nil`**；`__newindex` → **`error`**（见 [metatable/02-INDEX.md](metatable/02-INDEX.md)） |
+| 索引 miss | `__index` → **`nil`**；`__newindex` → **`error`**（见 [metatable/02-INDEX.md](/docs/spec/metatable/02-INDEX/)） |
 
 ---
 
@@ -94,7 +94,7 @@ CSharp.AC['MyGame.UI.Outer+Inner']
 
 ### 2.4 类型实参（typeArg）
 
-用于 `zlua.make_generic_type`、`make_szarray_type` 等（见 [05-LIB.md](05-LIB.md)）。
+用于 `zlua.make_generic_type`、`make_szarray_type` 等（见 [05-LIB.md](/docs/spec/05-LIB/)）。
 
 | 形式 | 说明 |
 |------|------|
@@ -146,7 +146,7 @@ local t2 = zlua.typeof(ListInt)   -- 闭合泛型 / 数组等任意类型表均�
 
 ### 2.8 `zlua.types` / `zlua.get_type_from_name`
 
-见 [05-LIB.md](05-LIB.md) §4.2、§4.3。`get_type_from_name(typeFullName)` 对标 `System.Type.GetType(string)`，返回类型表（支持 AQN、泛型、数组）。
+见 [05-LIB.md](/docs/spec/05-LIB/) §4.2、§4.3。`get_type_from_name(typeFullName)` 对标 `System.Type.GetType(string)`，返回类型表（支持 AQN、泛型、数组）。
 
 ### 2.9 类型获取途径
 
@@ -187,7 +187,7 @@ assembly.__index(typeFullName) → 解析 Type → EnsureBinding → rawset
 
 ## 3. 类型表与元表结构
 
-> 三表布局与 `__index` 算法：[metatable/01-LAYOUT.md](metatable/01-LAYOUT.md)、[metatable/02-INDEX.md](metatable/02-INDEX.md)
+> 三表布局与 `__index` 算法：[metatable/01-LAYOUT.md](/docs/spec/metatable/01-LAYOUT/)、[metatable/02-INDEX.md](/docs/spec/metatable/02-INDEX/)
 
 ### 3.1 类型表（静态门面）
 
@@ -224,7 +224,7 @@ instance userdata
   payload     = 对象指针或 struct 拷贝
 ```
 
-同一托管对象可有多个 userdata（不同 view）；`zlua.cast` 切换门面（[marshal/06-CLASS.md](marshal/06-CLASS.md)）。
+同一托管对象可有多个 userdata（不同 view）；`zlua.cast` 切换门面（[marshal/06-CLASS.md](/docs/spec/marshal/06-CLASS/)）。
 
 **禁止**经实例 `__index` **隐式**访问静态成员；须使用类型表 `T` 访问静态成员（见 §3.3）。
 
@@ -250,7 +250,7 @@ instance userdata
 
 - Bind 期：**public static literal** → 类型表键或 fieldGetter，值为 **integer**（Lua 5.4+ 优先）
 - **无** `SMT.__call` / `_default` / `_ctor`
-- 默认跨边界：**integer/number**（[marshal/08-ENUM.md](marshal/08-ENUM.md)）
+- 默认跨边界：**integer/number**（[marshal/08-ENUM.md](/docs/spec/marshal/08-ENUM/)）
 - boxed 实例：**仅** `zlua.box(E, value)` → ByObj
 
 ```lua
@@ -265,7 +265,7 @@ local redBox = zlua.box(Color, Color.Red)
 
 - `__nullable : true`；**无** `__instance_mt` / `IMT`
 - `SMT` **仅** `__call` → 构造 **element 类型 `T`** 的有值实参（非 Nullable 包装实例）
-- `null` → Lua **`nil`**（[marshal/06-CLASS.md](marshal/06-CLASS.md) Nullable 小节）
+- `null` → Lua **`nil`**（[marshal/06-CLASS.md](/docs/spec/marshal/06-CLASS/) Nullable 小节）
 
 ```lua
 local NullableInt = zlua.make_generic_type(
@@ -291,7 +291,7 @@ local zero = Point._default()
 local p = Point(3, 4)
 ```
 
-- 实例：**ByVal userdata**（[marshal/05-STRUCT.md](marshal/05-STRUCT.md)）
+- 实例：**ByVal userdata**（[marshal/05-STRUCT.md](/docs/spec/marshal/05-STRUCT/)）
 - **无继承**；静态成员不向上查找（值类型无派生静态场景）
 
 ---
@@ -322,7 +322,7 @@ local p = Point(3, 4)
 
 ### 4.4 方法
 
-见 [04-METHOD-OVERLOAD.md](04-METHOD-OVERLOAD.md)：单重 → direct closure；多重 → dispatch；`[LuaAlias]` / `register_method`。
+见 [04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/)：单重 → direct closure；多重 → dispatch；`[LuaAlias]` / `register_method`。
 
 ### 4.5 事件（无专用元表）
 
@@ -379,7 +379,7 @@ demo:remove_ValueChanged(handler)
 
 ### 5.3 方法与 dispatch 的继承
 
-若继承树上同一 `is_static` 域存在多个 public **最终同名**候选（含基类扁平化结果、`[LuaAlias]` 撞名），Bind 后该键绑定 **dispatch closure**。分派时候选列表含该最终名下全部 applicable 重载；选优规则见 [04-METHOD-OVERLOAD.md](04-METHOD-OVERLOAD.md) §3.6、§5。
+若继承树上同一 `is_static` 域存在多个 public **最终同名**候选（含基类扁平化结果、`[LuaAlias]` 撞名），Bind 后该键绑定 **dispatch closure**。分派时候选列表含该最终名下全部 applicable 重载；选优规则见 [04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) §3.6、§5。
 
 ---
 
@@ -395,7 +395,7 @@ local foo_int = zlua.make_generic_method(Type.Foo, zlua.types.int32)
 foo_int(obj, value)   -- 静态则无需 obj
 ```
 
-使用 [05-LIB.md](05-LIB.md) `make_generic_method` 单态化泛型方法 closure。
+使用 [05-LIB.md](/docs/spec/05-LIB/) `make_generic_method` 单态化泛型方法 closure。
 
 ### 6.2 缓存
 
@@ -439,7 +439,7 @@ local x = matrix:get(0, 1)
 | `get` | 实参个数 = `rank`；返回元素类型的 Lua 形态（基元未装箱） |
 | `set` | 前 `rank` 个为 **C# 下标**（含 lowerBound），最后一参为 value |
 
-与 `zlua.to_table` 的 **1 基** Lua 表不同（[05-LIB.md](05-LIB.md) §8.4）。
+与 `zlua.to_table` 的 **1 基** Lua 表不同（[05-LIB.md](/docs/spec/05-LIB/) §8.4）。
 
 ### 7.4 互转
 
@@ -457,11 +457,11 @@ local x = matrix:get(0, 1)
 | 接口 | 可解析；不可构造（无 public 构造） |
 | 抽象类 | 仅 public 构造可 `__call` |
 | 静态类 | 仅静态成员；无 `__call` |
-| 枚举 | §3.5；[marshal/08-ENUM.md](marshal/08-ENUM.md) |
+| 枚举 | §3.5；[marshal/08-ENUM.md](/docs/spec/marshal/08-ENUM/) |
 | Nullable\<T\> | §3.6 |
-| 委托 | 类型表 + 实例 `IMT.__call`；[marshal/09-FUNCTION.md](marshal/09-FUNCTION.md) |
-| struct | §3.7；[marshal/05-STRUCT.md](marshal/05-STRUCT.md) |
-| class | ByObj；[marshal/06-CLASS.md](marshal/06-CLASS.md) |
+| 委托 | 类型表 + 实例 `IMT.__call`；[marshal/09-FUNCTION.md](/docs/spec/marshal/09-FUNCTION/) |
+| struct | §3.7；[marshal/05-STRUCT.md](/docs/spec/marshal/05-STRUCT/) |
+| class | ByObj；[marshal/06-CLASS.md](/docs/spec/marshal/06-CLASS/) |
 
 ---
 
@@ -515,4 +515,4 @@ arr:set(0, 42)
 | 继承扁平 | `MetaBinding::EnsureBinding` | `MetaBinding.cs` |
 | 数组 get/set | `ArrayMarshal` + instance map | 等价绑定 |
 
-细节见 [impl/IL2CPP.md](../impl/IL2CPP)、[impl/MONO.md](../impl/MONO)。
+细节见 [impl/IL2CPP.md](/docs/impl/IL2CPP/)、[impl/MONO.md](/docs/impl/MONO/)。

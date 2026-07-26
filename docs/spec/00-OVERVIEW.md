@@ -6,7 +6,7 @@ title: "总览"
 # 00 — 总览
 
 > ZLua 产品目标、双运行时架构、文档地图与初始化流程。  
-> 术语见 [GLOSSARY.md](../concepts/glossary)。
+> 术语见 [GLOSSARY.md](/docs/concepts/glossary/)。
 
 ---
 
@@ -48,7 +48,7 @@ Mono（Editor）允许反射 / Emit 慢路径，但 **Lua 可见语义必须与 
 | **Event 专用元表** | **无** `{ get, set, fire }`；脚本使用 `add_EventName` / `remove_EventName`（与普通方法相同） |
 | **`__index` miss** | 返回 **`nil`** |
 | **`__newindex` miss** | **`error`** |
-| **实例继承运行时查找** | **无**；继承成员在 **Bind 期扁平化** 到当前类型三表（见 [02-TYPE-SYSTEM.md](02-TYPE-SYSTEM.md) §5） |
+| **实例继承运行时查找** | **无**；继承成员在 **Bind 期扁平化** 到当前类型三表（见 [02-TYPE-SYSTEM.md](/docs/spec/02-TYPE-SYSTEM/) §5） |
 
 ---
 
@@ -79,11 +79,11 @@ Mono（Editor）允许反射 / Emit 慢路径，但 **Lua 可见语义必须与 
 
 **Il2Cpp 源码布局（Unity 构建）：**
 
-- `libil2cpp/lua` — Install 按选定引擎叠加：**PUC-Rio** 为可编译源码树（经 patch，见 [build/01-OFFICIAL-LUA.md](build/01-OFFICIAL-LUA.md)）；**LuaJIT** 为公共头文件（静态库由开发者放入 Plugins，见 [build/02-LUAJIT.md](build/02-LUAJIT.md)）
+- `libil2cpp/lua` — Install 按选定引擎叠加：**PUC-Rio** 为可编译源码树（经 patch，见 [build/01-OFFICIAL-LUA.md](/docs/spec/build/01-OFFICIAL-LUA/)）；**LuaJIT** 为公共头文件（静态库由开发者放入 Plugins，见 [build/02-LUAJIT.md](/docs/spec/build/02-LUAJIT/)）
 - `libil2cpp/zlua` — ZLua native 实现（来自包内 `ZLua~/zlua-runtime`）
 
 开发期可编辑参考：`build-win64/Il2CppOutputProject/IL2CPP/libil2cpp/zlua`。  
-包布局、多 Unity / 多 Lua、patch、DLL 命名、Il2Cpp `ZLuaConf.inc` / Compatible 头 → [11-MULTI-VERSION.md](11-MULTI-VERSION.md)（§12）。
+包布局、多 Unity / 多 Lua、patch、DLL 命名、Il2Cpp `ZLuaConf.inc` / Compatible 头 → [11-MULTI-VERSION.md](/docs/spec/11-MULTI-VERSION/)（§12）。
 
 ---
 
@@ -110,15 +110,15 @@ Docs/
 
 **阅读顺序建议：**
 
-1. 本文件 → [01-HOST-API.md](01-HOST-API.md)（宿主集成）
-2. [02-TYPE-SYSTEM.md](02-TYPE-SYSTEM.md) + [metatable/README.md](metatable/)（Lua 如何访问 C#）
-3. [marshal/README.md](marshal/)（参数如何传递）
-4. [04-METHOD-OVERLOAD.md](04-METHOD-OVERLOAD.md) + [05-LIB.md](05-LIB.md)（重载与标准库）
-5. [10-LIFETIME.md](10-LIFETIME.md)（内存与 GC）
-6. 集成包 / 换 Unity 或 Lua 版本 → [11-MULTI-VERSION.md](11-MULTI-VERSION.md)
-7. 官方 Lua 构建 → [build/01-OFFICIAL-LUA.md](build/01-OFFICIAL-LUA.md)
-8. LuaJIT 构建 → [build/02-LUAJIT.md](build/02-LUAJIT.md)
-9. Editor Mono 回调错误边界（全系列） → [build/03-MONO-LUAJIT-CALLBACK-GATE.md](build/03-MONO-LUAJIT-CALLBACK-GATE.md)
+1. 本文件 → [01-HOST-API.md](/docs/spec/01-HOST-API/)（宿主集成）
+2. [02-TYPE-SYSTEM.md](/docs/spec/02-TYPE-SYSTEM/) + [metatable/README.md](/docs/spec/metatable/)（Lua 如何访问 C#）
+3. [marshal/README.md](/docs/spec/marshal/)（参数如何传递）
+4. [04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) + [05-LIB.md](/docs/spec/05-LIB/)（重载与标准库）
+5. [10-LIFETIME.md](/docs/spec/10-LIFETIME/)（内存与 GC）
+6. 集成包 / 换 Unity 或 Lua 版本 → [11-MULTI-VERSION.md](/docs/spec/11-MULTI-VERSION/)
+7. 官方 Lua 构建 → [build/01-OFFICIAL-LUA.md](/docs/spec/build/01-OFFICIAL-LUA/)
+8. LuaJIT 构建 → [build/02-LUAJIT.md](/docs/spec/build/02-LUAJIT/)
+9. Editor Mono 回调错误边界（全系列） → [build/03-MONO-LUAJIT-CALLBACK-GATE.md](/docs/spec/build/03-MONO-LUAJIT-CALLBACK-GATE/)
 
 **冲突裁决：** `spec/**` > Il2Cpp 源码 > `impl/**`。
 
@@ -146,7 +146,7 @@ LuaAppDomain.Initialize(moduleName => {
 
 | 步骤 | 动作 |
 |------|------|
-| 1 | 创建主 `lua_State`（**单状态**模型，见 [10-LIFETIME.md](10-LIFETIME.md)） |
+| 1 | 创建主 `lua_State`（**单状态**模型，见 [10-LIFETIME.md](/docs/spec/10-LIFETIME/)） |
 | 2 | 打开标准库；执行 `zlualib.lua`（`ZLuaLib::RegisterGlobals` 注册 `__zlua_*`） |
 | 3 | 初始化 Registry：`ObjectRegistry`、`TypeRegistry`、Opaque scope 等 |
 | 4 | 创建全局 `CSharp` 根表（程序集 / 类型懒加载 `__index`） |
@@ -175,7 +175,7 @@ assembly.__index(typeFullName)
 2. `ObjectRegistry::Shutdown`、Struct registry shutdown
 3. 关闭 `lua_State`
 
-顺序细节见 [10-LIFETIME.md](10-LIFETIME.md) 与 [impl/IL2CPP.md](../impl/IL2CPP)。
+顺序细节见 [10-LIFETIME.md](/docs/spec/10-LIFETIME/) 与 [impl/IL2CPP.md](/docs/impl/IL2CPP/)。
 
 ---
 
@@ -183,11 +183,11 @@ assembly.__index(typeFullName)
 
 | 主题 | 所在文档 |
 |------|----------|
-| `__index` / 三表 / miss 语义 | [metatable/](metatable/) |
-| Push / Pop / ref / Opaque | [marshal/](marshal/) |
-| `zlua.make_*` / `register_method` | [05-LIB.md](05-LIB.md) |
-| `GetFunction` 与 Delegate 桥 | [01-HOST-API.md](01-HOST-API.md) |
-| ObjectRegistry / GC root | [10-LIFETIME.md](10-LIFETIME.md) |
+| `__index` / 三表 / miss 语义 | [metatable/](/docs/spec/metatable/) |
+| Push / Pop / ref / Opaque | [marshal/](/docs/spec/marshal/) |
+| `zlua.make_*` / `register_method` | [05-LIB.md](/docs/spec/05-LIB/) |
+| `GetFunction` 与 Delegate 桥 | [01-HOST-API.md](/docs/spec/01-HOST-API/) |
+| ObjectRegistry / GC root | [10-LIFETIME.md](/docs/spec/10-LIFETIME/) |
 
 ---
 

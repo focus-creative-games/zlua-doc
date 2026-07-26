@@ -5,9 +5,9 @@ title: "成员绑定（注册期规则）"
 
 # 03 — 成员绑定（注册期规则）
 
-本文档规定 **`EnsureBinding`** 阶段如何将 C# 类型成员扫描、分类并写入静态/实例三表（`methodTable`、`fieldGetterTable`、`fieldSetterTable`）。绑定完成后，运行时索引行为完全由 [02-INDEX.md](./02-INDEX) 定义；本文不涉及 native 如何生成 bridge closure（见 `impl/metatable/`、`impl/codegen/`）。
+本文档规定 **`EnsureBinding`** 阶段如何将 C# 类型成员扫描、分类并写入静态/实例三表（`methodTable`、`fieldGetterTable`、`fieldSetterTable`）。绑定完成后，运行时索引行为完全由 [02-INDEX.md](/docs/spec/metatable/02-INDEX/) 定义；本文不涉及 native 如何生成 bridge closure（见 `impl/metatable/`、`impl/codegen/`）。
 
-**关联文档：** 三表职责 → [02-INDEX.md](./02-INDEX)；元表布局 → [01-LAYOUT.md](./01-LAYOUT)；方法重载 → [../04-METHOD-OVERLOAD.md](../04-METHOD-OVERLOAD)。
+**关联文档：** 三表职责 → [02-INDEX.md](/docs/spec/metatable/02-INDEX/)；元表布局 → [01-LAYOUT.md](/docs/spec/metatable/01-LAYOUT/)；方法重载 → [../04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/)。
 
 ---
 
@@ -15,7 +15,7 @@ title: "成员绑定（注册期规则）"
 
 仅 **`public`** 成员对 Lua 可见并进入绑定表。`internal`、`protected`、`private` 以及 explicit interface 实现（除非另有专门规格）**不注册**。
 
-构造函数、`_default`、`SMT.__call`、数组 `__len`、委托 `__call` 等**不进入三表**，按 [01-LAYOUT.md](./01-LAYOUT) 与 [04-SPECIAL-TYPES.md](./04-SPECIAL-TYPES) 单独挂在 SMT / IMT / 类型表上。
+构造函数、`_default`、`SMT.__call`、数组 `__len`、委托 `__call` 等**不进入三表**，按 [01-LAYOUT.md](/docs/spec/metatable/01-LAYOUT/) 与 [04-SPECIAL-TYPES.md](/docs/spec/metatable/04-SPECIAL-TYPES/) 单独挂在 SMT / IMT / 类型表上。
 
 ---
 
@@ -43,9 +43,9 @@ Bind 期按下列规则将每个 public 成员写入**唯一**目标表（或组
 | C# **event** | `methodTable` | **`add_EventName` / `remove_EventName`** 等方法 closure；**不**生成 event 子表 |
 | 泛型方法 | `methodTable` | 默认仅全签名键；单泛型重载时可同时占默认方法名 |
 
-有参 property **不得**进入 `fieldGetterTable` / `fieldSetterTable`；Lua 侧仅能通过 `obj:get_PropName(args)` / `obj:set_PropName(args, value)` 或索引器方法名访问（见 [../02-TYPE-SYSTEM.md](../02-TYPE-SYSTEM) §属性）。
+有参 property **不得**进入 `fieldGetterTable` / `fieldSetterTable`；Lua 侧仅能通过 `obj:get_PropName(args)` / `obj:set_PropName(args, value)` 或索引器方法名访问（见 [../02-TYPE-SYSTEM.md](/docs/spec/02-TYPE-SYSTEM/) §属性）。
 
-数组元素读写统一注册实例方法 **`get` / `set`**（非 `get_Item` 命名），见 [04-SPECIAL-TYPES.md](./04-SPECIAL-TYPES)。
+数组元素读写统一注册实例方法 **`get` / `set`**（非 `get_Item` 命名），见 [04-SPECIAL-TYPES.md](/docs/spec/metatable/04-SPECIAL-TYPES/)。
 
 ### 3.2 字段（Field）
 
@@ -69,7 +69,7 @@ enum 的 public static literal 优先 **直接写入类型表 `T`** 为 underlyi
 
 ### 3.4 构造函数
 
-public 实例构造函数 **不** 进入任何三表。绑定阶段仅收集当前类型声明的 `.ctor` 重载，配置 **`SMT.__call`** dispatch（**不**沿继承链合并基类构造）。无 public 构造时 `Type(...)` 调用报错；struct 另提供 `SMT._default`（无参，见 [04-SPECIAL-TYPES.md](./04-SPECIAL-TYPES)）。
+public 实例构造函数 **不** 进入任何三表。绑定阶段仅收集当前类型声明的 `.ctor` 重载，配置 **`SMT.__call`** dispatch（**不**沿继承链合并基类构造）。无 public 构造时 `Type(...)` 调用报错；struct 另提供 `SMT._default`（无参，见 [04-SPECIAL-TYPES.md](/docs/spec/metatable/04-SPECIAL-TYPES/)）。
 
 ---
 
@@ -105,13 +105,13 @@ public 实例构造函数 **不** 进入任何三表。绑定阶段仅收集当�
 2. **复制**同一成员名集合，生成 **ByVal** 用 closure（`isByVal = true`）写入 `byvalInstanceMap`（概念上对应 ByVal 实例三表）。
 3. 静态成员仅一套，写入静态三表。
 
-字段 offset、方法 `this` 解析差异见 [../marshal/05-STRUCT.md](../marshal/05-STRUCT)。**禁止** struct 实例成员仅绑定 ByObj 一侧而遗漏 ByVal。
+字段 offset、方法 `this` 解析差异见 [../marshal/05-STRUCT.md](/docs/spec/marshal/05-STRUCT/)。**禁止** struct 实例成员仅绑定 ByObj 一侧而遗漏 ByVal。
 
 ---
 
 ## 6. 方法重载与别名
 
-同一 **最终 Lua 名** 下多个候选方法：在 `methodTable` 写入 **dispatch closure**；单候选写入 **direct closure**。最终名来自 C# 默认名与 `[LuaAlias]` / XML（见 [../04-METHOD-OVERLOAD.md](../04-METHOD-OVERLOAD) §3、§5）。运行时 `zlua.register_method` **不得**占用已有 method 名或重载组名（§6.1）。
+同一 **最终 Lua 名** 下多个候选方法：在 `methodTable` 写入 **dispatch closure**；单候选写入 **direct closure**。最终名来自 C# 默认名与 `[LuaAlias]` / XML（见 [../04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) §3、§5）。运行时 `zlua.register_method` **不得**占用已有 method 名或重载组名（§6.1）。
 
 `[LuaAlias]` **允许**与默认方法名或其它别名重复；重复即并入同一 overload 组。
 
@@ -127,11 +127,11 @@ public 实例构造函数 **不** 进入任何三表。绑定阶段仅收集当�
 
 ### 7.2 方法 ↔ field / property
 
-若 field / property 与 method 同名，`methodTable` 在 `__index` 时优先（见 [02-INDEX.md](./02-INDEX) §2.4）。
+若 field / property 与 method 同名，`methodTable` 在 `__index` 时优先（见 [02-INDEX.md](/docs/spec/metatable/02-INDEX/) §2.4）。
 
 ### 7.3 继承扁平化
 
-Bind 时若同一键已被更高优先级声明占用（例如子类已覆盖基类同名 **成员槽位** 的既有策略），按继承规则处理基类条目。这与「同名方法进 overload 组」不矛盾：子类与基类同名实例方法的扁平化结果仍按最终名聚合为候选列表（细节见 [../04-METHOD-OVERLOAD.md](../04-METHOD-OVERLOAD)）。
+Bind 时若同一键已被更高优先级声明占用（例如子类已覆盖基类同名 **成员槽位** 的既有策略），按继承规则处理基类条目。这与「同名方法进 overload 组」不矛盾：子类与基类同名实例方法的扁平化结果仍按最终名聚合为候选列表（细节见 [../04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/)）。
 
 ---
 
@@ -153,10 +153,10 @@ obj:remove_SomeEvent(handler)
 1. 解析 `Il2CppClass*` / `Type`，若已有 `TypeBinding` 则返回。
 2. 自 **基类链** 与 **当前类** 收集 public 成员（构造仅当前类）。
 3. 按 §3 写入静/实例三表；struct 执行 §5 双份实例 closure。
-4. 配置 `SMT.__call`、struct `_default`、Nullable 特殊 SMT 等（[04-SPECIAL-TYPES.md](./04-SPECIAL-TYPES)）。
-5. 创建 SMT / IMT，挂载 indexer，建立 `T` ↔ IMT 互查（[01-LAYOUT.md](./01-LAYOUT) §5–§6）。
+4. 配置 `SMT.__call`、struct `_default`、Nullable 特殊 SMT 等（[04-SPECIAL-TYPES.md](/docs/spec/metatable/04-SPECIAL-TYPES/)）。
+5. 创建 SMT / IMT，挂载 indexer，建立 `T` ↔ IMT 互查（[01-LAYOUT.md](/docs/spec/metatable/01-LAYOUT/) §5–§6）。
 
-泛型定义类型、含未闭合泛型参数的类型的绑定范围由 [../02-TYPE-SYSTEM.md](../02-TYPE-SYSTEM) 规定；一旦对脚本可见，已绑定成员须符合本文归类与扁平化规则。
+泛型定义类型、含未闭合泛型参数的类型的绑定范围由 [../02-TYPE-SYSTEM.md](/docs/spec/02-TYPE-SYSTEM/) 规定；一旦对脚本可见，已绑定成员须符合本文归类与扁平化规则。
 
 ---
 

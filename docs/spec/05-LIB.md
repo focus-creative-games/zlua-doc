@@ -11,7 +11,7 @@ title: "zlua 标准库"
 
 初始化时 native 注册 `__zlua_*` 全局 C 函数，再 `dostring` 加载 `zlualib.lua` 封装为 `zlua.*`。
 
-**相关：** 类型访问 → [02-TYPE-SYSTEM.md](02-TYPE-SYSTEM.md)；重载 → [04-METHOD-OVERLOAD.md](04-METHOD-OVERLOAD.md)；Marshal → [marshal/](marshal/)。
+**相关：** 类型访问 → [02-TYPE-SYSTEM.md](/docs/spec/02-TYPE-SYSTEM/)；重载 → [04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/)；Marshal → [marshal/](/docs/spec/marshal/)。
 
 ---
 
@@ -182,7 +182,7 @@ local ListInt = zlua.make_generic_type(
 
 ## 6. Opaque 读写
 
-见 [marshal/04-OPAQUE.md](marshal/04-OPAQUE.md)。
+见 [marshal/04-OPAQUE.md](/docs/spec/marshal/04-OPAQUE/)。
 
 ### 6.1 `zlua.get_opaquevalue` / `zlua.set_opaquevalue`
 
@@ -238,7 +238,7 @@ zlua.cast(obj, targetType) → userdata
 | `obj` | ByObj class userdata |
 | `targetType` | 类型表或 typeArg |
 
-同一托管 identity，**IMT 门面 = targetType**。见 [marshal/06-CLASS.md](marshal/06-CLASS.md)。
+同一托管 identity，**IMT 门面 = targetType**。见 [marshal/06-CLASS.md](/docs/spec/marshal/06-CLASS/)。
 
 **Native：** `__zlua_cast`
 
@@ -246,7 +246,7 @@ zlua.cast(obj, targetType) → userdata
 
 ## 8. 数组
 
-与 [02-TYPE-SYSTEM.md](02-TYPE-SYSTEM.md) §7 一致。
+与 [02-TYPE-SYSTEM.md](/docs/spec/02-TYPE-SYSTEM/) §7 一致。
 
 ### 8.1 数组类型
 
@@ -344,7 +344,7 @@ bar_int(obj, 42)
 
 ### 10.1 默认
 
-带 delegate 形参的 C# 方法可直接传 **Lua function**，由参数 marshal 隐式转换（[marshal/09-FUNCTION.md](marshal/09-FUNCTION.md)）。
+带 delegate 形参的 C# 方法可直接传 **Lua function**，由参数 marshal 隐式转换（[marshal/09-FUNCTION.md](/docs/spec/marshal/09-FUNCTION/)）。
 
 ### 10.2 `zlua.to_delegate`（显式）
 
@@ -371,7 +371,7 @@ local sig = __zlua_create_signature(zlua.types.int32, zlua.types.string)
 -- "(System.Int32,System.String)"
 ```
 
-供重载签名描述与调试对照（见 [04-METHOD-OVERLOAD.md](04-METHOD-OVERLOAD.md) §4）。建议在本地封装：
+供重载签名描述与调试对照（见 [04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) §4）。建议在本地封装：
 
 ```lua
 function zlua.signature(...)
@@ -385,7 +385,7 @@ end
 zlua.register_method(aliasName, methodOrClosure) → void
 ```
 
-完整语义见 [04-METHOD-OVERLOAD.md](04-METHOD-OVERLOAD.md) §6.1。
+完整语义见 [04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) §6.1。
 
 要点：`aliasName` 在目标 method 表中 **必须尚未占用**（无论已有单项函数还是重载组）；否则 `luaL_error`。用于给 direct closure 挂 **新名**，不合并重载。
 

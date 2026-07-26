@@ -6,11 +6,11 @@ title: "Delegate / 函数 Marshal"
 # Delegate / 函数 Marshal
 
 > **规范性：** C# `Delegate` 与 Lua 函数之间的双向 Marshal。  
-> **相关：** class ByObj 基础 → [`06-CLASS.md`](./06-CLASS)；`GetFunction` → [`../01-HOST-API.md`](../01-HOST-API)；C#→Lua byref → [`04-OPAQUE.md`](./04-OPAQUE)；Lua→C# byref → [`03-BYREF.md`](./03-BYREF)；`to_delegate` → [`../05-LIB.md`](../05-LIB)。
+> **相关：** class ByObj 基础 → [`06-CLASS.md`](/docs/spec/marshal/06-CLASS/)；`GetFunction` → [`../01-HOST-API.md`](/docs/spec/01-HOST-API/)；C#→Lua byref → [`04-OPAQUE.md`](/docs/spec/marshal/04-OPAQUE/)；Lua→C# byref → [`03-BYREF.md`](/docs/spec/marshal/03-BYREF/)；`to_delegate` → [`../05-LIB.md`](/docs/spec/05-LIB/)。
 
 **平台原则：** Mono 与 Il2Cpp 的 **Lua 可见语义一致**；实现路径可不同（Il2Cpp：构建期 C++ bridge；Mono：运行时 Expression Emit）。
 
-**明确不写 Event 专用子表：** ZLua **无** Event 特殊 Marshal；订阅/退订使用普通方法 `add_*` / `remove_*`（见 [`../02-TYPE-SYSTEM.md`](../02-TYPE-SYSTEM)）。
+**明确不写 Event 专用子表：** ZLua **无** Event 特殊 Marshal；订阅/退订使用普通方法 `add_*` / `remove_*`（见 [`../02-TYPE-SYSTEM.md`](/docs/spec/02-TYPE-SYSTEM/)）。
 
 ---
 
@@ -221,7 +221,7 @@ static int32_t Bridge_Func_int32__int32(Il2CppObject* target, int32_t a)
 ```
 
 - **void 返回**（`Action` 等）：`LuaPCall(..., 0)`，无 pop。
-- **`Invoke` 上的 `ref` / `out` / `in`**：**支持**；C#→Lua（bridge 调脚本）默认 **OpaqueValue**（[`04-OPAQUE.md`](./04-OPAQUE)）。
+- **`Invoke` 上的 `ref` / `out` / `in`**：**支持**；C#→Lua（bridge 调脚本）默认 **OpaqueValue**（[`04-OPAQUE.md`](/docs/spec/marshal/04-OPAQUE/)）。
 - **`[LuaMarshalAs]`** 非默认语义：与普通方法 / **GetFunction 取得的 delegate 调用** 同一套解析。
 
 **未注册签名：** 运行时查表失败 → 明确报错，提示重新 Codegen。
@@ -270,7 +270,7 @@ obj:RegisterCallback(d)
 | 绑定时机 | 首次 `GetFunction`：`require` 模块 + `luaL_ref` → `funcRef` | 隐式 marshal 或 `to_delegate` 时 `luaL_ref` |
 | 入口 | `LuaAppDomain.GetFunction<T>` → `T.Invoke` | closed delegate bridge |
 | **Marshal** | push / `pcall` / pop | **同一套**（`LuaCallInvoker`） |
-| **`ref`/`out`/`in`（C#→Lua）** | 默认 **OpaqueValue** | 默认 **OpaqueValue**（[`04-OPAQUE.md`](./04-OPAQUE)） |
+| **`ref`/`out`/`in`（C#→Lua）** | 默认 **OpaqueValue** | 默认 **OpaqueValue**（[`04-OPAQUE.md`](/docs/spec/marshal/04-OPAQUE/)） |
 | **`params`** | **不支持** | **不支持** |
 | 缓存 | **调用方负责** | 由持有方决定 |
 
@@ -363,8 +363,8 @@ unsupported delegate signature for Lua callback: System.Func<...>
 |------|----------|
 | `Action` / `Func<>` / 自定义 delegate | 统一按 **`Invoke` 签名** 解析 bridge |
 | **C# delegate → Lua** | §3.1：Lua 回调源 → **function**；原生 C# → DelegateUserData + `__call` |
-| **`ref`/`out`/`in`（Lua→C# 调 delegate）** | 见 [`03-BYREF.md`](./03-BYREF) |
-| **`ref`/`out`/`in`（delegate bridge C#→Lua）** | **OpaqueValue**；见 [`04-OPAQUE.md`](./04-OPAQUE) |
+| **`ref`/`out`/`in`（Lua→C# 调 delegate）** | 见 [`03-BYREF.md`](/docs/spec/marshal/03-BYREF/) |
+| **`ref`/`out`/`in`（delegate bridge C#→Lua）** | **OpaqueValue**；见 [`04-OPAQUE.md`](/docs/spec/marshal/04-OPAQUE/) |
 | **`params`（GetFunction / delegate bridge）** | **不支持** |
 | 开放 delegate | 可不支持 |
 | Multicast 的 Lua 回调 | 隐式 / 显式创建均为 **单播** |
@@ -378,11 +378,11 @@ unsupported delegate signature for Lua callback: System.Func<...>
 
 | 文档 | 内容 |
 |------|------|
-| [`06-CLASS.md`](./06-CLASS) | DelegateUserData、门面 |
-| [`03-BYREF.md`](./03-BYREF) | Lua→C# byref |
-| [`04-OPAQUE.md`](./04-OPAQUE) | C#→Lua byref / bridge 回调 |
-| [`02-MARSHAL-AS.md`](./02-MARSHAL-AS) | `[LuaMarshalAs]` 合法集合 |
-| [`../01-HOST-API.md`](../01-HOST-API) | `GetFunction` 约束 |
-| [`../02-TYPE-SYSTEM.md`](../02-TYPE-SYSTEM) | 委托类型表、`__call` |
-| [`../05-LIB.md`](../05-LIB) | `to_delegate` |
-| [`../../impl/codegen/EMIT-MONO.md`](../../impl/codegen/EMIT-MONO) | Mono Expression Emit |
+| [`06-CLASS.md`](/docs/spec/marshal/06-CLASS/) | DelegateUserData、门面 |
+| [`03-BYREF.md`](/docs/spec/marshal/03-BYREF/) | Lua→C# byref |
+| [`04-OPAQUE.md`](/docs/spec/marshal/04-OPAQUE/) | C#→Lua byref / bridge 回调 |
+| [`02-MARSHAL-AS.md`](/docs/spec/marshal/02-MARSHAL-AS/) | `[LuaMarshalAs]` 合法集合 |
+| [`../01-HOST-API.md`](/docs/spec/01-HOST-API/) | `GetFunction` 约束 |
+| [`../02-TYPE-SYSTEM.md`](/docs/spec/02-TYPE-SYSTEM/) | 委托类型表、`__call` |
+| [`../05-LIB.md`](/docs/spec/05-LIB/) | `to_delegate` |
+| [`../../impl/codegen/EMIT-MONO.md`](/docs/impl/codegen/EMIT-MONO/) | Mono Expression Emit |

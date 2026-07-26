@@ -49,7 +49,7 @@ public sealed class LuaMarshalAsAttribute : Attribute
 
 | 值 | 方向 | 效果 |
 |----|------|------|
-| **Default** | 双向 | 使用 [Marshal 速查表](../marshal-cheatsheet) 默认规则 |
+| **Default** | 双向 | 使用 [Marshal 速查表](/docs/reference/marshal-cheatsheet/) 默认规则 |
 | **UserData** | 双向 | 强制 **full userdata**（替代默认 boolean/number/string 等） |
 | **Bytes** | 双向 | `byte[]` ↔ Lua **string**（原始 octet，非 UTF-8 文本语义） |
 | **OpaqueLightUserData** | **仅 C# → Lua** | Push **lightuserdata** 临时令牌（StructStackScope handle）；须同步链内使用或 `zlua.to_user_data` 升级 |
@@ -73,7 +73,7 @@ public sealed class LuaMarshalAsAttribute : Attribute
 
 **方向过滤：** `OpaqueLightUserData` 标注于纯 **Lua→C# 形参** 时视为非法，Editor 回退 Default 并打错误日志。
 
-完整规则见 [LuaMarshalAs 规范](../../spec/marshal/02-MARSHAL-AS)。
+完整规则见 [LuaMarshalAs 规范](/docs/spec/marshal/02-MARSHAL-AS/)。
 
 ## 非法标注行为
 
@@ -102,7 +102,7 @@ public void SetColor([LuaMarshalAs(LuaMarshalType.UserData)] Color c) { }
 ```
 
 ```lua
-local c = CSharp.AC['MyGame.Color'](CSharp.AC['MyGame.Color'].Red)
+local c = CSharp.AC['MyGame.Color'](/docs/reference/csharp/CSharp.AC['MyGame.Color'].Red/)
 SetColor(c)
 ```
 
@@ -135,7 +135,7 @@ local ud = zlua.to_user_data(opaque) -- 升级为 StructUserData
 
 ## 相关文档
 
-- [Marshal 速查表](../marshal-cheatsheet)
-- [ref / out / in 指南](../../guides/marshal-ref-out-in)
-- [LuaMarshalAs 规范](../../spec/marshal/02-MARSHAL-AS)
+- [Marshal 速查表](/docs/reference/marshal-cheatsheet/)
+- [ref / out / in 指南](/docs/guides/marshal-ref-out-in/)
+- [LuaMarshalAs 规范](/docs/spec/marshal/02-MARSHAL-AS/)
 - [源码 LuaMarshalAsAttribute.cs](https://github.com/focus-creative-games/zlua/blob/main/Runtime/Common/LuaMarshalAsAttribute.cs)

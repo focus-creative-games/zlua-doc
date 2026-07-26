@@ -6,7 +6,7 @@ description: Lua 侧使用 C# enum 与 struct 值类型。
 
 # 枚举与 struct
 
-**enum** 与 **struct** 均为值类型，但在 Lua 中的默认形态与构造方式不同。行为以 [Marshal 规范](../spec/marshal/05-STRUCT) 为准（双端语义一致）。
+**enum** 与 **struct** 均为值类型，但在 Lua 中的默认形态与构造方式不同。行为以 [Marshal 规范](/docs/spec/marshal/05-STRUCT/) 为准（双端语义一致）。
 
 ## 概述
 
@@ -15,7 +15,7 @@ description: Lua 侧使用 C# enum 与 struct 值类型。
 | **enum** | integer / number（常量） | `EnumType(value)` / `_ctor` |
 | **struct** | ByValUserData / OpaqueValue / ByObj（见 Marshal 规范） | `Type(...)` |
 
-详见 [类型系统规范](../spec/02-TYPE-SYSTEM) 与 [Struct Marshal 规范](../spec/marshal/05-STRUCT)。
+详见 [类型系统规范](/docs/spec/02-TYPE-SYSTEM/) 与 [Struct Marshal 规范](/docs/spec/marshal/05-STRUCT/)。
 
 ---
 
@@ -90,7 +90,7 @@ p.Y = 20
 | `Point2D(1,2)` | `ref Point2D` | **真 ref**，C# 修改回写 |
 | `zlua.new_ref(Point2D, ...)` | `ref`/`out` | 真 ref |
 
-见 [ref / out / in](./marshal-ref-out-in)。
+见 [ref / out / in](/docs/guides/marshal-ref-out-in/)。
 
 ### 静态成员
 
@@ -170,15 +170,21 @@ CSharp.AC.MyGame.Vec2Helper.Normalize(refA)   -- ref 修改 a
 
 
 
+
+
+
+
+
+
 ## 学习路径
 
 | | |
 |---|---|
-| **上一篇** | [Event](./events) |
-| **下一篇** | [排错指南](./troubleshooting) |
+| **上一篇** | [Event](/docs/guides/events/) |
+| **下一篇** | [排错指南](/docs/guides/troubleshooting/) |
 
 ## 相关文档
 
-- [ref / out / in](./marshal-ref-out-in)
-- [Struct Marshal 规范](../spec/marshal/05-STRUCT)
-- [类型系统规范](../spec/02-TYPE-SYSTEM) §3.5–§3.6
+- [ref / out / in](/docs/guides/marshal-ref-out-in/)
+- [Struct Marshal 规范](/docs/spec/marshal/05-STRUCT/)
+- [类型系统规范](/docs/spec/02-TYPE-SYSTEM/) §3.5–§3.6

@@ -6,7 +6,7 @@ title: "Class / Interface Marshal"
 # Class / Interface Marshal
 
 > **规范性：** 引用类型（`class`、`interface`、`string`、数组实例、delegate 实例等）在 Lua 与 C# 之间的默认 Marshal 规则。  
-> **相关：** 类型表与成员访问 → [`../02-TYPE-SYSTEM.md`](../02-TYPE-SYSTEM)；`ref`/`out`/`in` 总览 → [`03-BYREF.md`](./03-BYREF)；`[LuaMarshalAs]` → [`02-MARSHAL-AS.md`](./02-MARSHAL-AS)；`zlua.cast` → [`../05-LIB.md`](../05-LIB)。
+> **相关：** 类型表与成员访问 → [`../02-TYPE-SYSTEM.md`](/docs/spec/02-TYPE-SYSTEM/)；`ref`/`out`/`in` 总览 → [`03-BYREF.md`](/docs/spec/marshal/03-BYREF/)；`[LuaMarshalAs]` → [`02-MARSHAL-AS.md`](/docs/spec/marshal/02-MARSHAL-AS/)；`zlua.cast` → [`../05-LIB.md`](/docs/spec/05-LIB/)。
 
 **平台原则：** Mono 与 Il2Cpp 的 **Lua 可见语义一致**；class 实例默认 **GCHandle + full userdata**（Il2Cpp：`ObjectRegistry` + `Il2CppObject*`）。
 
@@ -14,7 +14,7 @@ title: "Class / Interface Marshal"
 
 ## 1. 默认 Marshal（概要）
 
-未标注 `[LuaMarshalAs]` 时，引用类型遵循 [`01-OVERVIEW.md`](./01-OVERVIEW) 总览矩阵；本节补充 class / interface 特有语义。
+未标注 `[LuaMarshalAs]` 时，引用类型遵循 [`01-OVERVIEW.md`](/docs/spec/marshal/01-OVERVIEW/) 总览矩阵；本节补充 class / interface 特有语义。
 
 | 方向 | Lua 形态 | 说明 |
 |------|----------|------|
@@ -22,12 +22,12 @@ title: "Class / Interface Marshal"
 | **Lua → C#** | ClassUserData 或 **`nil`** | 校验可赋值给目标 **声明类型**；`nil` ↔ `null` |
 | **`string`** | Lua **`string`** 或 **`nil`** | **仅当声明类型为 `string`**；声明为 `object` 时仍为 Object userdata |
 | **`interface`** | 同 class | 门面 = **接口声明类型**（非实现类）；见 §2、§4 |
-| **数组** | ByObjUserData | 见 [`07-ARRAY.md`](./07-ARRAY) |
-| **Delegate** | function 或 DelegateUserData | 见 [`09-FUNCTION.md`](./09-FUNCTION) |
+| **数组** | ByObjUserData | 见 [`07-ARRAY.md`](/docs/spec/marshal/07-ARRAY/) |
+| **Delegate** | function 或 DelegateUserData | 见 [`09-FUNCTION.md`](/docs/spec/marshal/09-FUNCTION/) |
 
-**UserData 形态：** ClassUserData 为 `lua_newuserdata` + 实例元表 `IMT` 的 **full userdata**；脚本侧经 `:` / `.` 访问成员。与 [`04-OPAQUE.md`](./04-OPAQUE) 的 OpaqueValue（lightuserdata、无 metatable）及 [`10-POINTER.md`](./10-POINTER) 的 Pointer 不同。
+**UserData 形态：** ClassUserData 为 `lua_newuserdata` + 实例元表 `IMT` 的 **full userdata**；脚本侧经 `:` / `.` 访问成员。与 [`04-OPAQUE.md`](/docs/spec/marshal/04-OPAQUE/) 的 OpaqueValue（lightuserdata、无 metatable）及 [`10-POINTER.md`](/docs/spec/marshal/10-POINTER/) 的 Pointer 不同。
 
-字段、方法、静态成员访问细节见 [`../02-TYPE-SYSTEM.md`](../02-TYPE-SYSTEM) 与 [`../metatable/`](../metatable/)。
+字段、方法、静态成员访问细节见 [`../02-TYPE-SYSTEM.md`](/docs/spec/02-TYPE-SYSTEM/) 与 [`../metatable/`](/docs/spec/metatable/)。
 
 ---
 
@@ -43,10 +43,10 @@ title: "Class / Interface Marshal"
 ### 2.1 规则
 
 1. **C# → Lua**：始终按 **声明类型** 选择默认 marshal 形态与 ByObj IMT；**不**因运行时实际类型不同而改挂更具体类型的 mt，也 **不** 因此改走 `string` 等特殊 Marshal（例如 `object` 形参上的 `string` 实例仍为 Object userdata，不是 Lua string）。
-2. **值类型**：无继承门面问题；仍按 [`05-STRUCT.md`](./05-STRUCT) 等规则。
+2. **值类型**：无继承门面问题；仍按 [`05-STRUCT.md`](/docs/spec/marshal/05-STRUCT/) 等规则。
 3. **虚方法**：成员查找使用 **声明类型** 上的 `MethodInfo`；调用时对真实 `this` 做 **虚表派发**（`override` 仍落到实现类）。
 4. **非虚 / `new` 隐藏**：走声明类型槽位（经 `Base` 门面调用 `new` 隐藏的 `Bar` 得到 `Base.Bar`）。
-5. **Downcast**：仅 [`zlua.cast`](../05-LIB)（`IsAssignableFrom(targetType, obj.klass)`）；返回 **新 userdata**（同 identity、新门面）。
+5. **Downcast**：仅 [`zlua.cast`](/docs/spec/05-LIB/)（`IsAssignableFrom(targetType, obj.klass)`）；返回 **新 userdata**（同 identity、新门面）。
 6. **对象缓存**：键为 **`(identity, viewType)`**；同一实例可有多个视图 userdata。
 
 ### 2.2 示例
@@ -70,7 +70,7 @@ local c = zlua.cast(o, Child)          -- 门面 Child（须 IsAssignableFrom）
 | Pop | 接受 boolean / number / string / userdata |
 | 运行时类型 | **不** 按运行时类型改写 Marshal（运行时 `string` 仍为 Object userdata） |
 
-`Nullable<T>` 其中 `T` 为引用类型时，`null` ↔ `nil`；有值时同 `T` 的 class 规则。见 [`01-OVERVIEW.md`](./01-OVERVIEW)。
+`Nullable<T>` 其中 `T` 为引用类型时，`null` ↔ `nil`；有值时同 `T` 的 class 规则。见 [`01-OVERVIEW.md`](/docs/spec/marshal/01-OVERVIEW/)。
 
 ---
 
@@ -78,16 +78,16 @@ local c = zlua.cast(o, Child)          -- 门面 Child（须 IsAssignableFrom）
 
 **class** 与 **interface** **默认** 均为 **ByObjUserData**（ClassUserData），**不** 默认接受 Lua table 或多栈参数整对象组装。
 
-须显式标注 [`[LuaMarshalAs]`](./02-MARSHAL-AS) 的 `Table` 或 `UnpackedValues`，并配置 **`Members`**（`string[]`，field/property 可混合）：
+须显式标注 [`[LuaMarshalAs]`](/docs/spec/marshal/02-MARSHAL-AS/) 的 `Table` 或 `UnpackedValues`，并配置 **`Members`**（`string[]`，field/property 可混合）：
 
 | 形态 | Lua 侧 | 说明 |
 |------|--------|------|
-| **`Table`** | 单个 table ↔ 名单成员 | 键为成员名；可选 `?` 后缀见 [`02-MARSHAL-AS.md`](./02-MARSHAL-AS) |
+| **`Table`** | 单个 table ↔ 名单成员 | 键为成员名；可选 `?` 后缀见 [`02-MARSHAL-AS.md`](/docs/spec/marshal/02-MARSHAL-AS/) |
 | **`UnpackedValues`** | 连续 N 个栈槽 ↔ 名单成员 | 顺序与名单一致 |
 
 Pop 时须能构造 **实现该接口的实例** 或 class 实例（如无参 ctor + property setter，或实现层规定的工厂）；名单内成员须为接口 / 类型上可访问的 public field/property；**引用类型成员** 按该成员类型的 §1 默认规则递归 Pop/Push。
 
-**interface** 与 **class** / **struct** 一样，**允许** `Table` / `UnpackedValues`（合法集合见 [`02-MARSHAL-AS.md`](./02-MARSHAL-AS)）。
+**interface** 与 **class** / **struct** 一样，**允许** `Table` / `UnpackedValues`（合法集合见 [`02-MARSHAL-AS.md`](/docs/spec/marshal/02-MARSHAL-AS/)）。
 
 ---
 
@@ -97,14 +97,14 @@ Pop 时须能构造 **实现该接口的实例** 或 class 实例（如无参 ct
 |----|------|
 | **默认** C# ↔ Lua | **ByObjUserData**（ClassUserData）；门面 = **接口声明类型**（非实现类） |
 | `nil` | ↔ `null` |
-| `[LuaMarshalAs]` | 可与 class 相同覆盖：`UserData`、`OpaqueValue`、**`Table`**、**`UnpackedValues`**（见 [`02-MARSHAL-AS.md`](./02-MARSHAL-AS)） |
+| `[LuaMarshalAs]` | 可与 class 相同覆盖：`UserData`、`OpaqueValue`、**`Table`**、**`UnpackedValues`**（见 [`02-MARSHAL-AS.md`](/docs/spec/marshal/02-MARSHAL-AS/)） |
 | 成员访问（默认 userdata） | 仅接口上可见成员 + 继承的接口成员；实现类独有成员不可见 |
 
 ---
 
 ## 5. `ref` / `out` / `in` 引用类型形参（Lua → C#）
 
-总览见 [`03-BYREF.md`](./03-BYREF)。引用类型（含 `string`）要点：
+总览见 [`03-BYREF.md`](/docs/spec/marshal/03-BYREF/)。引用类型（含 `string`）要点：
 
 | Lua 实参 | 行为 |
 |----------|------|
@@ -130,7 +130,7 @@ CS.Demo.Append(sb, "!")   -- 共享引用，内容可变
 
 ### 5.2 C# → Lua
 
-`ref`/`out`/`in` **默认 Push OpaqueValue**，见 [`04-OPAQUE.md`](./04-OPAQUE)。
+`ref`/`out`/`in` **默认 Push OpaqueValue**，见 [`04-OPAQUE.md`](/docs/spec/marshal/04-OPAQUE/)。
 
 ---
 
@@ -142,7 +142,7 @@ CS.Demo.Append(sb, "!")   -- 共享引用，内容可变
 | **`object`**（运行时 `string`） | **Object userdata**（门面 `System.Object`） | 按 object Pop 规则 |
 | **`[LuaMarshalAs(UserData)]` on `string`** | **ByObjUserData**（托管 `System.String` 对象） | 强制 userdata 路径 |
 
-`[LuaMarshalAs(Bytes)]` 用于 **`byte[]`** ↔ Lua string，不是 `System.String`；见 [`07-ARRAY.md`](./07-ARRAY)。
+`[LuaMarshalAs(Bytes)]` 用于 **`byte[]`** ↔ Lua string，不是 `System.String`；见 [`07-ARRAY.md`](/docs/spec/marshal/07-ARRAY/)。
 
 ---
 
@@ -153,7 +153,7 @@ CS.Demo.Append(sb, "!")   -- 共享引用，内容可变
 | 默认 Push / Pop | ClassUserData；`nil` ↔ `null` |
 | 门面 `(identity, viewType)` | 两平台一致 |
 | `zlua.cast` | 同 identity、新 view |
-| C#→Lua byref | OpaqueValue（[`04-OPAQUE.md`](./04-OPAQUE)） |
+| C#→Lua byref | OpaqueValue（[`04-OPAQUE.md`](/docs/spec/marshal/04-OPAQUE/)） |
 | 错误消息 | 一致或等价 |
 
 ---
@@ -162,10 +162,10 @@ CS.Demo.Append(sb, "!")   -- 共享引用，内容可变
 
 | 文档 | 内容 |
 |------|------|
-| [`01-OVERVIEW.md`](./01-OVERVIEW) | 默认 Marshal 矩阵 |
-| [`03-BYREF.md`](./03-BYREF) | `ref` / `in` / `out` 总规则 |
-| [`04-OPAQUE.md`](./04-OPAQUE) | C#→Lua byref 默认 OpaqueValue |
-| [`07-ARRAY.md`](./07-ARRAY) | 数组 ByObjUserData |
-| [`09-FUNCTION.md`](./09-FUNCTION) | Delegate Marshal |
-| [`../02-TYPE-SYSTEM.md`](../02-TYPE-SYSTEM) | 类型表、IMT、成员访问 |
-| [`../05-LIB.md`](../05-LIB) | `cast`、`box` |
+| [`01-OVERVIEW.md`](/docs/spec/marshal/01-OVERVIEW/) | 默认 Marshal 矩阵 |
+| [`03-BYREF.md`](/docs/spec/marshal/03-BYREF/) | `ref` / `in` / `out` 总规则 |
+| [`04-OPAQUE.md`](/docs/spec/marshal/04-OPAQUE/) | C#→Lua byref 默认 OpaqueValue |
+| [`07-ARRAY.md`](/docs/spec/marshal/07-ARRAY/) | 数组 ByObjUserData |
+| [`09-FUNCTION.md`](/docs/spec/marshal/09-FUNCTION/) | Delegate Marshal |
+| [`../02-TYPE-SYSTEM.md`](/docs/spec/02-TYPE-SYSTEM/) | 类型表、IMT、成员访问 |
+| [`../05-LIB.md`](/docs/spec/05-LIB/) | `cast`、`box` |

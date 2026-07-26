@@ -25,7 +25,7 @@ description: ZLua 是什么、核心特性与适用场景。
 | **版本更广** | Lua 5.1–5.5 / LuaJIT（Il2Cpp 上 JIT 仅 Android / iOS）；Unity 2021+；团结引擎 |
 | **维护更积极** | 全职专业团队 |
 
-完整论述见 **[为什么选择 ZLua](./concepts/why-zlua)**；四方对照见 **[选型对比](./compare/)**。
+完整论述见 **[为什么选择 ZLua](/docs/concepts/why-zlua/)**；四方对照见 **[选型对比](/docs/compare/)**。
 
 ## 核心特性
 
@@ -34,19 +34,19 @@ description: ZLua 是什么、核心特性与适用场景。
 | Lua → C# | `CSharp` 根表懒加载；字段/方法/属性；泛型与数组；重载；`add_`/`remove_` 订阅 event |
 | C# → Lua | `LuaAppDomain.GetFunction<T>` 取得 Delegate 后 `Invoke` |
 | 双运行时 | **Mono（Editor）与 Il2Cpp（Player）均已完成**；语义一致、实现路径不同 |
-| Marshal | ByVal / ByObj / Opaque 等路径，见 [Marshal 规范](./spec/marshal/) |
+| Marshal | ByVal / ByObj / Opaque 等路径，见 [Marshal 规范](/docs/spec/marshal/) |
 
 :::info 当前状态
 <span class="runtimeBadge"><span class="runtimeBadgeMono">Mono · 已完成</span><span class="runtimeBadgeIl2cpp">Il2Cpp · 已完成</span></span>
 
-日常在 **Editor（Mono）** 开发；发版与性能以 **Il2Cpp Player** 为准（构建前 `ZLua/Generate/All`）。详见 [项目状态](./getting-started/project-status)。
+日常在 **Editor（Mono）** 开发；发版与性能以 **Il2Cpp Player** 为准（构建前 `ZLua/Generate/All`）。详见 [项目状态](/docs/getting-started/project-status/)。
 :::
 
 ## 下一步
 
-- [5 分钟快速开始](./getting-started/quick-start) — 跑通最小示例
-- [为什么选择 ZLua](./concepts/why-zlua) — 选型理由
-- [安装与集成](./getting-started/installation) — UPM 安装与工程结构
-- [使用指南](./guides/csharp-to-lua) — C# ↔ Lua 完整教程
-- [选型对比](./compare/) — 相对 xLua / toLua / SLua
-- [规范总览](./spec/00-OVERVIEW) — 权威语义契约
+- [5 分钟快速开始](/docs/getting-started/quick-start/) — 跑通最小示例
+- [为什么选择 ZLua](/docs/concepts/why-zlua/) — 选型理由
+- [安装与集成](/docs/getting-started/installation/) — UPM 安装与工程结构
+- [使用指南](/docs/guides/csharp-to-lua/) — C# ↔ Lua 完整教程
+- [选型对比](/docs/compare/) — 相对 xLua / toLua / SLua
+- [规范总览](/docs/spec/00-OVERVIEW/) — 权威语义契约

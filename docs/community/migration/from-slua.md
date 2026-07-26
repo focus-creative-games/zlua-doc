@@ -5,7 +5,7 @@ title: "从 SLua 迁移"
 
 # 从 SLua 迁移到 ZLua
 
-> **特性背景：** [compare/FEATURES.md](../../compare/FEATURES)  
+> **特性背景：** [compare/FEATURES.md](/docs/compare/FEATURES/)  
 > SLua 与 toLua 类似，强调 **导出配置 / 自动绑定**、`LuaSvr`；迁移路径与 toLua 高度重叠，本文突出 SLua 特有项。
 
 ---
@@ -20,7 +20,7 @@ title: "从 SLua 迁移"
 | `LuaFunction` / `LuaTable` | `GetFunction`、形参隐式 marshal、`require` 模块 |
 | `SLua.LuaObject` 绑定 | ObjectRegistry + marshal |
 | 自动导出 `UnityEngine.*` | `CSharp[assembly][fullName]` 按需访问 |
-| 值类型 GC 优化（版本相关） | ByVal / Opaque / ObjectRegistry（见 [compare/GC.md](../../compare/GC)） |
+| 值类型 GC 优化（版本相关） | ByVal / Opaque / ObjectRegistry（见 [compare/GC.md](/docs/compare/GC/)） |
 
 ---
 
@@ -118,7 +118,7 @@ local function get_callback()
 end
 ```
 
-动态按名 / 任意委托类型：见 [回调与 Delegate §3](../../guides/callbacks-and-delegates)。
+动态按名 / 任意委托类型：见 [回调与 Delegate §3](/docs/guides/callbacks-and-delegates/)。
 ### 步骤 6：SLua 特有 API 替换
 
 | SLua | ZLua |
@@ -139,12 +139,12 @@ local v = Vector3(1, 2, 3)
 -- struct ByVal；见 tc_marshal_unity_vector
 ```
 
-`ref` / `out` / C#→Lua Opaque 规则同 [from-xlua.md](./from-xlua) §步骤 7。
+`ref` / `out` / C#→Lua Opaque 规则同 [from-xlua.md](/docs/community/migration/from-xlua/) §步骤 7。
 
 ### 步骤 8：测试
 
 - 将原 SLua 关键用例迁入 `Tests/Lua/cases/`
-- [TESTING.md](../testing) 双端跑 manifest
+- [TESTING.md](/docs/community/testing/) 双端跑 manifest
 
 ---
 
@@ -158,7 +158,7 @@ local v = Vector3(1, 2, 3)
 | `LuaSvr` 多状态 | ZLua 默认 **单主** `lua_State` |
 | 热更 DLL + SLua | 需重建 ZLua Codegen / 程序集加载策略 |
 | Editor 与 Player 差异 | SLua 较一致；ZLua **必须** 验 Player |
-| 以为「无导出 = 无包体成本」 | 见 [compare/BRIDGE.md](../../compare/BRIDGE) 裁剪节 |
+| 以为「无导出 = 无包体成本」 | 见 [compare/BRIDGE.md](/docs/compare/BRIDGE/) 裁剪节 |
 
 ---
 
@@ -249,9 +249,9 @@ obj:remove_Click(fn)
 
 | 主题 | 参考 |
 |------|------|
-| 删 Wrap、全局类 | [from-tolua.md](./from-tolua) |
-| GetFunction、Opaque | [from-xlua.md](./from-xlua) |
-| 性能/GC | [compare/](../../compare/) |
+| 删 Wrap、全局类 | [from-tolua.md](/docs/community/migration/from-tolua/) |
+| GetFunction、Opaque | [from-xlua.md](/docs/community/migration/from-xlua/) |
+| 性能/GC | [compare/](/docs/compare/) |
 
 ---
 
@@ -269,6 +269,6 @@ obj:remove_Click(fn)
 
 | 文档 | 内容 |
 |------|------|
-| [migration/README.md](./) | 共用迁移清单 |
-| [spec/02-TYPE-SYSTEM.md](../../spec/02-TYPE-SYSTEM) | 类型命名 |
-| [compare/GC.md](../../compare/GC) | GC 边界 |
+| [migration/README.md](/docs/community/migration/) | 共用迁移清单 |
+| [spec/02-TYPE-SYSTEM.md](/docs/spec/02-TYPE-SYSTEM/) | 类型命名 |
+| [compare/GC.md](/docs/compare/GC/) | GC 边界 |

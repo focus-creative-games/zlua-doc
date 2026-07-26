@@ -7,7 +7,7 @@ description: CSharp 根表、元表与静实例隔离模型。
 # 类型系统概览
 
 :::tip 谁该读本文
-**已在 Lua 中访问 C#、需要理解 `CSharp` 表结构与静/实例隔离的开发者。** 入门语法见 [Lua 访问 C# 基础](../guides/lua-to-csharp-basics)；查 API 见 [CSharp 根表参考](../reference/lua/csharp-root)。
+**已在 Lua 中访问 C#、需要理解 `CSharp` 表结构与静/实例隔离的开发者。** 入门语法见 [Lua 访问 C# 基础](/docs/guides/lua-to-csharp-basics/)；查 API 见 [CSharp 根表参考](/docs/reference/lua/csharp-root/)。
 :::
 
 ## 设计目标
@@ -111,18 +111,18 @@ Il2Cpp：Generate stub + 懒绑定；Mono：Expression Emit + 懒绑定。
 | 开放泛型 | `CSharp.mscorlib['System.Collections.Generic.List`1']` |
 | 闭合泛型 | `zlua.make_generic_type(ListDef, zlua.types.int32)` |
 
-详见 [泛型与数组指南](../guides/generics-and-arrays)。
+详见 [泛型与数组指南](/docs/guides/generics-and-arrays/)。
 
 ## 何时读规范
 
 | 问题 | 文档 |
 |------|------|
-| 成员如何分派？ | [元表模型](./metatable-model) |
-| 重载与别名？ | [方法重载规范](../spec/04-METHOD-OVERLOAD) |
-| 数组 / 继承？ | [类型系统规范](../spec/02-TYPE-SYSTEM) |
+| 成员如何分派？ | [元表模型](/docs/concepts/metatable-model/) |
+| 重载与别名？ | [方法重载规范](/docs/spec/04-METHOD-OVERLOAD/) |
+| 数组 / 继承？ | [类型系统规范](/docs/spec/02-TYPE-SYSTEM/) |
 
 ## 相关文档
 
-- [CSharp 根表参考](../reference/lua/csharp-root)
-- [元表模型](./metatable-model)
-- [类型系统规范](../spec/02-TYPE-SYSTEM)
+- [CSharp 根表参考](/docs/reference/lua/csharp-root/)
+- [元表模型](/docs/concepts/metatable-model/)
+- [类型系统规范](/docs/spec/02-TYPE-SYSTEM/)

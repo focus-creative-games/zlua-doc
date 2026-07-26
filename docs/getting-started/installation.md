@@ -19,17 +19,17 @@ ZLua 以 Unity Package（UPM）形式分发。**安装 Package 后还须完成�
 5. 发布 Il2Cpp 前执行 **`ZLua/Generate/All`**（C++ stub，非 C# Wrap）
 
 :::info 运行时
-**Mono（Editor）与 Il2Cpp（Player）均已完成**，Lua 可见语义一致。多版本细节见 [多版本管理](../spec/11-MULTI-VERSION)、[项目状态](./project-status)。
+**Mono（Editor）与 Il2Cpp（Player）均已完成**，Lua 可见语义一致。多版本细节见 [多版本管理](/docs/spec/11-MULTI-VERSION/)、[项目状态](/docs/getting-started/project-status/)。
 :::
 
 ## 前置要求
 
 | 项 | 要求 |
 |----|------|
-| Unity | 见 [兼容性](./compatibility)（2021.3 / 2022.3 / Unity 6 / 团结等） |
+| Unity | 见 [兼容性](/docs/getting-started/compatibility/)（2021.3 / 2022.3 / Unity 6 / 团结等） |
 | Scripting Backend | Editor：**Mono**；Player：**Il2Cpp** |
 | Lua | 由 **Settings** 指定（默认 **`lua-5.3.6`**）；Install 时下载 / 装入本地树 |
-| 网络 | 首次 Install 下载 PUC-Rio 源码时需要；LuaJIT 须自行 clone，且 Il2Cpp 发布仅 Android / iOS（见 [多版本管理](../spec/11-MULTI-VERSION)、[LuaJIT 构建](../spec/build/02-LUAJIT)） |
+| 网络 | 首次 Install 下载 PUC-Rio 源码时需要；LuaJIT 须自行 clone，且 Il2Cpp 发布仅 Android / iOS（见 [多版本管理](/docs/spec/11-MULTI-VERSION/)、[LuaJIT 构建](/docs/spec/build/02-LUAJIT/)） |
 | Git | UPM 从 Git URL 安装时需要 |
 
 ---
@@ -40,7 +40,7 @@ ZLua 以 Unity Package（UPM）形式分发。**安装 Package 后还须完成�
 git clone https://github.com/focus-creative-games/zlua-demo.git
 ```
 
-用任意 [兼容性](./compatibility) 所列 Unity 版本打开工程后，仍须执行下文 **Settings → Install**（若 Demo 尚未完成本地安装）。然后 Play `SampleScene`。核心文件：
+用任意 [兼容性](/docs/getting-started/compatibility/) 所列 Unity 版本打开工程后，仍须执行下文 **Settings → Install**（若 Demo 尚未完成本地安装）。然后 Play `SampleScene`。核心文件：
 
 | 文件 | 说明 |
 |------|------|
@@ -81,14 +81,14 @@ git clone https://github.com/focus-creative-games/zlua-demo.git
 |------|------|
 | **Enable** | 是否启用 ZLua |
 | **Lua Version Id** | 要使用的 Lua / LuaJIT 版本 id；**默认 `lua-5.3.6`**（空则按此默认） |
-| **MarshalAs Xml Paths** | 可选；MarshalAs XML 路径，见 [LuaMarshalAs](../spec/marshal/02-MARSHAL-AS) |
+| **MarshalAs Xml Paths** | 可选；MarshalAs XML 路径，见 [LuaMarshalAs](/docs/spec/marshal/02-MARSHAL-AS/) |
 
-**`luaVersionId` 写法**（与 [多版本管理](../spec/11-MULTI-VERSION) 一致）：
+**`luaVersionId` 写法**（与 [多版本管理](/docs/spec/11-MULTI-VERSION/) 一致）：
 
 | 种类 | 格式 | 示例 |
 |------|------|------|
 | PUC-Rio | `lua-X.Y.Z` | `lua-5.1.5`、`lua-5.2.4`、`lua-5.3.6`、`lua-5.4.8`、`lua-5.5.0` |
-| LuaJIT | `luajit-M.N` | `luajit-2.1`（源码须自行 clone 到缓存目录；**Il2Cpp 仅 Android / iOS**，见 [LuaJIT 构建](../spec/build/02-LUAJIT)） |
+| LuaJIT | `luajit-M.N` | `luajit-2.1`（源码须自行 clone 到缓存目录；**Il2Cpp 仅 Android / iOS**，见 [LuaJIT 构建](/docs/spec/build/02-LUAJIT/)） |
 
 改版本后须重新执行 **Install**；若 Editor 原生 DLL / scripting define 随系列变化，按 Console 提示 **重启 Editor**。
 
@@ -101,7 +101,7 @@ git clone https://github.com/focus-creative-games/zlua-demo.git
 3. **将包内 `ZLua~/zlua-runtime` 复制到本地 `libil2cpp/zlua`**  
 4. 写入 scripting define、`ZLuaConf.inc` 等，并做完整性校验  
 
-PUC-Rio 源码缓存目录一般为 `Library/ZLua/LuaSrcCache/`（如 `lua-5.3.6/`）。细则与路径命名见 [多版本管理](../spec/11-MULTI-VERSION)。
+PUC-Rio 源码缓存目录一般为 `Library/ZLua/LuaSrcCache/`（如 `lua-5.3.6/`）。细则与路径命名见 [多版本管理](/docs/spec/11-MULTI-VERSION/)。
 
 :::warning 必须先 Install
 未 Install 时构建会失败（提示运行 `ZLua/Install...`）。**`ZLua/Generate/All` 也依赖本地树已存在。**
@@ -194,7 +194,7 @@ public class Bootstrap : MonoBehaviour
 |------|------|------|
 | Package 拉取失败 | 网络 / Git 未安装 | 检查 Git URL；可改用本地 path：`"file:../../zlua"` |
 | 构建提示未 Install | 未跑 `ZLua/Install...` 或本地树过期 | 执行 Install；换 Unity / 换 Lua 版本后重跑 |
-| Install 下载 Lua 失败 | 网络或版本 id 无效 | 检查 `luaVersionId`；见 [多版本管理](../spec/11-MULTI-VERSION) 缓存约定 |
+| Install 下载 Lua 失败 | 网络或版本 id 无效 | 检查 `luaVersionId`；见 [多版本管理](/docs/spec/11-MULTI-VERSION/) 缓存约定 |
 | Play 后无 Lua 输出 | 未调用 `Initialize` 或模块路径错误 | 确认 `BeforeSceneLoad` 已执行；检查 `LoadLuaModule` 返回非 null |
 | Player 找不到脚本 | 未同步 StreamingAssets | 运行 Sync 菜单或重新 Build |
 | `Assembly-CSharp` 找不到类型 | 脚本未编译或命名空间错误 | 确认 Demo 类为全局命名空间或修正 Lua 路径 |
@@ -212,7 +212,7 @@ public class Bootstrap : MonoBehaviour
 
 ## 下一步
 
-- [5 分钟快速开始](./quick-start)
-- [Lua 模块加载](../guides/lua-module-loading)
-- [多版本管理](../spec/11-MULTI-VERSION)
-- [支持的版本与平台](./compatibility)
+- [5 分钟快速开始](/docs/getting-started/quick-start/)
+- [Lua 模块加载](/docs/guides/lua-module-loading/)
+- [多版本管理](/docs/spec/11-MULTI-VERSION/)
+- [支持的版本与平台](/docs/getting-started/compatibility/)

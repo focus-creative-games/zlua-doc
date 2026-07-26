@@ -30,12 +30,12 @@ flowchart LR
 公共特性（`LuaMarshalAsAttribute`、`LuaAliasAttribute` 等）与 `LuaAppDomain` 在 `ZLua.Common`。
 
 :::info 状态
-**Mono 与 Il2Cpp 均已完成。** 日常在 Editor 开发；发版与性能以 Il2Cpp Player 为准。详见 [项目状态](../getting-started/project-status)。
+**Mono 与 Il2Cpp 均已完成。** 日常在 Editor 开发；发版与性能以 Il2Cpp Player 为准。详见 [项目状态](/docs/getting-started/project-status/)。
 :::
 
 ## 相关文档
 
-- [规范总览](../spec/00-OVERVIEW)
-- [Il2Cpp 实现](../impl/IL2CPP)
-- [Mono 实现](../impl/MONO)
-- [Editor 与 Player](../guides/editor-vs-player)
+- [规范总览](/docs/spec/00-OVERVIEW/)
+- [Il2Cpp 实现](/docs/impl/IL2CPP/)
+- [Mono 实现](/docs/impl/MONO/)
+- [Editor 与 Player](/docs/guides/editor-vs-player/)

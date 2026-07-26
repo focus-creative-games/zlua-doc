@@ -15,10 +15,10 @@ description: ZLua 支持的 Unity、Lua 版本、平台与功能矩阵。
 | Lua **5.3.x** | ✅ | ✅ | Settings 可选；**默认 `lua-5.3.6`** |
 | Lua **5.4.x** | ✅ | ✅ | Settings 可选 |
 | Lua **5.5.x** | ✅ | ✅ | Settings 可选 |
-| LuaJIT | ✅ | ⚠️ | Editor（Mono）可用；**Il2Cpp Player 仅 Android / iOS**（须自备静态库，见 [LuaJIT 构建](../spec/build/02-LUAJIT)） |
+| LuaJIT | ✅ | ⚠️ | Editor（Mono）可用；**Il2Cpp Player 仅 Android / iOS**（须自备静态库，见 [LuaJIT 构建](/docs/spec/build/02-LUAJIT/)） |
 | [Luau](https://luau.org/) | 🔜 | 🔜 | 规划中 |
 
-PUC-Rio 小版本用 Settings 的 `luaVersionId`（`lua-X.Y.Z`）指定；LuaJIT 用 `luajit-M.N`（源码须自行 clone）。Install 时装入本地树。详见 [安装](./installation)、[多版本管理](../spec/11-MULTI-VERSION)。
+PUC-Rio 小版本用 Settings 的 `luaVersionId`（`lua-X.Y.Z`）指定；LuaJIT 用 `luajit-M.N`（源码须自行 clone）。Install 时装入本地树。详见 [安装](/docs/getting-started/installation/)、[多版本管理](/docs/spec/11-MULTI-VERSION/)。
 
 ## Unity
 
@@ -31,7 +31,7 @@ PUC-Rio 小版本用 Settings 的 `luaVersionId`（`lua-X.Y.Z`）指定；LuaJIT
 | Unity 2021.3 LTS | ✅ 支持 |
 | 团结引擎 LTS | ✅ 支持 |
 
-libil2cpp patch 解析：优先 `patches/libil2cpp/6000.{minor}/`，再回退 `6000/`（见 [多版本管理](../spec/11-MULTI-VERSION)）。
+libil2cpp patch 解析：优先 `patches/libil2cpp/6000.{minor}/`，再回退 `6000/`（见 [多版本管理](/docs/spec/11-MULTI-VERSION/)）。
 
 ## Scripting Backend
 
@@ -40,7 +40,7 @@ libil2cpp patch 解析：优先 `patches/libil2cpp/6000.{minor}/`，再回退 `6
 | **Il2Cpp** | Player 发布 | **已完成**（权威实现） |
 | **Mono** | Unity Editor | **已完成**（与 Il2Cpp 语义一致） |
 
-Lua 可见语义两端一致；Indexer / 桥接实现不同。详见 [项目状态](./project-status)、[规范](../spec/00-OVERVIEW)。
+Lua 可见语义两端一致；Indexer / 桥接实现不同。详见 [项目状态](/docs/getting-started/project-status/)、[规范](/docs/spec/00-OVERVIEW/)。
 
 **Il2Cpp 构建：** 发布前执行 **`ZLua/Generate/All`**（C++ stub，非 C# Wrap）。
 
@@ -49,7 +49,7 @@ Lua 可见语义两端一致；Indexer / 桥接实现不同。详见 [项目状�
 | 引擎 | Il2Cpp Player 平台 |
 |------|-------------------|
 | **PUC-Rio（Lua 5.1–5.5）** | 设计覆盖 Il2Cpp 常见目标（Windows、macOS、iOS、Android、WebGL、微信小游戏、鸿蒙/车机等） |
-| **LuaJIT** | **仅 Android、iOS**；Win / macOS / Linux / WebGL 等 **不支持**。须自行编译静态 `.a` 放入 Plugins，见 [LuaJIT 构建](../spec/build/02-LUAJIT) |
+| **LuaJIT** | **仅 Android、iOS**；Win / macOS / Linux / WebGL 等 **不支持**。须自行编译静态 `.a` 放入 Plugins，见 [LuaJIT 构建](/docs/spec/build/02-LUAJIT/) |
 
 其它平台问题请提交 Issue。
 
@@ -57,7 +57,7 @@ Lua 可见语义两端一致；Indexer / 桥接实现不同。详见 [项目状�
 
 ## 功能 × 运行时矩阵
 
-✅ 可用 · ⚠️ 有限制（见说明） · ❌ 不支持（有意限制）。细则以 [规范](../spec/00-OVERVIEW) 为准。
+✅ 可用 · ⚠️ 有限制（见说明） · ❌ 不支持（有意限制）。细则以 [规范](/docs/spec/00-OVERVIEW/) 为准。
 
 ### Lua 调用 C#
 
@@ -67,7 +67,7 @@ Lua 可见语义两端一致；Indexer / 桥接实现不同。详见 [项目状�
 | 实例 / 静态字段 | ✅ | ✅ | |
 | 实例 / 静态方法 | ✅ | ✅ | |
 | Property（无参） | ✅ | ✅ | |
-| Property（indexer） | ✅ | ✅ | 经 `get_Item` / `set_Item` 等方法形式访问，见 [字段与属性](../guides/fields-and-properties) |
+| Property（indexer） | ✅ | ✅ | 经 `get_Item` / `set_Item` 等方法形式访问，见 [字段与属性](/docs/guides/fields-and-properties/) |
 | 方法重载 dispatch | ✅ | ✅ | |
 | `[LuaAlias]` / `register_method` | ✅ | ✅ | |
 | 泛型类 / 泛型方法 | ✅ | ✅ | 开放泛型须先闭合；静态泛型方法有限制 |
@@ -91,7 +91,7 @@ Lua 可见语义两端一致；Indexer / 桥接实现不同。详见 [项目状�
 | enum（默认 integer） | ✅ | ✅ |
 | class / struct（ByVal / ByObj / Opaque） | ✅ | ✅ |
 | array | ✅ | ✅ |
-| OpaqueValue / byref | ✅ | ✅ | 见 [BYREF](../spec/marshal/03-BYREF)、[OPAQUE](../spec/marshal/04-OPAQUE) |
+| OpaqueValue / byref | ✅ | ✅ | 见 [BYREF](/docs/spec/marshal/03-BYREF/)、[OPAQUE](/docs/spec/marshal/04-OPAQUE/) |
 
 ### 标准库 `zlua`
 
@@ -112,6 +112,6 @@ Lua 可见语义两端一致；Indexer / 桥接实现不同。详见 [项目状�
 
 ## 下一步
 
-- [项目状态](./project-status)
-- [Editor 与 Player](../guides/editor-vs-player)
-- [选型对比](../compare/)
+- [项目状态](/docs/getting-started/project-status/)
+- [Editor 与 Player](/docs/guides/editor-vs-player/)
+- [选型对比](/docs/compare/)

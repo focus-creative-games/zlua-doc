@@ -7,7 +7,7 @@ title: "MethodOverloadResolver 实现"
 
 > **Il2Cpp：** `marshal/MethodOverloadResolver.cpp`  
 > **Mono：** Phase 3 `Emit/` + 计划中的 managed resolver（语义对齐）  
-> **规范权威：** [../../spec/04-METHOD-OVERLOAD.md](../../spec/04-METHOD-OVERLOAD) — 本文只描述 runtime 数据结构与 C++ 落点
+> **规范权威：** [../../spec/04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) — 本文只描述 runtime 数据结构与 C++ 落点
 
 ---
 
@@ -167,4 +167,4 @@ Phase 3 Emit 将为多重载方法生成：
 | `bridge/MethodBridge.cpp` | InvokeLua2Cs |
 | `Editor/CppCodeGen/AotMethodAnalyzer.cs` | 构建期重载元数据顺序 |
 
-规范详述：[../../spec/04-METHOD-OVERLOAD.md](../../spec/04-METHOD-OVERLOAD)
+规范详述：[../../spec/04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/)

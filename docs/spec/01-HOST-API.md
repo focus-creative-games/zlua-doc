@@ -6,7 +6,7 @@ title: "宿主 API"
 # 01 — 宿主 API
 
 > `LuaAppDomain`（含 **`GetFunction`**）、**`[LuaMarshalAs]`**、**`[LuaAlias]`**。  
-> C#→Lua / Lua→C# Marshal 细节见 [marshal/](marshal/)。
+> C#→Lua / Lua→C# Marshal 细节见 [marshal/](/docs/spec/marshal/)。
 
 ---
 
@@ -52,7 +52,7 @@ public static class LuaAppDomain
 
 ### 1.3 帧泵
 
-`LuaAppDomain.Initialize` 注册 `LuaFramePump`，在 Unity `Update` 等时机调用 `ProcessPendingRefReleases`，处理 delegate / Lua ref 等延迟释放。详见 [10-LIFETIME.md](10-LIFETIME.md)。
+`LuaAppDomain.Initialize` 注册 `LuaFramePump`，在 Unity `Update` 等时机调用 `ProcessPendingRefReleases`，处理 delegate / Lua ref 等延迟释放。详见 [10-LIFETIME.md](/docs/spec/10-LIFETIME/)。
 
 ---
 
@@ -77,7 +77,7 @@ public static T GetFunction<T>(string luaModule, string luaMethodName)
 
 1. 按 `luaModule` 加载（或命中已加载）模块表  
 2. 取 `module[luaMethodName]`，须为 Lua `function`  
-3. 按 `T` 的签名将 function **Marshal** 为 closed delegate（规则同 [marshal/09-FUNCTION.md](marshal/09-FUNCTION.md)）  
+3. 按 `T` 的签名将 function **Marshal** 为 closed delegate（规则同 [marshal/09-FUNCTION.md](/docs/spec/marshal/09-FUNCTION/)）  
 4. 返回该 `T` 实例  
 
 **缓存：** API **不保证**跨调用复用同一 delegate 实例；热路径由调用方自行保存（字段 / 局部变量）。须在 `Initialize` **之后**再调用（例如 `Awake`）；**勿**放在与 `RuntimeInitializeOnLoadMethod` 同类型的 static 字段初始化器中。
@@ -111,8 +111,8 @@ return { add = add }
 
 对返回的 delegate 执行 `Invoke` 时：
 
-- 参数 / 返回值 Marshal 与普通 **C#→Lua（delegate bridge）** 相同，见 [marshal/01-OVERVIEW.md](marshal/01-OVERVIEW.md)
-- **`ref` / `in` / `out` 默认 Push OpaqueValue**（[marshal/04-OPAQUE.md](marshal/04-OPAQUE.md)）
+- 参数 / 返回值 Marshal 与普通 **C#→Lua（delegate bridge）** 相同，见 [marshal/01-OVERVIEW.md](/docs/spec/marshal/01-OVERVIEW/)
+- **`ref` / `in` / `out` 默认 Push OpaqueValue**（[marshal/04-OPAQUE.md](/docs/spec/marshal/04-OPAQUE/)）
 
 ### 2.6 流程（概念）
 
@@ -157,7 +157,7 @@ public static class LuaIl2CppAppDomain
 
 **禁止**标注在 **方法** 上（绑定期 `LuaMarshalAsConfigurationException`）。
 
-完整选项见 [marshal/02-MARSHAL-AS.md](marshal/02-MARSHAL-AS.md)。
+完整选项见 [marshal/02-MARSHAL-AS.md](/docs/spec/marshal/02-MARSHAL-AS/)。
 
 ### 3.2 常用选项（概要）
 
@@ -192,10 +192,10 @@ public void Bar(string s) { ... }
 
 - 定义于 `ZLua.Common`
 - **等价于**用该字符串作为最终 Lua 名再注册一次该方法（默认名 `MethodInfo.Name` 仍然注册）
-- **允许**与其它别名或已有方法名重复；重复时该最终名下多候选，调用走 **重载分派**（见 [04-METHOD-OVERLOAD.md](04-METHOD-OVERLOAD.md) §5）
+- **允许**与其它别名或已有方法名重复；重复时该最终名下多候选，调用走 **重载分派**（见 [04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) §5）
 - 若某最终名下仅此一候选（例如独立的 `run_i32`），则为 **direct closure**
 
-完整规则见 [04-METHOD-OVERLOAD.md](04-METHOD-OVERLOAD.md) §3、§5。
+完整规则见 [04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) §3、§5。
 
 ---
 
@@ -227,7 +227,7 @@ Lua 调用 C# 成员时，native 在 **EnsureBinding** 阶段为每个 public �
 
 ### 6.3 Opaque 与边界
 
-Opaque handle **仅在** 产生它的那次 C#→Lua 调用返回前有效；跨 `pcall` 保存后再用 → error。见 [marshal/04-OPAQUE.md](marshal/04-OPAQUE.md)、[10-LIFETIME.md](10-LIFETIME.md)。
+Opaque handle **仅在** 产生它的那次 C#→Lua 调用返回前有效；跨 `pcall` 保存后再用 → error。见 [marshal/04-OPAQUE.md](/docs/spec/marshal/04-OPAQUE/)、[10-LIFETIME.md](/docs/spec/10-LIFETIME/)。
 
 ---
 
@@ -248,9 +248,9 @@ C#→Lua **不**依赖 IL weave / 专用 stub：经 `GetFunction` → Delegate �
 
 | 文档 | 内容 |
 |------|------|
-| [00-OVERVIEW.md](00-OVERVIEW.md) | 双运行时、初始化 |
-| [04-METHOD-OVERLOAD.md](04-METHOD-OVERLOAD.md) | dispatch、`register_method` |
-| [marshal/01-OVERVIEW.md](marshal/01-OVERVIEW.md) | Marshal 总览 |
-| [marshal/09-FUNCTION.md](marshal/09-FUNCTION.md) | Delegate ↔ Lua function |
-| [10-LIFETIME.md](10-LIFETIME.md) | GC、单 lua_State |
-| [reference/csharp/lua-app-domain.md](../reference/csharp/lua-app-domain.md) | 程序员 API 页 |
+| [00-OVERVIEW.md](/docs/spec/00-OVERVIEW/) | 双运行时、初始化 |
+| [04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) | dispatch、`register_method` |
+| [marshal/01-OVERVIEW.md](/docs/spec/marshal/01-OVERVIEW/) | Marshal 总览 |
+| [marshal/09-FUNCTION.md](/docs/spec/marshal/09-FUNCTION/) | Delegate ↔ Lua function |
+| [10-LIFETIME.md](/docs/spec/10-LIFETIME/) | GC、单 lua_State |
+| [reference/csharp/lua-app-domain.md](/docs/reference/csharp/lua-app-domain/) | 程序员 API 页 |

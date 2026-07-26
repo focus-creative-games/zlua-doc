@@ -25,7 +25,7 @@ namespace ZLua
 }
 ```
 
-权威细则：[spec/01-HOST-API.md](../../spec/01-HOST-API)。
+权威细则：[spec/01-HOST-API.md](/docs/spec/01-HOST-API/)。
 
 ---
 
@@ -43,7 +43,7 @@ private static void InitZLuaOnStartup()
 }
 ```
 
-`LoadLuaModule` 负责 Editor（`LuaScripts/*.lua`）与 Player（`StreamingAssets/*.lua.txt`）路径差异，见 [安装指南](../../getting-started/installation)。
+`LoadLuaModule` 负责 Editor（`LuaScripts/*.lua`）与 Player（`StreamingAssets/*.lua.txt`）路径差异，见 [安装指南](/docs/getting-started/installation/)。
 
 ---
 
@@ -64,7 +64,7 @@ onTick(0.016f);
 | `T` | 必须是具体 `MulticastDelegate` 类型（如 `Action<>` / `Func<>`） |
 | `luaModule` / `luaMethodName` | 与 `LoadLuaModule` 模块名、Lua `return { ... }` 键名一致 |
 | 缓存 | **由调用方负责**（热路径请存到字段 / 局部变量后再调） |
-| Marshal | 对返回的 delegate `Invoke` 时遵循 [Marshal 速查表](../marshal-cheatsheet)；可用 `[LuaMarshalAs]` |
+| Marshal | 对返回的 delegate `Invoke` 时遵循 [Marshal 速查表](/docs/reference/marshal-cheatsheet/)；可用 `[LuaMarshalAs]` |
 
 模块缺失、键不是 function、或无法绑定为 `T` → 抛 C# 异常。
 
@@ -131,12 +131,12 @@ sequenceDiagram
 | `Lua module loader is not configured` | 未调用 `Initialize` 或 loader 为 null |
 | `require` / GetFunction 失败 | 检查模块名、文件路径、`.lua.txt` 后缀、`return` 表键名 |
 | Player 无 Lua 脚本 | 确认 Sync 脚本已执行，StreamingAssets 含目标文件 |
-| Marshal / 绑定失败 | 对照 [Marshal 速查表](../marshal-cheatsheet) 与 `T` 签名 |
+| Marshal / 绑定失败 | 对照 [Marshal 速查表](/docs/reference/marshal-cheatsheet/) 与 `T` 签名 |
 
 ## 相关文档
 
-- [C# 调用 Lua 指南](../../guides/csharp-to-lua)
-- [回调与 Delegate](../../guides/callbacks-and-delegates)
-- [Lua 模块加载](../../guides/lua-module-loading)
-- [设计规范](../../spec/00-OVERVIEW)
+- [C# 调用 Lua 指南](/docs/guides/csharp-to-lua/)
+- [回调与 Delegate](/docs/guides/callbacks-and-delegates/)
+- [Lua 模块加载](/docs/guides/lua-module-loading/)
+- [设计规范](/docs/spec/00-OVERVIEW/)
 - [源码 LuaAppDomain.cs](https://github.com/focus-creative-games/zlua/blob/main/Runtime/Common/LuaAppDomain.cs)

@@ -110,6 +110,6 @@ public int GetValue() => 0;
 
 ## 相关文档
 
-- [方法重载指南](../../guides/methods-and-overloads)
-- [方法重载规范](../../spec/04-METHOD-OVERLOAD) §5
+- [方法重载指南](/docs/guides/methods-and-overloads/)
+- [方法重载规范](/docs/spec/04-METHOD-OVERLOAD/) §5
 - [LuaAlias 源码](https://github.com/focus-creative-games/zlua/blob/main/Runtime/Common/LuaAliasAttribute.cs)

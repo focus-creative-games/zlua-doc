@@ -6,7 +6,7 @@ description: C# 类型默认 Marshal 规则与 LuaMarshalAs 覆盖速查。
 
 # Marshal 速查表
 
-权威全文：[Marshal 总览](../spec/marshal/01-OVERVIEW)、[LuaMarshalAs](../spec/marshal/02-MARSHAL-AS)。
+权威全文：[Marshal 总览](/docs/spec/marshal/01-OVERVIEW/)、[LuaMarshalAs](/docs/spec/marshal/02-MARSHAL-AS/)。
 
 **形态：** ClassUserData、ByObjUserData、ByValUserData 为 full userdata；**OpaqueValue**、非托管 Pointer 为 lightuserdata。
 
@@ -36,7 +36,7 @@ description: C# 类型默认 Marshal 规则与 LuaMarshalAs 覆盖速查。
 
 ## 相关文档
 
-- [LuaMarshalAs 参考](./csharp/lua-marshal-as)
-- [BYREF](../spec/marshal/03-BYREF)
-- [OPAQUE](../spec/marshal/04-OPAQUE)
-- [STRUCT](../spec/marshal/05-STRUCT)
+- [LuaMarshalAs 参考](/docs/reference/csharp/lua-marshal-as/)
+- [BYREF](/docs/spec/marshal/03-BYREF/)
+- [OPAQUE](/docs/spec/marshal/04-OPAQUE/)
+- [STRUCT](/docs/spec/marshal/05-STRUCT/)
