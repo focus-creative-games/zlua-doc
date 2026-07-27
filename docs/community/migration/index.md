@@ -16,4 +16,5 @@ description: 迁移正文已并入使用指南；本页为入口。
 | [从 toLua 迁移](/docs/guides/migration/from-tolua/) | toLua / tolua# |
 | [从 SLua 迁移](/docs/guides/migration/from-slua/) | SLua |
 
-选型差异见 [compare/FEATURES](/docs/compare/FEATURES/)。
+选型差异见 [compare/FEATURES](/docs/compare/FEATURES/)。  
+可选 **Lua→C# 类型路径适配**（`CS.*` / 短名 / `UnityEngine.*`）：见 [规范 12](/docs/spec/12-MIGRATION-ADAPTORS/) 与 [迁移索引 · 适配层](/docs/guides/migration/#迁移适配层推荐先用)。

@@ -6,7 +6,8 @@ title: "从 xLua 迁移"
 # 从 xLua 迁移到 ZLua
 
 > **特性背景：** [compare/FEATURES.md](/docs/compare/FEATURES/)  
-> **性能/GC：** [compare/PERFORMANCE.md](/docs/compare/PERFORMANCE/)、[compare/GC.md](/docs/compare/GC/)
+> **性能/GC：** [compare/PERFORMANCE.md](/docs/compare/PERFORMANCE/)、[compare/GC.md](/docs/compare/GC/)  
+> **类型路径适配（可选）：** [规范 12 · xlua adaptor](/docs/spec/12-MIGRATION-ADAPTORS/) · [迁移索引](/docs/guides/migration/)
 
 ---
 
@@ -14,15 +15,15 @@ title: "从 xLua 迁移"
 
 | xLua | ZLua |
 |------|------|
-| `CS.Namespace.Type` | `CSharp[assembly]['Namespace.Type']`（含 namespace **必须括号**） |
+| `CS.Namespace.Type` | 原生：`CSharp[assembly]['Namespace.Type']`；**或** xlua adaptor 继续写 `CS.*` |
 | `LuaEnv` | `LuaAppDomain` + `moduleLoader` |
 | `luaEnv:DoString` / `require` | 同 `require`；loader 由宿主提供 |
-| `[LuaCallCSharp]` + Generate | **无**；public 类型 **懒 Bind** |
-| `[CSharpCallLua]` | `LuaAppDomain.GetFunction<T>("module","func")` |
+| `[LuaCallCSharp]` + Generate | **无**；public 类型 **懒 Bind**（适配清单仅迁移期路径兼容） |
+| `[CSharpCallLua]` | `LuaAppDomain.GetFunction<T>("module","func")`（**适配不覆盖**） |
 | `LuaFunction` / `xlua.tofunction` | `GetFunction` 直接调，或 **形参隐式 marshal** / `to_delegate`（见 [Function](/docs/guides/functions/)） |
 | `ObjectTranslator` | `ObjectRegistry` + marshal 分册 |
 | xLua Event 语法 | **无**；`add_Xxx` / `remove_Xxx` |
-| `CS.System.Collections.Generic.List(CS.System.Int32)` | `zlua.make_generic_type(...)` |
+| `CS.System.Collections.Generic.List(CS.System.Int32)` | `zlua.make_generic_type(...)`（**适配不兼容**旧泛型构造语法） |
 | struct / `out` | ByVal / Opaque / StructUserData（见 spec/marshal） |
 
 ---
@@ -52,7 +53,27 @@ LuaAppDomain.Initialize(moduleName =>
 
 确保 `RuntimeInitializeOnLoadMethod` 或场景入口调用 `Initialize` 一次。
 
-### 步骤 2：改写类型路径
+### 步骤 2：类型路径（二选一）
+
+#### 2A. 使用 xlua adaptor（减改写，推荐过渡）
+
+包内：`ZLua~/adaptors/xlua/`（`adaptor.lua` + `ExportTypes.cs`）。契约见 [规范 12](/docs/spec/12-MIGRATION-ADAPTORS/)。
+
+1. 在 **仍含 xLua** 的工程复制 `ExportTypes.cs` → Editor，菜单 **`ZLua/ExportTypes`**
+2. 生成物按 `[LuaCallCSharp]` / 既有 Gen 白名单写出 `xlua_export_types.lua`（**不**扫全程序集）
+3. 将 `xlua_export_types.lua` 与 `adaptor.lua` 放入 ZLua 工程可 `require` 的 Lua 目录
+4. 在 `Initialize` 之后、业务脚本之前：
+
+```lua
+local export_types = require "xlua_export_types"
+local adaptor = require "adaptor"
+adaptor.init(export_types)
+-- 此后 CS.UnityEngine.GameObject 等仍可用（清单内）
+```
+
+**仍须手改：** `GetFunction`、Event、`ref`/Opaque、以及 `List(Int32)` 式泛型构造 → `zlua.make_generic_type`。
+
+#### 2B. 改写为原生 `CSharp`（长期收口）
 
 **Before：**
 
@@ -329,10 +350,10 @@ void Update() => LuaUpdate(Time.deltaTime);
 
 | 阶段 | 工作 |
 |------|------|
-| W1 | 初始化、`CSharp` 路径工具函数、删 xLua 包 |
-| W2 | 核心 gameplay Lua 改路径 + delegate |
+| W1 | 初始化；**xlua adaptor** 或 `CSharp` 路径工具；删 xLua 包 |
+| W2 | 核心 gameplay（delegate / GetFunction）；逐步收口 `CS.*` |
 | W3 | struct/ref/Event 专项 + `Tests/Lua` |
-| W4 | Il2Cpp Player 全量回归 + 性能 profiling |
+| W4 | Il2Cpp Player 全量回归 + 性能 profiling；可选卸掉 adaptor |
 
 ---
 
@@ -340,6 +361,7 @@ void Update() => LuaUpdate(Time.deltaTime);
 
 | 文档 | 内容 |
 |------|------|
-| [migration/README.md](/docs/guides/migration/) | 共用清单 |
+| [migration/](/docs/guides/migration/) | 共用清单与适配层总览 |
+| [spec/12-MIGRATION-ADAPTORS.md](/docs/spec/12-MIGRATION-ADAPTORS/) | xlua adaptor 契约 |
 | [spec/02-TYPE-SYSTEM.md](/docs/spec/02-TYPE-SYSTEM/) | 类型语法 |
 | [spec/01-HOST-API.md](/docs/spec/01-HOST-API/) | GetFunction |

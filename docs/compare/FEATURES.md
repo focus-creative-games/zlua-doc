@@ -229,7 +229,7 @@ OnTick(0.016f);
 |----|------|--------------|------|
 | C# **Event** 语法糖 | 有 | 视版本 | **无** → `add_Xxx` / `remove_Xxx` |
 | 运行时继承查找 | 有 | 有 | **无**（Bind 期扁平化） |
-| `CS.` 全局 | 有 | N/A | 用 **`CSharp`** |
+| `CS.` / 全局短名 / `UnityEngine.*` | 有 | 有（形态不同） | 原生用 **`CSharp`**；迁移期可用 [adaptors](/docs/spec/12-MIGRATION-ADAPTORS/) |
 | 热路径反射 Invoke | 兜底 | 部分 | **显式错误** |
 | 跨帧 Opaque | N/A | N/A | **禁止** |
 | 任意 Lua function 存成永久 delegate 无 GC 顾虑 | 需注意 translator | 需注意 | 须理解 [spec/10-LIFETIME.md](/docs/spec/10-LIFETIME/) |
@@ -258,12 +258,18 @@ local sum = Demo.Add(1, 2)
 local obj = Demo()
 local x = obj.x
 
--- ZLua
+-- ZLua（原生）
 local Demo = CSharp['Assembly-CSharp']['MyGame.Demo']
 local sum = Demo.Add(1, 2)
 local obj = Demo()
 local x = obj.x
+
+-- ZLua + xlua adaptor（迁移过渡，清单内可继续 CS.*）
+-- require + adaptor.init(export_types) 后：
+-- local Demo = CS.MyGame.Demo
 ```
+
+类型路径适配细节见 [guides/migration](/docs/guides/migration/) 与 [spec/12-MIGRATION-ADAPTORS](/docs/spec/12-MIGRATION-ADAPTORS/)。
 
 ---
 

@@ -6,7 +6,8 @@ title: "从 SLua 迁移"
 # 从 SLua 迁移到 ZLua
 
 > **特性背景：** [compare/FEATURES.md](/docs/compare/FEATURES/)  
-> SLua 与 toLua 类似，强调 **导出配置 / 自动绑定**、`LuaSvr`；迁移路径与 toLua 高度重叠，本文突出 SLua 特有项。
+> SLua 与 toLua 类似，强调 **导出配置 / 自动绑定**、`LuaSvr`；迁移路径与 toLua 高度重叠，本文突出 SLua 特有项。  
+> **类型路径适配（可选）：** [规范 12 · slua adaptor](/docs/spec/12-MIGRATION-ADAPTORS/) · [迁移索引](/docs/guides/migration/)
 
 ---
 
@@ -16,10 +17,10 @@ title: "从 SLua 迁移"
 |------|------|
 | `LuaSvr` / `LuaSvrGameObject` | `LuaAppDomain.Initialize` |
 | `LuaState` | 内置于 ZLua 宿主；不直接暴露 |
-| `[CustomLuaClass]` / 导出 XML | **无**；public 懒 Bind |
-| `LuaFunction` / `LuaTable` | `GetFunction`、形参隐式 marshal、`require` 模块 |
+| `[CustomLuaClass]` / 导出 XML | **无**访问控制白名单；public 懒 Bind（适配清单仅迁移期） |
+| `LuaFunction` / `LuaTable` | `GetFunction`、形参隐式 marshal、`require` 模块（**适配不覆盖**） |
 | `SLua.LuaObject` 绑定 | ObjectRegistry + marshal |
-| 自动导出 `UnityEngine.*` | `CSharp[assembly][fullName]` 按需访问 |
+| `UnityEngine.GameObject` 命名空间链 | 原生：`CSharp[asm][full]`；**或** slua adaptor 继续挂 `_G.UnityEngine.*` |
 | 值类型 GC 优化（版本相关） | ByVal / Opaque / ObjectRegistry（见 [compare/GC.md](/docs/compare/GC/)） |
 
 ---
@@ -50,7 +51,27 @@ LuaAppDomain.Initialize(moduleLoader);
 
 在 `RuntimeInitializeOnLoadMethod` 或游戏入口调用一次。
 
-### 步骤 3：类型访问
+### 步骤 3：类型访问（二选一）
+
+#### 3A. 使用 slua adaptor（减改写，推荐过渡）
+
+包内：`ZLua~/adaptors/slua/`。契约见 [规范 12](/docs/spec/12-MIGRATION-ADAPTORS/)。
+
+1. 在 **仍含 SLua** 的工程复制 `ExportTypes.cs` → Editor，菜单 **`ZLua/ExportTypes`**
+2. 按 `[CustomLuaClass]` 等既有导出标记生成 `slua_export_types.lua`
+3. 将清单与 `adaptor.lua` 放入 ZLua 工程可 `require` 的目录
+4. 入口：
+
+```lua
+local export_types = require "slua_export_types"
+local adaptor = require "adaptor"
+adaptor.init(export_types)
+-- 此后 UnityEngine.GameObject 等命名空间链可用（清单内；无 CS 前缀）
+```
+
+**仍须手改：** 泛型构造、`GetFunction`、Event、`ref`/Opaque 等（适配只解决类型表入口）。
+
+#### 3B. 改写为原生 `CSharp`
 
 SLua 常直接使用 **命名空间链**：
 
@@ -152,7 +173,7 @@ local v = Vector3(1, 2, 3)
 
 | 坑 | 说明 |
 |----|------|
-| `UnityEngine.X` 全局不存在 | 必须 `CSharp[assembly]['UnityEngine.X']` |
+| `UnityEngine.X` 全局不存在 | 用 **slua adaptor**，或改 `CSharp[assembly]['UnityEngine.X']` |
 | 依赖 SLua 自动导出顺序 | ZLua 懒 Bind，无顺序依赖 |
 | `[CustomLuaClass]` 子类导出 | 改 public 继承 + 正常类型访问 |
 | `LuaSvr` 多状态 | ZLua 默认 **单主** `lua_State` |
@@ -259,7 +280,7 @@ obj:remove_Click(fn)
 
 - [ ] 无 `Slua` / `LuaSvr` 引用
 - [ ] 无 SLua 生成绑定目录
-- [ ] Lua 脚本无隐式全局 `UnityEngine` / `System`（除非 bootstrap 刻意 alias）
+- [ ] 类型入口：已 `adaptor.init` **或** 脚本改为 `CSharp[asm][full]`（无意外全局污染）
 - [ ] Il2Cpp Player 全量测试通过
 - [ ] 性能 profiling（若 SLua 迁因性能）见 P1–P6
 
@@ -269,6 +290,7 @@ obj:remove_Click(fn)
 
 | 文档 | 内容 |
 |------|------|
-| [migration/README.md](/docs/guides/migration/) | 共用迁移清单 |
+| [migration/](/docs/guides/migration/) | 共用迁移清单与适配层总览 |
+| [spec/12-MIGRATION-ADAPTORS.md](/docs/spec/12-MIGRATION-ADAPTORS/) | slua adaptor 契约 |
 | [spec/02-TYPE-SYSTEM.md](/docs/spec/02-TYPE-SYSTEM/) | 类型命名 |
 | [compare/GC.md](/docs/compare/GC/) | GC 边界 |

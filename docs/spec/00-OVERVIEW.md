@@ -100,6 +100,7 @@ Docs/
 │   ├── 05-LIB.md               zlua.* API
 │   ├── 10-LIFETIME.md          Registry、GC、异常边界
 │   ├── 11-MULTI-VERSION.md     Unity/Lua 多版本、Install、DLL、ZLuaConf
+│   ├── 12-MIGRATION-ADAPTORS.md xLua/toLua/SLua Lua→C# 类型路径适配
 │   ├── build/                  官方 Lua / LuaJIT 构建；Mono gate；EmmyLua 调试器
 │   ├── metatable/              __index、三表、布局
 │   └── marshal/                Push/Pop、[LuaMarshalAs]
@@ -120,6 +121,7 @@ Docs/
 8. LuaJIT 构建 → [build/02-LUAJIT.md](/docs/spec/build/02-LUAJIT/)
 9. Editor Mono 回调错误边界（全系列） → [build/03-MONO-LUAJIT-CALLBACK-GATE.md](/docs/spec/build/03-MONO-LUAJIT-CALLBACK-GATE/)
 10. Editor EmmyLua 调试器 → [build/04-EMMYLUA-DEBUGGER.md](/docs/spec/build/04-EMMYLUA-DEBUGGER/)
+11. 从 xLua / toLua / SLua 迁移类型访问适配 → [12-MIGRATION-ADAPTORS.md](/docs/spec/12-MIGRATION-ADAPTORS/)
 
 **冲突裁决：** `spec/**` > Il2Cpp 源码 > `impl/**`。
 
@@ -191,6 +193,7 @@ assembly.__index(typeFullName)
 | `zlua.make_*` / `register_method` | [05-LIB.md](/docs/spec/05-LIB/) |
 | `GetFunction` 与 Delegate 桥 | [01-HOST-API.md](/docs/spec/01-HOST-API/) |
 | ObjectRegistry / GC root | [10-LIFETIME.md](/docs/spec/10-LIFETIME/) |
+| xLua / toLua / SLua 类型路径适配 | [12-MIGRATION-ADAPTORS.md](/docs/spec/12-MIGRATION-ADAPTORS/) |
 
 ---
 
