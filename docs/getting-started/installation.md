@@ -13,7 +13,7 @@ description: 通过 UPM 安装 ZLua，配置 Lua 版本并完成本地 Install�
 ZLua 以 Unity Package（UPM）形式分发。**安装 Package 后还须完成本地 Install**（包内不携带完整 `libil2cpp` / Lua 源码）。典型流程：
 
 1. 在 `Packages/manifest.json` 引入 `com.code-philosophy.zlua`
-2. 菜单 **`ZLua/Settings...`** 选择 Lua 版本（默认 **`lua-5.3.6`**）
+2. 菜单 **`ZLua/Settings...`** 选择 Lua 版本（默认 **`lua-5.5.0`**）
 3. 菜单 **`ZLua/Install...`** 完成本地安装
 4. 配置 Lua 脚本目录与 `LoadLuaModule`，启动时调用 `LuaAppDomain.Initialize`
 5. 发布 Il2Cpp 前执行 **`ZLua/Generate/All`**（C++ stub，非 C# Wrap）
@@ -28,7 +28,7 @@ ZLua 以 Unity Package（UPM）形式分发。**安装 Package 后还须完成�
 |----|------|
 | Unity | 见 [兼容性](/docs/getting-started/compatibility/)（2021.3 / 2022.3 / Unity 6 / 团结等） |
 | Scripting Backend | Editor：**Mono**；Player：**Il2Cpp** |
-| Lua | 由 **Settings** 指定（默认 **`lua-5.3.6`**）；Install 时下载 / 装入本地树 |
+| Lua | 由 **Settings** 指定（默认 **`lua-5.5.0`**）；Install 时下载 / 装入本地树 |
 | 网络 | 首次 Install 下载 PUC-Rio 源码时需要；LuaJIT 须自行 clone，且 Il2Cpp 发布仅 Android / iOS（见 [多版本管理](/docs/spec/11-MULTI-VERSION/)、[LuaJIT 构建](/docs/spec/build/02-LUAJIT/)） |
 | Git | UPM 从 Git URL 安装时需要 |
 
@@ -80,7 +80,7 @@ git clone https://github.com/focus-creative-games/zlua-demo.git
 | 字段 | 说明 |
 |------|------|
 | **Enable** | 是否启用 ZLua |
-| **Lua Version Id** | 要使用的 Lua / LuaJIT 版本 id；**默认 `lua-5.3.6`**（空则按此默认） |
+| **Lua Version Id** | 要使用的 Lua / LuaJIT 版本 id；**默认 `lua-5.5.0`**（空则按此默认） |
 | **MarshalAs Xml Paths** | 可选；MarshalAs XML 路径，见 [LuaMarshalAs](/docs/spec/marshal/02-MARSHAL-AS/) |
 
 **`luaVersionId` 写法**（与 [多版本管理](/docs/spec/11-MULTI-VERSION/) 一致）：
@@ -101,7 +101,7 @@ git clone https://github.com/focus-creative-games/zlua-demo.git
 3. **将包内 `ZLua~/zlua-runtime` 复制到本地 `libil2cpp/zlua`**  
 4. 写入 scripting define、`ZLuaConf.inc` 等，并做完整性校验  
 
-PUC-Rio 源码缓存目录一般为 `Library/ZLua/LuaSrcCache/`（如 `lua-5.3.6/`）。细则与路径命名见 [多版本管理](/docs/spec/11-MULTI-VERSION/)。
+PUC-Rio 源码缓存目录一般为 `Library/ZLua/LuaSrcCache/`（如 `lua-5.5.0/`）。细则与路径命名见 [多版本管理](/docs/spec/11-MULTI-VERSION/)。
 
 :::warning 必须先 Install
 未 Install 时构建会失败（提示运行 `ZLua/Install...`）。**`ZLua/Generate/All` 也依赖本地树已存在。**
@@ -213,6 +213,7 @@ public class Bootstrap : MonoBehaviour
 ## 下一步
 
 - [5 分钟快速开始](/docs/getting-started/quick-start/)
-- [Lua 模块加载](/docs/guides/lua-module-loading/)
+- [使用指南 · 安装与 Lua 版本](/docs/guides/install/)（循序渐进主线）
+- [初始化与最小互调](/docs/guides/hello-interop/)
 - [多版本管理](/docs/spec/11-MULTI-VERSION/)
 - [支持的版本与平台](/docs/getting-started/compatibility/)

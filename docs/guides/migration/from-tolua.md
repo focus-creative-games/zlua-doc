@@ -132,7 +132,7 @@ public static void SetClickHandler(Action cb) { button.onClick.AddListener(() =>
 ui:SetClickHandler(function() print("click") end)
 ```
 
-**After（C# 主动取回 Lua 函数再调）：** 使用 `GetFunction<Action>`/`GetFunction<Func<…>>`，或 `GetFunction<Delegate>` + `zlua.to_delegate`。见 [回调与 Delegate §3](/docs/guides/callbacks-and-delegates/)、[from-xlua 步骤 5](/docs/community/migration/from-xlua/)。
+**After（C# 主动取回 Lua 函数再调）：** 使用 `GetFunction<Action>`/`GetFunction<Func<…>>`，或 `GetFunction<Delegate>` + `zlua.to_delegate`。见 [Function 与 Delegate](/docs/guides/functions/)、[from-xlua 步骤 5](/docs/guides/migration/from-xlua/)。
 
 ```csharp
 static readonly Func<Action> GetOnClick =
@@ -273,6 +273,6 @@ DemoWrap.Register(L);
 
 | 文档 | 内容 |
 |------|------|
-| [from-xlua.md](/docs/community/migration/from-xlua/) | xLua 对照（C#→Lua 更详） |
+| [from-xlua.md](/docs/guides/migration/from-xlua/) | xLua 对照（C#→Lua 更详） |
 | [spec/05-LIB.md](/docs/spec/05-LIB/) | `zlua.*` API |
 | [TESTING.md](/docs/community/testing/) | 回归测试 |

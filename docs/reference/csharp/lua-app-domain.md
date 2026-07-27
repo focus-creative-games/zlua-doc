@@ -135,8 +135,8 @@ sequenceDiagram
 
 ## 相关文档
 
-- [C# 调用 Lua 指南](/docs/guides/csharp-to-lua/)
-- [回调与 Delegate](/docs/guides/callbacks-and-delegates/)
-- [Lua 模块加载](/docs/guides/lua-module-loading/)
+- [C# 调用 Lua 指南](/docs/guides/csharp-calling-lua/)
+- [Function 与 Delegate](/docs/guides/functions/)
+- [Lua 模块加载](/docs/guides/csharp-calling-lua/)
 - [设计规范](/docs/spec/00-OVERVIEW/)
 - [源码 LuaAppDomain.cs](https://github.com/focus-creative-games/zlua/blob/main/Runtime/Common/LuaAppDomain.cs)

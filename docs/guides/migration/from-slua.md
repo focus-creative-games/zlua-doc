@@ -118,7 +118,7 @@ local function get_callback()
 end
 ```
 
-动态按名 / 任意委托类型：见 [回调与 Delegate §3](/docs/guides/callbacks-and-delegates/)。
+动态按名 / 任意委托类型：见 [Function 与 Delegate](/docs/guides/functions/)。
 ### 步骤 6：SLua 特有 API 替换
 
 | SLua | ZLua |
@@ -139,7 +139,7 @@ local v = Vector3(1, 2, 3)
 -- struct ByVal；见 tc_marshal_unity_vector
 ```
 
-`ref` / `out` / C#→Lua Opaque 规则同 [from-xlua.md](/docs/community/migration/from-xlua/) §步骤 7。
+`ref` / `out` / C#→Lua Opaque 规则同 [from-xlua.md](/docs/guides/migration/from-xlua/) §步骤 7。
 
 ### 步骤 8：测试
 
@@ -249,8 +249,8 @@ obj:remove_Click(fn)
 
 | 主题 | 参考 |
 |------|------|
-| 删 Wrap、全局类 | [from-tolua.md](/docs/community/migration/from-tolua/) |
-| GetFunction、Opaque | [from-xlua.md](/docs/community/migration/from-xlua/) |
+| 删 Wrap、全局类 | [from-tolua.md](/docs/guides/migration/from-tolua/) |
+| GetFunction、Opaque | [from-xlua.md](/docs/guides/migration/from-xlua/) |
 | 性能/GC | [compare/](/docs/compare/) |
 
 ---
@@ -269,6 +269,6 @@ obj:remove_Click(fn)
 
 | 文档 | 内容 |
 |------|------|
-| [migration/README.md](/docs/community/migration/) | 共用迁移清单 |
+| [migration/README.md](/docs/guides/migration/) | 共用迁移清单 |
 | [spec/02-TYPE-SYSTEM.md](/docs/spec/02-TYPE-SYSTEM/) | 类型命名 |
 | [compare/GC.md](/docs/compare/GC/) | GC 边界 |

@@ -82,7 +82,7 @@ Player 侧 C++ 直桥、签名 stub 复用、`GetFunction` Delegate 桥、懒绑
 
 - Luau
 - 更多平台与设备实测
-- 迁移指南完善（见 [迁移](/docs/community/migration/)）
+- 迁移指南完善（见 [迁移](/docs/guides/migration/)）
 
 ## 下一步
 

@@ -5,6 +5,6 @@
   "collapsed": true,
   "link": {
     "type": "generated-index",
-    "description": "官方 Lua 与 LuaJIT 的构建集成，以及 Mono×LuaJIT 的 lua_error callback gate。"
+    "description": "官方 Lua 与 LuaJIT 的构建集成、Mono callback gate，以及 Editor EmmyLua 调试器。"
   }
 }

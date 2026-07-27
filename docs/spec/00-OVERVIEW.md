@@ -100,7 +100,7 @@ Docs/
 │   ├── 05-LIB.md               zlua.* API
 │   ├── 10-LIFETIME.md          Registry、GC、异常边界
 │   ├── 11-MULTI-VERSION.md     Unity/Lua 多版本、Install、DLL、ZLuaConf
-│   ├── build/                  官方 Lua / LuaJIT 构建；Mono×JIT callback gate
+│   ├── build/                  官方 Lua / LuaJIT 构建；Mono gate；EmmyLua 调试器
 │   ├── metatable/              __index、三表、布局
 │   └── marshal/                Push/Pop、[LuaMarshalAs]
 ├── impl/                       实现说明（不改变 Lua 语义）
@@ -119,6 +119,7 @@ Docs/
 7. 官方 Lua 构建 → [build/01-OFFICIAL-LUA.md](/docs/spec/build/01-OFFICIAL-LUA/)
 8. LuaJIT 构建 → [build/02-LUAJIT.md](/docs/spec/build/02-LUAJIT/)
 9. Editor Mono 回调错误边界（全系列） → [build/03-MONO-LUAJIT-CALLBACK-GATE.md](/docs/spec/build/03-MONO-LUAJIT-CALLBACK-GATE/)
+10. Editor EmmyLua 调试器 → [build/04-EMMYLUA-DEBUGGER.md](/docs/spec/build/04-EMMYLUA-DEBUGGER/)
 
 **冲突裁决：** `spec/**` > Il2Cpp 源码 > `impl/**`。
 
@@ -141,6 +142,8 @@ LuaAppDomain.Initialize(moduleName => {
 - Player → `ZLua.LuaIl2CppAppDomain.Initialize` → native `InitializeInternal`
 
 初始化完成后注册 `LuaFramePump`，在 Unity 帧回调中处理 pending ref 释放等 housekeeping。
+
+Editor 可选：Settings `enableDebugger` 时在 Mono `Initialize` 末尾启动 EmmyLua（见 [build/04-EMMYLUA-DEBUGGER.md](/docs/spec/build/04-EMMYLUA-DEBUGGER/)）。
 
 ### 4.2 Native / Mono 侧（概念顺序）
 
@@ -203,9 +206,11 @@ local demo = Demo()
 demo:SetX(10)
 print(demo:GetX())
 
--- 显式重载别名（见 04-METHOD-OVERLOAD）
-local run = demo.run_i32   -- [LuaAlias] 或 register_method
-run(demo, 42)
+-- 显式重载（见 04-METHOD-OVERLOAD）
+demo['Run(System.Int32)'](demo, 42)          -- 全签名键
+local run = demo['Run(System.Int32)']
+zlua.register_method("run_i32", run)         -- 短名后可冒号
+demo:run_i32(42)
 ```
 
 C# 侧：

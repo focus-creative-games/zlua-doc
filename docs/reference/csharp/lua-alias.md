@@ -43,29 +43,17 @@ public sealed class LuaAliasAttribute : Attribute
 | 多重 | 每个方法最多一个别名 |
 | 继承 | **不**继承到子类重写 |
 
-## 键空间规则（注册期强制）
+## 键空间规则
 
-对同一类型、同一静态/实例域：
+`[LuaAlias]` 在 Bind 期 **允许**与默认方法名或其它别名重复；重复则并入同一 overload 组（走 dispatch）。若别名下 **仅一个** 候选，则为 direct，热路径首选。
 
-```text
-{ 默认 C# 方法名 } ∩ { 别名 } = ∅
-```
-
-| 约束 | 说明 |
-|------|------|
-| 别名 ≠ 已有默认方法名 | 含继承链上已注册到该元表的方法名 |
-| 别名之间唯一 | 同类型内不得重复 |
-| 默认名不得占用别名 | 例如不能同时存在 `run_i32()` 方法与 `[LuaAlias("run_i32")]` |
-
-**禁止示例：**
+完整规则见 [重载规范 §5](/docs/spec/04-METHOD-OVERLOAD/)。同名多候选时还会自动挂全签名键（§3.7）。
 
 ```csharp
-[LuaAlias("Run")]           // 错误：与 dispatch 键 Run 冲突
+[LuaAlias("run_i32")]   // 通常单候选 → direct
 public void Run(int value) { }
 
-[LuaAlias("GetValue")]      // 错误：与已有方法 GetValue 冲突
-public void Run(int value) { }
-public int GetValue() => 0;
+public void Run(string value) { }  // 默认名仍进 "Run" 组
 ```
 
 ## XML 配置（不可改源码时）
@@ -92,14 +80,15 @@ public int GetValue() => 0;
 | 实例方法 | 实例 `methodTable` | `obj:alias(...)` |
 | 静态方法 | 类型表 `methodTable` | `TypeTable.alias(...)` |
 
-## 与 `get_method` / `register_method` 的关系
+## 与全签名键 / `register_method` 的关系
 
 | 方式 | 时机 | 适用 |
 |------|------|------|
-| `[LuaAlias]` / XML | 类型 `EnsureBinding` 时 | 编译期固定、热路径首选 |
-| `zlua.get_method` + `register_method` | Lua 运行时 | 无法改 C#、或动态绑定 |
+| 全签名键 `Run(System.Int32)` | Bind 期自动（同名多候选） | 精确点名，无需改 C#、无需 API |
+| `[LuaAlias]` / XML | 类型 `EnsureBinding` 时 | 编译期固定短名、热路径首选 |
+| `zlua.register_method` | Lua 运行时 | 把 direct（常来自全签名键）挂成自定义短名，便于 `obj:alias(...)` |
 
-二者语义等价：均为 methodTable 上的 **额外键**，不替换默认方法名的 dispatch。
+`[LuaAlias]` 与 `register_method` 都是 methodTable 上的 **额外短名**；全签名键解决「点名哪一个重载」，短名解决「好读 + 冒号」。
 
 ## Mono / Il2Cpp 支持
 
@@ -110,6 +99,6 @@ public int GetValue() => 0;
 
 ## 相关文档
 
-- [方法重载指南](/docs/guides/methods-and-overloads/)
+- [方法重载指南](/docs/guides/overloads/)
 - [方法重载规范](/docs/spec/04-METHOD-OVERLOAD/) §5
 - [LuaAlias 源码](https://github.com/focus-creative-games/zlua/blob/main/Runtime/Common/LuaAliasAttribute.cs)

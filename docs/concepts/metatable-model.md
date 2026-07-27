@@ -7,7 +7,7 @@ description: obj_indexer 三表分派与 strict miss 策略。
 # 元表模型
 
 :::tip 谁该读本文
-**需要理解 `obj:Member` 底层如何查表、为何报错「member not found」的开发者。** 日常用法见 [字段与属性](/docs/guides/fields-and-properties/)、[方法重载](/docs/guides/methods-and-overloads/)。
+**需要理解 `obj:Member` 底层如何查表、为何报错「member not found」的开发者。** 日常用法见 [字段与属性](/docs/guides/lua-calling-csharp/)、[方法重载](/docs/guides/overloads/)。
 :::
 
 Lua 通过 **`__index` / `__newindex`** 访问 C# 静态与实例成员。ZLua 采用 **三表分派 + strict miss**：未注册成员直接 `luaL_error`，**不**回退到 C# 反射。

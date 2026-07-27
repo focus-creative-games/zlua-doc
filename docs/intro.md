@@ -47,6 +47,6 @@ description: ZLua 是什么、核心特性与适用场景。
 - [5 分钟快速开始](/docs/getting-started/quick-start/) — 跑通最小示例
 - [为什么选择 ZLua](/docs/concepts/why-zlua/) — 选型理由
 - [安装与集成](/docs/getting-started/installation/) — UPM 安装与工程结构
-- [使用指南](/docs/guides/csharp-to-lua/) — C# ↔ Lua 完整教程
+- [使用指南](/docs/guides/install/) — 循序渐进教程（安装 → 互调 → 构建 → …）
 - [选型对比](/docs/compare/) — 相对 xLua / toLua / SLua
 - [规范总览](/docs/spec/00-OVERVIEW/) — 权威语义契约

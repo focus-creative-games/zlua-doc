@@ -244,3 +244,4 @@ bash Packages/com.code-philosophy.zlua/ZLua~/mono-native/build_zlua_mono_gate_un
 | [10-LIFETIME.md](/docs/spec/10-LIFETIME/) §8 | C#↔Lua 异常对外语义 |
 | 实现 `LuaPrintBuffer` | 延迟 `Debug.Log`（与 gate 互补） |
 | 包内 `Plugins/README.md` | 插件文件名速查 |
+| [04-EMMYLUA-DEBUGGER.md](/docs/spec/build/04-EMMYLUA-DEBUGGER/) | Editor EmmyLua；调试库不得破坏本 gate 约束 |

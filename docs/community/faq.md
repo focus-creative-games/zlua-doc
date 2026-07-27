@@ -12,7 +12,7 @@ description: ZLua 常见问题与解答。
 
 ### ZLua 与 xLua 有什么区别？
 
-ZLua 在 Il2Cpp 内嵌 Lua、C++ 直桥，**不生成 per-type C# Wrap**（Player 生成 **C++ stub**）。类型访问用 `CSharp` 根表，C# 调 Lua 用 `LuaAppDomain.GetFunction<T>`。见 [为什么选择 ZLua](/docs/concepts/why-zlua/)、[选型对比](/docs/compare/)、[从 xLua 迁移](/docs/community/migration/from-xlua/)。
+ZLua 在 Il2Cpp 内嵌 Lua、C++ 直桥，**不生成 per-type C# Wrap**（Player 生成 **C++ stub**）。类型访问用 `CSharp` 根表，C# 调 Lua 用 `LuaAppDomain.GetFunction<T>`。见 [为什么选择 ZLua](/docs/concepts/why-zlua/)、[选型对比](/docs/compare/)、[从 xLua 迁移](/docs/guides/migration/from-xlua/)。
 
 ### Mono 和 Il2Cpp 差别有多大？
 
@@ -52,11 +52,11 @@ UPM：`"com.code-philosophy.zlua": "https://github.com/focus-creative-games/zlua
 
 ### Event 怎么订阅？
 
-**无** `.get` / `.set` 专用表。使用 `obj:add_OnX(handler)` / `obj:remove_OnX(handler)`。见 [Event](/docs/guides/events/)。
+**无** `.get` / `.set` 专用表。使用 `obj:add_OnX(handler)` / `obj:remove_OnX(handler)`。见 [Event](/docs/guides/lua-calling-csharp/)。
 
 ### ref / out 怎么用？
 
-Lua→C#：ByVal userdata 或 Opaque 可写回；裸 number **不回写**。C#→Lua byref 默认 Opaque。见 [ref/out/in](/docs/guides/marshal-ref-out-in/)、[BYREF](/docs/spec/marshal/03-BYREF/)。
+Lua→C#：ByVal userdata 或 Opaque 可写回；裸 number **不回写**。C#→Lua byref 默认 Opaque。见 [ref/out/in](/docs/guides/ref-out-in/)、[BYREF](/docs/spec/marshal/03-BYREF/)。
 
 ---
 
@@ -64,15 +64,15 @@ Lua→C#：ByVal userdata 或 Opaque 可写回；裸 number **不回写**。C#�
 
 ### 如何从 C# 调用 Lua？
 
-`LuaAppDomain.GetFunction<T>("module","method")` 取得 Delegate 后 `Invoke`。见 [C# 调用 Lua](/docs/guides/csharp-to-lua/)。
+`LuaAppDomain.GetFunction<T>("module","method")` 取得 Delegate 后 `Invoke`。见 [C# 调用 Lua](/docs/guides/csharp-calling-lua/)。
 
 ### 方法重载怎么选？
 
-默认 dispatch；热路径 `[LuaAlias]` / `zlua.register_method`。见 [方法重载](/docs/guides/methods-and-overloads/)。
+默认 `demo:Run(10)` 走 dispatch；精确点名用全签名键 `demo['Run(System.Int32)'](demo, 10)`；热路径短名用 `[LuaAlias]` 或 `register_method` 后再 `demo:run_i32(10)`。见 [方法重载](/docs/guides/overloads/)。
 
 ### Lua 如何传回调给 C#？
 
-直接传 `function`。见 [回调与 Delegate](/docs/guides/callbacks-and-delegates/)。
+直接传 `function`。见 [Function 与 Delegate](/docs/guides/functions/)。
 
 ---
 

@@ -112,7 +112,7 @@ const config: Config = {
             {label: '选型对比', to: '/docs/category/compare/'},
             {label: '规范文档', to: '/docs/category/spec/'},
             {label: '快速开始', to: '/docs/getting-started/quick-start/'},
-            {label: '使用指南', to: '/docs/guides/csharp-to-lua/'},
+            {label: '使用指南', to: '/docs/guides/install/'},
             {label: 'API 参考', to: '/docs/reference/overview/'},
           ],
         },

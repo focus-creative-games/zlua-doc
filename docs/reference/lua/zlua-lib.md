@@ -47,7 +47,7 @@ local IntArr = zlua.get_type_from_name("System.Int32[]")
 
 ### `zlua.signature(typeArg, ...) → signature`
 
-构造 **参数类型** 签名字符串，供 `get_method` 使用。**不包含**方法名。
+构造 **参数类型** 括号串（如 `"(System.Int32)"`），供对照 / 拼接全签名键。**不包含**方法名。
 
 | 参数 | 说明 |
 |------|------|
@@ -55,40 +55,34 @@ local IntArr = zlua.get_type_from_name("System.Int32[]")
 
 ```lua
 local sig = zlua.signature(zlua.types.int32, zlua.types.string)
--- 内部等价 "System.Int32,System.String" 等形式
+-- "(System.Int32,System.String)"
+-- 全签名键 = 方法名 .. sig → "Run(System.Int32,System.String)"
 ```
 
-:::warning
-禁止 `obj[sig](obj, ...)` 查表调用；应 `get_method` 缓存 closure。
-:::
+同名多候选时 Bind 已自动注册全签名键，一般直接：
 
-### `zlua.get_method(target, methodName, signature, isStatic) → closure`
+```lua
+demo['Run(System.Int32)'](demo, 10)
+```
+
+**禁止**把仅参数括号（无方法名）当作元表键。
+
+### `zlua.register_method(aliasName, closure) → void`
+
+把 **direct** closure 挂到尚未占用的短名；注册后可用冒号调用。
 
 | 参数 | 说明 |
 |------|------|
-| `target` | 实例 userdata **或** 类型表（用于解析声明类型） |
-| `methodName` | C# 方法名 |
-| `signature` | `zlua.signature(...)` 返回值 |
-| `isStatic` | `true` 查静态域；`false` 查实例域 |
+| `aliasName` | 新 method 键；不得与已有默认名 / 全签名键 / 别名冲突 |
+| `closure` | direct method closure（如 `demo['Run(System.Int32)']`） |
 
 ```lua
-local demo = CSharp.AC.Demo()
-local run_i32 = zlua.get_method(demo, "Run", zlua.signature(zlua.types.int32), false)
-run_i32(demo, 10)  -- 实例：点号 + 显式 self
+local run_i32 = demo['Run(System.Int32)']
+zlua.register_method("run_i32", run_i32)
+demo:run_i32(20)   -- 短名 + 冒号；这才是 register 的收益
 ```
 
-### `zlua.register_method(target, alias, closure) → void`
-
-| 参数 | 说明 |
-|------|------|
-| `target` | **类型表**（静态别名）或 **实例 userdata**（实例别名） |
-| `alias` | methodTable 新键名；须满足键空间规则 |
-| `closure` | `get_method` 返回值 |
-
-```lua
-zlua.register_method(demo, "run_i32", run_i32)
-demo:run_i32(20)
-```
+两参数形式；目标表由 closure 绑定域推断。详见 [重载规范 §6.1](/docs/spec/04-METHOD-OVERLOAD/)。
 
 ---
 
@@ -162,16 +156,18 @@ local handler = zlua.to_delegate(function(x) print(x) end, CSharp.AC['System.Act
 
 ## Mono / Il2Cpp 实现状态
 
+双端 **Lua 可见语义一致**；下表均为已实现。
+
 | API | Mono | Il2Cpp |
 |-----|:----:|:------:|
-| typeof / types / signature | ✅ | ⚠️ |
-| get_method / register_method | ✅ | ❌ |
-| make_generic_type / make_generic_inst | ✅ | ❌ |
-| new_ref / to_user_data | ✅ | ❌ |
-| make_szarray_* / new_szarray_* | ✅ | ❌ |
-| make_mdarray_* | ✅ | ❌ |
-| to_table / to_bytes | ✅ | ❌ |
-| to_delegate | ✅ | ❌ |
+| typeof / types / signature | ✅ | ✅ |
+| register_method | ✅ | ✅ |
+| make_generic_type / make_generic_inst | ✅ | ✅ |
+| new_ref / to_user_data | ✅ | ✅ |
+| make_szarray_* / new_szarray_* | ✅ | ✅ |
+| make_mdarray_* | ✅ | ✅ |
+| to_table / to_bytes | ✅ | ✅ |
+| to_delegate | ✅ | ✅ |
 
 完整语义：[zlua 库规范](/docs/spec/05-LIB/)
 
@@ -179,6 +175,6 @@ local handler = zlua.to_delegate(function(x) print(x) end, CSharp.AC['System.Act
 
 - [zlua.types 常量表](/docs/reference/lua/zlua-types/)
 - [API 概览](/docs/reference/overview/)
-- [方法重载](/docs/guides/methods-and-overloads/)
-- [泛型与数组](/docs/guides/generics-and-arrays/)
-- [ref / out / in](/docs/guides/marshal-ref-out-in/)
+- [方法重载](/docs/guides/overloads/)
+- [泛型与数组](/docs/guides/generics/)
+- [ref / out / in](/docs/guides/ref-out-in/)

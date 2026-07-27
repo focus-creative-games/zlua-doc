@@ -102,15 +102,16 @@ Il2Cpp Player 在 Codegen 阶段预生成绑定；Mono Editor 在运行时反射
 ## Mono / Il2Cpp 差异（Lua 可见语义一致）
 
 | 项 | Mono | Il2Cpp |
-|----|------|------------|
-| 懒加载 | ✅ 反射 | ⚠️ 预生成子集 |
-| 字段直读 | ✅ | ✅（Demo 级） |
-| 重载 dispatch | ✅ | ❌ |
-| 泛型 / Event | ✅ | ❌ |
+|----|------|--------|
+| 懒加载 | ✅ 反射 EnsureBinding | ✅ Generate stub + 运行时绑定 |
+| 字段 / Property 直读 | ✅ | ✅ |
+| 重载 dispatch / 全签名键 | ✅ | ✅ |
+| 泛型 | ✅ | ✅ |
+| Event（`add_` / `remove_`） | ✅ | ✅ |
 
 ## 相关文档
 
-- [Lua 访问 C# 基础](/docs/guides/lua-to-csharp-basics/)
+- [Lua 访问 C# 基础](/docs/guides/lua-calling-csharp/)
 - [元表模型](/docs/concepts/metatable-model/)
 - [类型系统规范](/docs/spec/02-TYPE-SYSTEM/)
 - [类型系统概览](/docs/concepts/type-system-overview/)

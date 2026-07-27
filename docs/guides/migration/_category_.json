@@ -1,10 +1,10 @@
 {
   "label": "迁移指南",
-  "position": 5,
+  "position": 14,
   "collapsible": true,
   "collapsed": true,
   "link": {
     "type": "generated-index",
-    "description": "正文已迁至使用指南；此处为入口。"
+    "description": "从 xLua / toLua / SLua 迁移到 ZLua。"
   }
 }

@@ -1,12 +1,12 @@
 ---
-sidebar_position: 11
+sidebar_position: 90
 title: 排错指南
-description: ZLua 常见问题诊断与解决方案。
+description: ZLua 常见问题诊断与解决方案（附录）。
 ---
 
 # 排错指南
 
-开发期可在 **Editor（Mono）** 快速迭代；Player 问题先确认 **`ZLua/Generate/All`** 与 [兼容性](/docs/getting-started/compatibility/)。
+附录。开发期可在 **Editor（Mono）** 快速迭代；Player 问题先确认 **`ZLua/Generate/All`** 与 [兼容性](/docs/getting-started/compatibility/)。主线学习请从 [安装](/docs/guides/install/) 起。
 
 Canonical 工程：[zlua-demo](https://github.com/focus-creative-games/zlua-demo)
 
@@ -39,7 +39,13 @@ Canonical 工程：[zlua-demo](https://github.com/focus-creative-games/zlua-demo
 
 ### Event `.get` / `.set` 为 nil
 
-已废弃。改用 `add_OnX` / `remove_OnX`。见 [Event](/docs/guides/events/)。
+已废弃。改用 `add_OnX` / `remove_OnX`。见 [Event](/docs/guides/lua-calling-csharp/)。
+
+---
+
+## EmmyLua 调试
+
+断点不生效、连不上、Play 假死：见 [EmmyLua 调试器](/docs/guides/debugger/)（`sourcePaths`、端口、`waitIDE`）。
 
 ---
 
@@ -76,14 +82,21 @@ Canonical 工程：[zlua-demo](https://github.com/focus-creative-games/zlua-demo
 
 
 
+
+
+
+
+
+
 ## 学习路径
 
 | | |
 |---|---|
-| **上一篇** | [enum 与 struct](/docs/guides/enums-and-structs/) |
+| **上一篇** | [迁移指南](/docs/guides/migration/) |
 | **下一篇** | [Editor 与 Player](/docs/guides/editor-vs-player/) |
 
 ## 相关文档
 
 - [FAQ](/docs/community/faq/)
+- [EmmyLua 调试器](/docs/guides/debugger/)
 - [Editor 与 Player](/docs/guides/editor-vs-player/)

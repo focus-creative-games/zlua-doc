@@ -5,19 +5,23 @@ export type GuideNavItem = {
 };
 
 export const GUIDE_NAV: GuideNavItem[] = [
-  {slug: 'csharp-to-lua', title: 'C# 调用 Lua'},
-  {slug: 'lua-to-csharp-basics', title: 'Lua 访问 C# 基础'},
-  {slug: 'fields-and-properties', title: '字段与属性'},
-  {slug: 'methods-and-overloads', title: '方法重载'},
-  {slug: 'callbacks-and-delegates', title: '回调与 Delegate'},
-  {slug: 'generics-and-arrays', title: '泛型与数组'},
-  {slug: 'marshal-ref-out-in', title: 'ref / out / in'},
-  {slug: 'lua-module-loading', title: 'Lua 模块加载'},
-  {slug: 'events', title: 'Event'},
-  {slug: 'enums-and-structs', title: 'enum 与 struct'},
+  {slug: 'install', title: '安装与 Lua 版本'},
+  {slug: 'hello-interop', title: '初始化与最小互调'},
+  {slug: 'build', title: '构建流程'},
+  {slug: 'debugger', title: 'EmmyLua 调试器'},
+  {slug: 'lua-calling-csharp', title: 'Lua 调用 C#'},
+  {slug: 'csharp-calling-lua', title: 'C# 调用 Lua'},
+  {slug: 'value-types', title: '值类型与基础 0GC'},
+  {slug: 'functions', title: 'Function 与 Delegate'},
+  {slug: 'arrays', title: '数组'},
+  {slug: 'generics', title: '泛型'},
+  {slug: 'ref-out-in', title: 'ref / in / out'},
+  {slug: 'lua-marshal-as', title: 'LuaMarshalAs 与高级 0GC'},
+  {slug: 'overloads', title: '方法重载'},
+  {slug: 'zlua-lib', title: '常用 zlua 库'},
+  {slug: 'migration', title: '迁移指南'},
   {slug: 'troubleshooting', title: '排错指南'},
   {slug: 'editor-vs-player', title: 'Editor 与 Player'},
-  {slug: 'best-practices', title: '最佳实践'},
 ];
 
 export const QUICK_START: GuideNavItem = {

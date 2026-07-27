@@ -43,14 +43,15 @@ description: ZLua C# 特性与 Lua API 索引。
 
 | 主题 | 文档 |
 |------|------|
-| C# → Lua | [csharp-to-lua](/docs/guides/csharp-to-lua/) |
-| Lua → C# | [lua-to-csharp-basics](/docs/guides/lua-to-csharp-basics/) |
-| 重载 | [methods-and-overloads](/docs/guides/methods-and-overloads/) |
-| Delegate | [callbacks-and-delegates](/docs/guides/callbacks-and-delegates/) |
-| Event | [events](/docs/guides/events/) |
-| 泛型 / 数组 | [generics-and-arrays](/docs/guides/generics-and-arrays/) |
-| ref / out / in | [marshal-ref-out-in](/docs/guides/marshal-ref-out-in/) |
-| enum / struct | [enums-and-structs](/docs/guides/enums-and-structs/) |
+| 安装 / 互调 / 构建 / 调试 | [install](/docs/guides/install/) · [hello-interop](/docs/guides/hello-interop/) · [build](/docs/guides/build/) · [debugger](/docs/guides/debugger/) |
+| Lua → C# | [lua-calling-csharp](/docs/guides/lua-calling-csharp/) |
+| C# → Lua | [csharp-calling-lua](/docs/guides/csharp-calling-lua/) |
+| 值类型 | [value-types](/docs/guides/value-types/) |
+| Function | [functions](/docs/guides/functions/) |
+| 数组 / 泛型 | [arrays](/docs/guides/arrays/) · [generics](/docs/guides/generics/) |
+| ref / MarshalAs | [ref-out-in](/docs/guides/ref-out-in/) · [lua-marshal-as](/docs/guides/lua-marshal-as/) |
+| 重载 / zlua 库 | [overloads](/docs/guides/overloads/) · [zlua-lib](/docs/guides/zlua-lib/) |
+| 迁移 | [migration](/docs/guides/migration/) |
 
 ## 权威规范
 

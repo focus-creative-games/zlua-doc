@@ -54,6 +54,10 @@ public static class LuaAppDomain
 
 `LuaAppDomain.Initialize` 注册 `LuaFramePump`，在 Unity `Update` 等时机调用 `ProcessPendingRefReleases`，处理 delegate / Lua ref 等延迟释放。详见 [10-LIFETIME.md](/docs/spec/10-LIFETIME/)。
 
+### 1.4 Editor 调试器（可选）
+
+仅 **Editor Mono**：若 Settings `enableDebugger` 为 true，`LuaMonoAppDomain.Initialize` 在现有初始化完成之后调用 `LuaEnv.StartDebugger`（注入 `emmy_core`、`tcpListen`、可选 `waitIDE`）。规范见 [build/04-EMMYLUA-DEBUGGER.md](/docs/spec/build/04-EMMYLUA-DEBUGGER/)。**不**改变 `GetFunction` / Marshal 语义；Il2Cpp Player **不**适用本入口。
+
 ---
 
 ## 2. `GetFunction` — C# 调用 Lua

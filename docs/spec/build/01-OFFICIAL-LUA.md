@@ -16,7 +16,7 @@ title: "官方 Lua（PUC-Rio）构建"
 
 | | **PUC-Rio（本文）** | **LuaJIT**（[02-LUAJIT.md](/docs/spec/build/02-LUAJIT/)） |
 |--|---------------------|---------------------------------------------|
-| Settings id | `lua-{major}.{minor}.{patch}`（如 `lua-5.3.6`） | `luajit-{major}.{minor}` |
+| Settings id | `lua-{major}.{minor}.{patch}`（如 `lua-5.5.0`） | `luajit-{major}.{minor}` |
 | 源码缓存 | `LuaSrcCache/{id}/`（可自动下载） | 手动 clone |
 | Editor | `Plugins` 系列动态库（如 `lua53.dll`）+ **callback gate** | `luajit21.dll` 等 + **callback gate** |
 | Il2Cpp | **完整可编译 `src/`** 进 `libil2cpp/lua`（多平台） | **仅头文件** + 开发者自备 `.a`；**仅 Android / iOS** |

@@ -113,7 +113,7 @@ Library/ZLua/LuaSrcCache/
 
 ### 3.1 顺序（必须）
 
-1. 解析 Settings `luaVersionId`（空则默认 `lua-5.3.6`，见 §6.2）  
+1. 解析 Settings `luaVersionId`（空则默认 `lua-5.5.0`，见 §6.2）  
 2. **确保 Lua 源码在 `Library/ZLua/LuaSrcCache`**：已缓存则复用；PUC-Rio 缺失则从 lua.org 下载；LuaJIT 缺失则失败并提示手动 clone  
 3. 从当前 Editor 复制官方 `il2cpp`（含 **stock** `libil2cpp`）到 Local 目录  
 4. 解析并应用 **libil2cpp patches**（§4）  
@@ -263,7 +263,7 @@ Editor 与 Player 所用补丁号 / 构建选项不必逐位相同，但 **API �
 
 ### 6.2 默认版本
 
-- 字段默认值 / 空值：固定为 **`lua-5.3.6`**  
+- 字段默认值 / 空值：固定为 **`lua-5.5.0`**  
 - Install 时若为空则写回该默认值  
 - 下载失败（例如官方 FTP 无此版本）→ Install 失败并提示检查版本号；**不得**静默改用其它大版本
 
@@ -351,7 +351,7 @@ namespace ZLua
 #elif ZLUA_LUA_5_1
         public const string LUA_DLL = "lua51";
 #else
-        // Default matches Settings default lua-5.3.6 → series lua53.
+        // Default matches Settings default lua-5.5.0 → series lua53.
         public const string LUA_DLL = "lua53";
 #endif
     }
@@ -399,7 +399,7 @@ Fingerprint（建议 JSON 或等价键值）至少包含：
 
 | 阶段 | 范围 |
 |------|------|
-| **P0** | 默认 `lua-5.3.6` + 下载缓存 + `lua-5.3` patch + Unity `2022.3` patch + `zlua-runtime` |
+| **P0** | 默认 `lua-5.5.0` + 下载缓存 + `lua-5.3` patch + Unity `2022.3` patch + `zlua-runtime` |
 | **P1** | `lua-5.1.x` / `lua-5.2.x`（无 VM patch）+ `lua-5.4.x` / `lua-5.5.x` 与对应系列 patch / DLL |
 | **P2** | LuaJIT（手动 clone；Editor ✅；Il2Cpp **仅 Android / iOS**） |
 
@@ -410,7 +410,7 @@ Fingerprint（建议 JSON 或等价键值）至少包含：
 - [ ] `ZLua~` 无完整 libil2cpp、无随包 Lua 上游源码  
 - [ ] PUC-Rio：缓存未命中则从 `lua.org/ftp` 下载  
 - [ ] LuaJIT：仅接受 `LuaSrcCache/luajit-{major}-{minor}` 手动源码  
-- [ ] 默认 `luaVersionId` = `lua-5.3.6`  
+- [ ] 默认 `luaVersionId` = `lua-5.5.0`  
 - [ ] Plugins DLL 缺失仅警告  
 - [ ] libil2cpp patch：floor（≤ 当前的最大 `{X.Y.Z}.patch`），无 `default.patch`；失败不降级  
 - [ ] lua patch：仅 PUC-Rio **5.3+** apply（§5.2）；5.1 / 5.2 / LuaJIT 跳过且 `luaPatchKey=none`  

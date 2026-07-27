@@ -19,7 +19,7 @@ title: "从 xLua 迁移"
 | `luaEnv:DoString` / `require` | 同 `require`；loader 由宿主提供 |
 | `[LuaCallCSharp]` + Generate | **无**；public 类型 **懒 Bind** |
 | `[CSharpCallLua]` | `LuaAppDomain.GetFunction<T>("module","func")` |
-| `LuaFunction` / `xlua.tofunction` | `GetFunction` 直接调，或 **形参隐式 marshal** / `to_delegate`（见 [回调 §3](/docs/guides/callbacks-and-delegates/)） |
+| `LuaFunction` / `xlua.tofunction` | `GetFunction` 直接调，或 **形参隐式 marshal** / `to_delegate`（见 [Function](/docs/guides/functions/)） |
 | `ObjectTranslator` | `ObjectRegistry` + marshal 分册 |
 | xLua Event 语法 | **无**；`add_Xxx` / `remove_Xxx` |
 | `CS.System.Collections.Generic.List(CS.System.Int32)` | `zlua.make_generic_type(...)` |
@@ -157,9 +157,9 @@ local function OnTick(dt) print(dt) end
 return { OnTick = OnTick }
 ```
 
-任意签名只要换成对应的 `T` 即可。Lua 侧已有 function、需显式指定类型时用 `zlua.to_delegate`（见 [回调与 Delegate §3](/docs/guides/callbacks-and-delegates/)）。
+任意签名只要换成对应的 `T` 即可。Lua 侧已有 function、需显式指定类型时用 `zlua.to_delegate`（见 [Function 与 Delegate](/docs/guides/functions/)）。
 
-详见 [spec/marshal/09-FUNCTION.md](/docs/spec/marshal/09-FUNCTION/)、[回调与 Delegate](/docs/guides/callbacks-and-delegates/)。
+详见 [spec/marshal/09-FUNCTION.md](/docs/spec/marshal/09-FUNCTION/)、[Function 与 Delegate](/docs/guides/functions/)。
 
 ### 步骤 6：Event
 
@@ -291,13 +291,17 @@ obj:Foo("a")
 obj:Foo(1)      -- 默认最佳匹配，多数情况可直接用
 obj:Foo("a")
 
--- 歧义时：Bind 期 [LuaAlias] 或本地缓存 direct closure
-obj:foo_str("a")   -- 例：[LuaAlias("foo_str")] 单候选
+-- 歧义时：全签名键（Bind 自动，无需 API）
+obj['Foo(System.Int32)'](obj, 1)
+obj['Foo(System.String)'](obj, "a")
 
--- 或运行时注册新名（须尚未占用）
-local fooStr = obj.foo_str
-zlua.register_method("foo_str_hot", fooStr)
-fooStr(obj, "a")
+-- 或 Bind 期 [LuaAlias] 短名
+obj:foo_str("a")
+
+-- 或 register_method 挂自定义短名后冒号调用
+local foo_i32 = obj['Foo(System.Int32)']
+zlua.register_method("foo_i32", foo_i32)
+obj:foo_i32(1)
 ```
 
 ### 5.3 C# 主循环调 Lua
@@ -336,6 +340,6 @@ void Update() => LuaUpdate(Time.deltaTime);
 
 | 文档 | 内容 |
 |------|------|
-| [migration/README.md](/docs/community/migration/) | 共用清单 |
+| [migration/README.md](/docs/guides/migration/) | 共用清单 |
 | [spec/02-TYPE-SYSTEM.md](/docs/spec/02-TYPE-SYSTEM/) | 类型语法 |
 | [spec/01-HOST-API.md](/docs/spec/01-HOST-API/) | GetFunction |

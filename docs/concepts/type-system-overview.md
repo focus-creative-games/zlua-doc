@@ -7,7 +7,7 @@ description: CSharp 根表、元表与静实例隔离模型。
 # 类型系统概览
 
 :::tip 谁该读本文
-**已在 Lua 中访问 C#、需要理解 `CSharp` 表结构与静/实例隔离的开发者。** 入门语法见 [Lua 访问 C# 基础](/docs/guides/lua-to-csharp-basics/)；查 API 见 [CSharp 根表参考](/docs/reference/lua/csharp-root/)。
+**已在 Lua 中访问 C#、需要理解 `CSharp` 表结构与静/实例隔离的开发者。** 入门语法见 [Lua 访问 C# 基础](/docs/guides/lua-calling-csharp/)；查 API 见 [CSharp 根表参考](/docs/reference/lua/csharp-root/)。
 :::
 
 ## 设计目标
@@ -61,7 +61,7 @@ local demo = CSharp.AC.Demo()
 | 静态字段 | `CSharp.AC.Demo.s_x = 1` | `demo.s_x = 1` |
 
 :::info 例外
-`zlua.get_method(demo, "StaticMethod", sig, true)` 等 **显式 API** 允许用实例解析声明类型上的静态重载。
+静态与实例分表；一般不可混用。精确点名静态重载时用类型表上的全签名键，例如 `Demo['Add(System.Int32,System.Int32)'](1, 2)`。
 :::
 
 ```mermaid
@@ -111,7 +111,7 @@ Il2Cpp：Generate stub + 懒绑定；Mono：Expression Emit + 懒绑定。
 | 开放泛型 | `CSharp.mscorlib['System.Collections.Generic.List`1']` |
 | 闭合泛型 | `zlua.make_generic_type(ListDef, zlua.types.int32)` |
 
-详见 [泛型与数组指南](/docs/guides/generics-and-arrays/)。
+详见 [泛型与数组指南](/docs/guides/generics/)。
 
 ## 何时读规范
 

@@ -151,7 +151,7 @@ Mono：  M 个成员 → M 条 Emit 桥（开发期特化，调用更直）
 | xLua | C# DelegateBridge + 多次 LuaDLL |
 | ZLua | **`GetFunction<T>`** 运行时绑定 function → closed delegate；`Invoke` 经 **Delegate 桥**（Mono / Il2Cpp 实现路径不同，语义一致） |
 
-详见 [spec/01-HOST-API.md](/docs/spec/01-HOST-API/) 与 [guides/csharp-to-lua.md](/docs/guides/csharp-to-lua/)。
+详见 [spec/01-HOST-API.md](/docs/spec/01-HOST-API/) 与 [guides/csharp-calling-lua.md](/docs/guides/csharp-calling-lua/)。
 
 ---
 

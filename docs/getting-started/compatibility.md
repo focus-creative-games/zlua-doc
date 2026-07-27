@@ -12,7 +12,7 @@ description: ZLua 支持的 Unity、Lua 版本、平台与功能矩阵。
 |------|:-------------:|:---------------:|------|
 | Lua **5.1.x** | ✅ | ✅ | Settings 可选（如 `lua-5.1.5`）；无 VM FastMT patch |
 | Lua **5.2.x** | ✅ | ✅ | Settings 可选（如 `lua-5.2.4`）；无 VM FastMT patch |
-| Lua **5.3.x** | ✅ | ✅ | Settings 可选；**默认 `lua-5.3.6`** |
+| Lua **5.3.x** | ✅ | ✅ | Settings 可选；**默认 `lua-5.5.0`** |
 | Lua **5.4.x** | ✅ | ✅ | Settings 可选 |
 | Lua **5.5.x** | ✅ | ✅ | Settings 可选 |
 | LuaJIT | ✅ | ⚠️ | Editor（Mono）可用；**Il2Cpp Player 仅 Android / iOS**（须自备静态库，见 [LuaJIT 构建](/docs/spec/build/02-LUAJIT/)） |
@@ -67,7 +67,7 @@ Lua 可见语义两端一致；Indexer / 桥接实现不同。详见 [项目状�
 | 实例 / 静态字段 | ✅ | ✅ | |
 | 实例 / 静态方法 | ✅ | ✅ | |
 | Property（无参） | ✅ | ✅ | |
-| Property（indexer） | ✅ | ✅ | 经 `get_Item` / `set_Item` 等方法形式访问，见 [字段与属性](/docs/guides/fields-and-properties/) |
+| Property（indexer） | ✅ | ✅ | 经 `get_Item` / `set_Item` 等方法形式访问，见 [字段与属性](/docs/guides/lua-calling-csharp/) |
 | 方法重载 dispatch | ✅ | ✅ | |
 | `[LuaAlias]` / `register_method` | ✅ | ✅ | |
 | 泛型类 / 泛型方法 | ✅ | ✅ | 开放泛型须先闭合；静态泛型方法有限制 |

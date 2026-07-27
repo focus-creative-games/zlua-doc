@@ -387,7 +387,17 @@ zlua.register_method(aliasName, methodOrClosure) → void
 
 完整语义见 [04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) §6.1。
 
-要点：`aliasName` 在目标 method 表中 **必须尚未占用**（无论已有单项函数还是重载组）；否则 `luaL_error`。用于给 direct closure 挂 **新名**，不合并重载。
+要点：
+
+- 同名重载在 Bind 期已有 **全签名键**（如 `Run(System.Int32)`），可直接 `obj['Run(System.Int32)'](obj, …)`，**不必**先 `register_method`
+- `register_method` 把 **direct** closure 挂到 **尚未占用** 的短名；之后可用 **冒号**：`obj:run_i32(5)`
+- `aliasName` 已存在（默认名 / 全签名键 / 其它别名）→ `luaL_error`，不合并重载
+
+```lua
+local run_i32 = demo['Run(System.Int32)']
+zlua.register_method("run_i32", run_i32)
+demo:run_i32(5)
+```
 
 **Native：** `__zlua_register_method`
 
@@ -449,8 +459,9 @@ local fraw = zlua.to_bytes(floats)   -- #fraw == 16
 -- opaque（C# 调 Lua 回调内）
 -- local v = zlua.get_opaquevalue(refHandle)
 
--- 别名
-local run = demo.run_i32
+-- 全签名键 / 短名
+demo['Run(System.Int32)'](demo, 10)
+local run = demo['Run(System.Int32)']
 zlua.register_method("run_hot", run)
 demo:run_hot(99)
 

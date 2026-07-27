@@ -160,15 +160,17 @@ print(CSharp.AC.Demo.GetSX())         -- 10
 
 ## 第 4 步（可选）：方法重载
 
-`Demo.Run` 有 `int` 与 `string` 两个重载。可显式绑定；完整可运行示例见 [app.lua `test_overload_signature`](https://github.com/focus-creative-games/zlua-demo/blob/main/LuaScripts/app.lua)：
+`Demo.Run` 有 `int` 与 `string` 两个重载。可用全签名键精确点名，或挂短名后冒号调用：
 
 ```lua
-local sig_i32 = zlua.signature(zlua.types.int32)
-local run_i32 = zlua.get_method(demo, "Run", sig_i32, false)
-run_i32(demo, 10)
+demo['Run(System.Int32)'](demo, 10)
+
+local run_i32 = demo['Run(System.Int32)']
+zlua.register_method("run_i32", run_i32)
+demo:run_i32(10)
 ```
 
-详见 [方法重载](/docs/guides/methods-and-overloads/)。
+详见 [方法重载](/docs/guides/overloads/)。
 
 ## 构建 Il2Cpp Player
 
@@ -197,13 +199,16 @@ run_i32(demo, 10)
 
 ## 下一步
 
-- [C# 调用 Lua 详解](/docs/guides/csharp-to-lua/) — 使用指南学习路径起点
-- [Lua 访问 C# 基础](/docs/guides/lua-to-csharp-basics/)
-- [安装与集成](/docs/getting-started/installation/)
+循序渐进请走使用指南主线：
+
+1. [安装与 Lua 版本](/docs/guides/install/)
+2. [初始化与最小互调](/docs/guides/hello-interop/)
+3. [构建流程](/docs/guides/build/)
+4. [Lua 调用 C#](/docs/guides/lua-calling-csharp/) → [C# 调用 Lua](/docs/guides/csharp-calling-lua/) → …
 
 ## 学习路径
 
 | | |
 |---|---|
 | **上一篇** | [安装与集成](/docs/getting-started/installation/) |
-| **下一篇** | [C# 调用 Lua](/docs/guides/csharp-to-lua/) |
+| **下一篇** | [安装与 Lua 版本](/docs/guides/install/) |

@@ -136,6 +136,6 @@ local ud = zlua.to_user_data(opaque) -- 升级为 StructUserData
 ## 相关文档
 
 - [Marshal 速查表](/docs/reference/marshal-cheatsheet/)
-- [ref / out / in 指南](/docs/guides/marshal-ref-out-in/)
+- [ref / out / in 指南](/docs/guides/ref-out-in/)
 - [LuaMarshalAs 规范](/docs/spec/marshal/02-MARSHAL-AS/)
 - [源码 LuaMarshalAsAttribute.cs](https://github.com/focus-creative-games/zlua/blob/main/Runtime/Common/LuaMarshalAsAttribute.cs)

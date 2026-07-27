@@ -40,11 +40,13 @@ description: zlua.types 内置 corlib 类型常量表。
 
 ## 用法示例
 
-### 方法签名
+### 方法签名 / 全签名键
 
 ```lua
+-- zlua.signature 只生成参数括号；全签名键 = 方法名 .. sig
 local sig = zlua.signature(zlua.types.int32, zlua.types.string)
-local fn = zlua.get_method(CSharp.AC.Demo, "SomeMethod", sig, false)
+-- 同名多候选时 Bind 已挂好，直接：
+-- demo['SomeMethod(System.Int32,System.String)'](demo, …)
 ```
 
 ### ref 槽
@@ -74,10 +76,10 @@ local list_int = zlua.make_generic_type(CSharp.mscorlib['System.Collections.Gene
 | 运行时 | 支持 |
 |--------|:----:|
 | Mono | ✅ |
-| Il2Cpp | ⚠️（部分 API 依赖 `signature` / `typeof`） |
+| Il2Cpp | ✅ |
 
 ## 相关文档
 
 - [zlua 标准库](/docs/reference/lua/zlua-lib/)
-- [方法重载](/docs/guides/methods-and-overloads/)
+- [方法重载](/docs/guides/overloads/)
 - [zlua 库规范](/docs/spec/05-LIB/) §3

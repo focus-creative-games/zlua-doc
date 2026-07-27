@@ -118,5 +118,5 @@ title: "贡献约定"
 | 文档 | 内容 |
 |------|------|
 | [TESTING.md](/docs/community/testing/) | 测试与条款映射 |
-| [migration/README.md](/docs/community/migration/) | 迁移指南 |
+| [migration/README.md](/docs/guides/migration/) | 迁移指南 |
 | [spec/00-OVERVIEW.md](/docs/spec/00-OVERVIEW/) | 产品总览 |

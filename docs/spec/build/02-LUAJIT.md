@@ -138,3 +138,4 @@ LuaJIT 构建是 **两阶段**：
 | [01-OFFICIAL-LUA.md](/docs/spec/build/01-OFFICIAL-LUA/) | PUC-Rio 源码进树 |
 | **本文** | LuaJIT 头文件 + `.a`、平台限制 |
 | [03-MONO-LUAJIT-CALLBACK-GATE.md](/docs/spec/build/03-MONO-LUAJIT-CALLBACK-GATE/) | Editor Mono × JIT 的 `lua_error` 安全边界 |
+| [04-EMMYLUA-DEBUGGER.md](/docs/spec/build/04-EMMYLUA-DEBUGGER/) | Editor EmmyLua；JIT 下 hook 抑制性能可接受 |

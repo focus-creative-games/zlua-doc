@@ -41,11 +41,11 @@ title: "与 xLua / toLua / SLua 对比"
 1. 选型或迁移前：先读 [FEATURES.md](/docs/compare/FEATURES/) 确认语义与工程差异。
 2. 性能是瓶颈：读 [PERFORMANCE.md](/docs/compare/PERFORMANCE/) + [GC.md](/docs/compare/GC/)，再决定是否 profiling。
 3. 包体 / 生成量：读 [BRIDGE.md](/docs/compare/BRIDGE/)。
-4. 实际迁移：见 [guides/migration/](/docs/community/migration/)。
+4. 实际迁移：见 [guides/migration/](/docs/guides/migration/)。
 
 ## 写作原则
 
-1. **特性/用法**：对照表 + 迁移影响（链 [guides/migration/](/docs/community/migration/)）。
+1. **特性/用法**：对照表 + 迁移影响（链 [guides/migration/](/docs/guides/migration/)）。
 2. **性能 / GC / 桥体积**：先给**理论模型与假设**，再给**可复现基准**；未测项标 **待测**。
 3. 不贬低其它方案的适用场景；写清 ZLua 的取舍（侵入 libil2cpp、Unity 版本 merge、Lua 版本锁定等）。
 4. 倍数、纳秒区间：§2–§7 为路径推演；**§8 已填 ZLua vs xLua Il2Cpp 实测**；toLua / SLua 仍待测。
@@ -55,7 +55,7 @@ title: "与 xLua / toLua / SLua 对比"
 | 文档 | 内容 |
 |------|------|
 | [spec/00-OVERVIEW.md](/docs/spec/00-OVERVIEW/) | ZLua 产品目标与双运行时 |
-| [guides/migration/README.md](/docs/community/migration/) | 迁移指南索引 |
+| [guides/migration/README.md](/docs/guides/migration/) | 迁移指南索引 |
 | [guides/TESTING.md](/docs/community/testing/) | 双端回归测试 |
 
 ---

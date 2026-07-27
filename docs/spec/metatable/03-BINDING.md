@@ -38,7 +38,7 @@ Bind 期按下列规则将每个 public 成员写入**唯一**目标表（或组
 
 | C# 成员 | 目标表 | 值 |
 |---------|--------|-----|
-| 实例 / 静态方法 | `methodTable` | 单重：direct bridge closure；多重：dispatch closure + 可选 `MethodName(ParamTypes…)` 全签名键 |
+| 实例 / 静态方法 | `methodTable` | 单重：direct bridge closure；**同名多重载**：默认名 → dispatch closure，并为每个候选再挂 **`MethodName(ParamTypeFullNames…)`** 全签名 direct 键（见 [../04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) §3.7） |
 | 索引器 property | `methodTable` | `get_Item` / `set_Item` 或等价 dispatch closure |
 | C# **event** | `methodTable` | **`add_EventName` / `remove_EventName`** 等方法 closure；**不**生成 event 子表 |
 | 泛型方法 | `methodTable` | 默认仅全签名键；单泛型重载时可同时占默认方法名 |
@@ -111,7 +111,7 @@ public 实例构造函数 **不** 进入任何三表。绑定阶段仅收集当�
 
 ## 6. 方法重载与别名
 
-同一 **最终 Lua 名** 下多个候选方法：在 `methodTable` 写入 **dispatch closure**；单候选写入 **direct closure**。最终名来自 C# 默认名与 `[LuaAlias]` / XML（见 [../04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) §3、§5）。运行时 `zlua.register_method` **不得**占用已有 method 名或重载组名（§6.1）。
+同一 **最终 Lua 名** 下多个候选方法：在 `methodTable` 写入 **dispatch closure**，并为每个候选写入 **全签名 direct 键**（[../04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) §3.7）。最终名还来自 `[LuaAlias]` / XML（同文档 §3、§5）。运行时 `zlua.register_method` **不得**占用已有 method 名或重载组名（§6.1）；其用途是把已有 direct（含全签名键）挂成 **短名** 以便冒号调用。
 
 `[LuaAlias]` **允许**与默认方法名或其它别名重复；重复即并入同一 overload 组。
 

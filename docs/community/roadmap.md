@@ -46,7 +46,7 @@ description: ZLua 版本计划与功能清单。
 
 - Luau
 - 更多平台工具链与设备实测
-- 迁移指南与案例（[migration](/docs/community/migration/)）
+- 迁移指南与案例（[migration](/docs/guides/migration/)）
 
 ## 相关文档
 

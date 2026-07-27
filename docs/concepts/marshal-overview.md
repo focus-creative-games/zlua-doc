@@ -7,7 +7,7 @@ description: C# 与 Lua 之间的默认参数 Marshal 规则。
 # Marshal 模型概览
 
 :::tip 谁该读本文
-**需要理解参数如何在 C# 与 Lua 间转换、何时用 `new_ref` / `[LuaMarshalAs]` 的开发者。** 查表用 [Marshal 速查表](/docs/reference/marshal-cheatsheet/)；`ref/out` 实操见 [指南](/docs/guides/marshal-ref-out-in/)。
+**需要理解参数如何在 C# 与 Lua 间转换、何时用 `new_ref` / `[LuaMarshalAs]` 的开发者。** 查表用 [Marshal 速查表](/docs/reference/marshal-cheatsheet/)；`ref/out` 实操见 [指南](/docs/guides/ref-out-in/)。
 :::
 
 ZLua 在 Mono 与 Il2Cpp 上 **Lua 可见 Marshal 语义一致**；Il2Cpp 侧重零 GC 与生成代码快速路径。
@@ -82,5 +82,5 @@ Lua 侧 **不区分** ref/out/in，统一按 ref 语义处理：
 ## 相关文档
 
 - [Marshal 速查表](/docs/reference/marshal-cheatsheet/)
-- [enum / struct 指南](/docs/guides/enums-and-structs/)
-- [回调与 Delegate](/docs/guides/callbacks-and-delegates/)
+- [enum / struct 指南](/docs/guides/value-types/)
+- [Function 与 Delegate](/docs/guides/functions/)

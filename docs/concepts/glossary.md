@@ -42,7 +42,8 @@ title: "术语表"
 | **`__newindex` miss** | 未注册 / 不可写成员 → **`error`** | 同上 |
 | **Bind 期扁平化** | 继承链 public 成员在 `EnsureBinding` 时写入当前类型三表；**无**运行时向上查找 | [spec/02-TYPE-SYSTEM.md](/docs/spec/02-TYPE-SYSTEM/) §5 |
 | **dispatch closure** | 多重重载时默认方法名绑定的运行时分派闭包 | [spec/04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) |
-| **direct method closure** | 单重重载或别名绑定的桥接闭包；可 `register_method` / `make_generic_method` | MetaBinding |
+| **direct method closure** | 单重重载、全签名键或别名绑定的桥接闭包；可 `register_method` | MetaBinding |
+| **全签名键** | 同名多候选时自动挂的 `Name(Type.FullName,…)` direct 键（不含返回类型） | [spec/04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) §3.7 |
 
 ## Marshal 形态
 

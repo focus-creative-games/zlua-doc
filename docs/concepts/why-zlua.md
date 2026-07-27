@@ -8,7 +8,7 @@ description: 更易用、更完备、更快、更少 GC、更小桥接 —— ZL
 
 xLua、toLua、SLua 已经证明「在 Unity 里用 Lua」可行。ZLua 要解决的是下一层问题：**把 Lua↔C# 做成真正现代、完备、且在 Il2Cpp 上足够快、足够省的互操作**——而不是再堆一套配置、白名单和海量 Wrap。
 
-详细矩阵见 **[选型对比](/docs/compare/)**；迁移见 **[migration](/docs/community/migration/)**。
+详细矩阵见 **[选型对比](/docs/compare/)**；迁移见 **[migration](/docs/guides/migration/)**。
 
 ---
 
@@ -55,7 +55,7 @@ print(CSharp.AC.Demo.Add(3, 5))
 
 **零配置**指：不需要 per-type C# Wrap 白名单与成员级 Wrap 工程。Editor 开箱即用；发 Il2Cpp Player 时执行一次 **`ZLua/Generate/All`**（生成 **C++ stub**，不是 xLua 式 C# Wrap）。
 
-→ [快速开始](/docs/getting-started/quick-start/) · [C# 调用 Lua](/docs/guides/csharp-to-lua/)
+→ [快速开始](/docs/getting-started/quick-start/) · [使用指南](/docs/guides/install/)
 
 ---
 
@@ -108,7 +108,7 @@ print(CSharp.AC.Demo.Add(3, 5))
 | **OpaqueValue** | lightuserdata 临时句柄：同步调用链内更灵活的低分配策略 |
 | **enum** | 默认 integer，不强制 boxed userdata |
 
-需要写回时用 Opaque / ByVal userdata；裸 number **不回写**（与 C# `ref` 语义对齐，见 [ref/out/in](/docs/guides/marshal-ref-out-in/)）。
+需要写回时用 Opaque / ByVal userdata；裸 number **不回写**（与 C# `ref` 语义对齐，见 [ref/out/in](/docs/guides/ref-out-in/)）。
 
 → [GC 对比](/docs/compare/GC/) · [生命周期规范](/docs/spec/10-LIFETIME/)
 
@@ -136,7 +136,7 @@ Editor（Mono）用 Expression Emit，**不进 Player 包**；Player 体积由 C
 
 | 维度 | ZLua |
 |------|------|
-| Lua | **5.1 – 5.5**、**LuaJIT**（Settings 默认 **`lua-5.3.6`**；LuaJIT 的 Il2Cpp 发布 **仅 Android / iOS**） |
+| Lua | **5.1 – 5.5**、**LuaJIT**（Settings 默认 **`lua-5.5.0`**；LuaJIT 的 Il2Cpp 发布 **仅 Android / iOS**） |
 | Unity | **2021.3**、**2022.3**、**Unity 6（6000.0 / 6000.3 / 6000.5）** |
 | 引擎 | **团结引擎** |
 
@@ -166,7 +166,7 @@ ZLua 由 **全职专业团队** 维护：
 |------|------|
 | **不愿维护 libil2cpp 集成** | 插件形态的 xLua / toLua 更轻 |
 | **强依赖 xLua Hotfix 管线** | 继续使用 xLua |
-| **已有大量 xLua 资产、短期无迁移预算** | 先读 [从 xLua 迁移](/docs/community/migration/from-xlua/) |
+| **已有大量 xLua 资产、短期无迁移预算** | 先读 [从 xLua 迁移](/docs/guides/migration/from-xlua/) |
 
 ---
 

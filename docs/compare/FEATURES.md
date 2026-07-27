@@ -276,7 +276,7 @@ local x = obj.x
 | Player 性能边界是瓶颈、愿维护 libil2cpp、要 C# 语义一致 | **ZLua** |
 | 不愿改引擎层、不需极致互调性能 | **xLua** 优于 ZLua |
 
-迁移步骤见 [guides/migration/](/docs/community/migration/)。
+迁移步骤见 [guides/migration/](/docs/guides/migration/)。
 
 ---
 
