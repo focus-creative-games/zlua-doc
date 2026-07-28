@@ -84,7 +84,7 @@ Lua→C#：ByVal userdata 或 Opaque 可写回；裸 number **不回写**。C#�
 
 ### Player 性能如何？
 
-以 Il2Cpp 为准；理论与待测项见 [PERFORMANCE](/docs/compare/PERFORMANCE/)。
+以 Il2Cpp 为准。公开四方基准：[zlua-benchmark](https://github.com/focus-creative-games/zlua-benchmark)；摘要见 [PERFORMANCE](/docs/compare/PERFORMANCE/)；最新完整报告：[comparison_20260728_121554.md](https://github.com/focus-creative-games/zlua-benchmark/blob/main/reports/comparison_20260728_121554.md)。
 
 ---
 

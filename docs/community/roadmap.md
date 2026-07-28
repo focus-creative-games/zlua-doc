@@ -25,7 +25,7 @@ description: ZLua 版本计划与功能清单。
 - [x] ReducedType stub 复用（`ZLua/Generate/All`）
 - [x] `GetFunction` Delegate 桥
 - [x] 懒绑定、`CSharp` 根表、重载、Marshal 路径
-- [x] vs xLua 性能实测（见 [PERFORMANCE](/docs/compare/PERFORMANCE/)）
+- [x] vs xLua / toLua / SLua 性能实测（见 [PERFORMANCE](/docs/compare/PERFORMANCE/)、[zlua-benchmark](https://github.com/focus-creative-games/zlua-benchmark)）
 - [ ] 多平台工具链与更多设备实测
 
 ## Mono（Editor）

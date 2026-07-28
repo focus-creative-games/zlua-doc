@@ -19,7 +19,7 @@ description: ZLua 是什么、核心特性与适用场景。
 |--|--|
 | **更易用** | 现代、简单、**零配置**（无 per-type C# Wrap 白名单） |
 | **更完备** | 几乎覆盖全部常用 C#↔Lua 特性（泛型、重载、ref/out、数组、delegate…） |
-| **更高效** | 约 **98%** 对齐用例快于 xLua；Lua→C# 平均约 **2.62×**；常见访问约 **4×** |
+| **更高效** | Il2Cpp 四方实测：Lua→C# 上 xLua / toLua / SLua 约 **2.57× / 3.52× / 7.68×**（相对 ZLua）；详见 [性能对比](/docs/compare/PERFORMANCE/) |
 | **更少 GC** | 引用类型与 struct 默认 **0 GC**；OpaqueValue 等灵活策略 |
 | **极小桥接** | 同签名合并的 C++ stub；体积可小一个数量级；可至 **0 桥接函数** |
 | **版本更广** | Lua 5.1–5.5 / LuaJIT（Il2Cpp 上 JIT 仅 Android / iOS）；Unity 2021+；团结引擎 |
@@ -49,4 +49,5 @@ description: ZLua 是什么、核心特性与适用场景。
 - [安装与集成](/docs/getting-started/installation/) — UPM 安装与工程结构
 - [使用指南](/docs/guides/install/) — 循序渐进教程（安装 → 互调 → 构建 → …）
 - [选型对比](/docs/compare/) — 相对 xLua / toLua / SLua
+- [性能基准](https://github.com/focus-creative-games/zlua-benchmark) — 可复现 Il2Cpp 对比与[最新报告](https://github.com/focus-creative-games/zlua-benchmark/blob/main/reports/comparison_20260728_121554.md)
 - [规范总览](/docs/spec/00-OVERVIEW/) — 权威语义契约

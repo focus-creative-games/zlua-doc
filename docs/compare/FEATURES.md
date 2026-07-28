@@ -290,6 +290,6 @@ local x = obj.x
 
 | 文档 | 内容 |
 |------|------|
-| [PERFORMANCE.md](/docs/compare/PERFORMANCE/) | 性能对比 |
+| [PERFORMANCE.md](/docs/compare/PERFORMANCE/) | 性能对比（[zlua-benchmark](https://github.com/focus-creative-games/zlua-benchmark)） |
 | [GC.md](/docs/compare/GC/) | GC 对比 |
 | [spec/02-TYPE-SYSTEM.md](/docs/spec/02-TYPE-SYSTEM/) | ZLua 类型系统规范 |

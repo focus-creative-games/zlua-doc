@@ -206,7 +206,7 @@ xLua / toLua / SLua **一般不改** Boehm/Il2Cpp GC root 策略；ZLua 为正�
 
 | 文档 | 内容 |
 |------|------|
-| [PERFORMANCE.md](/docs/compare/PERFORMANCE/) | 性能场景 P1–P6 |
+| [PERFORMANCE.md](/docs/compare/PERFORMANCE/) | 性能实测摘要 |
 | [impl/marshal/REGISTRIES.md](/docs/impl/marshal/REGISTRIES/) | Registry 实现 |
 | [FEATURES.md](/docs/compare/FEATURES/) | 值类型用法差异 |
 

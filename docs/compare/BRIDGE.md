@@ -127,7 +127,7 @@ Mono：  M 个成员 → M 条 Emit 桥（开发期特化，调用更直）
 
 **结论（理论）：**
 
-- Il2Cpp：**stub 间接一层** 通常远小于 xLua **多次 LuaDLL** 的开销（见 P1 [PERFORMANCE.md](/docs/compare/PERFORMANCE/)）。
+- Il2Cpp：**stub 间接一层** 通常远小于 xLua **多次 LuaDLL** 的开销（见 [PERFORMANCE.md](/docs/compare/PERFORMANCE/)）。
 - Mono Emit：**Per-member 直调** 利于 Editor profiling；与 Player stub 语义一致但 **实现不同**。
 
 ---

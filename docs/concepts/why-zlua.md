@@ -78,14 +78,16 @@ print(CSharp.AC.Demo.Add(3, 5))
 
 ## 3. 更高效：不是「理论上快一点」
 
-在 **Il2Cpp Win64 Release** 上与 xLua 对齐基准（见 [PERFORMANCE](/docs/compare/PERFORMANCE/)）：
+在 **Il2Cpp Win64 Release** 上四方对齐基准（公开仓库 [zlua-benchmark](https://github.com/focus-creative-games/zlua-benchmark)；说明见 [PERFORMANCE](/docs/compare/PERFORMANCE/)）：
 
-| 指标 | 结果 |
+| 指标 | 结果（相对 zlua 的平均 ratio，>1 更慢） |
 |------|------|
-| 领先比例 | **98.2%** 用例快于 xLua（279 领先 / 5 落后） |
-| Lua→C# 平均 | 约 **2.62×**（231 用例全胜） |
-| 常见字段 / 属性 / 函数调用 | 约 **4×**（例如 `field.get.int` ≈ 3.6×，大量 prop/field 落在 3.5–4.3×） |
-| C#→Lua | 平均约 **1.66×**；`int[]` / `class` 等可达 **5–6×** |
+| Lua→C#（231 cases） | xLua ≈ **2.57×**；toLua ≈ **3.52×**；SLua ≈ **7.68×** |
+| C#→Lua（54 cases） | xLua ≈ **1.59×**；toLua ≈ **3.27×**；SLua ≈ **14.9×** |
+| 相对 xLua 领先比例 | 约 **98.6%** 用例（281/285） |
+| 常见字段 / 属性 | 约 **3.5–4×**（相对 xLua） |
+
+完整报告：[comparison_20260728_121554.md](https://github.com/focus-creative-games/zlua-benchmark/blob/main/reports/comparison_20260728_121554.md)。
 
 根因很直接：去掉 **libxlua 折返 + 海量 C# Wrap**，在 C++ 里一次完成 marshal 与 `methodPointer` 调用。
 

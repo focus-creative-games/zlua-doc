@@ -282,7 +282,7 @@ obj:remove_Click(fn)
 - [ ] 无 SLua 生成绑定目录
 - [ ] 类型入口：已 `adaptor.init` **或** 脚本改为 `CSharp[asm][full]`（无意外全局污染）
 - [ ] Il2Cpp Player 全量测试通过
-- [ ] 性能 profiling（若 SLua 迁因性能）见 P1–P6
+- [ ] 性能 profiling（若 SLua 迁因性能）见 [PERFORMANCE](/docs/compare/PERFORMANCE/)
 
 ---
 

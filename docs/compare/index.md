@@ -13,7 +13,7 @@ title: "与 xLua / toLua / SLua 对比"
 | 文件 | 内容 |
 |------|------|
 | [FEATURES.md](/docs/compare/FEATURES/) | 特性与用法差异：类型访问、调用、C#→Lua、值类型、热更/生成、Editor/Player、侵入性、白名单 |
-| [PERFORMANCE.md](/docs/compare/PERFORMANCE/) | Lua↔C# 性能：调用路径、理论开销、**Il2Cpp 实测（ZLua vs xLua）** |
+| [PERFORMANCE.md](/docs/compare/PERFORMANCE/) | Lua↔C# 性能：**Il2Cpp 四方实测** + 为何更快（[zlua-benchmark](https://github.com/focus-creative-games/zlua-benchmark)） |
 | [GC.md](/docs/compare/GC/) | GC 理论分析：热路径分配、ObjectRegistry/ByVal/Opaque、「零 GC」边界 |
 | [BRIDGE.md](/docs/compare/BRIDGE/) | 桥接函数性能与二进制体积：生成粒度、stub 复用、四方案对照 |
 
@@ -34,7 +34,7 @@ title: "与 xLua / toLua / SLua 对比"
 | **Mono（Editor）** | 已完成 | 与 Il2Cpp Lua 可见语义一致；实现为 Expression Emit |
 | **文档 / 生态** | 建设中 | 无 xLua 级社区与热更配套；迁移需自建测试矩阵 |
 
-**性能/GC 文档中的 ZLua 理论值**指 Il2Cpp Player **设计目标**；Mono Editor 在 Phase 4–5 完成前不代表 Player 性能。
+**性能/GC 文档中的 ZLua 数字**指 **Il2Cpp Player**；Mono Editor 不代表发布性能。
 
 ## 阅读顺序
 
@@ -46,9 +46,9 @@ title: "与 xLua / toLua / SLua 对比"
 ## 写作原则
 
 1. **特性/用法**：对照表 + 迁移影响（链 [guides/migration/](/docs/guides/migration/)）。
-2. **性能 / GC / 桥体积**：先给**理论模型与假设**，再给**可复现基准**；未测项标 **待测**。
+2. **性能 / GC / 桥体积**：以**可复现基准**为主；未测项标 **待测**。
 3. 不贬低其它方案的适用场景；写清 ZLua 的取舍（侵入 libil2cpp、Unity 版本 merge、Lua 版本锁定等）。
-4. 倍数、纳秒区间：§2–§7 为路径推演；**§8 已填 ZLua vs xLua Il2Cpp 实测**；toLua / SLua 仍待测。
+4. 倍数与 ns：以 [PERFORMANCE.md](/docs/compare/PERFORMANCE/) 中 **Il2Cpp 实测表** 为准（公开仓库 [zlua-benchmark](https://github.com/focus-creative-games/zlua-benchmark)）。
 
 ## 相关文档
 
@@ -57,6 +57,7 @@ title: "与 xLua / toLua / SLua 对比"
 | [spec/00-OVERVIEW.md](/docs/spec/00-OVERVIEW/) | ZLua 产品目标与双运行时 |
 | [guides/migration/README.md](/docs/guides/migration/) | 迁移指南索引 |
 | [guides/TESTING.md](/docs/community/testing/) | 双端回归测试 |
+| [zlua-benchmark](https://github.com/focus-creative-games/zlua-benchmark) | 可复现性能基准与最新对比报告 |
 
 ---
 
