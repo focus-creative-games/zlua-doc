@@ -18,7 +18,7 @@ title: "从 toLua 迁移"
 | `LuaState` / `ToLua` | `LuaAppDomain` |
 | `*.Wrap.cs` 导出类 | **无 Wrap**；`EnsureBinding` 写三表 |
 | `CustomSettings.cs` 导出列表 | **无**访问控制白名单；public 懒 Bind（适配清单仅迁移期） |
-| 全局 `GameObject` / `UnityEngine.GameObject` | 原生：`CSharp[asm][full]`；**或** tolua adaptor 继续挂 `_G` 短名 |
+| 全局 / 命名空间 `UnityEngine.GameObject` | 原生：`CSharp[asm][full]`；**或** adaptor 挂 `_G.UnityEngine.GameObject` |
 | `LuaFunction` / `LuaTable` | `GetFunction`、形参隐式 marshal、`require` 模块 table（**适配不覆盖**） |
 | `ToLua.Push` / 手动绑定 | 自动 marshal（spec/marshal） |
 | `out` 多返回值 | StructUserData（`Type(...)`）/ 拷贝语义（视签名） |
@@ -56,21 +56,21 @@ LuaAppDomain.Initialize(LoadModule);
 
 #### 3A. 使用 tolua adaptor（减改写，推荐过渡）
 
-包内：`ZLua~/adaptors/tolua/`。契约见 [规范 12](/docs/spec/12-MIGRATION-ADAPTORS/)。
+包内：`ZLua~/adaptors/tolua/ExportTypes.cs` + 共用 `ZLua~/adaptors/adaptor.lua`。契约见 [规范 12](/docs/spec/12-MIGRATION-ADAPTORS/)。
 
 1. 在 **仍含 toLua** 的工程复制 `ExportTypes.cs` → Editor，菜单 **`ZLua/ExportTypes`**
-2. 按 `CustomSettings` / `ExportToLua` 等既有列表生成 `tolua_export_types.lua`
-3. 将清单与 `adaptor.lua` 放入 ZLua 工程可 `require` 的目录
+2. 按 `CustomSettings.customTypeList` 生成 `tolua_export_types.lua`（`export_name` 为 `UnityEngine.GameObject` 这类命名空间路径）
+3. 将清单与 **`adaptor.lua`** 放入 ZLua 工程可 `require` 的目录
 4. 入口：
 
 ```lua
 local export_types = require "tolua_export_types"
 local adaptor = require "adaptor"
 adaptor.init(export_types)
--- 此后 _G.GameObject 等短名可用（清单内；短名冲突会 fail-fast）
+-- 此后 UnityEngine.GameObject 等可用（清单内；冲突会 fail-fast）
 ```
 
-**注意：** adaptor 挂的是 CLR `Type.Name` 短名（toLua 惯例），**不是** FullName。成员调用、`Type()` 构造、`GetFunction` 等仍按 ZLua 语义。
+**注意：** 与运行时 `BeginModule` 一致，默认挂 **命名空间链**，不是「仅全局短名」。`SetNameSpace(null)` / `SetLibName` 会反映到 `export_name`。成员调用等仍按 ZLua 语义。
 
 #### 3B. 改写为原生 `CSharp`
 
@@ -197,7 +197,7 @@ toLua 预导出大量 `UnityEngine.*` Wrap。迁移时：
 
 | 坑 | 说明 |
 |----|------|
-| 依赖全局类名 | `Demo` 未定义 → **tolua adaptor**、`CSharp[...]['Demo']` 或局部 alias |
+| 依赖全局类名 | `Demo` 未定义 → **tolua adaptor**（`Namespace.Demo`）、`CSharp[...]['Demo']` 或局部 alias |
 | `Demo.New()` vs `Demo()` | ZLua 构造优先 `Type()` |
 | Wrap 删除后链接错误 | C# 侧仍引用 `LuaInterface` 类型 → 一并删 |
 | tolua `#if UNITY_EDITOR` 双份逻辑 | 合并为 ZLua 双端同一套 Lua |
@@ -287,7 +287,7 @@ DemoWrap.Register(L);
 - [ ] `Tests/Lua` 覆盖原 toLua 关键 API
 - [ ] Editor + Il2Cpp Player manifest 全绿
 - [ ] 移除 toLua 后包体与启动无 lib 冲突
-- [ ] （若用 adaptor）`tolua_export_types` + `adaptor.init` 后短名可用；冲突/缺失类型有明确 error
+- [ ] （若用 adaptor）`tolua_export_types` + `adaptor.init` 后 `UnityEngine.GameObject` 等命名空间路径可用；冲突/缺失类型有明确 error
 
 ---
 

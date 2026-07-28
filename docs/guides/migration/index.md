@@ -18,26 +18,26 @@ title: "迁移指南"
 | 文件 | 来源方案 | 内容 |
 |------|----------|------|
 | [from-xlua.md](/docs/guides/migration/from-xlua/) | xLua | `CS.*`、Generate、`GetFunction`、**xlua adaptor** |
-| [from-tolua.md](/docs/guides/migration/from-tolua/) | toLua / tolua# | Wrap、全局短名、**tolua adaptor** |
+| [from-tolua.md](/docs/guides/migration/from-tolua/) | toLua / tolua# | Wrap、`UnityEngine.*` 命名空间链、**tolua adaptor** |
 | [from-slua.md](/docs/guides/migration/from-slua/) | SLua | 导出配置、命名空间链、**slua adaptor** |
 
 ---
 
 ## 迁移适配层（推荐先用）
 
-ZLua 原生类型入口是 `CSharp[assembly]['Full.Name']`。为降低改写量，包内提供 **可选** 适配（`ZLua~/adaptors/{xlua|tolua|slua}/`）：只解决 **Lua→C# 类型表怎么拿到**，不改变成员调用 / Marshal / C#→Lua 语义。
+ZLua 原生类型入口是 `CSharp[assembly]['Full.Name']`。为降低改写量，包内提供 **可选** 适配（`ZLua~/adaptors/`：共用 `adaptor.lua` + 三分案 `ExportTypes.cs`）：只解决 **Lua→C# 类型表怎么拿到**，不改变成员调用 / Marshal / C#→Lua 语义。
 
 | 方案 | 旧写法（适配后可继续） | 实际落到 |
 |------|------------------------|----------|
 | xLua | `CS.UnityEngine.GameObject` | `CSharp['UnityEngine.CoreModule']['UnityEngine.GameObject']` |
-| toLua | `GameObject`（全局短名） | 同上 |
+| toLua | `UnityEngine.GameObject`（命名空间链） | 同上 |
 | SLua | `UnityEngine.GameObject` | 同上 |
 
 ### 五步启用
 
 1. 在 **仍含旧框架** 的工程里，复制 `adaptors/{方案}/ExportTypes.cs` → `Editor/`
 2. 菜单 **`ZLua/ExportTypes`** → 生成 `xlua_export_types.lua`（或 `tolua_` / `slua_` 前缀）
-3. 把生成清单 + 同方案的 `adaptor.lua` 复制到 ZLua 工程 **LuaLoader 可 `require` 到的目录**
+3. 把生成清单 + **`adaptors/adaptor.lua`** 复制到 ZLua 工程 **LuaLoader 可 `require` 到的目录**
 4. 入口脚本：
 
 ```lua
@@ -52,12 +52,12 @@ adaptor.init(export_types)
 
 | 做 | 不做 |
 |----|------|
-| 按旧导出白名单挂 `CS.*` / 短名 / `UnityEngine.*` | C#→Lua（`GetFunction` 等仍要改） |
+| 按旧导出白名单挂 `CS.*` / `UnityEngine.*` 等 | C#→Lua（`GetFunction` 等仍要改） |
 | 清单来自旧 Gen / CustomSettings / 特性 | 默认扫全程序集 public |
 | 显式 `require` + `init` | 随 `zlualib` 自动安装 |
 | — | xLua 式 `List(Int32)` 泛型构造语法（改用 `zlua.make_generic_type`） |
 
-三分案目录 **互不混用**：只复制当前方案那一套，避免菜单重复。细则与验收见 [规范 12](/docs/spec/12-MIGRATION-ADAPTORS/)。
+三分案 **ExportTypes 互不混用**（只复制当前方案）；`adaptor.lua` 共用一份。细则见 [规范 12](/docs/spec/12-MIGRATION-ADAPTORS/)。
 
 ---
 
@@ -73,7 +73,7 @@ adaptor.init(export_types)
 | 初始化 | `LuaAppDomain.Initialize(moduleLoader)` 替代 `LuaEnv` / `LuaState` / `LuaSvr` |
 | 模块 loader | 对接现有 `require` 路径；Player 需 `.lua.txt` 规则 |
 | 删除旧 native | 移除 libxlua / tolua binding 等与 ZLua 冲突的 native 插件 |
-| **（可选）适配** | 上节五步；未 `init` 则无 `CS` / 短名等副作用 |
+| **（可选）适配** | 上节五步；未 `init` 则无 `CS` / `UnityEngine.*` 等副作用 |
 
 ### 2. 类型访问路径
 

@@ -23,7 +23,7 @@ title: "EmmyLua 调试器"
 | IDE | EmmyLua 协议客户端（VS Code EmmyLua 扩展、Rider 等） |
 | 连接 | Lua 侧 **`tcpListen`**；IDE **Attach** 到约定端口 |
 | 开关 | Project Settings（`ZLua.Settings`）显式开启；**默认关闭** |
-| 随附范围 | **Windows**：`lua51`–`lua55` 与 **`luajit`**；**macOS/Linux**：目前仅 **`lua55`** |
+| 随附范围 | **Windows** / **macOS**：`lua51`–`lua55` 与 **`luajit`**；**Linux**：目前仅 **`lua55`**（`linux-x64`） |
 
 ### 1.2 非目标
 
@@ -34,7 +34,7 @@ title: "EmmyLua 调试器"
 | 自研 DAP Adapter | **不做**；协议与 UI 由 EmmyLua IDE 扩展承担 |
 | C#↔Lua 混合调用栈美化 | **不做**（仅 Lua 栈由 Emmy 呈现） |
 | 业务脚本手写 `require('emmy_core')` | **非必需**；由宿主统一注入（仍允许高级用户手动调用） |
-| 为非 Windows 预编译全部系列 | **不做**（除 `lua55`）；须开发者按上游文档自建（见 §3.2） |
+| 为 Linux 预编译全部系列 | **不做**（除 `lua55`）；其它系列须按上游文档自建（见 §3.2） |
 
 ---
 
@@ -83,26 +83,22 @@ ZLua 唯一 lua_State（Editor Mono）
 
 ```text
 Packages/com.code-philosophy.zlua/Plugins/emmylua/
-├── lua51/win32-x64/emmy_core.dll      # Windows 随附
-├── lua52/win32-x64/emmy_core.dll
-├── lua53/win32-x64/emmy_core.dll
-├── lua54/win32-x64/emmy_core.dll
-├── lua55/
-│   ├── win32-x64/emmy_core.dll        # Windows 随附
-│   ├── darwin-arm64/emmy_core.dylib   # 非 Windows：目前仅 lua55 随附
-│   ├── darwin-x64/emmy_core.dylib
-│   └── linux-x64/emmy_core.so
-└── luajit/win32-x64/emmy_core.dll      # Windows 随附（Emmy -DEMMY_LUA_VERSION=jit；2.0/2.1 共用）
+├── lua51/{win32-x64,darwin-arm64,darwin-x64}/…
+├── lua52/{win32-x64,darwin-arm64,darwin-x64}/…
+├── lua53/{win32-x64,darwin-arm64,darwin-x64}/…
+├── lua54/{win32-x64,darwin-arm64,darwin-x64}/…
+├── lua55/{win32-x64,darwin-arm64,darwin-x64,linux-x64}/…
+└── luajit/{win32-x64,darwin-arm64,darwin-x64}/…   # Emmy -DEMMY_LUA_VERSION=jit；2.0/2.1 共用
 ```
 
 运行时按 **当前 Editor 编译 define** 选择目录：PUC → `lua{major}{minor}`；任意 LuaJIT → **`luajit`**。**不是**探测 DLL 内嵌 ABI。Editor 宿主 DLL 仍可为 `luajit20.dll` / `luajit21.dll`（与 emmy 目录名无关）。
 
 ### 3.2 本包随附范围与自建
 
-| 系列 | Windows `win32-x64` | macOS / Linux |
-|------|---------------------|---------------|
-| `lua51` … `lua54`、`luajit` | **随附** | **不随附**；按下文自建 |
-| `lua55` | **随附** | **随附** |
+| 系列 | Windows `win32-x64` | macOS `darwin-arm64` / `darwin-x64` | Linux `linux-x64` |
+|------|---------------------|-------------------------------------|-------------------|
+| `lua51` … `lua55` | **随附** | **随附** | 仅 **`lua55` 随附**；其余自建 |
+| `luajit`（2.0/2.1 共用） | **随附** | **随附** | **不随附**；自建 |
 
 上游仓库：[EmmyLua/EmmyLuaDebugger](https://github.com/EmmyLua/EmmyLuaDebugger)（本地亦可对照 `3rd/EmmyLuaDebugger`）。
 
@@ -111,15 +107,17 @@ Packages/com.code-philosophy.zlua/Plugins/emmylua/
 ```bat
 cmake -G "Visual Studio 17 2022" -A x64 ^
   -DCMAKE_USER_MAKE_RULES_OVERRIDE=<repo>/cmake/flags_override.cmake ^
-  -DEMMY_LUA_VERSION=<51|52|53|54|jit> ^
+  -DEMMY_LUA_VERSION=<51|52|53|54|55|jit> ^
   -DEMMY_CORE_VERSION=zlua ..
 cmake --build . --config Release --target emmy_core
 ```
 
-将 `emmy_core/Release/emmy_core.dll` 拷到 `Plugins/emmylua/<series>/win32-x64/`，并为 DLL / 目录编写 Unity `.meta`：`PluginImporter` **全平台 `enabled: 0`**（含 Editor），与现有 `lua55` 一致。  
-`jit` 产物放入唯一目录 **`luajit/win32-x64/`**（Emmy 不区分 JIT 小版本）。
+将 `emmy_core/Release/emmy_core.dll` 拷到 `Plugins/emmylua/<series>/win32-x64/`，并为 DLL / 目录编写 Unity `.meta`：`PluginImporter` **全平台 `enabled: 0`**（含 Editor）。  
+`jit` 产物放入唯一目录 **`luajit/win32-x64/`**（Emmy **不**区分 JIT 2.0 / 2.1；**不要**再编一份「luajit21」专用 `emmy_core`）。
 
-**非 Windows、或需更换 Emmy 版本时：** 阅读上游 README「Build Options」，对目标 OS/Arch 自建后放入 §3.1 对应目录；PluginImporter 同样全禁用。可选 `-DEMMY_USE_LUA_SOURCE=ON`（LuaJIT 还须按上游 `third-party/luajit` 说明准备静态库）——本包 Windows 随附二进制与官方 CI 一致，默认 **不**开 `EMMY_USE_LUA_SOURCE`（运行时动态解析宿主 Lua API）。
+**macOS 本包构建约定（维护者）：** 在 Mac 上按上游文档对 `EMMY_LUA_VERSION=51…55|jit` 分别编 `arm64` / `x86_64`，产物放入 `darwin-arm64` / `darwin-x64`；PluginImporter 同样全禁用。源码模式可用 `-DEMMY_USE_LUA_SOURCE=ON`。Lua 5.1 源码模式下若缺 `LUA_NUMTAGS`，须在 Emmy 侧兼容（本包已随附的 `lua51` darwin 二进制已处理）。
+
+**Linux、或需更换 Emmy 版本时：** 阅读上游 README「Build Options」，对目标 OS/Arch 自建后放入 §3.1 对应目录；PluginImporter 同样全禁用。本包 Windows 随附二进制可与官方 CI 一致（默认 **不**开 `EMMY_USE_LUA_SOURCE`，运行时动态解析宿主 Lua API）；macOS 随附多为源码模式构建。
 
 ZLua Install **不**自动编译 EmmyLuaDebugger。
 
@@ -127,7 +125,7 @@ ZLua Install **不**自动编译 EmmyLuaDebugger。
 
 `StartDebugger` 在注入脚本 **之前** 检查 `Plugins/emmylua/<series>/` 及当前 OS/Arch 子目录是否存在：
 
-- **不存在** → `Debug.LogError` 说明期望路径（可提示非 5.5 需自建），**跳过调试器，不抛异常**（不中断 `Initialize`）  
+- **不存在** → `Debug.LogError` 说明期望路径（可提示 Linux 非 `lua55` 等需自建），**跳过调试器，不抛异常**（不中断 `Initialize`）  
 - **存在** → 再 `require('emmy_core')`；`require`/listen 失败同样只打日志，不抛到宿主  
 
 ### 3.4 PluginImporter（强制）
@@ -243,7 +241,7 @@ dir = Plugins/emmylua/<series>/<platform>/
   → 拼接 cpath 并 require('emmy_core')
 ```
 
-Windows 已随附各系列（见 §3.2）；macOS/Linux 目前仅随附 **`lua55/`**，其它系列需自建。
+Windows / macOS 已随附 `lua51`–`lua55` 与 `luajit`（见 §3.2）；Linux 目前仅随附 **`lua55/`**，其它系列需自建。
 
 ### 6.3 与 ZLua 多版本的关系
 
@@ -253,14 +251,14 @@ Windows 已随附各系列（见 §3.2）；macOS/Linux 目前仅随附 **`lua55
 | `lua-5.2.*` → **`lua52`** | `52` |
 | `lua-5.3.*` → **`lua53`** | `53` |
 | `lua-5.4.*` → **`lua54`** | `54` |
-| `lua-5.5.*` → **`lua55`** | `55`（**本包随附**；上游默认） |
+| `lua-5.5.*` → **`lua55`** | `55`（上游默认） |
 | `luajit-2.0` / `luajit-2.1` → **`luajit`** | `jit` |
 
-目录名规则再次强调：**官方 Lua → `lua{major}{minor}`；LuaJIT → 统一 `luajit`**。
+目录名规则再次强调：**官方 Lua → `lua{major}{minor}`；LuaJIT → 统一 `luajit`**（**不要**按 `luajit20` / `luajit21` 拆 emmy 目录）。
 
-Windows 上各系列应使用对应目录下的随附 `emmy_core`；其它平台缺目录时按 [EmmyLuaDebugger](https://github.com/EmmyLua/EmmyLuaDebugger) 自建并放入上表路径。**不得**把错误系列目录的二进制挪到另一系列目录凑合使用。
+Windows / macOS 上各系列应使用对应目录下的随附 `emmy_core`；Linux 或缺目录时按 [EmmyLuaDebugger](https://github.com/EmmyLua/EmmyLuaDebugger) 自建并放入上表路径。**不得**把错误系列目录的二进制挪到另一系列目录凑合使用。
 
-LuaJIT 2.0 / 2.1 均用上游 `jit` 构建同一 `emmy_core`，只放在 **`luajit/`**。
+LuaJIT 2.0 / 2.1 均用上游 `jit` 构建**同一** `emmy_core`，只放在 **`luajit/`**。
 
 ZLua Install **不**自动编译 Emmy。
 
@@ -326,7 +324,7 @@ IDE 必须把 **Lua 源码根**（上例为 `Tests/Lua`）配进 Emmy 的 `sourc
 
 ### 10.1 前置条件
 
-1. Install / Settings 使 Editor 运行 **与 `emmy_core` 同系列** 的 Lua（随附库为 **5.5** → `lua55`）。  
+1. Install / Settings 使 Editor 运行 **与 `emmy_core` 同系列** 的 Lua（默认 `lua-5.5.0` → `lua55`；其它系列见 §3.2 随附矩阵）。  
 2. Project Settings → ZLua：`enableDebugger = true`，`debuggerPort` 与 IDE 一致（默认 **9966**），**`debuggerWaitIDE = false`**（推荐）。  
 3. 安装 EmmyLua 扩展；用 IDE **打开 Unity 工程根目录**。  
 4. Play / 触发 `LuaAppDomain.Initialize`；Console 出现 `EmmyLua debugger listening on 127.0.0.1:…`。  
@@ -398,8 +396,8 @@ Cursor / VS Code：打开工程根 → F5（上述配置）
 
 | 现象 | 排查 |
 |------|------|
-| Console：`EmmyLua debugger skipped` / 缺目录 | 当前系列无 `Plugins/emmylua/<series>/<platform>/`；Windows 各系列应已随附，其它 OS 按 §3.2 自建 |
-| `DllNotFoundException: lua55`（或其它系列） | Settings 已切 5.5 且 define 为 `ZLUA_LUA_5_5`，但 Editor 原生库未就绪：确认 `Plugins` 下存在对应 `lua55.dll`（或包内 `Plugins/lua/` 等实现路径），PluginImporter **Editor 启用**，改版本后已 **Install / 域重载** |
+| Console：`EmmyLua debugger skipped` / 缺目录 | 当前系列无 `Plugins/emmylua/<series>/<platform>/`；Win/macOS 各系列应已随附，Linux 非 `lua55` 按 §3.2 自建 |
+| `DllNotFoundException: lua55`（或其它系列） | Settings / define 已切对应系列，但 Editor 原生库未就绪：确认 `Plugins/lua/<series>/` 下存在对应 `luaXX.dll` / `.dylib`，PluginImporter **Editor 启用**，改版本后已 **Install / 域重载** |
 | IDE 连不上 / 超时 | Unity 是否已 listen；端口是否一致；host 是否 `127.0.0.1`；防火墙 |
 | 能连接，断点灰色 / Could not load source | **`sourcePaths` 未指向真实 Lua 根**（少写了 `Tests/Lua`）；或工作区不是工程根 |
 | 一开 Play Editor 假死 | 误开了 `debuggerWaitIDE`；关掉，或先 F5 再 Play |
@@ -412,8 +410,8 @@ Cursor / VS Code：打开工程根 → F5（上述配置）
 ## 11. 验收清单
 
 - [ ] `emmylua/**` 下所有 `emmy_core` 的 PluginImporter **全平台 disabled**  
-- [ ] Windows 随附 `lua51`–`lua55`、`luajit` 的 `win32-x64/emmy_core.dll`；macOS/Linux 非 `lua55` 须按 [EmmyLuaDebugger](https://github.com/EmmyLua/EmmyLuaDebugger) 自建  
-- [ ] 系列目录命名：`lua{major}{minor}` / `luajit{major}{minor}`  
+- [ ] Windows / macOS 随附 `lua51`–`lua55`、`luajit`（各平台子目录）；Linux 随附 `lua55/linux-x64`；其余按 [EmmyLuaDebugger](https://github.com/EmmyLua/EmmyLuaDebugger) 自建  
+- [ ] 系列目录命名：`lua{major}{minor}` / 统一 **`luajit`**（不按 2.0/2.1 拆分）  
 - [ ] `enableDebugger == false` 时无 listen、无 `cpath` 注入、无阻塞  
 - [ ] 当前系列目录缺失时：`LogError` 后 Initialize **成功完成**（不抛）  
 - [ ] Win / macOS (arm64+x64) / Linux Editor + 匹配系列：开启后 `require('emmy_core')` 成功且 IDE 可连接  

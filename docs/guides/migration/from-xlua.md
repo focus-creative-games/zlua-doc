@@ -57,11 +57,11 @@ LuaAppDomain.Initialize(moduleName =>
 
 #### 2A. 使用 xlua adaptor（减改写，推荐过渡）
 
-包内：`ZLua~/adaptors/xlua/`（`adaptor.lua` + `ExportTypes.cs`）。契约见 [规范 12](/docs/spec/12-MIGRATION-ADAPTORS/)。
+包内：`ZLua~/adaptors/xlua/ExportTypes.cs` + 共用 `ZLua~/adaptors/adaptor.lua`。契约见 [规范 12](/docs/spec/12-MIGRATION-ADAPTORS/)。
 
 1. 在 **仍含 xLua** 的工程复制 `ExportTypes.cs` → Editor，菜单 **`ZLua/ExportTypes`**
 2. 生成物按 `[LuaCallCSharp]` / 既有 Gen 白名单写出 `xlua_export_types.lua`（**不**扫全程序集）
-3. 将 `xlua_export_types.lua` 与 `adaptor.lua` 放入 ZLua 工程可 `require` 的 Lua 目录
+3. 将 `xlua_export_types.lua` 与 **`adaptor.lua`** 放入 ZLua 工程可 `require` 的 Lua 目录
 4. 在 `Initialize` 之后、业务脚本之前：
 
 ```lua

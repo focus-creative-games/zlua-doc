@@ -92,7 +92,15 @@ Gate 编译为独立原生库，**不**链死某一版 Lua：
 2. `zlua_gate_init(lua_touserdata, lua_error, upvalue_pseudo_base)`  
 3. `zlua_get_callback_gate()` → `lua_pushcclosure`
 
-源码：`ZLua~/mono-native/`。Plugins 在 **Editor** 启用（**无** `ZLUA_USE_LUAJIT` 限定）。`ZLua.Mono` asmdef 仅 Editor，故自然仅 Editor。
+源码：`ZLua~/mono-native/`。产物与 Editor Lua 系列库同放在 **`Plugins/lua/`**（见 §5），在 **Editor** 启用（**无** `ZLUA_USE_LUAJIT` 限定）。`ZLua.Mono` asmdef 仅 Editor，故自然仅 Editor。
+
+| 平台 | 随附文件 | 说明 |
+|------|----------|------|
+| Windows Editor x64 | `Plugins/lua/zlua_mono_gate.dll` | 本包随附 |
+| macOS Editor | `Plugins/lua/libzlua_mono_gate.dylib` | 本包随附；universal（arm64 + x86_64） |
+| Linux Editor | `Plugins/lua/libzlua_mono_gate.so` | 按 §5.4 自建后放入同目录 |
+
+Gate **一份即可**覆盖全部 PUC / LuaJIT 系列（切 `lua53` / `luajit21` 等 **不必** 重编 gate）。
 
 构建步骤见 **§5**。
 
@@ -151,8 +159,8 @@ Gate **不链接** Lua / LuaJIT；`lua_touserdata` / `lua_error` 在运行时由
 | 文件 | 作用 |
 |------|------|
 | `zlua_mono_gate.c` | Gate 实现 |
-| `build_zlua_mono_gate.ps1` | Windows x64 → `Plugins/x64/zlua_mono_gate.dll` |
-| `build_zlua_mono_gate_unix.sh` | macOS / Linux → `Plugins/macOS/libzlua_mono_gate.dylib` 或 `Plugins/Linux/libzlua_mono_gate.so` |
+| `build_zlua_mono_gate.ps1` | Windows x64 → `Plugins/lua/zlua_mono_gate.dll` |
+| `build_zlua_mono_gate_unix.sh` | macOS / Linux → `Plugins/lua/libzlua_mono_gate.dylib` 或 `Plugins/lua/libzlua_mono_gate.so` |
 
 `DllImport("zlua_mono_gate")` 由 Unity 映射到上述文件名（Windows 无 `lib` 前缀；Unix 为 `libzlua_mono_gate.*`）。
 
@@ -171,7 +179,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File `
 
 1. 调用 `vcvars64.bat`  
 2. `cl /O2 /LD /MD` 先产出到 `mono-native/zlua_mono_gate_build.dll`（避免 `/Fe` 直写 `Plugins` 时偶发不更新）  
-3. `Copy-Item -Force` 覆盖 `Plugins/x64/zlua_mono_gate.dll`  
+3. `Copy-Item -Force` 覆盖 `Plugins/lua/zlua_mono_gate.dll`  
 4. 清理 `.obj` / `.exp` / `.lib` 中间文件  
 5. 打印最终路径、大小与时间戳 — **请核对时间戳已变化**
 
@@ -189,8 +197,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -File `
 bash Packages/com.code-philosophy.zlua/ZLua~/mono-native/build_zlua_mono_gate_unix.sh
 ```
 
-产出：`Plugins/macOS/libzlua_mono_gate.dylib`（`clang -shared -fPIC -O2 -dynamiclib`）。  
-为 Apple Silicon / Intel 准备对应 `.meta` 的 CPU / 目录布局（可参考包内其它 OSX 插件）。
+产出：`Plugins/lua/libzlua_mono_gate.dylib`（默认 `ARCHS="arm64 x86_64"` → universal；`clang -shared -fPIC -O2 -dynamiclib`）。  
+`.meta`：Editor **启用**、OS **OSX**、CPU **AnyCPU**（与 universal 匹配）。
 
 ### 5.4 Linux Editor
 
@@ -200,9 +208,21 @@ bash Packages/com.code-philosophy.zlua/ZLua~/mono-native/build_zlua_mono_gate_un
 bash Packages/com.code-philosophy.zlua/ZLua~/mono-native/build_zlua_mono_gate_unix.sh
 ```
 
-产出：`Plugins/Linux/libzlua_mono_gate.so`（`gcc -shared -fPIC -O2`）。
+产出：`Plugins/lua/libzlua_mono_gate.so`（`gcc -shared -fPIC -O2`）。
 
-### 5.5 维护注意
+### 5.5 Editor Lua / Gate 布局（`Plugins/lua`）
+
+```text
+Plugins/lua/
+  lua51/… lua55/… luajit20/… luajit21/…   # 系列 Editor 库（见 11-MULTI-VERSION §8）
+  zlua_mono_gate.dll                      # Windows
+  libzlua_mono_gate.dylib                 # macOS
+  libzlua_mono_gate.so                    # Linux（可选自建）
+```
+
+**不要** 再放到 `Plugins/x64/`、`Plugins/macOS/` 等平台子目录。
+
+### 5.6 维护注意
 
 | 项 | 说明 |
 |----|------|
@@ -219,7 +239,7 @@ bash Packages/com.code-philosophy.zlua/ZLua~/mono-native/build_zlua_mono_gate_un
 |------|------------------|
 | Gate C 源 | `ZLua~/mono-native/zlua_mono_gate.c` |
 | 编译脚本 | `ZLua~/mono-native/build_zlua_mono_gate.ps1` / `build_zlua_mono_gate_unix.sh` |
-| 原生插件 | `Plugins/**/zlua_mono_gate*`（`DllImport("zlua_mono_gate")`） |
+| 原生插件 | `Plugins/lua/zlua_mono_gate*` / `libzlua_mono_gate*`（`DllImport("zlua_mono_gate")`） |
 | C# 门面 | `Runtime/Mono/Utils/LuaCallbackGate.cs` |
 | 错误边界 | `Runtime/Mono/Utils/LuaCallbackBoundary.cs`、`LuaDllExtension.error` |
 | 注册汇聚 | `ClosurePin`、`ZLuaLib`、`AssemblyRegistry`、`TypeRegistry*` 等 |

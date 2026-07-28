@@ -14,24 +14,23 @@ title: "宿主 API"
 
 ### 1.1 职责
 
-`ZLua.LuaAppDomain` 是宿主唯一推荐的初始化门面。后端通过 **`ILuaRuntime` + `LuaAppDomain.SetRuntime`** 注册（反转依赖，Common 不引用 Mono/Il2Cpp）：
+`ZLua.LuaAppDomain` 是宿主唯一推荐的初始化门面。Common **不** 引用 Mono/Il2Cpp；在 `Initialize` / `GetFunction` 时按环境 **反射创建** 后端嵌套类型 `Runtime : ILuaRuntime`：
 
-| 环境 | 后端 | 程序集 | 注册时机 |
-|------|------|--------|----------|
-| Editor | `LuaMonoAppDomain` | `ZLua.Mono` | `RuntimeInitializeOnLoadMethod(SubsystemRegistration)` |
-| Player | `LuaIl2CppAppDomain` | `ZLua.Il2Cpp` | 同上（`#if !UNITY_EDITOR`，避免 Editor 双注册） |
+| 环境 | 后端宿主类型 | 程序集 | 创建方式 |
+|------|--------------|--------|----------|
+| Editor | `LuaMonoAppDomain` | `ZLua.Mono` | `Activator.CreateInstance(…+Runtime)` |
+| Player | `LuaIl2CppAppDomain` | `ZLua.Il2Cpp` | 同上（`#if !UNITY_EDITOR` 分支） |
 
 ```csharp
 public interface ILuaRuntime
 {
     void Initialize(Func<string, object> moduleLoader);
     void ProcessPendingRefReleases();
+    Delegate GetFunction(Type delegateType, string luaModule, string luaMethodName);
 }
 
 public static class LuaAppDomain
 {
-    public static void SetRuntime(ILuaRuntime runtime); // 由后端程序集调用
-
     public static void Initialize(Func<string, object> moduleLoader);
 
     public static T GetFunction<T>(string luaModule, string luaMethodName)
@@ -41,6 +40,7 @@ public static class LuaAppDomain
 }
 ```
 
+**不** 使用 `RuntimeInitializeOnLoadMethod` / `SetRuntime` 做隐式注册；首次 `Initialize`（或 `GetFunction`）时解析后端。
 ### 1.2 模块加载器
 
 `moduleLoader(moduleName)` 由宿主提供，返回 Lua 模块源码（通常为 `string`）。native 通过 `__zlua_load_module` 与 package.searchers 集成。

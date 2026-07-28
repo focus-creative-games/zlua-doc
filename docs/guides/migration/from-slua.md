@@ -55,11 +55,11 @@ LuaAppDomain.Initialize(moduleLoader);
 
 #### 3A. 使用 slua adaptor（减改写，推荐过渡）
 
-包内：`ZLua~/adaptors/slua/`。契约见 [规范 12](/docs/spec/12-MIGRATION-ADAPTORS/)。
+包内：`ZLua~/adaptors/slua/ExportTypes.cs` + 共用 `ZLua~/adaptors/adaptor.lua`。契约见 [规范 12](/docs/spec/12-MIGRATION-ADAPTORS/)。
 
 1. 在 **仍含 SLua** 的工程复制 `ExportTypes.cs` → Editor，菜单 **`ZLua/ExportTypes`**
 2. 按 `[CustomLuaClass]` 等既有导出标记生成 `slua_export_types.lua`
-3. 将清单与 `adaptor.lua` 放入 ZLua 工程可 `require` 的目录
+3. 将清单与 **`adaptor.lua`** 放入 ZLua 工程可 `require` 的目录
 4. 入口：
 
 ```lua

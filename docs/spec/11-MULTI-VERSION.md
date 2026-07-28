@@ -243,9 +243,20 @@ Library/ZLua/LuaSrcCache/
 | 路径 | PUC-Rio | LuaJIT |
 |------|---------|--------|
 | **Il2Cpp Player** | 缓存中的精确小版本 **源码** 进 `libil2cpp/lua`；§5.2 需要时再加 `patches/lua` | **仅头文件**进 `libil2cpp/lua`；**Android/iOS 静态 `.a` 由开发者放入 Plugins**（见 [build/02-LUAJIT.md](/docs/spec/build/02-LUAJIT/)） |
-| **Editor（Mono）** | `Plugins` 系列 DLL（`lua53` / …），开发者自备；Mono **不**实现 FastMT | `Plugins` 动态库（如 `luajit21`）；Win64 另需 callback gate；Mono **不**实现 FastMT |
+| **Editor（Mono）** | `Plugins/lua/<series>/`（如 `lua53/{lua53.dll,lua53.dylib}`）；Mono **不**实现 FastMT | `Plugins/lua/luajit20/`、`luajit21/`；另需 [`zlua_mono_gate`](/docs/spec/build/03-MONO-LUAJIT-CALLBACK-GATE/)（同目录）；Mono **不**实现 FastMT |
 
-Editor 与 Player 所用补丁号 / 构建选项不必逐位相同，但 **API 族与关键宏** 应一致。缺 Editor DLL 时 Install **仅警告**，不阻断。切换系列后须重启 Editor。  
+Editor 与 Player 所用补丁号 / 构建选项不必逐位相同，但 **API 族与关键宏** 应一致。缺 Editor 原生库时 Install **仅警告**，不阻断。切换系列后须重启 Editor。
+
+**本包 Editor 随附（维护现状）：**
+
+| 系列 | Windows | macOS |
+|------|---------|-------|
+| `lua51` … `lua55` | `.dll` | `.dylib`（universal 优先） |
+| `luajit21` | `.dll` | `.dylib` |
+| `luajit20` | `.dll` | `.dylib`（**仅 x86_64**；上游 2.0 无 arm64） |
+| `zlua_mono_gate` | `Plugins/lua/zlua_mono_gate.dll` | `Plugins/lua/libzlua_mono_gate.dylib`（universal） |
+
+EmmyLua 调试库随附见 [build/04-EMMYLUA-DEBUGGER.md](/docs/spec/build/04-EMMYLUA-DEBUGGER/)（**`emmylua/luajit/` 不区分 2.0/2.1**）。
 
 **LuaJIT + Il2Cpp：** 发布面 **仅 Android / iOS**（开发者提供静态 `.a`）；**不支持** Win / macOS / Linux / WebGL 等 Il2Cpp Player。细则见 [build/02-LUAJIT.md](/docs/spec/build/02-LUAJIT/)。
 
@@ -277,7 +288,9 @@ Editor 与 Player 所用补丁号 / 构建选项不必逐位相同，但 **API �
 
 | 宏 | 何时定义 | 用途 |
 |----|----------|------|
-| `ZLUA_USE_LUAJIT` | 选定 LuaJIT | 引擎差异；DLL 名与 API 裁剪 |
+| `ZLUA_USE_LUAJIT` | 选定 LuaJIT | 引擎差异；与 `ZLUA_LUAJIT_2_0` / `ZLUA_LUAJIT_2_1` 搭配选 `luajit20` / `luajit21` |
+| `ZLUA_LUAJIT_2_1` | `luajit-2.1` | Editor 逻辑名 `luajit21` |
+| `ZLUA_LUAJIT_2_0` | `luajit-2.0` | Editor 逻辑名 `luajit20` |
 | `ZLUA_LUA_5_5` | PUC-Rio 5.5.x（任意小版本） | **API 族** + Editor DLL 逻辑名 `lua55` |
 | `ZLUA_LUA_5_4` | PUC-Rio 5.4.x（任意小版本） | **API 族** + Editor DLL 逻辑名 `lua54` |
 | `ZLUA_LUA_5_3` | PUC-Rio 5.3.x（任意小版本） | **API 族** + Editor DLL 逻辑名 `lua53` |
@@ -288,11 +301,11 @@ Editor 与 Player 所用补丁号 / 构建选项不必逐位相同，但 **API �
 
 - **不需要** `ZLUA_LUA_5_4_7` 这类精确小版本宏：源码小版本只影响 Install 拷贝的树与 fingerprint，不进入 `LUA_DLL` 映射。  
 - API 族宏对应原讨论中的「`LUA_FEAT_5_4_X`」语义，命名用 `ZLUA_LUA_5_4`，**不要** 使用易误解的 `_X` 后缀。  
-- LuaJIT：定义 `ZLUA_USE_LUAJIT`；API 裁剪按 JIT 分支（实现时与 `ZLUA_LUA_5_1` 是否并存写死一种）。
+- LuaJIT：定义 `ZLUA_USE_LUAJIT`，并按小版本定义 `ZLUA_LUAJIT_2_0` 或 `ZLUA_LUAJIT_2_1`（与 `LuaDllName` / Plugins 目录一致）。
 
 ### 7.2 互斥
 
-同一时刻仅允许一套「引擎 + API 族」组合。Installer 在写入前移除旧的 `ZLUA_LUA_*` / `ZLUA_USE_LUAJIT`，再按当前 `luaVersionId` 的系列写入新集。
+同一时刻仅允许一套「引擎 + API 族 / JIT 小版本」组合。Installer 在写入前移除旧的 `ZLUA_LUA_*` / `ZLUA_USE_LUAJIT` / `ZLUA_LUAJIT_2_*`，再按当前 `luaVersionId` 写入新集。
 
 ---
 
@@ -302,22 +315,26 @@ Editor 与 Player 所用补丁号 / 构建选项不必逐位相同，但 **API �
 
 | 项 | 规则 |
 |----|------|
-| **携带粒度** | 可选随包带某系列 DLL；**开发者按所用系列自行替换** |
-| **逻辑名** | `lua` + `major` + `minor` → `lua51`、`lua52`、`lua53`、`lua54`、`lua55`（无 patch 位） |
-| **LuaJIT** | `luajit` |
+| **布局** | `Plugins/lua/<series>/`（PUC / LuaJIT）+ 同目录下的 `zlua_mono_gate*`（见 [03](/docs/spec/build/03-MONO-LUAJIT-CALLBACK-GATE/)） |
+| **携带粒度** | 可选随包带某系列库；**开发者可按所用系列自行替换** |
+| **逻辑名（PUC）** | `lua` + `major` + `minor` → `lua51`…`lua55`（无 patch 位） |
+| **逻辑名（LuaJIT）** | `luajit20` / `luajit21`（与 Settings `luajit-2.0` / `luajit-2.1` 对应；**不是** 笼统 `luajit`） |
 | **Install** | 缺失时 **警告**，不失败 |
 
-| Settings 源码 id（示例） | API 族宏 | Editor 逻辑名 | Windows 示例 |
-|--------------------------|----------|---------------|--------------|
-| `lua-5.1.5` | `ZLUA_LUA_5_1` | `lua51` | `lua51.dll` |
-| `lua-5.2.4` | `ZLUA_LUA_5_2` | `lua52` | `lua52.dll` |
-| `lua-5.3.6` / `lua-5.3.0` | `ZLUA_LUA_5_3` | `lua53` | `lua53.dll` |
-| `lua-5.4.7` / `lua-5.4.1` | `ZLUA_LUA_5_4` | `lua54` | `lua54.dll` |
-| `lua-5.5.0` | `ZLUA_LUA_5_5` | `lua55` | `lua55.dll` |
-| `luajit-…` | `ZLUA_USE_LUAJIT` | `luajit`（约定） | `luajit.dll` |
+| Settings 源码 id（示例） | API 族 / JIT 宏 | Editor 逻辑名 | Windows | macOS |
+|--------------------------|-----------------|---------------|---------|-------|
+| `lua-5.1.5` | `ZLUA_LUA_5_1` | `lua51` | `lua51.dll` | `lua51.dylib` |
+| `lua-5.2.4` | `ZLUA_LUA_5_2` | `lua52` | `lua52.dll` | `lua52.dylib` |
+| `lua-5.3.6` / `lua-5.3.0` | `ZLUA_LUA_5_3` | `lua53` | `lua53.dll` | `lua53.dylib` |
+| `lua-5.4.7` / `lua-5.4.1` | `ZLUA_LUA_5_4` | `lua54` | `lua54.dll` | `lua54.dylib` |
+| `lua-5.5.0` | `ZLUA_LUA_5_5` | `lua55` | `lua55.dll` | `lua55.dylib` |
+| `luajit-2.0` | `ZLUA_USE_LUAJIT` + `ZLUA_LUAJIT_2_0` | `luajit20` | `luajit20.dll` | `luajit20.dylib`（**仅 x86_64**） |
+| `luajit-2.1` | `ZLUA_USE_LUAJIT` + `ZLUA_LUAJIT_2_1` | `luajit21` | `luajit21.dll` | `luajit21.dylib` |
 
 同一系列下切换源码小版本（如 `5.4.1`→`5.4.7`）**不改变** `LUA_DLL` 与 Plugins 文件名，只改变 Il2Cpp 内嵌源码树。  
-用户若要在 Editor 使用其它构建，自行替换包内或工程侧对应 `luaXX.dll` 即可（注意 Windows 已加载锁定，须重启 Editor）。
+用户若要在 Editor 使用其它构建，自行替换 `Plugins/lua/<series>/` 下对应文件即可（注意 Windows 已加载锁定，须重启 Editor）。
+
+EmmyLua 调试模块目录名 **`emmylua/luajit/`** 与上表 Editor 逻辑名不同：2.0/2.1 **共用** 一份 `emmy_core`（见 [04](/docs/spec/build/04-EMMYLUA-DEBUGGER/)）。
 
 ### 8.2 `LuaDllName.cs`
 
@@ -351,8 +368,8 @@ namespace ZLua
 #elif ZLUA_LUA_5_1
         public const string LUA_DLL = "lua51";
 #else
-        // Default matches Settings default lua-5.5.0 → series lua53.
-        public const string LUA_DLL = "lua53";
+        // Default matches Settings default lua-5.5.0 → series lua55.
+        public const string LUA_DLL = "lua55";
 #endif
     }
 }

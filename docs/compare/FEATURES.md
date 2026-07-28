@@ -15,7 +15,7 @@ title: "特性与用法对比"
 | 维度 | xLua | toLua / tolua# | SLua | ZLua |
 |------|------|----------------|------|------|
 | **Lua 引擎** | 独立 **libxlua**（P/Invoke） | 内嵌或绑定原生 lua | 内嵌 lua | 链入 **libil2cpp**（Player）/ 内嵌（Editor） |
-| **类型入口** | `CS.Namespace.Type` | 导出全局 / 包装类 | 类似 toLua + 配置 | `CSharp[assembly]['Full.Name']` 懒加载 |
+| **类型入口** | `CS.Namespace.Type` | `Namespace.Type`（BeginModule 链） | 类似 toLua + 配置 | `CSharp[assembly]['Full.Name']` 懒加载 |
 | **Lua→C# 桥** | 生成 **C# Wrap** + `LuaDLL` | 生成 `*.Wrap.cs` | 自动绑定 + 导出 | C++ MethodBridge（Il2Cpp）/ Expression Emit（Mono） |
 | **C#→Lua** | `LuaEnv` + `LuaFunction` + 多次 `LuaDLL` | `LuaState` / `LuaFunction` | `LuaSvr` / `LuaFunction` | `GetFunction<T>` + Delegate 桥 |
 | **白名单 / 导出** | `[LuaCallCSharp]` / `[CSharpCallLua]` + Generate | 手动列表 / Binder | 导出配置 / Attribute | **无** LuaCall 白名单；按 **public** + 懒 Bind |
@@ -33,7 +33,7 @@ title: "特性与用法对比"
 | 方案 | 典型写法 |
 |------|----------|
 | xLua | `CS.MyGame.Demo` |
-| toLua | `Demo`（导出后全局）或 `UnityEngine.GameObject` |
+| toLua | `UnityEngine.GameObject`（BeginModule 命名空间链；非仅全局短名） |
 | SLua | `UnityEngine.GameObject`（自动导出命名空间） |
 | ZLua | `CSharp['Assembly-CSharp']['MyGame.Demo']` 或 `CSharp.AC['MyGame.Demo']` |
 
@@ -229,7 +229,7 @@ OnTick(0.016f);
 |----|------|--------------|------|
 | C# **Event** 语法糖 | 有 | 视版本 | **无** → `add_Xxx` / `remove_Xxx` |
 | 运行时继承查找 | 有 | 有 | **无**（Bind 期扁平化） |
-| `CS.` / 全局短名 / `UnityEngine.*` | 有 | 有（形态不同） | 原生用 **`CSharp`**；迁移期可用 [adaptors](/docs/spec/12-MIGRATION-ADAPTORS/) |
+| `CS.` / `UnityEngine.*` 等 | 有 | 有（形态不同） | 原生用 **`CSharp`**；迁移期可用 [adaptors](/docs/spec/12-MIGRATION-ADAPTORS/) |
 | 热路径反射 Invoke | 兜底 | 部分 | **显式错误** |
 | 跨帧 Opaque | N/A | N/A | **禁止** |
 | 任意 Lua function 存成永久 delegate 无 GC 顾虑 | 需注意 translator | 需注意 | 须理解 [spec/10-LIFETIME.md](/docs/spec/10-LIFETIME/) |
