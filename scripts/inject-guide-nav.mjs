@@ -19,7 +19,7 @@ const chain = [
   {slug: '/docs/guides/debugger/', title: 'EmmyLua 调试器'},
   {slug: '/docs/guides/lua-calling-csharp/', title: 'Lua 调用 C#'},
   {slug: '/docs/guides/csharp-calling-lua/', title: 'C# 调用 Lua'},
-  {slug: '/docs/guides/value-types/', title: '值类型与基础 0GC'},
+  {slug: '/docs/guides/value-types/', title: '值类型'},
   {slug: '/docs/guides/functions/', title: 'Function 与 Delegate'},
   {slug: '/docs/guides/arrays/', title: '数组'},
   {slug: '/docs/guides/generics/', title: '泛型'},

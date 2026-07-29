@@ -1,12 +1,14 @@
 ---
 sidebar_position: 6
-title: 值类型与基础 0GC
-description: enum、struct、Nullable；Table / UnpackedValues 高级传参。
+title: 值类型
+description: enum、struct、Nullable 的默认跨边界形态与常见用法。
 ---
 
-# 值类型与基础 0GC
+# 值类型
 
-**enum**、**struct**、**Nullable\<T\>** 均为值类型相关形态。行为以 [Struct Marshal](/docs/spec/marshal/05-STRUCT/)、[Enum Marshal](/docs/spec/marshal/08-ENUM/) 为准。系统的 0GC 套路见 [0GC Marshal](/docs/guides/zero-gc-marshal/)。
+**enum**、**struct**、**Nullable\<T\>** 均为值类型相关形态。行为以 [Struct Marshal](/docs/spec/marshal/05-STRUCT/)、[Enum Marshal](/docs/spec/marshal/08-ENUM/) 为准。
+
+需要 `Table` / `UnpackedValues` / Opaque 等少分配套路时，见 [LuaMarshalAs](/docs/guides/lua-marshal-as/)、[0GC Marshal](/docs/guides/zero-gc-marshal/)。
 
 ## 形态对照
 
@@ -16,7 +18,7 @@ description: enum、struct、Nullable；Table / UnpackedValues 高级传参。
 | **struct** | ByValUserData 等（见规范） | `Type(...)` / `_default()` |
 | **Nullable\<T\>** | 有值同 `T`；无值 → Lua `nil` | — |
 
-默认 **不能** 用 `{ X=1, Y=2 }` 或 `foo(x, y)` 组装 struct 传入 C#，须 `Type(...)` / ByVal userdata，或显式 `[LuaMarshalAs(Table|UnpackedValues)]`。
+默认 **不能** 用 `{ X=1, Y=2 }` 或 `foo(x, y)` 组装 struct 传入 C#，须 `Type(...)` / ByVal userdata，或显式 `[LuaMarshalAs(Table|UnpackedValues)]`（见上）。
 
 ## enum
 
@@ -60,55 +62,6 @@ p.Y = 20
 - 有值时按底层 `T` 的规则 Marshal  
 - 不要给非 Nullable 的值类型传 `nil`  
 
-## 高级：`UnpackedValues` / `Table`
-
-需要「像多返回值 / 像 table」传 struct 时，在 C# 侧标 `[LuaMarshalAs]`（仅 **struct** / 闭合泛型 struct；`Table` 另允许 **`Nullable<struct>`**）。细则与更多例子见 [LuaMarshalAs](/docs/guides/lua-marshal-as/)。
-
-### UnpackedValues — 多栈槽（无 table、无 ByVal userdata）
-
-适合热路径展开 `Vector2` / `Vector3` 等；Lua 侧只传数字，**不**为 struct 建 userdata 或 table。
-
-```csharp
-public void Move(
-    [LuaMarshalAs(LuaMarshalType.UnpackedValues, Members = new[] { "X", "Y" })]
-    Vector2 delta) { }
-```
-
-```lua
-host:Move(1.0, 2.0)   -- 两槽 → X, Y；占用 2 个参数位
-```
-
-:::note
-`UnpackedValues` **不能**标在 `Nullable<T>` 上（多槽无法用 `nil` 区分「无值」）。可空 struct 用下面的 `Table`。
-:::
-
-### Table — 单个 Lua table
-
-适合可读的键值组装；`Nullable<struct>` 可用 `nil` 表示无值。
-
-```csharp
-public void Place(
-    [LuaMarshalAs(LuaMarshalType.Table, Members = new[] { "X", "Y", "Z?" })]
-    Vector3? pos) { }   // 或非 Nullable 的 Vector3
-```
-
-```lua
-host:Place({ X = 1, Y = 2 })   -- Z 可选（Members 里带 ?）
-host:Place(nil)                -- 仅 Nullable：无值
-```
-
-`Table` 会在 Lua 侧用到 **table**（有分配）；要追求 Lua 侧更少分配，优先 `UnpackedValues` 或 [0GC Marshal](/docs/guides/zero-gc-marshal/)。
-
-## 简单 0GC 直觉
-
-| 建议 | 原因 |
-|------|------|
-| 字段直访 `p.X` | 少一层方法调用；Il2Cpp 可走 offset |
-| enum 用 integer 常量 | 避免无谓 boxing |
-| 热路径传 struct 用 `UnpackedValues` | 避免 ByVal userdata / table |
-| 搞清 by-val **拷贝** | 要写回须 `ref` / Opaque |
-| 避免每帧走 dispatch | `[LuaAlias]` / `register_method` 或缓存 closure |
-
 ## 完整示例（示意）
 
 ```csharp
@@ -138,13 +91,9 @@ print(Vec2.Dot(Vec2(1, 0), Vec2(0, 1)))
 |------|------|
 | enum 当 userdata 比较失败 | 用 integer 比较 |
 | struct 修改未回写 | by-val 拷贝；改用 `ref` / `new_ref` |
-| `{X=,Y=}` 传入未标注的 struct | 标 `Table`，或先 `Type(...)` |
-| `foo(x,y)` 传入未标注的 struct | 标 `UnpackedValues` |
+| `{X=,Y=}` 传入未标注的 struct | 标 `Table`（见 [LuaMarshalAs](/docs/guides/lua-marshal-as/)），或先 `Type(...)` |
+| `foo(x,y)` 传入未标注的 struct | 标 `UnpackedValues`（见 [0GC Marshal](/docs/guides/zero-gc-marshal/)） |
 | `ref struct` 作 by-val | 不支持 |
-
-
-
-
 
 ## 学习路径
 

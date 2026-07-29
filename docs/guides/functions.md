@@ -91,11 +91,12 @@ handler:Invoke(42)
 
 
 
+
 ## 学习路径
 
 | | |
 |---|---|
-| **上一篇** | [值类型与基础 0GC](/docs/guides/value-types/) |
+| **上一篇** | [值类型](/docs/guides/value-types/) |
 | **下一篇** | [数组](/docs/guides/arrays/) |
 
 ## 相关文档

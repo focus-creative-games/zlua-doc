@@ -11,7 +11,7 @@ export const GUIDE_NAV: GuideNavItem[] = [
   {slug: 'debugger', title: 'EmmyLua 调试器'},
   {slug: 'lua-calling-csharp', title: 'Lua 调用 C#'},
   {slug: 'csharp-calling-lua', title: 'C# 调用 Lua'},
-  {slug: 'value-types', title: '值类型与基础 0GC'},
+  {slug: 'value-types', title: '值类型'},
   {slug: 'functions', title: 'Function 与 Delegate'},
   {slug: 'arrays', title: '数组'},
   {slug: 'generics', title: '泛型'},

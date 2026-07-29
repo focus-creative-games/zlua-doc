@@ -100,12 +100,13 @@ var battleTick = LuaAppDomain.GetFunction<Action<float>>("battle", "tick");
 
 
 
+
 ## 学习路径
 
 | | |
 |---|---|
 | **上一篇** | [Lua 调用 C#](/docs/guides/lua-calling-csharp/) |
-| **下一篇** | [值类型与基础 0GC](/docs/guides/value-types/) |
+| **下一篇** | [值类型](/docs/guides/value-types/) |
 
 ## 相关文档
 
