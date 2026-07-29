@@ -158,6 +158,9 @@ Settings **MarshalAs Xml Paths**；Mono 运行时解析；Il2Cpp 在 **Generate*
 要点：`Param` 用 **`index`（0-based，不含 this）**；`type` 用 **`OpaqueValue`**（勿用废弃名）；别名走独立 `luaAliasXmlPaths`。完整 schema 见 [规范 §9](/docs/spec/marshal/02-MARSHAL-AS/)。
 
 
+
+
+
 ## 学习路径
 
 | | |

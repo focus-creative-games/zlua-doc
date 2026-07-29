@@ -41,6 +41,7 @@ description: UPM 引入 ZLua，用 Settings 选定 Lua 版本并完成本地 Ins
 | **Enable** | 是否启用 ZLua |
 | **Lua Version Id** | Lua / LuaJIT 版本 id；空则默认 **`lua-5.5.0`** |
 | **MarshalAs Xml Paths** | 可选；预编译程序集的 MarshalAs XML，见 [LuaMarshalAs](/docs/guides/lua-marshal-as/) |
+| **Lua Alias Xml Paths** | 可选；方法换名 XML（`ZLuaAlias`），见 [LuaAlias](/docs/guides/lua-alias/) |
 
 **`luaVersionId` 写法：**
 
@@ -84,6 +85,9 @@ PUC-Rio 缓存一般在 `Library/ZLua/LuaSrcCache/`（如 `lua-5.5.0/`）。
 | 提示未 Install | 执行 `ZLua/Install...`；换 Unity / 换 Lua 版本后重跑 |
 | 下载 Lua 失败 | 检查 `luaVersionId` 与网络；见 [多版本管理](/docs/spec/11-MULTI-VERSION/) |
 | 换系列后异常 | 按日志 **重启 Editor** |
+
+
+
 
 
 

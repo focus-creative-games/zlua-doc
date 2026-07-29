@@ -27,6 +27,7 @@ const chain = [
   {slug: '/docs/guides/lua-marshal-as/', title: 'LuaMarshalAs'},
   {slug: '/docs/guides/zero-gc-marshal/', title: '0GC Marshal'},
   {slug: '/docs/guides/overloads/', title: '方法重载'},
+  {slug: '/docs/guides/lua-alias/', title: 'LuaAlias'},
   {slug: '/docs/guides/zlua-lib/', title: '常用 zlua 库'},
   {slug: '/docs/guides/migration/', title: '迁移指南'},
   {slug: '/docs/guides/troubleshooting/', title: '排错指南'},

@@ -50,7 +50,7 @@ description: ZLua C# 特性与 Lua API 索引。
 | Function | [functions](/docs/guides/functions/) |
 | 数组 / 泛型 | [arrays](/docs/guides/arrays/) · [generics](/docs/guides/generics/) |
 | ref / MarshalAs / 0GC | [ref-out-in](/docs/guides/ref-out-in/) · [lua-marshal-as](/docs/guides/lua-marshal-as/) · [zero-gc-marshal](/docs/guides/zero-gc-marshal/) |
-| 重载 / zlua 库 | [overloads](/docs/guides/overloads/) · [zlua-lib](/docs/guides/zlua-lib/) |
+| 重载 / LuaAlias / zlua 库 | [overloads](/docs/guides/overloads/) · [lua-alias](/docs/guides/lua-alias/) · [zlua-lib](/docs/guides/zlua-lib/) |
 | 迁移 | [migration](/docs/guides/migration/) |
 
 ## 权威规范

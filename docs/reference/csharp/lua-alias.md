@@ -96,7 +96,7 @@ public void Run(string value) { }  // 默认名仍进 "Run" 组
 | `[LuaAlias]` / XML | 类型 `EnsureBinding` 时 | 编译期固定短名、热路径首选 |
 | `zlua.register_method` | Lua 运行时 | 把 direct（常来自全签名键）挂成自定义短名，便于 `obj:alias(...)` |
 
-`[LuaAlias]` 与 `register_method` 都是 methodTable 上的 **额外短名**；全签名键解决「点名哪一个重载」，短名解决「好读 + 冒号」。
+`[LuaAlias]` / XML 是 methodTable 上的 **换名**（替换默认键）；全签名键解决「点名哪一个重载」；`register_method` 在运行时挂 **额外** 空位短名。
 
 ## Mono / Il2Cpp 支持
 
@@ -107,6 +107,7 @@ public void Run(string value) { }  // 默认名仍进 "Run" 组
 
 ## 相关文档
 
+- [LuaAlias 指南](/docs/guides/lua-alias/)
 - [方法重载指南](/docs/guides/overloads/)
 - [方法重载规范](/docs/spec/04-METHOD-OVERLOAD/) §5
 - [LuaAlias 源码](https://github.com/focus-creative-games/zlua/blob/main/Runtime/Common/LuaAliasAttribute.cs)

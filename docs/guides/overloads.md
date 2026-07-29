@@ -58,8 +58,11 @@ public void Run(string value) { }
 ```
 
 ```lua
-demo:run_i32(10)    -- 短名 + 冒号，O(1)
+demo:run_i32(10)    -- 短名 + 冒号，O(1)；Run(int) 已换名，不再挂 "Run"
+demo:Run("hi")      -- 未换名的 Run(string)
 ```
+
+别名是 **换名**（替换默认 Lua 键），不是追加。XML（`luaAliasXmlPaths` / `ZLuaAlias`）与更多例子见 [LuaAlias](/docs/guides/lua-alias/)。
 
 ## `register_method`：短名 + 冒号
 
@@ -91,14 +94,16 @@ demo:run_i32(5)
 
 
 
+
 ## 学习路径
 
 | | |
 |---|---|
 | **上一篇** | [0GC Marshal](/docs/guides/zero-gc-marshal/) |
-| **下一篇** | [常用 zlua 库](/docs/guides/zlua-lib/) |
+| **下一篇** | [LuaAlias](/docs/guides/lua-alias/) |
 
 ## 相关文档
 
-- [方法重载规范](/docs/spec/04-METHOD-OVERLOAD/) §3.7、§6  
+- [LuaAlias 指南](/docs/guides/lua-alias/) — Attribute + XML 专篇  
+- [方法重载规范](/docs/spec/04-METHOD-OVERLOAD/) §3.7、§5、§6  
 - [常用 zlua 库](/docs/guides/zlua-lib/)

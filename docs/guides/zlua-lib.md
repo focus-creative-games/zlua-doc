@@ -79,11 +79,14 @@ local d = zlua.to_delegate(fn, ActionIntType)  -- 第二参须已闭合
 
 
 
+
+
+
 ## 学习路径
 
 | | |
 |---|---|
-| **上一篇** | [方法重载](/docs/guides/overloads/) |
+| **上一篇** | [LuaAlias](/docs/guides/lua-alias/) |
 | **下一篇** | [迁移指南](/docs/guides/migration/) |
 
 ## 相关文档
