@@ -141,7 +141,7 @@ Mono Phase 3：`ConstructorEmitter` 已替换 `ConstructorNotReady`；当前按 
 |----|------|
 | `byref` 参数 | `GetConversionKind` 中 `FIXME: handle byref`；当前仅 lightuserdata Identity |
 | 静态 generic method | `InvokeMethodDirectGeneric` → 显式 error |
-| `[LuaMarshalAs(ParamsTable)]` | 需与 params 打包规则同步（见 spec §3.3） |
+| `[LuaMarshalAs(ParamsTable)]` | （已移除；`params` 仅单槽同 szarray） |
 
 实现或修复时须同步更新 spec 测试与 Mono Emit。
 

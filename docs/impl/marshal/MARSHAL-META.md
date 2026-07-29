@@ -51,7 +51,7 @@ Mono Phase 1+ 在 managed 侧用 delegate / 编译闭包模拟同等「绑定期
 
 1. 根据 `Il2CppType*` 分类（primitive / string / enum / class / struct / array / delegate / pointer …）；
 2. 选择预定义的 `Lua2CSMarshalXxx` / `CS2LuaMarshalXxx` 或 `ObjectMarshal` / `StructMarshal` / `OpaqueValueMarshal` 子路径；
-3. 应用 `[LuaMarshalAs]`（若存在）→ 切换 `LuaMarshalType`（UserData、Bytes、Opaque、ParamsTable 等，见 spec [02-MARSHAL-AS](/docs/spec/marshal/02-MARSHAL-AS/)）；
+3. 应用 `[LuaMarshalAs]`（若存在）→ 切换 `LuaMarshalType`（UserData、Bytes、Opaque、Table、UnpackedValues 等，见 spec [02-MARSHAL-AS](/docs/spec/marshal/02-MARSHAL-AS/)）；
 4. 填充 `size`、`passByValue`、`typeKlass`；
 5. `luaByValRefIndex` / `luaByObjRefIndex` 初始为 `LUA_NOREF`，首次 push 时 `EnsureByValMetatableRefSlow` 懒绑定。
 

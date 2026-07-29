@@ -74,20 +74,11 @@ local c = zlua.cast(o, Child)          -- 门面 Child（须 IsAssignableFrom）
 
 ---
 
-## 3. `Table` / `UnpackedValues`（class / interface）
+## 3. `Table` / `UnpackedValues`（不适用于 class / interface）
 
-**class** 与 **interface** **默认** 均为 **ByObjUserData**（ClassUserData），**不** 默认接受 Lua table 或多栈参数整对象组装。
+**class** 与 **interface** **不允许** `[LuaMarshalAs(Table)]` / `[LuaMarshalAs(UnpackedValues)]`（合法集合见 [`02-MARSHAL-AS.md`](/docs/spec/marshal/02-MARSHAL-AS/) §3）。引用类型保持默认 **ByObjUserData** 与成员访问即可。
 
-须显式标注 [`[LuaMarshalAs]`](/docs/spec/marshal/02-MARSHAL-AS/) 的 `Table` 或 `UnpackedValues`，并配置 **`Members`**（`string[]`，field/property 可混合）：
-
-| 形态 | Lua 侧 | 说明 |
-|------|--------|------|
-| **`Table`** | 单个 table ↔ 名单成员 | 键为成员名；可选 `?` 后缀见 [`02-MARSHAL-AS.md`](/docs/spec/marshal/02-MARSHAL-AS/) |
-| **`UnpackedValues`** | 连续 N 个栈槽 ↔ 名单成员 | 顺序与名单一致 |
-
-Pop 时须能构造 **实现该接口的实例** 或 class 实例（如无参 ctor + property setter，或实现层规定的工厂）；名单内成员须为接口 / 类型上可访问的 public field/property；**引用类型成员** 按该成员类型的 §1 默认规则递归 Pop/Push。
-
-**interface** 与 **class** / **struct** 一样，**允许** `Table` / `UnpackedValues`（合法集合见 [`02-MARSHAL-AS.md`](/docs/spec/marshal/02-MARSHAL-AS/)）。
+误标时：**Mono** 错误日志并回退 `Default`；**Il2Cpp Generate / XML** 可硬失败。
 
 ---
 
@@ -97,7 +88,7 @@ Pop 时须能构造 **实现该接口的实例** 或 class 实例（如无参 ct
 |----|------|
 | **默认** C# ↔ Lua | **ByObjUserData**（ClassUserData）；门面 = **接口声明类型**（非实现类） |
 | `nil` | ↔ `null` |
-| `[LuaMarshalAs]` | 可与 class 相同覆盖：`UserData`、`OpaqueValue`、**`Table`**、**`UnpackedValues`**（见 [`02-MARSHAL-AS.md`](/docs/spec/marshal/02-MARSHAL-AS/)） |
+| `[LuaMarshalAs]` | `UserData`、`OpaqueValue`（**无** `Table` / `UnpackedValues`） |
 | 成员访问（默认 userdata） | 仅接口上可见成员 + 继承的接口成员；实现类独有成员不可见 |
 
 ---

@@ -169,18 +169,19 @@ public static class LuaIl2CppAppDomain
 |------------------|------|
 | `Default` | 按类型默认规则 |
 | `OpaqueValue` | C#→Lua 强制 opaque lightuserdata（by-val 引用类型 / struct） |
-| `ParamsTable` | `params T[]` 接受单个 Lua table |
-| `Table` / `UnpackedValues` | struct / class 从 table 或多栈参数组装（须 `FieldOrPropertyNames`） |
+| `Table` / `UnpackedValues` | 仅 **struct / closed 泛型 struct**；`Table` 另允许 **`Nullable<struct>`**（须 `Members`） |
 
 **默认规则摘要：**
 
 - C#→Lua **`ref`/`in`/`out`** → **OpaqueValue**（无需再标）
 - by-val 基元 / enum → Lua boolean / integer / number / string
 - class → ByObj userdata；struct → ByVal 或 Handle（见 struct 分册）
+- **`params T[]`** → 同 szarray **单栈槽**（table / userdata / `nil`）；**不**支持尾部多槽收集；**无** 专用 `LuaMarshalType`
 
 ### 3.3 校验时机
 
-非法组合在 **Bind 期** 失败（`LuaMarshalAsConfigurationException`），不延迟到首次 Lua 调用。
+- **Mono Attribute：** 非法组合 → **错误日志 + 回退 `Default`**（见 [marshal/02-MARSHAL-AS.md §4.1](/docs/spec/marshal/02-MARSHAL-AS/)），不抛绑失败。
+- **Il2Cpp Generate / MarshalAs XML：** 配置错误可 **硬失败**（§4.2）。
 
 ---
 
@@ -195,7 +196,8 @@ public void Bar(string s) { ... }
 ```
 
 - 定义于 `ZLua.Common`
-- **等价于**用该字符串作为最终 Lua 名再注册一次该方法（默认名 `MethodInfo.Name` 仍然注册）
+- **等价于**用该字符串作为该方法的 **唯一最终 Lua 名**（**替换**默认名 `MethodInfo.Name`，不再双挂）
+- 预编译 DLL 可用 **独立** XML（Settings **`luaAliasXmlPaths`**，根元素 `ZLuaAlias`）；**不得**写进 MarshalAs XML。见 [04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) §5.4
 - **允许**与其它别名或已有方法名重复；重复时该最终名下多候选，调用走 **重载分派**（见 [04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) §5）
 - 若某最终名下仅此一候选（例如独立的 `run_i32`），则为 **direct closure**
 
@@ -240,7 +242,7 @@ Opaque handle **仅在** 产生它的那次 C#→Lua 调用返回前有效；跨
 | 项 | 约束 |
 |----|------|
 | `[LuaAlias]` | 允许与默认名 / 其它别名重复；按最终名分组（见 overload §5） |
-| `[LuaMarshalAs]` | 禁止 method 级；非法 FieldOrPropertyNames → bind 失败 |
+| `[LuaMarshalAs]` | 禁止 method 级；非法 `Members` → bind 失败 |
 | Mono Emit | 无法 Emit 的签名 **必须显式失败**，禁止 silent `Method.Invoke` 热路径 |
 | Il2Cpp stub | 未覆盖签名 → 构建期或首次绑定失败（MethodBridge 等，见 `impl/codegen/`） |
 

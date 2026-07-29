@@ -97,8 +97,8 @@ title: "Struct Marshal"
 | **OpaqueValue**（lightuserdata） | 仅当由 C#→Lua 刚 Push、仍在有效 scope 内；Pop 时校验 + 绑定；**不可** 在 Lua 侧读写字段 |
 | **StructUserData**（ByValUserData） | by-val：Pop 时 **拷贝** payload；`ref`/`out`/`in`：绑定 payload 地址，**真 ref**（§6） |
 | **`Type(...)` 构造产物** | StructUserData payload；传给 `ref T` 为 **真 ref** |
-| **`UnpackedValues`** | `[LuaMarshalAs(UnpackedValues)]` + `FieldOrPropertyNames`：连续多栈参数 |
-| **`Table`** | `[LuaMarshalAs(Table)]` + `FieldOrPropertyNames`：单个 table |
+| **`UnpackedValues`** | `[LuaMarshalAs(UnpackedValues)]` + `Members`：连续多栈参数 |
+| **`Table`** | `[LuaMarshalAs(Table)]` + `Members`：单个 table |
 
 **lightuserdata 无 Lua 侧创建 API**（除 C#→Lua 产生的 OpaqueValue）。
 
@@ -123,22 +123,23 @@ CS.Demo.Offset(p, 10, 20)   -- payload 真写回
 assert.equal(p.x, 11)
 ```
 
-## 7. `Table` / `UnpackedValues`（struct）
+## 7. `Table` / `UnpackedValues`（struct / Nullable）
 
 规则以 [02-MARSHAL-AS.md §5–§6](/docs/spec/marshal/02-MARSHAL-AS/) 为准；struct 特例如下。
 
 | `LuaMarshalType` | Lua → C# | C# → Lua |
 |------------------|----------|----------|
-| **`UnpackedValues`** | 连续 Pop N 个栈值，按 `FieldOrPropertyNames` **顺序** 写入 | 按名单 **顺序** Push N 个值 |
-| **`Table`** | Pop 一个 table，按 **键名** 写入名单内成员 | Push 一个 table |
+| **`UnpackedValues`** | 连续 Pop N 个栈值，按 `Members` **顺序** 写入（**仅非 Nullable struct**） | 按名单 **顺序** Push N 个值 |
+| **`Table`** | Pop 一个 table，按 **键名** 写入名单内成员；**`Nullable<struct>`** 另接受 `nil`→无值 | Push 一个 table；Nullable 无值 → `nil` |
 
-- 须 **`FieldOrPropertyNames`**；缺失 → **绑定期错误**。
+- 须 **`Members`**（相对底层 struct）；错误处理见 [02-MARSHAL-AS.md §4](/docs/spec/marshal/02-MARSHAL-AS/)。
 - Table、Lua→C#：**可选键** 用成员名 **`?` 后缀**（如 `"Tag?"`），缺键不赋值。
+- 栈槽占用与调用约定见 [02-MARSHAL-AS.md §5.6](/docs/spec/marshal/02-MARSHAL-AS/)。
 
 **类型级标注示例：**
 
 ```csharp
-[LuaMarshalAs(LuaMarshalType.Table, FieldOrPropertyNames = new[] { "X", "Y" })]
+[LuaMarshalAs(LuaMarshalType.Table, Members = new[] { "X", "Y" })]
 public struct Vector2
 {
     public float X;

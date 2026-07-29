@@ -6,7 +6,7 @@ description: byref 参数的默认 Opaque 行为与写回规则。
 
 # ref / in / out
 
-权威：[BYREF](/docs/spec/marshal/03-BYREF/)、[OPAQUE](/docs/spec/marshal/04-OPAQUE/)。特性级强制形态见 [LuaMarshalAs](/docs/guides/lua-marshal-as/)。
+权威：[BYREF](/docs/spec/marshal/03-BYREF/)、[OPAQUE](/docs/spec/marshal/04-OPAQUE/)。特性级强制形态见 [LuaMarshalAs](/docs/guides/lua-marshal-as/)；0GC 套路见 [0GC Marshal](/docs/guides/zero-gc-marshal/)。
 
 ## 双路径摘要
 
@@ -58,15 +58,18 @@ by-val struct 是 **拷贝**；要「改字段并反映到 C#」须走 `ref` / O
 
 
 
+
+
 ## 学习路径
 
 | | |
 |---|---|
 | **上一篇** | [泛型](/docs/guides/generics/) |
-| **下一篇** | [LuaMarshalAs 与高级 0GC](/docs/guides/lua-marshal-as/) |
+| **下一篇** | [LuaMarshalAs](/docs/guides/lua-marshal-as/) |
 
 ## 相关文档
 
 - [BYREF](/docs/spec/marshal/03-BYREF/)  
 - [OPAQUE](/docs/spec/marshal/04-OPAQUE/)  
-- [LuaMarshalAs](/docs/guides/lua-marshal-as/)
+- [LuaMarshalAs](/docs/guides/lua-marshal-as/)  
+- [0GC Marshal](/docs/guides/zero-gc-marshal/)

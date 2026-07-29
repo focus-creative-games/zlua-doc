@@ -89,11 +89,13 @@ demo:run_i32(5)
 
 
 
+
+
 ## 学习路径
 
 | | |
 |---|---|
-| **上一篇** | [LuaMarshalAs 与高级 0GC](/docs/guides/lua-marshal-as/) |
+| **上一篇** | [0GC Marshal](/docs/guides/zero-gc-marshal/) |
 | **下一篇** | [常用 zlua 库](/docs/guides/zlua-lib/) |
 
 ## 相关文档

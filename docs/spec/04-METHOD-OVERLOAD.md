@@ -75,7 +75,7 @@ flowchart LR
 
 ### 3.3 参数匹配规则
 
-在参数个数可接受的前提下，逐参数判断 Lua 实参是否可绑定到 C# 形参类型。规则与 [marshal/](/docs/spec/marshal/) 的 `ReadValue` / `TryPop` 一致，包括但不限于：
+在 **Lua 栈槽个数**可接受的前提下，按栈光标逐 **CLR 形参**判断是否可绑定（`UnpackedValues` 等可占用多槽，见下表与 [marshal/02-MARSHAL-AS.md](/docs/spec/marshal/02-MARSHAL-AS/) §5.6）。规则与 [marshal/](/docs/spec/marshal/) 的 `ReadValue` / `TryPop` 一致，包括但不限于：
 
 | Lua 实参 | C# 形参 | 规则 |
 |----------|---------|------|
@@ -89,7 +89,8 @@ flowchart LR
 | 基元 / `string` | **`object`** | 允许；`ImplicitBoxing` 或 `ImplicitReference` |
 | ByVal 值类型 | **`object` / 其实现的 interface** | 可隐式装箱时 `ImplicitBoxing` |
 | 基元 | **`class` / `interface`（非 `object`）** | **不匹配** |
-| 多参 + `params T[]` | `params` | 默认打包；`[LuaMarshalAs(ParamsTable)]` 时单 table |
+| 多参 + `params T[]` | `params` | **单栈槽**；与 szarray 相同（table / userdata / `nil`）；**不**多槽隐式收集 |
+| `UnpackedValues` 形参 | 连续 N 槽 | 该 CLR 形参占用 **N** 个 Lua 实参槽（`N = Members.Length`）；匹配时按栈槽累加，见 [marshal/02-MARSHAL-AS.md](/docs/spec/marshal/02-MARSHAL-AS/) §5.6 |
 
 **可选 / 默认参数：** Lua 实参少于形参时，若剩余形参有 C# 默认值，仍可匹配。
 
@@ -235,14 +236,15 @@ Native 回调：`__zlua_create_signature`（`ZLuaLib.cpp`）。建议在项目 `
 
 ### 5.1 模型：换名注册 + 按最终名分组
 
-`[LuaAlias]` / XML **等价于**在绑定时用另一个 Lua 名再注册该方法一次（额外最终名），**不是**与默认名互斥的「独占键」。
+`[LuaAlias]` / XML 为该方法指定 **唯一最终 Lua 名**，**替换**（而非追加）C# 默认名 `MethodInfo.Name`。有别名时 **不再** 以默认名注册该方法。
 
-对每个 public 方法，其 **最终 Lua 名集合** 为：
+对每个 public 方法，其 **最终 Lua 名** 为（优先级由高到低）：
 
-| 名称 | 是否始终加入 |
-|------|----------------|
-| C# 默认名 `MethodInfo.Name` | **是** |
-| `[LuaAlias("…")]` / XML `alias`（可多个来源，见 §5.3） | **是**（额外加入） |
+| 来源 | 条件 |
+|------|------|
+| `[LuaAlias("…")]` | Attribute 存在且非空 → 用该字符串 |
+| XML `Method/@alias` | 无 Attribute 时，若 XML 有规则 → 用该字符串 |
+| C# 默认名 `MethodInfo.Name` | 以上皆无 |
 
 随后在同一绑定域内：
 
@@ -252,8 +254,8 @@ Native 回调：`__zlua_create_signature`（`ZLuaLib.cpp`）。建议在项目 `
 
 因此：
 
-- **允许**别名与其它别名重复；
-- **允许**别名与已有默认方法名重复；
+- **允许**别名与其它方法的默认名或其它别名重复（撞名则并入同一 overload 组）；
+- **不允许**「既挂别名又保留本方法默认名」——别名即换名；
 - 调用该重名键时，与普通 C# 重载相同，走 **函数重载规则** 选合适候选。
 
 ### 5.2 允许重复（示例）
@@ -266,7 +268,7 @@ public class Demo
 
     public void Foo(int x) { }
 
-    [LuaAlias("Foo")]                   // 允许：与已有方法名 Foo 重复 → 并入 "Foo"
+    [LuaAlias("Foo")]                   // 允许：与已有方法名 Foo 重复 → 并入 "Foo"；本方法不再挂 "Bar"
     public void Bar(string s) { }
 
     [LuaAlias("print")]
@@ -275,19 +277,19 @@ public class Demo
     [LuaAlias("print")]                 // 允许：别名彼此重复 → "print" 成组
     public void LogB(string s) { }
 
-    [LuaAlias("run_i32")]               // 仅该最终名下多一个候选 → 通常为 direct
-    public void Run(long value) { }     // 默认名仍进 "Run" 组
+    [LuaAlias("run_i32")]               // 仅该最终名下多一个候选 → 通常为 direct；不再挂默认名 "Run"
+    public void Run(long value) { }
 }
 ```
 
 ```lua
 local d = CSharp.AC.Demo()
 
-d:Run(10)         -- "Run" 组（int/string/long）→ dispatch
+d:Run(10)         -- "Run" 组（int/string；不含 long）→ dispatch
 d:Foo("hi")       -- "Foo" 组含 Foo(int) 与 Bar(string) → dispatch → Bar(string)
 d:print(1)        -- "print" 组 → dispatch
 d:run_i32(10)     -- "run_i32" 单候选 → direct → Run(long)
-d:Bar("x")        -- 默认名 "Bar" 仍存在
+-- d:Bar("x")     -- 不可用：Bar 已换名为 Foo
 ```
 
 ### 5.3 C# Attribute
@@ -298,16 +300,47 @@ public void Run(int value) { ... }
 ```
 
 - 定义于 `ZLua.Common`。
-- 同一方法可与 XML 别名并存；优先级：**Attribute > XML**（同最终名时以 Attribute 为准合并进集合，不因「重复」失败）。
+- 与 XML：同一方法上 **Attribute 优先于 XML**（有 Attribute 则用 Attribute 作为最终名，忽略该槽位 XML；无 Attribute 才用 XML）。二者都是 **换名**，不是「默认名 + 别名」双挂。
 
-### 5.4 XML 配置
+### 5.4 XML 配置（独立于 MarshalAs）
+
+`[LuaAlias]` 与 `[LuaMarshalAs]` **目标不同**（最终 Lua 名 vs 形参/返回值/成员 Marshal），绝大多数场景无交集。XML 可 **共享类似的 `Assembly` / `Type` / `Method` 定位风格**，但必须：
+
+| 约束 | 说明 |
+|------|------|
+| **独立路径列表** | Editor Settings 字段 **`luaAliasXmlPaths`**（与 `marshalAsXmlPaths` **并列、分开配置**） |
+| **独立根元素** | **`ZLuaAlias`**；**不得**使用 `ZLuaMarshalAs` |
+| **独立文件** | Alias 与 MarshalAs **分文件**书写（可共享 `Assembly`/`Type`/`Method` 定位风格） |
 
 ```xml
-<Type fullName="Demo">
-  <Method name="Run" signature="(System.Int32)" alias="run_i32"/>
-</Type>
+<?xml version="1.0" encoding="utf-8"?>
+<ZLuaAlias version="1">
+  <Assembly name="Assembly-CSharp">
+    <Type fullName="Demo">
+      <Method name="Run" signature="(System.Int32)" alias="run_i32"/>
+    </Type>
+  </Assembly>
+</ZLuaAlias>
 ```
 
+| 元素 / 属性 | 含义 |
+|-------------|------|
+| `version` | 必填；当前仅 `"1"`。未知 version → **失败** |
+| `Assembly/@name` | `Assembly.GetName().Name`（与 MarshalAs XML 相同约定） |
+| `Type/@fullName` | CLR 全名（嵌套 `Outer+Inner`；开放泛型写 ``Foo`1`` 作挂载容器） |
+| `Method/@name` | CLR `MethodInfo.Name` |
+| `Method/@signature` | 参数类型列表，圆括号包裹：`()` / `(T1,T2)`；byref 后缀 `&`；数组 `T[]`；**不含**返回类型（与 MarshalAs 的 Method 定位约定一致） |
+| `Method/@alias` | **必填**；非空；作为该方法的 **唯一最终 Lua 名**（§5.1，替换默认名） |
+
+**本文件允许的内容：** 仅 `Assembly` → `Type` → 带 `@alias` 的 `Method`。  
+**禁止：** `MarshalAs` / `Param` / `Return` / `Field` / `Property` 子元素，或 Method 缺少 `@alias` → **失败**。
+
+| 其它约束 | 说明 |
+|----------|------|
+| 换名 | 有 `@alias` 时 **不**再以 `MethodInfo.Name` 注册该方法 |
+| 与 Attribute | 同一方法若有 Attribute，以 Attribute 为准（§5.3）；XML 该条可记录为未使用（可选诊断） |
+| 平台 | Mono 运行时按 `luaAliasXmlPaths` 解析；Il2Cpp **Generate** 成静态 alias 表，Player **不**读 XML（加载/Generate 模式对齐 [marshal/02-MARSHAL-AS.md](/docs/spec/marshal/02-MARSHAL-AS/) §9.6–§9.7，但是 **独立** registry / 生成物） |
+| 重复 | 合并全部 alias XML 后，同一 `(assembly, type, methodName, signature)` 出现多条 `@alias` → **失败**（不得后文件覆盖）。不同方法撞同一最终名 **允许**（并入 overload 组，§5.1） |
 ### 5.5 静态 / 实例
 
 - 实例最终名 → `byvalInstanceMap` / `byobjInstanceMap`（与 closure 域一致）
@@ -455,12 +488,12 @@ public class Demo
 {
     public void Run(int value) { }
 
-    [LuaAlias("run_str")]   // "run_str" 单候选 → direct；默认名仍进 "Run" 组
+    [LuaAlias("run_str")]   // 换名为 "run_str"；不再挂默认名 "Run"
     public void Run(string value) { }
 
     public void Foo(int x) { }
 
-    [LuaAlias("Foo")]       // 与默认名 Foo 重复 → "Foo" 组含 Foo(int)+Bar(string)
+    [LuaAlias("Foo")]       // 与默认名 Foo 重复 → "Foo" 组含 Foo(int)+Bar(string)；Bar 不再挂 "Bar"
     public void Bar(string s) { }
 
     public static int Add(int a, int b) => a + b;

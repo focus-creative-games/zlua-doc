@@ -35,7 +35,7 @@ title: "数组 Marshal"
 | 元素 Push | 按元素类型 `T` 的默认 marshal（基元 → integer/number；引用类型 → userdata；enum → integer/number） |
 | **`[LuaMarshalAs(Bytes)]` on `byte[]`** | Push Lua **string**（原始 octet 序列，非 UTF-8 文本语义） |
 | **`[LuaMarshalAs(OpaqueValue)]`** | Push **OpaqueValue**（仅 C#→Lua）；见 [`04-OPAQUE.md`](/docs/spec/marshal/04-OPAQUE/) |
-| **`params T[]` 返回值 / 形参（C#→Lua）** | 与 szarray 相同：Push **ByObjUserData**（**不** 默认 Push table）；`ParamsTable` 例外见 [`02-MARSHAL-AS.md`](/docs/spec/marshal/02-MARSHAL-AS/) |
+| **`params T[]` 返回值 / 形参（C#→Lua）** | 与 szarray 相同：Push **ByObjUserData**（**不** 默认 Push table） |
 
 ---
 
@@ -127,7 +127,7 @@ CS.Demo.Process(nil)
 
 ## 7. `params T[]` 形参
 
-`params T[]` Marshal 规则与 §1.2 szarray **相同**（ByObjUserData 或 table）；差异在 Lua 传参形态与空/null 语义。详见 [`02-MARSHAL-AS.md`](/docs/spec/marshal/02-MARSHAL-AS/) §ParamsTable。
+`params T[]` Marshal 规则与 §1.2 szarray **相同**（ByObjUserData 或 table）；差异在 Lua 传参形态与空/null 语义。详见 [`02-MARSHAL-AS.md`](/docs/spec/marshal/02-MARSHAL-AS/) §7。
 
 要点摘要：
 
@@ -138,7 +138,7 @@ CS.Demo.Process(nil)
 | table `{ … }` | 按元素构造的 **`T[n]`** |
 | **`nil`** | **`null`**（**非** 空数组） |
 
-Lua **不支持** C# 式多槽隐式收集（`Sum(1, 2, 3)` **非法**）；须 **单个** 实参占据 `params` 位。
+Lua **不支持** C# 式多槽隐式收集（`Sum(1, 2, 3)` **非法**）；须 **单个** 实参占据 `params` 位。**无** 专用 `LuaMarshalType`（已移除历史 `ParamsTable`）。
 
 **GetFunction 取得的 delegate 调用 / delegate bridge** 上的 `params` **不支持**；见 [`09-FUNCTION.md`](/docs/spec/marshal/09-FUNCTION/)。
 
@@ -251,7 +251,7 @@ local matrix = zlua.new_mdarray_by_spec(zlua.types.int32, { 0, 0 }, { 2, 3 })
 | 文档 | 内容 |
 |------|------|
 | [`06-CLASS.md`](/docs/spec/marshal/06-CLASS/) | ByObjUserData、门面、ref 引用类型 |
-| [`02-MARSHAL-AS.md`](/docs/spec/marshal/02-MARSHAL-AS/) | `Bytes`、`ParamsTable`、`OpaqueValue` |
+| [`02-MARSHAL-AS.md`](/docs/spec/marshal/02-MARSHAL-AS/) | `Bytes`、`OpaqueValue`、`params`（§7） |
 | [`03-BYREF.md`](/docs/spec/marshal/03-BYREF/) | `ref` / `out` / `in` |
 | [`../02-TYPE-SYSTEM.md`](/docs/spec/02-TYPE-SYSTEM/) | 数组类型表、`get`/`set`、`#` |
 | [`../05-LIB.md`](/docs/spec/05-LIB/) | `make_szarray_type`、`to_bytes`、`to_table` |

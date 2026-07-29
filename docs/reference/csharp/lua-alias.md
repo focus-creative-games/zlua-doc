@@ -6,7 +6,7 @@ description: "[LuaAlias] 方法重载别名属性说明。"
 
 # LuaAlias
 
-为 C# 方法重载提供 **Lua 侧额外键名**，O(1) 绑定到单一重载，绕过运行时分派（dispatch）。
+为 C# 方法重载提供 **Lua 侧换名键**，O(1) 绑定到单一重载，绕过运行时分派（dispatch）。有别名时 **不再**注册 C# 默认方法名。
 
 ```csharp
 using ZLua;
@@ -45,7 +45,7 @@ public sealed class LuaAliasAttribute : Attribute
 
 ## 键空间规则
 
-`[LuaAlias]` 在 Bind 期 **允许**与默认方法名或其它别名重复；重复则并入同一 overload 组（走 dispatch）。若别名下 **仅一个** 候选，则为 direct，热路径首选。
+`[LuaAlias]` 在 Bind 期 **替换**该方法的默认 Lua 键；并 **允许**与其它方法的默认名或其它别名重复（重复则并入同一 overload 组，走 dispatch）。若别名下 **仅一个** 候选，则为 direct，热路径首选。
 
 完整规则见 [重载规范 §5](/docs/spec/04-METHOD-OVERLOAD/)。同名多候选时还会自动挂全签名键（§3.7）。
 
@@ -58,20 +58,28 @@ public void Run(string value) { }  // 默认名仍进 "Run" 组
 
 ## XML 配置（不可改源码时）
 
+与 `[LuaMarshalAs]` **分开配置**：Settings 使用独立字段 **`luaAliasXmlPaths`**，根元素 **`ZLuaAlias`**。
+
 ```xml
-<Type fullName="Demo">
-  <Method name="Run" signature="(System.Int32)" alias="run_i32"/>
-</Type>
+<?xml version="1.0" encoding="utf-8"?>
+<ZLuaAlias version="1">
+  <Assembly name="Assembly-CSharp">
+    <Type fullName="Demo">
+      <Method name="Run" signature="(System.Int32)" alias="run_i32"/>
+    </Type>
+  </Assembly>
+</ZLuaAlias>
 ```
 
 | 字段 | 说明 |
 |------|------|
-| `fullName` | 类型全名 |
-| `name` | C# 方法名 |
-| `signature` | 仅参数部分，如 `(System.Int32)` |
-| `alias` | Lua 侧键名 |
+| `Assembly/@name` | 程序集短名 |
+| `Type/@fullName` | 类型全名 |
+| `Method/@name` | C# 方法名 |
+| `Method/@signature` | 仅参数部分，如 `(System.Int32)` |
+| `Method/@alias` | Lua 侧最终键名（必填；**替换**默认名） |
 
-优先级：**Attribute > XML**。合并后执行与 § 键空间相同的校验。
+优先级：**Attribute > XML**。有别名则 **不**再挂 `MethodInfo.Name`。权威全文：[重载规范 §5.4](/docs/spec/04-METHOD-OVERLOAD/)。
 
 ## 静态 / 实例
 

@@ -242,7 +242,7 @@ instance userdata
 
 - 字段、无参/有参 property、方法、构造函数
 - **继承链 public 成员扁平写入** 当前类型三表（§5）
-- `[LuaAlias]` 追加的最终名（可与默认名重复，见 overload §5）
+- `[LuaAlias]` 换名后的最终名（可与其它方法默认名/别名重复，见 overload §5）
 
 ### 3.5 枚举
 
