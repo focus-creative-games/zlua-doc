@@ -29,6 +29,7 @@ const chain = [
   {slug: '/docs/guides/overloads/', title: '方法重载'},
   {slug: '/docs/guides/lua-alias/', title: 'LuaAlias'},
   {slug: '/docs/guides/zlua-lib/', title: '常用 zlua 库'},
+  {slug: '/docs/guides/native-modules/', title: '第三方原生插件'},
   {slug: '/docs/guides/migration/', title: '迁移指南'},
   {slug: '/docs/guides/troubleshooting/', title: '排错指南'},
   {slug: '/docs/guides/editor-vs-player/', title: 'Editor 与 Player'},

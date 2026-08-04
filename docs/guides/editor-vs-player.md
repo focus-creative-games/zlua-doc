@@ -53,6 +53,8 @@ Event、Marshal、类型访问等以 [规范](/docs/spec/00-OVERVIEW/) 为准；
 
 
 
+
+
 ## 学习路径
 
 | | |
@@ -63,6 +65,7 @@ Event、Marshal、类型访问等以 [规范](/docs/spec/00-OVERVIEW/) 为准；
 ## 相关文档
 
 - [构建流程](/docs/guides/build/)
+- [第三方原生插件](/docs/guides/native-modules/) — Editor 动态 / Player 静态差异亦适用于 C 模块
 - [双运行时](/docs/concepts/dual-runtime/)
 - [选型对比](/docs/compare/)
 - [排错指南](/docs/guides/troubleshooting/)

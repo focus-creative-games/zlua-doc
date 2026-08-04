@@ -433,3 +433,4 @@ Cursor / VS Code：打开工程根 → F5（上述配置）
 | [03-MONO-LUAJIT-CALLBACK-GATE.md](/docs/spec/build/03-MONO-LUAJIT-CALLBACK-GATE/) | Editor 回调与 `lua_error` |
 | [02-LUAJIT.md](/docs/spec/build/02-LUAJIT/) | JIT 下 hook 性能预期 |
 | 包内 `Plugins/README.md` | 目录与自建速查 |
+| [05-NATIVE-MODULES.md](/docs/spec/build/05-NATIVE-MODULES/) | 第三方 C 模块（socket/cjson）通用约定；同用 cpath / 禁用 PluginImporter |

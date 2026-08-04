@@ -121,6 +121,7 @@ Docs/
 8. LuaJIT 构建 → [build/02-LUAJIT.md](/docs/spec/build/02-LUAJIT/)
 9. Editor Mono 回调错误边界（全系列） → [build/03-MONO-LUAJIT-CALLBACK-GATE.md](/docs/spec/build/03-MONO-LUAJIT-CALLBACK-GATE/)
 10. Editor EmmyLua 调试器 → [build/04-EMMYLUA-DEBUGGER.md](/docs/spec/build/04-EMMYLUA-DEBUGGER/)
+11. 第三方原生模块（socket / cjson 等） → [build/05-NATIVE-MODULES.md](/docs/spec/build/05-NATIVE-MODULES/)
 11. 从 xLua / toLua / SLua 迁移类型访问适配 → [12-MIGRATION-ADAPTORS.md](/docs/spec/12-MIGRATION-ADAPTORS/)
 
 **冲突裁决：** `spec/**` > Il2Cpp 源码 > `impl/**`。

@@ -21,6 +21,7 @@ export const GUIDE_NAV: GuideNavItem[] = [
   {slug: 'overloads', title: '方法重载'},
   {slug: 'lua-alias', title: 'LuaAlias'},
   {slug: 'zlua-lib', title: '常用 zlua 库'},
+  {slug: 'native-modules', title: '第三方原生插件'},
   {slug: 'migration', title: '迁移指南'},
   {slug: 'troubleshooting', title: '排错指南'},
   {slug: 'editor-vs-player', title: 'Editor 与 Player'},

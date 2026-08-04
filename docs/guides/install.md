@@ -50,7 +50,7 @@ description: UPM 引入 ZLua，用 Settings 选定 Lua 版本并完成本地 Ins
 | PUC-Rio | `lua-X.Y.Z` | `lua-5.1.5`、`lua-5.2.4`、`lua-5.3.6`、`lua-5.4.8`、`lua-5.5.0` |
 | LuaJIT | `luajit-M.N` | `luajit-2.1`（源码须自行 clone；**Il2Cpp 仅 Android / iOS**） |
 
-改版本后须重新 **Install**；若 Editor DLL / scripting define 随系列变化，按 Console 提示 **重启 Editor**。平台与版本矩阵见 [兼容性](/docs/getting-started/compatibility/)；多版本细则见 [多版本管理](/docs/spec/11-MULTI-VERSION/)。
+改版本后须重新 **Install**；若 Editor DLL / scripting define 随系列变化，按 Console 提示 **重启 Editor**。平台与版本矩阵见 [兼容性](/docs/getting-started/compatibility/)；多版本细则见 [多版本管理](/docs/spec/11-MULTI-VERSION/)。第三方 C 模块（socket / cjson 等）须按 **同一系列** 重编，见 [第三方原生插件](/docs/guides/native-modules/)。
 
 ## 3. 本地 Install（`ZLua/Install...`）
 
@@ -85,6 +85,8 @@ PUC-Rio 缓存一般在 `Library/ZLua/LuaSrcCache/`（如 `lua-5.5.0/`）。
 | 提示未 Install | 执行 `ZLua/Install...`；换 Unity / 换 Lua 版本后重跑 |
 | 下载 Lua 失败 | 检查 `luaVersionId` 与网络；见 [多版本管理](/docs/spec/11-MULTI-VERSION/) |
 | 换系列后异常 | 按日志 **重启 Editor** |
+
+
 
 
 

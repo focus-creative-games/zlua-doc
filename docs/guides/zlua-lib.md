@@ -83,14 +83,17 @@ local d = zlua.to_delegate(fn, ActionIntType)  -- 第二参须已闭合
 
 
 
+
+
 ## 学习路径
 
 | | |
 |---|---|
 | **上一篇** | [LuaAlias](/docs/guides/lua-alias/) |
-| **下一篇** | [迁移指南](/docs/guides/migration/) |
+| **下一篇** | [第三方原生插件](/docs/guides/native-modules/) |
 
 ## 相关文档
 
 - [05-LIB](/docs/spec/05-LIB/)  
-- [zlua-lib 参考](/docs/reference/lua/zlua-lib/)
+- [zlua-lib 参考](/docs/reference/lua/zlua-lib/)  
+- [第三方原生插件](/docs/guides/native-modules/) — socket / cjson 等不在 zlua 标准库内
