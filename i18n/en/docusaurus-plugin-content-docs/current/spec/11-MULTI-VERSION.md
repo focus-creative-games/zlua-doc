@@ -55,6 +55,11 @@ ZLua~/
 │   │   └── 6000/                  # Unity 6: try 6000.{minor}/ first, then fall back here
 │   │       └── 6000.0.0.patch
 │   └── lua/
+│       ├── lua-5.1/
+│       │   ├── 5.1.0.patch        # Covers 5.1.0–5.1.1; gettable FastMT + Win32 ANSI loadlib
+│       │   └── 5.1.2.patch        # Covers 5.1.2–5.1.5
+│       ├── lua-5.2/               # 5.2.0 / 5.2.1 / 5.2.2 / 5.2.4 floors (see in-package README)
+│       ├── lua-5.3/               # See in-package README; includes 5.3.0…5.3.3 floors
 │       └── lua-5.4/
 │           ├── 5.4.0.patch        # Covers 5.4.0… until the next floor file
 │           ├── 5.4.4.patch        # Shared ranges keep only the minimum version filename
@@ -194,14 +199,16 @@ For **series that support VM patches** (§5.2), ZLua’s VM changes live in-pack
 
 | Settings / engine | Install applies `patches/lua`? | Written to `libil2cpp/lua` | `luaPatchKey` (fingerprint) |
 |-------------------|--------------------------------|----------------------------|------------------------------|
+| **PUC-Rio 5.1.x** | **Yes** (§5.3 floor; dir `patches/lua/lua-5.1/`) | Full buildable `src/` (entry files removed) | Actual `{X.Y.Z}.patch` filename chosen |
+| **PUC-Rio 5.2.x** | **Yes** (§5.3 floor; dir `patches/lua/lua-5.2/`) | Full buildable `src/` (entry files removed) | Actual `{X.Y.Z}.patch` filename chosen |
 | **PUC-Rio 5.3+** (including `lua-5.3.0` …) | **Yes** (§5.3 floor) | Full buildable `src/` (entry files removed) | Actual `{X.Y.Z}.patch` filename chosen |
-| **PUC-Rio 5.1.x / 5.2.x** | **No** (copy clean upstream `src/`) | Full buildable `src/` (entry files removed) | `none` |
 | **LuaJIT** | **No** | **Public headers only**; static libs from developer Plugins ([build docs](/docs/spec/build/02-LUAJIT/)) | `none` |
 
 Notes:
 
-- 5.1 / 5.2 / LuaJIT must **not** look up or apply series patches (even if `patches/lua/lua-5.1/` etc. are mistakenly present, ignore them).
-- On non-FastMT paths, Install **must** ensure `ZLUA_FAST_METATABLE 0` (PUC writes local `luaconf.h`; LuaJIT writes into the installed headers’ `luaconf.h`; see §5.4).
+- **PUC-Rio 5.1+** (including 5.2.x) **must** apply the floor patch under the matching series directory; missing file or apply failure → Install fails.
+- **LuaJIT** must **not** look up or apply series patches.
+- On combinations without FastMT / without a VM patch, Install **must** ensure `ZLUA_FAST_METATABLE 0` (PUC writes local `luaconf.h`; LuaJIT writes into the installed headers’ `luaconf.h`; see §5.4).
 - Fingerprint `luaPatchKey` is `none` when there is no patch (§9).
 - Why LuaJIT cannot compile from a full in-tree source, and Il2Cpp platform surface (Android/iOS `.a`, WebGL disabled), follow **[build/02-LUAJIT.md](/docs/spec/build/02-LUAJIT/)**.
 
@@ -226,15 +233,17 @@ Do not bake IDE helper files (e.g. `.clangd`) into patches.
 
 | Engine / patch version | FastMT | Install / patch requirements |
 |------------------------|--------|------------------------------|
+| **PUC-Rio 5.1.0–5.1.5** | **May enable** (floors: `5.1.0` / `5.1.2`; hooks `luaV_gettable` / `luaV_settable`, **raw get first**) | **Must** apply `patches/lua/lua-5.1/` floor patch (includes `zlua_fastmt.*`, Table cache fields, Win32 ANSI `loadlib`) |
+| **PUC-Rio 5.2.0–5.2.4** | **May enable** (floors: `5.2.0` / `5.2.1` / `5.2.2` / `5.2.4`; same gettable hooks + raw-first) | **Must** apply `patches/lua/lua-5.2/` floor patch (also opens `luai_num*` / `luai_hashnum` under Il2Cpp lump) |
+| **PUC-Rio 5.3.0 / 5.3.1** | **May enable** (floor patch sets `1`; hooks `luaV_gettable` / `luaV_settable`, **raw get first**) | Apply series VM patch |
 | **PUC-Rio ≥ 5.3.2** (including 5.3.3…5.3.6, 5.4.x, 5.5.x) | **May enable** (default `1` via corresponding floor patch; hooks `luaV_finishget` / `finishset`) | Apply series VM patch |
-| **PUC-Rio 5.3.0 / 5.3.1** | **Unsupported** (must be `0`) | Still apply series patch (other adaptations), but `luaconf` **forces** `ZLUA_FAST_METATABLE 0`; must not rely on gettable-era FastMT |
-| **PUC-Rio 5.1.x / 5.2.x** | **Unsupported** (must be `0`) | Do **not** apply VM patch; Install injects `ZLUA_FAST_METATABLE 0` |
 | **LuaJIT** | **Unsupported** (must be `0`) | Do **not** apply VM patch; Install headers only and inject `ZLUA_FAST_METATABLE 0`; `ZLuaCommon.h` may `#error` on `ZLUA_USE_LUAJIT && ZLUA_FAST_METATABLE` |
 
 **Rationale summary:**
 
-- FastMT hooks are **`luaV_finishget` / `finishset`** (Lua **5.3.2+**); 5.3.0 / 5.3.1 only have monolithic `gettable` / `settable`, and the existing gettable fast path is incorrect on Il2Cpp (ByVal indexing, etc.), so the official support surface disables FastMT.
-- 5.1 / 5.2 / LuaJIT have no usable PUC-Rio FastMT patch; always legacy / Dispatch, macro fixed at `0`.
+- **≥ 5.3.2**: FastMT hooks are **`luaV_finishget` / `finishset`**.
+- **5.1.x / 5.2.x / 5.3.0 / 5.3.1**: no `finishget` / `finishset`; FastMT hooks **`luaV_gettable` / `luaV_settable`**. Implementations **must** `luaH_get` (raw) **first**, and only on miss take the sealed FastMT path (otherwise type-table fields such as `FullName` would be intercepted).
+- **LuaJIT**: no PUC-Rio FastMT series patch; always legacy / Dispatch, macro fixed at `0`.
 
 Manually overriding unsupported combos with `-DZLUA_FAST_METATABLE=1` → **undefined behavior**; Installer should write back `0` for unsupported combos.
 
@@ -417,7 +426,7 @@ Any of the following → `NeedReinstall` is true:
 | Phase | Scope |
 |-------|-------|
 | **P0** | Default `lua-5.5.0` + download cache + `lua-5.3` patch + Unity `2022.3` patch + `zlua-runtime` |
-| **P1** | `lua-5.1.x` / `lua-5.2.x` (no VM patch) + `lua-5.4.x` / `lua-5.5.x` with matching series patches / DLLs |
+| **P1** | `lua-5.1.x` / `lua-5.2.x` (full patch-version FastMT + series patches) + `lua-5.4.x` / `lua-5.5.x` with matching series patches / DLLs |
 | **P2** | LuaJIT (manual clone; Editor ✅; Il2Cpp **Android / iOS only**) |
 
 ---
@@ -430,8 +439,8 @@ Any of the following → `NeedReinstall` is true:
 - [ ] Default `luaVersionId` = `lua-5.5.0`
 - [ ] Missing Plugins DLL warns only
 - [ ] libil2cpp patch: floor (largest `{X.Y.Z}.patch` ≤ current), no `default.patch`; fail without downgrade
-- [ ] lua patch: apply only for PUC-Rio **5.3+** (§5.2); skip 5.1 / 5.2 / LuaJIT with `luaPatchKey=none`
-- [ ] FastMT: only ≥5.3.2 may enable; 5.3.0/5.3.1, 5.1, 5.2, LuaJIT force `ZLUA_FAST_METATABLE 0` (§5.4)
+- [ ] lua patch: apply for PUC-Rio **5.1+** (including 5.2.x) (§5.2); only LuaJIT skips with `luaPatchKey=none`
+- [ ] FastMT: all PUC-Rio 5.x may enable; only LuaJIT forces `ZLUA_FAST_METATABLE 0` (§5.4)
 - [ ] Define / `LuaDllName` / fingerprint / restart prompts complete
 - [ ] `LuaCompatible.h` / `Il2CppCompatible.h` / `ZLuaConf.inc` match §12
 - [ ] Install writes Local `ZLuaConf.inc`; Generate/All validates or rewrites; stale silent use forbidden
@@ -521,7 +530,7 @@ Exact patch-version string reconciliation uses `ZLUA_CONF_ID` and Install finger
 | Official API family (5.3 vs 5.4…) | `#if !ZLUA_USE_LUAJIT && (LUA_VERSION_NUM >= 504)`, or `ZLUA_LUA_API_FAMILY >= 504` |
 | Exact id reconciliation | `ZLUA_CONF_ID` / fingerprint |
 | Tuanjie vs Unity API | `#if ZLUA_TUANJIE_ENGINE`, optionally with `ZLUA_UNITY_VERSION` / `ZLUA_TUANJIE_VERSION` |
-| FastMT | `#if ZLUA_FAST_METATABLE` (from `luaconf.h` only); support surface in **§5.4** (≥5.3.2 may enable; 5.3.0/5.3.1, 5.1, 5.2, LuaJIT **must be 0**) |
+| FastMT | `#if ZLUA_FAST_METATABLE` (from `luaconf.h` only); support surface in **§5.4** (all PUC-Rio 5.x may enable; only LuaJIT **must be 0**) |
 
 Unsupported FastMT combos: Install **must** make `ZLUA_FAST_METATABLE` in `luaconf.h` be `0`. `ZLuaCommon.h` may `#error` on `ZLUA_USE_LUAJIT && ZLUA_FAST_METATABLE`.
 

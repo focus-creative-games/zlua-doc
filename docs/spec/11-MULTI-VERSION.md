@@ -55,6 +55,11 @@ ZLua~/
 │   │   └── 6000/                  # Unity 6：先试 6000.{minor}/，再回退本目录
 │   │       └── 6000.0.0.patch
 │   └── lua/
+│       ├── lua-5.1/
+│       │   ├── 5.1.0.patch        # 覆盖 5.1.0–5.1.1；gettable FastMT + Win32 ANSI loadlib
+│       │   └── 5.1.2.patch        # 覆盖 5.1.2–5.1.5
+│       ├── lua-5.2/               # 5.2.0 / 5.2.1 / 5.2.2 / 5.2.4 floors（见包内 README）
+│       ├── lua-5.3/               # 见包内 README；含 5.3.0…5.3.3 floors
 │       └── lua-5.4/
 │           ├── 5.4.0.patch        # 覆盖 5.4.0…直至下一 floor 文件之前
 │           ├── 5.4.4.patch        # 共用区间只保留最小版本号文件名
@@ -194,14 +199,16 @@ Library/ZLua/LuaSrcCache/
 
 | Settings / 引擎 | Install 是否 apply `patches/lua` | 写入 `libil2cpp/lua` | `luaPatchKey`（fingerprint） |
 |-----------------|----------------------------------|----------------------|------------------------------|
+| **PUC-Rio 5.1.x** | **是**（§5.3 floor；目录 `patches/lua/lua-5.1/`） | 完整可编译 `src/`（去入口文件） | 实际选用的 `{X.Y.Z}.patch` 文件名 |
+| **PUC-Rio 5.2.x** | **是**（§5.3 floor；目录 `patches/lua/lua-5.2/`） | 完整可编译 `src/`（去入口文件） | 实际选用的 `{X.Y.Z}.patch` 文件名 |
 | **PUC-Rio 5.3+**（含 `lua-5.3.0` …） | **是**（§5.3 floor） | 完整可编译 `src/`（去入口文件） | 实际选用的 `{X.Y.Z}.patch` 文件名 |
-| **PUC-Rio 5.1.x / 5.2.x** | **否**（拷贝干净上游 `src/`） | 完整可编译 `src/`（去入口文件） | `none` |
 | **LuaJIT** | **否** | **仅公共头文件**；静态库由开发者放 Plugins（[build 文档](/docs/spec/build/02-LUAJIT/)） | `none` |
 
 说明：
 
-- 5.1 / 5.2 / LuaJIT **不得** 尝试查找或 apply 系列 patch（即使误放了 `patches/lua/lua-5.1/` 等目录也应忽略）。
-- 上述无 FastMT 路径下，Install **必须** 保证 `ZLUA_FAST_METATABLE 0`（PUC 写入本地 `luaconf.h`；LuaJIT 写入已安装头文件中的 `luaconf.h`，见 §5.4）。
+- **PUC-Rio 5.1+**（含 5.2.x）**必须** apply 对应系列目录下的 floor patch；缺文件或 apply 失败 → Install 失败。
+- **LuaJIT** **不得** 尝试查找或 apply 系列 patch。
+- 无 FastMT / 无 VM patch 的组合下，Install **必须** 保证 `ZLUA_FAST_METATABLE 0`（PUC 写入本地 `luaconf.h`；LuaJIT 写入已安装头文件中的 `luaconf.h`，见 §5.4）。
 - fingerprint 的 `luaPatchKey` 在无 patch 时为 `none`（§9）。
 - LuaJIT 为何不能整树源码编译、Il2Cpp 平台面（Android/iOS `.a`、WebGL 禁用）以 **[build/02-LUAJIT.md](/docs/spec/build/02-LUAJIT/)** 为准。
 
@@ -226,15 +233,17 @@ Library/ZLua/LuaSrcCache/
 
 | 引擎 / 小版本 | FastMT | Install / patch 要求 |
 |---------------|--------|----------------------|
+| **PUC-Rio 5.1.0–5.1.5** | **可启用**（floor：`5.1.0` / `5.1.2`；挂 `luaV_gettable` / `luaV_settable`，**先 raw get**） | **必须**应用 `patches/lua/lua-5.1/` floor patch（含 `zlua_fastmt.*`、Table 缓存字段、Win32 ANSI `loadlib`） |
+| **PUC-Rio 5.2.0–5.2.4** | **可启用**（floor：`5.2.0` / `5.2.1` / `5.2.2` / `5.2.4`；同上 gettable 挂点 + raw-first） | **必须**应用 `patches/lua/lua-5.2/` floor patch（另含 Il2Cpp lump 下 `luai_num*` / `luai_hashnum` 放开） |
+| **PUC-Rio 5.3.0 / 5.3.1** | **可启用**（floor patch 设为 `1`；挂 `luaV_gettable` / `luaV_settable`，**先 raw get**） | 应用系列 VM patch |
 | **PUC-Rio ≥ 5.3.2**（含 5.3.3…5.3.6、5.4.x、5.5.x） | **可启用**（默认由对应 floor patch 设为 `1`，挂 `luaV_finishget` / `finishset`） | 应用系列 VM patch |
-| **PUC-Rio 5.3.0 / 5.3.1** | **不支持**（必须为 `0`） | 仍应用系列 patch（其它适配），但 `luaconf` **强制** `ZLUA_FAST_METATABLE 0`；不得依赖 gettable 版 FastMT |
-| **PUC-Rio 5.1.x / 5.2.x** | **不支持**（必须为 `0`） | **不** apply VM patch；Install 注入 `ZLUA_FAST_METATABLE 0` |
 | **LuaJIT** | **不支持**（必须为 `0`） | **不** apply VM patch；Install 仅装头文件并注入 `ZLUA_FAST_METATABLE 0`；`ZLuaCommon.h` 可对 `ZLUA_USE_LUAJIT && ZLUA_FAST_METATABLE` 做 `#error` |
 
 **原因摘要：**
 
-- FastMT 设计挂点是 **`luaV_finishget` / `finishset`**（Lua **5.3.2** 起）；5.3.0 / 5.3.1 仅有整块 `gettable` / `settable`，现有 gettable 快路径在 Il2Cpp 上行为不正确（ByVal 索引等），故官方支持面关闭 FastMT。
-- 5.1 / 5.2 / LuaJIT 无可用的 PUC-Rio FastMT patch；一律 legacy / Dispatch，宏固定为 `0`。
+- **≥ 5.3.2**：FastMT 挂点是 **`luaV_finishget` / `finishset`**。
+- **5.1.x / 5.2.x / 5.3.0 / 5.3.1**：无 `finishget` / `finishset`；FastMT 挂 **`luaV_gettable` / `luaV_settable`**。实现上 **必须先** `luaH_get`（raw），仅在 miss 后走 sealed FastMT（否则类型表字段如 `FullName` 会被拦截）。
+- **LuaJIT**：无 PUC-Rio FastMT 系列 patch；一律 legacy / Dispatch，宏固定为 `0`。
 
 手动 `-DZLUA_FAST_METATABLE=1` 覆盖不受支持组合 → **未定义行为**；Installer 应对不支持组合写回 `0`。
 
@@ -417,7 +426,7 @@ Fingerprint（建议 JSON 或等价键值）至少包含：
 | 阶段 | 范围 |
 |------|------|
 | **P0** | 默认 `lua-5.5.0` + 下载缓存 + `lua-5.3` patch + Unity `2022.3` patch + `zlua-runtime` |
-| **P1** | `lua-5.1.x` / `lua-5.2.x`（无 VM patch）+ `lua-5.4.x` / `lua-5.5.x` 与对应系列 patch / DLL |
+| **P1** | `lua-5.1.x` / `lua-5.2.x`（全小版本 FastMT + 系列 patch）+ `lua-5.4.x` / `lua-5.5.x` 与对应系列 patch / DLL |
 | **P2** | LuaJIT（手动 clone；Editor ✅；Il2Cpp **仅 Android / iOS**） |
 
 ---
@@ -430,8 +439,8 @@ Fingerprint（建议 JSON 或等价键值）至少包含：
 - [ ] 默认 `luaVersionId` = `lua-5.5.0`
 - [ ] Plugins DLL 缺失仅警告
 - [ ] libil2cpp patch：floor（≤ 当前的最大 `{X.Y.Z}.patch`），无 `default.patch`；失败不降级
-- [ ] lua patch：仅 PUC-Rio **5.3+** apply（§5.2）；5.1 / 5.2 / LuaJIT 跳过且 `luaPatchKey=none`
-- [ ] FastMT：仅 ≥5.3.2 可启用；5.3.0/5.3.1、5.1、5.2、LuaJIT 强制 `ZLUA_FAST_METATABLE 0`（§5.4）
+- [ ] lua patch：PUC-Rio **5.1+**（含 5.2.x）apply（§5.2）；仅 LuaJIT 跳过且 `luaPatchKey=none`
+- [ ] FastMT：全部 PUC-Rio 5.x 可启用；仅 LuaJIT 强制 `ZLUA_FAST_METATABLE 0`（§5.4）
 - [ ] Define / `LuaDllName` / fingerprint / 重启提示齐全
 - [ ] `LuaCompatible.h` / `Il2CppCompatible.h` / `ZLuaConf.inc` 符合 §12
 - [ ] Install 写 Local `ZLuaConf.inc`；Generate/All 校验或复写，禁止过期静默使用
@@ -521,7 +530,7 @@ Fingerprint（建议 JSON 或等价键值）至少包含：
 | 官方 API 族（5.3 vs 5.4…） | `#if !ZLUA_USE_LUAJIT && (LUA_VERSION_NUM >= 504)`，或 `ZLUA_LUA_API_FAMILY >= 504` |
 | 精确 id 对账 | `ZLUA_CONF_ID` / fingerprint |
 | 团结 vs Unity API | `#if ZLUA_TUANJIE_ENGINE`，必要时叠加 `ZLUA_UNITY_VERSION` / `ZLUA_TUANJIE_VERSION` |
-| FastMT | `#if ZLUA_FAST_METATABLE`（仅 `luaconf.h`）；支持面见 **§5.4**（≥5.3.2 可开；5.3.0/5.3.1、5.1、5.2、LuaJIT **必须为 0**） |
+| FastMT | `#if ZLUA_FAST_METATABLE`（仅 `luaconf.h`）；支持面见 **§5.4**（全部 PUC-Rio 5.x 可开；仅 LuaJIT **必须为 0**） |
 
 不支持 FastMT 的组合：Install **必须** 使 `luaconf.h` 中 `ZLUA_FAST_METATABLE` 为 `0`。`ZLuaCommon.h` 可对 `ZLUA_USE_LUAJIT && ZLUA_FAST_METATABLE` 做 `#error` 防护。
 
