@@ -1,0 +1,58 @@
+{
+  "link.title.Docs": {
+    "message": "Docs",
+    "description": "The title of the footer links column with title=Docs in the footer"
+  },
+  "link.title.Community": {
+    "message": "Community",
+    "description": "The title of the footer links column with title=Community in the footer"
+  },
+  "link.title.More": {
+    "message": "More",
+    "description": "The title of the footer links column with title=More in the footer"
+  },
+  "link.item.label.Comparison": {
+    "message": "Comparison",
+    "description": "The label of footer link with label=Comparison linking to /docs/category/compare/"
+  },
+  "link.item.label.Spec": {
+    "message": "Spec",
+    "description": "The label of footer link with label=Spec linking to /docs/category/spec/"
+  },
+  "link.item.label.Quick start": {
+    "message": "Quick start",
+    "description": "The label of footer link with label=Quick start linking to /docs/getting-started/quick-start/"
+  },
+  "link.item.label.Guides": {
+    "message": "Guides",
+    "description": "The label of footer link with label=Guides linking to /docs/guides/install/"
+  },
+  "link.item.label.API reference": {
+    "message": "API reference",
+    "description": "The label of footer link with label=API reference linking to /docs/reference/overview/"
+  },
+  "link.item.label.GitHub Issues": {
+    "message": "GitHub Issues",
+    "description": "The label of footer link with label=GitHub Issues linking to https://github.com/focus-creative-games/zlua/issues"
+  },
+  "link.item.label.Discord": {
+    "message": "Discord",
+    "description": "The label of footer link with label=Discord linking to https://discord.gg/htmr44jW6A"
+  },
+  "link.item.label.Contact & FAQ": {
+    "message": "Contact & FAQ",
+    "description": "The label of footer link with label=Contact & FAQ linking to /docs/community/contact/"
+  },
+  "link.item.label.ZLua source": {
+    "message": "ZLua source",
+    "description": "The label of footer link with label=ZLua source linking to https://github.com/focus-creative-games/zlua"
+  },
+  "link.item.label.Demo project": {
+    "message": "Demo project",
+    "description": "The label of footer link with label=Demo project linking to https://github.com/focus-creative-games/zlua-demo"
+  },
+  "copyright": {
+    "message": "Copyright © 2026 Code Philosophy. ZLua is MIT-licensed.",
+    "description": "The footer copyright"
+  }
+}

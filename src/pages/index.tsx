@@ -5,6 +5,7 @@ import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import Translate, {translate} from '@docusaurus/Translate';
 import HomepageFeatures from '@site/src/components/HomepageFeatures';
 import RuntimeBadge from '@site/src/components/RuntimeBadge';
 import Heading from '@theme/Heading';
@@ -20,7 +21,11 @@ function HomepageHeader() {
           {siteConfig.title}
           <span className="badgeAlpha">Alpha</span>
         </Heading>
-        <p className="hero__subtitle">{siteConfig.tagline}</p>
+        <p className="hero__subtitle">
+          <Translate id="homepage.tagline">
+            Zero-config · Full C# interop · ~2.62× faster than xLua on Il2Cpp
+          </Translate>
+        </p>
         <div className={styles.runtimeRow}>
           <RuntimeBadge />
         </div>
@@ -28,16 +33,18 @@ function HomepageHeader() {
           <Link
             className="button button--secondary button--lg"
             to="/docs/getting-started/quick-start">
-            5 分钟快速开始
+            <Translate id="homepage.cta.quickStart">5-minute quick start</Translate>
           </Link>
           <Link
             className="button button--outline button--secondary button--lg"
             href="https://github.com/focus-creative-games/zlua-demo">
-            查看 Demo
+            <Translate id="homepage.cta.demo">View Demo</Translate>
           </Link>
         </div>
         <p className={styles.heroMeta}>
-          Unity 2021+ · 团结引擎 · Lua 5.1–5.5 / LuaJIT（Il2Cpp：Android·iOS）
+          <Translate id="homepage.heroMeta">
+            Unity 2021+ · Tuanjie · Lua 5.1–5.5 / LuaJIT (Il2Cpp: Android · iOS)
+          </Translate>
         </p>
       </div>
     </header>
@@ -88,7 +95,7 @@ function CodePreview() {
   return (
     <section className={clsx('container', styles.codePreview)}>
       <Heading as="h2" className={styles.codePreviewTitle}>
-        双向调用一览
+        <Translate id="homepage.codePreview.title">Bidirectional calls at a glance</Translate>
       </Heading>
       <Tabs groupId="homepage-code" className={styles.codeTabs}>
         <TabItem value="csharp" label="C# → Lua" default>
@@ -114,8 +121,12 @@ function CodePreview() {
 export default function Home(): ReactNode {
   return (
     <Layout
-      title="首页"
-      description="ZLua — Unity Il2Cpp 极致优化的现代原生 Lua 方案。统一 C# 与 Lua 双向调用，C++ 层直桥，零 Wrapper 膨胀。">
+      title={translate({id: 'homepage.layout.title', message: 'Home'})}
+      description={translate({
+        id: 'homepage.layout.description',
+        message:
+          'ZLua — a modern native Lua stack for Unity Il2Cpp. Unified C# ↔ Lua calls, C++ direct bridge, no per-type Wrap bloat.',
+      })}>
       <HomepageHeader />
       <main>
         <HomepageFeatures />

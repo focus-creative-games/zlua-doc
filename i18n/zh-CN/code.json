@@ -1,0 +1,58 @@
+{
+  "homepage.tagline": {
+    "message": "零配置 · 完备 C# 互操作 · Il2Cpp 上约 2.62× 于 xLua",
+    "description": "Homepage tagline"
+  },
+  "homepage.cta.quickStart": {
+    "message": "5 分钟快速开始",
+    "description": "Homepage primary CTA"
+  },
+  "homepage.cta.demo": {
+    "message": "查看 Demo",
+    "description": "Homepage demo CTA"
+  },
+  "homepage.heroMeta": {
+    "message": "Unity 2021+ · 团结引擎 · Lua 5.1–5.5 / LuaJIT（Il2Cpp：Android·iOS）",
+    "description": "Homepage hero meta line"
+  },
+  "homepage.codePreview.title": {
+    "message": "双向调用一览",
+    "description": "Homepage code preview heading"
+  },
+  "homepage.layout.title": {
+    "message": "首页",
+    "description": "Homepage document title"
+  },
+  "homepage.layout.description": {
+    "message": "ZLua — Unity Il2Cpp 极致优化的现代原生 Lua 方案。统一 C# 与 Lua 双向调用，C++ 层直桥，零 Wrapper 膨胀。",
+    "description": "Homepage meta description"
+  },
+  "homepage.feature.easy.title": {
+    "message": "更易用 · 零配置",
+    "description": "Feature 1 title"
+  },
+  "homepage.feature.easy.desc": {
+    "message": "声明式 GetFunction / [LuaMarshalAs]，CSharp 懒加载；无需 per-type C# Wrap 白名单，屏蔽底层 Lua C API。",
+    "description": "Feature 1 description"
+  },
+  "homepage.feature.fast.title": {
+    "message": "更快 · 约 2.62×",
+    "description": "Feature 2 title"
+  },
+  "homepage.feature.fast.desc": {
+    "message": "Il2Cpp 实测：约 98% 对齐用例快于 xLua；Lua→C# 平均约 2.62×；常见字段 / 属性与调用约 4×。",
+    "description": "Feature 2 description"
+  },
+  "homepage.feature.small.title": {
+    "message": "更小桥接 · 更少 GC",
+    "description": "Feature 3 title"
+  },
+  "homepage.feature.small.desc": {
+    "message": "同签名合并的 C++ stub，体积可小一个数量级；引用类型与 struct 默认 0 GC，并提供 OpaqueValue 等策略。",
+    "description": "Feature 3 description"
+  },
+  "theme.blog.post.downloadPdfButtonLabel": {
+    "message": "Download PDF",
+    "description": "Unused placeholder for theme"
+  }
+}

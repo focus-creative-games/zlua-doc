@@ -4,7 +4,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 
 const config: Config = {
   title: 'ZLua Docs',
-  tagline: '零配置 · 完备 C# 互操作 · Il2Cpp 上约 2.62× 于 xLua',
+  tagline: 'Zero-config · Full C# interop · ~2.62× faster than xLua on Il2Cpp',
 
   favicon: 'img/logo.jpg',
 
@@ -14,7 +14,7 @@ const config: Config = {
 
   url: 'https://doc.zlua.cn',
   baseUrl: '/',
-  // GitHub Pages + nginx 对无尾斜杠会 301；显式 true 避免手机直链 404。
+  // GitHub Pages + nginx: no trailing slash → 301; keep true to avoid mobile 404s.
   trailingSlash: true,
 
   organizationName: 'focus-creative-games',
@@ -32,8 +32,11 @@ const config: Config = {
 
   i18n: {
     defaultLocale: 'zh-CN',
-    // 英文文档：添加 'en' 至 locales 并创建 i18n/en/ 翻译文件（P5 预留）
-    locales: ['zh-CN'],
+    locales: ['zh-CN', 'en'],
+    localeConfigs: {
+      'zh-CN': {label: '中文', htmlLang: 'zh-CN'},
+      en: {label: 'English', htmlLang: 'en'},
+    },
   },
   themes: ['@docusaurus/theme-mermaid'],
 
@@ -83,13 +86,17 @@ const config: Config = {
           type: 'docSidebar',
           sidebarId: 'docsSidebar',
           position: 'left',
-          label: '文档',
+          label: 'Docs',
         },
         {
           type: 'docSidebar',
           sidebarId: 'architectureSidebar',
           position: 'left',
-          label: '架构',
+          label: 'Architecture',
+        },
+        {
+          type: 'localeDropdown',
+          position: 'right',
         },
         {
           href: 'https://github.com/focus-creative-games/zlua-demo',
@@ -107,17 +114,17 @@ const config: Config = {
       style: 'dark',
       links: [
         {
-          title: '文档',
+          title: 'Docs',
           items: [
-            {label: '选型对比', to: '/docs/category/compare/'},
-            {label: '规范文档', to: '/docs/category/spec/'},
-            {label: '快速开始', to: '/docs/getting-started/quick-start/'},
-            {label: '使用指南', to: '/docs/guides/install/'},
-            {label: 'API 参考', to: '/docs/reference/overview/'},
+            {label: 'Comparison', to: '/docs/category/compare/'},
+            {label: 'Spec', to: '/docs/category/spec/'},
+            {label: 'Quick start', to: '/docs/getting-started/quick-start/'},
+            {label: 'Guides', to: '/docs/guides/install/'},
+            {label: 'API reference', to: '/docs/reference/overview/'},
           ],
         },
         {
-          title: '社区',
+          title: 'Community',
           items: [
             {
               label: 'GitHub Issues',
@@ -127,24 +134,24 @@ const config: Config = {
               label: 'Discord',
               href: 'https://discord.gg/htmr44jW6A',
             },
-            {label: '联系与 FAQ', to: '/docs/community/contact/'},
+            {label: 'Contact & FAQ', to: '/docs/community/contact/'},
           ],
         },
         {
-          title: '更多',
+          title: 'More',
           items: [
             {
-              label: 'ZLua 源码',
+              label: 'ZLua source',
               href: 'https://github.com/focus-creative-games/zlua',
             },
             {
-              label: '示例项目',
+              label: 'Demo project',
               href: 'https://github.com/focus-creative-games/zlua-demo',
             },
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} Code Philosophy. ZLua 采用 MIT 许可证。`,
+      copyright: `Copyright © ${new Date().getFullYear()} Code Philosophy. ZLua is MIT-licensed.`,
     },
     prism: {
       theme: prismThemes.github,

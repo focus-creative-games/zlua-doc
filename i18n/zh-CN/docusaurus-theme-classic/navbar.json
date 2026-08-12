@@ -1,0 +1,14 @@
+{
+  "title": {
+    "message": "文档",
+    "description": "Navbar Docs label for zh-CN"
+  },
+  "item.label.Docs": {
+    "message": "文档",
+    "description": "Navbar item Docs"
+  },
+  "item.label.Architecture": {
+    "message": "架构",
+    "description": "Navbar item Architecture"
+  }
+}

@@ -1,17 +1,17 @@
 #!/usr/bin/env node
 /**
- * 为 docs/guides 主线 md 注入「学习路径」上一篇/下一篇（幂等）。
- * 用法: node scripts/inject-guide-nav.mjs
+ * Inject learning-path prev/next into guide md files (idempotent).
+ * Usage: node scripts/inject-guide-nav.mjs
+ * Touches docs/guides and i18n/en/.../guides when present.
  */
 import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const guidesDir = path.join(__dirname, '..', 'docs', 'guides');
+const root = path.join(__dirname, '..');
 
-/** 主线顺序（不含 migration 子目录与附录） */
-const chain = [
+const chainZh = [
   {slug: '/docs/getting-started/quick-start/', title: '快速开始'},
   {slug: '/docs/guides/install/', title: '安装与 Lua 版本'},
   {slug: '/docs/guides/hello-interop/', title: '初始化与最小互调'},
@@ -36,52 +36,101 @@ const chain = [
   {slug: '/docs/guides/editor-vs-player/', title: 'Editor 与 Player'},
 ];
 
-function buildNavBlock(prev, next) {
+const chainEn = [
+  {slug: '/docs/getting-started/quick-start/', title: 'Quick start'},
+  {slug: '/docs/guides/install/', title: 'Install & Lua version'},
+  {slug: '/docs/guides/hello-interop/', title: 'Init & minimal interop'},
+  {slug: '/docs/guides/build/', title: 'Build pipeline'},
+  {slug: '/docs/guides/debugger/', title: 'EmmyLua debugger'},
+  {slug: '/docs/guides/lua-calling-csharp/', title: 'Lua calling C#'},
+  {slug: '/docs/guides/csharp-calling-lua/', title: 'C# calling Lua'},
+  {slug: '/docs/guides/value-types/', title: 'Value types'},
+  {slug: '/docs/guides/functions/', title: 'Function & Delegate'},
+  {slug: '/docs/guides/arrays/', title: 'Arrays'},
+  {slug: '/docs/guides/generics/', title: 'Generics'},
+  {slug: '/docs/guides/ref-out-in/', title: 'ref / in / out'},
+  {slug: '/docs/guides/lua-marshal-as/', title: 'LuaMarshalAs'},
+  {slug: '/docs/guides/zero-gc-marshal/', title: '0GC Marshal'},
+  {slug: '/docs/guides/overloads/', title: 'Method overloads'},
+  {slug: '/docs/guides/lua-alias/', title: 'LuaAlias'},
+  {slug: '/docs/guides/extension-methods/', title: 'Extension methods'},
+  {slug: '/docs/guides/zlua-lib/', title: 'Common zlua APIs'},
+  {slug: '/docs/guides/native-modules/', title: 'Third-party native modules'},
+  {slug: '/docs/guides/migration/', title: 'Migration'},
+  {slug: '/docs/guides/troubleshooting/', title: 'Troubleshooting'},
+  {slug: '/docs/guides/editor-vs-player/', title: 'Editor vs Player'},
+];
+
+function buildNavBlock(prev, next, labels) {
   const prevCell = prev ? `[${prev.title}](${prev.slug})` : '—';
   const nextCell = next ? `[${next.title}](${next.slug})` : '—';
-  return `## 学习路径
+  return `## ${labels.heading}
 
 | | |
 |---|---|
-| **上一篇** | ${prevCell} |
-| **下一篇** | ${nextCell} |
+| **${labels.prev}** | ${prevCell} |
+| **${labels.next}** | ${nextCell} |
 
 `;
 }
 
-const mainlineFiles = new Set(
-  chain
-    .filter((item) => item.slug.startsWith('/docs/guides/') && !item.slug.includes('migration'))
-    .map((item) => item.slug.replace(/^\/docs\/guides\//, '').replace(/\/$/, '') + '.md'),
-);
-
-for (const file of fs.readdirSync(guidesDir)) {
-  if (!file.endsWith('.md')) continue;
-  if (!mainlineFiles.has(file)) continue;
-
-  const name = file.replace(/\.md$/, '');
-  const idx = chain.findIndex((item) => item.slug === `/docs/guides/${name}/`);
-  if (idx === -1) continue;
-
-  const filePath = path.join(guidesDir, file);
-  let content = fs.readFileSync(filePath, 'utf8');
-
-  content = content.replace(/\r\n/g, '\n');
-  // 去掉旧学习路径；勿留下大段空行（此前替换成单个 \n 会让空行在「相关文档」前堆积）
-  content = content.replace(/\n## 学习路径\n[\s\S]*?(?=\n## |$)/g, '\n');
-  content = content.replace(/\n{3,}/g, '\n\n');
-
-  const navBlock = buildNavBlock(chain[idx - 1], chain[idx + 1]);
-  const marker = '\n## 相关文档\n';
-  if (content.includes(marker)) {
-    content = content.replace(marker, `\n${navBlock}${marker.trimStart()}`);
-  } else {
-    content = content.trimEnd() + '\n\n' + navBlock;
+function injectLocale(guidesDir, chain, labels) {
+  if (!fs.existsSync(guidesDir)) {
+    console.log('skip (missing)', guidesDir);
+    return;
   }
-  content = content.replace(/\n{3,}/g, '\n\n').replace(/\n*$/, '\n');
 
-  fs.writeFileSync(filePath, content, 'utf8');
-  console.log('updated', file);
+  const mainlineFiles = new Set(
+    chain
+      .filter((item) => item.slug.startsWith('/docs/guides/') && !item.slug.includes('migration'))
+      .map((item) => item.slug.replace(/^\/docs\/guides\//, '').replace(/\/$/, '') + '.md'),
+  );
+
+  for (const file of fs.readdirSync(guidesDir)) {
+    if (!file.endsWith('.md')) continue;
+    if (!mainlineFiles.has(file)) continue;
+
+    const name = file.replace(/\.md$/, '');
+    const idx = chain.findIndex((item) => item.slug === `/docs/guides/${name}/`);
+    if (idx === -1) continue;
+
+    const filePath = path.join(guidesDir, file);
+    let content = fs.readFileSync(filePath, 'utf8');
+
+    content = content.replace(/\r\n/g, '\n');
+    content = content.replace(/\n## (学习路径|Learning path)\n[\s\S]*?(?=\n## |$)/g, '\n');
+    content = content.replace(/\n{3,}/g, '\n\n');
+
+    const navBlock = buildNavBlock(chain[idx - 1], chain[idx + 1], labels);
+    const markers = ['\n## 相关文档\n', '\n## Related\n'];
+    let inserted = false;
+    for (const marker of markers) {
+      if (content.includes(marker)) {
+        content = content.replace(marker, `\n${navBlock}${marker.trimStart()}`);
+        inserted = true;
+        break;
+      }
+    }
+    if (!inserted) {
+      content = content.trimEnd() + '\n\n' + navBlock;
+    }
+    content = content.replace(/\n{3,}/g, '\n\n').replace(/\n*$/, '\n');
+
+    fs.writeFileSync(filePath, content, 'utf8');
+    console.log('updated', path.relative(root, filePath).replace(/\\/g, '/'));
+  }
 }
+
+injectLocale(path.join(root, 'docs', 'guides'), chainZh, {
+  heading: '学习路径',
+  prev: '上一篇',
+  next: '下一篇',
+});
+
+injectLocale(
+  path.join(root, 'i18n', 'en', 'docusaurus-plugin-content-docs', 'current', 'guides'),
+  chainEn,
+  {heading: 'Learning path', prev: 'Previous', next: 'Next'},
+);
 
 console.log('done');

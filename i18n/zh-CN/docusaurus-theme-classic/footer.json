@@ -1,0 +1,38 @@
+{
+  "link.title.Docs": {
+    "message": "文档"
+  },
+  "link.title.Community": {
+    "message": "社区"
+  },
+  "link.title.More": {
+    "message": "更多"
+  },
+  "link.item.label.Comparison": {
+    "message": "选型对比"
+  },
+  "link.item.label.Spec": {
+    "message": "规范文档"
+  },
+  "link.item.label.Quick start": {
+    "message": "快速开始"
+  },
+  "link.item.label.Guides": {
+    "message": "使用指南"
+  },
+  "link.item.label.API reference": {
+    "message": "API 参考"
+  },
+  "link.item.label.Contact & FAQ": {
+    "message": "联系与 FAQ"
+  },
+  "link.item.label.ZLua source": {
+    "message": "ZLua 源码"
+  },
+  "link.item.label.Demo project": {
+    "message": "示例项目"
+  },
+  "copyright": {
+    "message": "Copyright © 2026 Code Philosophy. ZLua 采用 MIT 许可证。"
+  }
+}

@@ -6,6 +6,7 @@ const sidebars: SidebarsConfig = {
     {
       type: 'category',
       label: '入门',
+      key: 'sidebar-getting-started',
       collapsed: false,
       link: {
         type: 'generated-index',
@@ -18,6 +19,7 @@ const sidebars: SidebarsConfig = {
     {
       type: 'category',
       label: '使用指南',
+      key: 'sidebar-guides',
       collapsed: false,
       link: {
         type: 'generated-index',
@@ -30,6 +32,7 @@ const sidebars: SidebarsConfig = {
     {
       type: 'category',
       label: '核心概念',
+      key: 'sidebar-concepts',
       collapsed: false,
       link: {
         type: 'generated-index',
@@ -42,6 +45,7 @@ const sidebars: SidebarsConfig = {
     {
       type: 'category',
       label: '选型对比',
+      key: 'sidebar-compare',
       collapsed: false,
       link: {
         type: 'generated-index',
@@ -54,6 +58,7 @@ const sidebars: SidebarsConfig = {
     {
       type: 'category',
       label: 'API 参考',
+      key: 'sidebar-reference',
       collapsed: false,
       link: {
         type: 'generated-index',
@@ -66,6 +71,7 @@ const sidebars: SidebarsConfig = {
     {
       type: 'category',
       label: '规范文档',
+      key: 'sidebar-spec',
       collapsed: true,
       link: {
         type: 'generated-index',
@@ -78,6 +84,7 @@ const sidebars: SidebarsConfig = {
     {
       type: 'category',
       label: '社区',
+      key: 'sidebar-community',
       collapsed: false,
       link: {
         type: 'generated-index',
@@ -93,6 +100,7 @@ const sidebars: SidebarsConfig = {
     {
       type: 'category',
       label: '架构与实现',
+      key: 'sidebar-impl',
       collapsed: false,
       link: {
         type: 'generated-index',

@@ -1,0 +1,214 @@
+---
+sidebar_position: 1
+title: Quick start
+description: Run C# ↔ Lua interop from scratch with zlua-demo.
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Quick start
+
+This tutorial follows the official [zlua-demo](https://github.com/focus-creative-games/zlua-demo) sample and walks through **C# calling Lua** and **Lua accessing C#**. Clone the Demo project and follow along.
+
+<span className="runtimeBadge"><span className="runtimeBadgeMono">Mono · Done</span><span className="runtimeBadgeIl2cpp">Il2Cpp · Done</span></span> — Examples on this page work in both **Editor** and **Player**; Player builds require **Generate**. See [Compatibility](/docs/getting-started/compatibility/).
+
+:::tip Sample sources
+
+| Piece | Link |
+|------|------|
+| C# entry | [Assets/Bootstrap.cs](https://github.com/focus-creative-games/zlua-demo/blob/main/Assets/Bootstrap.cs) |
+| C# types | [Assets/Demo.cs](https://github.com/focus-creative-games/zlua-demo/blob/main/Assets/Demo.cs) |
+| Lua module | [LuaScripts/app.lua](https://github.com/focus-creative-games/zlua-demo/blob/main/LuaScripts/app.lua) |
+
+:::
+
+## Prerequisites
+
+- Finish [Installation](/docs/getting-started/installation/) (Settings + Install), or clone zlua-demo
+- Any Unity version listed in [Compatibility](/docs/getting-started/compatibility/); Play in the Editor is enough to start
+
+## Step 1: Initialize ZLua
+
+`Bootstrap` registers the Lua loader and initializes the domain before the scene loads:
+
+```csharp
+[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+private static void InitZLuaOnStartup()
+{
+    LuaAppDomain.Initialize(LoadLuaModule);
+}
+```
+
+`LoadLuaModule("app")` reads `LuaScripts/app.lua` in the Editor (see [Bootstrap.cs](https://github.com/focus-creative-games/zlua-demo/blob/main/Assets/Bootstrap.cs)).
+
+You do **not** manually create a `LuaState`, `require`, or register wraps — ZLua wires the CLR and Lua environment at startup.
+
+## Step 2: C# calling Lua
+
+Use `LuaAppDomain.GetFunction<T>` to obtain a Delegate for a Lua function; the Lua module `return` table exports named functions.
+
+<Tabs groupId="quickstart-c2l">
+<TabItem value="csharp" label="C#" default>
+
+```csharp
+Action AppMain;
+Func<int, int, int> AppAdd;
+
+void Awake()
+{
+    // After InitZLuaOnStartup (Initialize); do not use static field initializers
+    AppMain = LuaAppDomain.GetFunction<Action>("app", "main");
+    AppAdd = LuaAppDomain.GetFunction<Func<int, int, int>>("app", "add");
+}
+
+void Start()
+{
+    AppMain();
+    int value = AppAdd(10, 20);
+    Debug.Log($"AppAdd(10,20)={value}");  // 30
+}
+```
+
+</TabItem>
+<TabItem value="lua" label="Lua">
+
+```lua
+local function main()
+    print("lua main start")
+    -- ...
+end
+
+local function add(a, b)
+    return a + b
+end
+
+return {
+    main = main,
+    add = add,
+}
+```
+
+</TabItem>
+</Tabs>
+
+Full logic: [LuaScripts/app.lua](https://github.com/focus-creative-games/zlua-demo/blob/main/LuaScripts/app.lua).
+
+### Expected Console output (Editor Play)
+
+```
+lua main start
+[test_call_static_method] start
+Demo.Add: 8
+...
+AppAdd(10,20)=30
+```
+
+## Step 3: Lua accessing C# types
+
+### Assembly alias
+
+Load assemblies and types lazily via the `CSharp` root table:
+
+```lua
+CSharp['AC'] = CSharp['Assembly-CSharp']   -- short alias used by the Demo
+```
+
+### Static methods
+
+```lua
+print(CSharp.AC.Demo.Add(3, 5))       -- 8
+print(CSharp.AC.Demo.Multi(3, 5))     -- 15
+```
+
+### Construction and instance methods
+
+```lua
+local demo = CSharp.AC.Demo()
+print(demo:GetX())                    -- 0
+demo:SetX(10)
+```
+
+### Fields and properties
+
+Fields and parameterless properties share the same access style:
+
+```lua
+demo.x = 20
+print(demo:GetX())                    -- 20
+```
+
+### Static members
+
+```lua
+CSharp.AC.Demo.s_x = 10
+print(CSharp.AC.Demo.GetSX())         -- 10
+```
+
+These appear in the `test_*` helpers in [app.lua](https://github.com/focus-creative-games/zlua-demo/blob/main/LuaScripts/app.lua).
+
+## Access cheat sheet
+
+| Action | Lua |
+|------|----------|
+| Construct | `CSharp.AC.Demo()` |
+| Instance field/property | `demo.x` / `demo:SetX(10)` |
+| Instance method | `demo:Run(10)` |
+| Static field | `CSharp.AC.Demo.s_x` |
+| Static method | `CSharp.AC.Demo.Add(3, 5)` |
+| Namespaced type | `CSharp.AC['MyGame.UI.Panel']` |
+
+## Step 4 (optional): Method overloads
+
+`Demo.Run` has `int` and `string` overloads. Use a full-signature key, or register a short name for colon calls:
+
+```lua
+demo['Run(System.Int32)'](demo, 10)
+
+local run_i32 = demo['Run(System.Int32)']
+zlua.register_method("run_i32", run_i32)
+demo:run_i32(10)
+```
+
+See [Method overloads](/docs/guides/overloads/).
+
+## Building an Il2Cpp Player
+
+1. Run **`ZLua/Generate/All`** (emit C++ stubs)
+2. Configure [SyncLuaScriptsToStreamingAssets](https://github.com/focus-creative-games/zlua-demo/blob/main/Assets/Editor/SyncLuaScriptsToStreamingAssets.cs)
+3. Build Settings → Il2Cpp → Build
+
+See [Project status](/docs/getting-started/project-status/) and [Editor vs Player](/docs/guides/editor-vs-player/).
+
+## Mono / Il2Cpp support
+
+| This page | Mono (Editor) | Il2Cpp (Player) |
+|----------|:-------------:|:---------------:|
+| Initialize + GetFunction | ✅ | ✅ |
+| Static/instance methods, fields | ✅ | ✅ |
+| Property / overloads | ✅ | ✅ (semantics follow the Spec) |
+
+## Common errors
+
+| Error | Check |
+|------|------|
+| `module 'app' not found` | `LuaScripts/app.lua` exists; `LoadLuaModule` path |
+| Type `Demo` is nil | Wrong assembly name; use `CSharp.AC.Demo` |
+| `AppAdd` returns 0 | Module did not `return { add = add }`; or method name ≠ `GetFunction` argument |
+| No Lua output in Player | Missing `StreamingAssets/LuaScripts/app.lua.txt` sync |
+
+## Next steps
+
+Follow the Guides path:
+
+1. [Install & Lua version](/docs/guides/install/)
+2. [Init & minimal interop](/docs/guides/hello-interop/)
+3. [Build pipeline](/docs/guides/build/)
+4. [Lua calling C#](/docs/guides/lua-calling-csharp/) → [C# calling Lua](/docs/guides/csharp-calling-lua/) → …
+
+## Learning path
+
+| | |
+|---|---|
+| **Previous** | [Installation](/docs/getting-started/installation/) |
+| **Next** | [Install & Lua version](/docs/guides/install/) |

@@ -1,0 +1,174 @@
+{
+  "version.label": {
+    "message": "Next",
+    "description": "The label for version current"
+  },
+  "sidebar.docsSidebar.category.sidebar-getting-started": {
+    "message": "Getting started",
+    "description": "The label for category Getting started in sidebar docsSidebar"
+  },
+  "sidebar.docsSidebar.category.sidebar-getting-started.link.generated-index.title": {
+    "message": "Getting started",
+    "description": "The generated-index page title for Getting started"
+  },
+  "sidebar.docsSidebar.category.sidebar-getting-started.link.generated-index.description": {
+    "message": "Install, quick start, and supported platforms.",
+    "description": "The generated-index page description for Getting started"
+  },
+  "sidebar.docsSidebar.category.sidebar-guides": {
+    "message": "Guides",
+    "description": "The label for category Guides"
+  },
+  "sidebar.docsSidebar.category.sidebar-guides.link.generated-index.title": {
+    "message": "Guides",
+    "description": "The generated-index page title for Guides"
+  },
+  "sidebar.docsSidebar.category.sidebar-guides.link.generated-index.description": {
+    "message": "Progressive path: install → interop → build → daily usage → advanced Marshal → migration.",
+    "description": "The generated-index page description for Guides"
+  },
+  "sidebar.docsSidebar.category.guides-migration": {
+    "message": "Migration",
+    "description": "The label for guides migration category"
+  },
+  "sidebar.docsSidebar.category.guides-migration.link.generated-index.description": {
+    "message": "Migrate from xLua / toLua / SLua to ZLua.",
+    "description": "generated-index description for guides migration"
+  },
+  "sidebar.docsSidebar.category.sidebar-concepts": {
+    "message": "Concepts",
+    "description": "The label for Concepts"
+  },
+  "sidebar.docsSidebar.category.sidebar-concepts.link.generated-index.title": {
+    "message": "Concepts",
+    "description": "generated-index title for Concepts"
+  },
+  "sidebar.docsSidebar.category.sidebar-concepts.link.generated-index.description": {
+    "message": "Design model, glossary, and comparison summary.",
+    "description": "generated-index description for Concepts"
+  },
+  "sidebar.docsSidebar.category.sidebar-compare": {
+    "message": "Comparison",
+    "description": "The label for Comparison"
+  },
+  "sidebar.docsSidebar.category.sidebar-compare.link.generated-index.title": {
+    "message": "Comparison",
+    "description": "generated-index title for Comparison"
+  },
+  "sidebar.docsSidebar.category.sidebar-compare.link.generated-index.description": {
+    "message": "Features, performance, GC, and bridge size vs xLua / toLua / SLua (not a behavior contract).",
+    "description": "generated-index description for Comparison"
+  },
+  "sidebar.docsSidebar.category.sidebar-reference": {
+    "message": "API reference",
+    "description": "The label for API reference"
+  },
+  "sidebar.docsSidebar.category.sidebar-reference.link.generated-index.title": {
+    "message": "API reference",
+    "description": "generated-index title for API reference"
+  },
+  "sidebar.docsSidebar.category.sidebar-reference.link.generated-index.description": {
+    "message": "C# attributes, Lua APIs, and Marshal cheat sheet.",
+    "description": "generated-index description for API reference"
+  },
+  "sidebar.docsSidebar.category.C# API": {
+    "message": "C# API",
+    "description": "The label for category C# API"
+  },
+  "sidebar.docsSidebar.category.Lua API": {
+    "message": "Lua API",
+    "description": "The label for category Lua API"
+  },
+  "sidebar.docsSidebar.category.sidebar-spec": {
+    "message": "Spec",
+    "description": "The label for Spec"
+  },
+  "sidebar.docsSidebar.category.sidebar-spec.link.generated-index.title": {
+    "message": "Spec",
+    "description": "generated-index title for Spec"
+  },
+  "sidebar.docsSidebar.category.sidebar-spec.link.generated-index.description": {
+    "message": "Authoritative semantics (docs/spec in this repo is the source of truth).",
+    "description": "generated-index description for Spec"
+  },
+  "sidebar.docsSidebar.category.元表": {
+    "message": "Metatables",
+    "description": "The label for Metatables"
+  },
+  "sidebar.docsSidebar.category.元表.link.generated-index.description": {
+    "message": "Metatable layout, indexing, and binding.",
+    "description": "generated-index description for Metatables"
+  },
+  "sidebar.docsSidebar.category.Marshal": {
+    "message": "Marshal",
+    "description": "The label for Marshal"
+  },
+  "sidebar.docsSidebar.category.Marshal.link.generated-index.description": {
+    "message": "Parameter and type Marshal specifications.",
+    "description": "generated-index description for Marshal"
+  },
+  "sidebar.docsSidebar.category.构建": {
+    "message": "Build",
+    "description": "The label for Build"
+  },
+  "sidebar.docsSidebar.category.构建.link.generated-index.description": {
+    "message": "Official Lua / LuaJIT build integration, Mono callback gate, and Editor EmmyLua debugger.",
+    "description": "generated-index description for Build"
+  },
+  "sidebar.docsSidebar.category.sidebar-community": {
+    "message": "Community",
+    "description": "The label for Community"
+  },
+  "sidebar.docsSidebar.category.sidebar-community.link.generated-index.title": {
+    "message": "Community",
+    "description": "generated-index title for Community"
+  },
+  "sidebar.docsSidebar.category.sidebar-community.link.generated-index.description": {
+    "message": "Roadmap, testing, FAQ, migration entry, and contact.",
+    "description": "generated-index description for Community"
+  },
+  "sidebar.docsSidebar.category.community-migration": {
+    "message": "Migration",
+    "description": "The label for community migration entry"
+  },
+  "sidebar.docsSidebar.category.community-migration.link.generated-index.description": {
+    "message": "Content moved into Guides; this page is an entry point.",
+    "description": "generated-index description for community migration"
+  },
+  "sidebar.architectureSidebar.category.sidebar-impl": {
+    "message": "Architecture & implementation",
+    "description": "The label for Architecture"
+  },
+  "sidebar.architectureSidebar.category.sidebar-impl.link.generated-index.title": {
+    "message": "Architecture & implementation",
+    "description": "generated-index title for Architecture"
+  },
+  "sidebar.architectureSidebar.category.sidebar-impl.link.generated-index.description": {
+    "message": "Mono / Il2Cpp implementation notes (does not override the spec).",
+    "description": "generated-index description for Architecture"
+  },
+  "sidebar.architectureSidebar.category.元表实现": {
+    "message": "Metatable impl",
+    "description": "The label for Metatable impl"
+  },
+  "sidebar.architectureSidebar.category.元表实现.link.generated-index.description": {
+    "message": "Indexer implementation comparison.",
+    "description": "generated-index description for Metatable impl"
+  },
+  "sidebar.architectureSidebar.category.Marshal 实现": {
+    "message": "Marshal impl",
+    "description": "The label for Marshal impl"
+  },
+  "sidebar.architectureSidebar.category.Marshal 实现.link.generated-index.description": {
+    "message": "Registry / MarshalMeta / Overload.",
+    "description": "generated-index description for Marshal impl"
+  },
+  "sidebar.architectureSidebar.category.Codegen": {
+    "message": "Codegen",
+    "description": "The label for Codegen"
+  },
+  "sidebar.architectureSidebar.category.Codegen.link.generated-index.description": {
+    "message": "Emit / Stubs (Lua→C#).",
+    "description": "generated-index description for Codegen"
+  }
+}
