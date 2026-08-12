@@ -5,9 +5,9 @@ title: "Mono 回调 Gate"
 
 # 构建 — Editor Mono：`lua_error` 与 Native Callback Gate
 
-> 解决 **Unity Editor（`ZLua.Mono`）** 下，Lua→C# 回调帧上执行 `lua_error` / 不安全堆栈抓取导致的崩溃。  
-> **适用于所有 Editor Lua 系列**（PUC-Rio 5.1–5.5 与 LuaJIT）。Il2Cpp Player **不**使用本 gate。  
-> 引擎构建见 [01-OFFICIAL-LUA.md](/docs/spec/build/01-OFFICIAL-LUA/)、[02-LUAJIT.md](/docs/spec/build/02-LUAJIT/)；异常语义见 [10-LIFETIME.md](/docs/spec/10-LIFETIME/) §8。  
+> 解决 **Unity Editor（`ZLua.Mono`）** 下，Lua→C# 回调帧上执行 `lua_error` / 不安全堆栈抓取导致的崩溃。
+> **适用于所有 Editor Lua 系列**（PUC-Rio 5.1–5.5 与 LuaJIT）。Il2Cpp Player **不**使用本 gate。
+> 引擎构建见 [01-OFFICIAL-LUA.md](/docs/spec/build/01-OFFICIAL-LUA/)、[02-LUAJIT.md](/docs/spec/build/02-LUAJIT/)；异常语义见 [10-LIFETIME.md](/docs/spec/10-LIFETIME/) §8。
 > **不**修改 Lua / LuaJIT 上游；**不**改变 `pcall` 可见语义。
 
 ---
@@ -79,7 +79,7 @@ Gate 以 **CClosure** 形式注册；Lua 看到的可调用对象是 gate，不�
 
 Managed 通过 **直接 C 调用** 进入时，当前 CallInfo 仍是 **gate 的 CClosure**，故 `lua_upvalueindex(i)` 看到的是 gate 的 upvalue。因此：
 
-- 逻辑 upvalue `k` 在 gated 模式下须读 **`lua_upvalueindex(k + 1)`**  
+- 逻辑 upvalue `k` 在 gated 模式下须读 **`lua_upvalueindex(k + 1)`**
 - 从 Lua 函数值上 `lua_getupvalue` 取第一个逻辑 upvalue 时，槽位为 **2**（而非 1）
 
 `zlua_gate_init` 第三参为 **upvalue 伪索引基址**：5.1 / LuaJIT → `LUA_GLOBALSINDEX`；5.2+ → `LUA_REGISTRYINDEX`。
@@ -88,8 +88,8 @@ Managed 通过 **直接 C 调用** 进入时，当前 CallInfo 仍是 **gate 的
 
 Gate 编译为独立原生库，**不**链死某一版 Lua：
 
-1. 已加载当前 `LUA_DLL` 之后  
-2. `zlua_gate_init(lua_touserdata, lua_error, upvalue_pseudo_base)`  
+1. 已加载当前 `LUA_DLL` 之后
+2. `zlua_gate_init(lua_touserdata, lua_error, upvalue_pseudo_base)`
 3. `zlua_get_callback_gate()` → `lua_pushcclosure`
 
 源码：`ZLua~/mono-native/`。产物与 Editor Lua 系列库同放在 **`Plugins/lua/`**（见 §5），在 **Editor** 启用（**无** `ZLUA_USE_LUAJIT` 限定）。`ZLua.Mono` asmdef 仅 Editor，故自然仅 Editor。
@@ -112,7 +112,7 @@ Gate **一份即可**覆盖全部 PUC / LuaJIT 系列（切 `lua53` / `luajit21`
 
 凡 Lua→C# 的 `pushcfunction` / `pushcclosure(managed, …)` **必须** 经 gate：
 
-- `LuaCallbackGate.PushCFunction` / `PushCClosure`  
+- `LuaCallbackGate.PushCFunction` / `PushCClosure`
 - 或等价封装（`ClosurePin`、`ZLuaLib.Register`、`LuaDllExtension.RegisterCallback`、元表 / 程序集索引等）
 
 **禁止** 把裸 `Marshal.GetFunctionPointerForDelegate` 直接 `lua_pushcfunction` 到 Lua（`__gc` 等亦建议统一走 gate，避免遗漏错误路径）。
@@ -177,16 +177,16 @@ powershell -NoProfile -ExecutionPolicy Bypass -File `
 
 脚本行为：
 
-1. 调用 `vcvars64.bat`  
-2. `cl /O2 /LD /MD` 先产出到 `mono-native/zlua_mono_gate_build.dll`（避免 `/Fe` 直写 `Plugins` 时偶发不更新）  
-3. `Copy-Item -Force` 覆盖 `Plugins/lua/zlua_mono_gate.dll`  
-4. 清理 `.obj` / `.exp` / `.lib` 中间文件  
+1. 调用 `vcvars64.bat`
+2. `cl /O2 /LD /MD` 先产出到 `mono-native/zlua_mono_gate_build.dll`（避免 `/Fe` 直写 `Plugins` 时偶发不更新）
+3. `Copy-Item -Force` 覆盖 `Plugins/lua/zlua_mono_gate.dll`
+4. 清理 `.obj` / `.exp` / `.lib` 中间文件
 5. 打印最终路径、大小与时间戳 — **请核对时间戳已变化**
 
 成功后确认：
 
-- 导出：`zlua_gate_init`、`zlua_get_callback_gate`、`zlua_callback_error_sentinel`  
-- `zlua_gate_init` 为三参数：`(touserdata, lua_error, upvalue_pseudo_base)`  
+- 导出：`zlua_gate_init`、`zlua_get_callback_gate`、`zlua_callback_error_sentinel`
+- `zlua_gate_init` 为三参数：`(touserdata, lua_error, upvalue_pseudo_base)`
 - Unity Inspector 中该 DLL 启用 **Editor**、CPU **x86_64**（可无 `ZLUA_USE_LUAJIT` define 约束）
 
 ### 5.3 macOS Editor
@@ -197,7 +197,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File `
 bash Packages/com.code-philosophy.zlua/ZLua~/mono-native/build_zlua_mono_gate_unix.sh
 ```
 
-产出：`Plugins/lua/libzlua_mono_gate.dylib`（默认 `ARCHS="arm64 x86_64"` → universal；`clang -shared -fPIC -O2 -dynamiclib`）。  
+产出：`Plugins/lua/libzlua_mono_gate.dylib`（默认 `ARCHS="arm64 x86_64"` → universal；`clang -shared -fPIC -O2 -dynamiclib`）。
 `.meta`：Editor **启用**、OS **OSX**、CPU **AnyCPU**（与 universal 匹配）。
 
 ### 5.4 Linux Editor
@@ -248,11 +248,11 @@ Plugins/lua/
 
 ## 7. 验收要点
 
-- [ ] 已按 §5 重编并覆盖 Plugins 产物（时间戳 / 哈希已更新）  
-- [ ] PUC 与 LuaJIT 下，回调错误路径 `pcall` 可捕获且 Editor 不崩  
-- [ ] 成功热路径（字段 get、方法调用）行为正常  
-- [ ] 带逻辑 upvalue 的闭包在 5.1 / JIT 与 5.2+ 下均正确  
-- [ ] 未加载 Lua DLL / 未 `gate_init` 时，首次 Push 抛明确异常，而非静默崩溃  
+- [ ] 已按 §5 重编并覆盖 Plugins 产物（时间戳 / 哈希已更新）
+- [ ] PUC 与 LuaJIT 下，回调错误路径 `pcall` 可捕获且 Editor 不崩
+- [ ] 成功热路径（字段 get、方法调用）行为正常
+- [ ] 带逻辑 upvalue 的闭包在 5.1 / JIT 与 5.2+ 下均正确
+- [ ] 未加载 Lua DLL / 未 `gate_init` 时，首次 Push 抛明确异常，而非静默崩溃
 
 ---
 

@@ -61,18 +61,6 @@ local matrix = zlua.new_mdarray_by_mdarray_type(
 | `#` 对 mdarray 无效 | `GetLength(dimension)` |
 | `to_bytes` 失败 | 元素非 blittable |
 
-
-
-
-
-
-
-
-
-
-
-
-
 ## 学习路径
 
 | | |
@@ -82,6 +70,6 @@ local matrix = zlua.new_mdarray_by_mdarray_type(
 
 ## 相关文档
 
-- [zlua 库规范 · 数组](/docs/spec/05-LIB/)  
-- [Class Marshal](/docs/spec/marshal/06-CLASS/)  
+- [zlua 库规范 · 数组](/docs/spec/05-LIB/)
+- [Class Marshal](/docs/spec/marshal/06-CLASS/)
 - [泛型](/docs/guides/generics/)

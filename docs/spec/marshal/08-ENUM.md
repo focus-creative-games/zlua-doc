@@ -5,7 +5,7 @@ title: "枚举 Marshal"
 
 # 枚举 Marshal
 
-> **规范性：** C# `enum` 在 Lua 与 C# 之间的默认 Marshal 规则。  
+> **规范性：** C# `enum` 在 Lua 与 C# 之间的默认 Marshal 规则。
 > **相关：** 类型表常量字段 → [`../02-TYPE-SYSTEM.md`](/docs/spec/02-TYPE-SYSTEM/) §枚举；boxed 形态 → [`../05-LIB.md`](/docs/spec/05-LIB/) `box`/`unbox`；`ref` enum → [`03-BYREF.md`](/docs/spec/marshal/03-BYREF/)；`[LuaMarshalAs]` → [`02-MARSHAL-AS.md`](/docs/spec/marshal/02-MARSHAL-AS/)。
 
 **平台原则：** Mono 与 Il2Cpp 的 **Lua 可见语义一致**；枚举默认 **不** 推送 userdata，而按 **integer / number** Marshal。

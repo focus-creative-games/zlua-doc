@@ -5,8 +5,8 @@ title: "OpaqueValue（临时不透明参数）"
 
 # OpaqueValue（临时不透明参数）
 
-> **规范性：** C# 调用 Lua 时，将形参/局部在 C# 调用栈上的存储地址暴露给脚本的临时令牌；以及 `[LuaMarshalAs(OpaqueValue)]` 强制路径。  
-> **byref 默认（C#→Lua）：** `ref`/`in`/`out` 形参 **默认** 即为 OpaqueValue，见 [03-BYREF.md §2](/docs/spec/marshal/03-BYREF/)。  
+> **规范性：** C# 调用 Lua 时，将形参/局部在 C# 调用栈上的存储地址暴露给脚本的临时令牌；以及 `[LuaMarshalAs(OpaqueValue)]` 强制路径。
+> **byref 默认（C#→Lua）：** `ref`/`in`/`out` 形参 **默认** 即为 OpaqueValue，见 [03-BYREF.md §2](/docs/spec/marshal/03-BYREF/)。
 > **API：** `zlua.get_opaquevalue` / `zlua.set_opaquevalue`（native：`__zlua_get_opaquevalue` / `__zlua_set_opaquevalue`），签名见 [../05-LIB.md](/docs/spec/05-LIB/)。
 
 ## 1. 定义

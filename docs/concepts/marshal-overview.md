@@ -7,7 +7,7 @@ description: C# 与 Lua 之间的默认参数 Marshal 规则。
 # Marshal 模型概览
 
 :::tip 谁该读本文
-**需要理解参数如何在 C# 与 Lua 间转换、何时用 `new_ref` / `[LuaMarshalAs]` 的开发者。** 查表用 [Marshal 速查表](/docs/reference/marshal-cheatsheet/)；`ref/out` 实操见 [指南](/docs/guides/ref-out-in/)。
+**需要理解参数如何在 C# 与 Lua 间转换、何时用 `[LuaMarshalAs]` / Opaque 的开发者。** 查表用 [Marshal 速查表](/docs/reference/marshal-cheatsheet/)；`ref/out` 实操见 [指南](/docs/guides/ref-out-in/)。
 :::
 
 ZLua 在 Mono 与 Il2Cpp 上 **Lua 可见 Marshal 语义一致**；Il2Cpp 侧重零 GC 与生成代码快速路径。
@@ -53,7 +53,7 @@ Lua 侧 **不区分** ref/out/in，统一按 ref 语义处理：
 
 | Lua 实参 | 行为 |
 |----------|------|
-| `zlua.new_ref(T)` / struct userdata | **真 ref**，C# 修改写回 |
+| 同型 ByValUserData（如 `Point2D(...)`）/ 兼容 Opaque | **真 ref**，C# 修改写回 |
 | 裸 number / string / table | **拷贝**到临时槽，**不写回** local |
 
 **GetFunction 取得的 delegate 调用**与 **delegate bridge** 上 `ref`/`out`/`in` 默认 Push **OpaqueValue**（见 [OPAQUE](/docs/spec/marshal/04-OPAQUE/)）；`params` 仍不支持。

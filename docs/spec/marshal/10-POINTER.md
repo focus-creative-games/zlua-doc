@@ -5,7 +5,7 @@ title: "指针与不支持类型"
 
 # 指针与不支持类型
 
-> **规范性：** 非托管指针、函数指针、以及 v1 默认不支持或受限的 CLR 形态之 Marshal 规则。  
+> **规范性：** 非托管指针、函数指针、以及 v1 默认不支持或受限的 CLR 形态之 Marshal 规则。
 > **相关：** 默认矩阵 → [`01-OVERVIEW.md`](/docs/spec/marshal/01-OVERVIEW/)；`IntPtr` 整型规则 → [`01-OVERVIEW.md`](/docs/spec/marshal/01-OVERVIEW/)；OpaqueValue 对比 → [`04-OPAQUE.md`](/docs/spec/marshal/04-OPAQUE/)；Delegate 对比 → [`09-FUNCTION.md`](/docs/spec/marshal/09-FUNCTION/)；`ref struct` → [`05-STRUCT.md`](/docs/spec/marshal/05-STRUCT/)、[`../05-LIB.md`](/docs/spec/05-LIB/)。
 
 **平台原则：** Mono 与 Il2Cpp 的 **Lua 可见语义一致**。

@@ -5,7 +5,7 @@ title: "特性与用法对比"
 
 # 特性与用法对比（xLua / toLua / SLua / ZLua）
 
-> **性质：** 选型材料，非 ZLua 行为规范。  
+> **性质：** 选型材料，非 ZLua 行为规范。
 > **ZLua 状态：** Mono（Editor）与 Il2Cpp（Player）**均已完成**（见 [impl/MONO.md](/docs/impl/MONO/)）。
 
 ---

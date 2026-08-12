@@ -5,8 +5,8 @@ title: "Il2Cpp 实现对照"
 
 # Il2Cpp 实现对照
 
-> **源码根（可编辑）：** `build-win64/Il2CppOutputProject/IL2CPP/libil2cpp/zlua`  
-> **包内镜像（手动同步，勿直接改）：** `Packages/com.code-philosophy.zlua/ZLua~/libil2cpp-2022/zlua`  
+> **源码根（可编辑）：** `build-win64/Il2CppOutputProject/IL2CPP/libil2cpp/zlua`
+> **包内镜像（手动同步，勿直接改）：** `Packages/com.code-philosophy.zlua/ZLua~/libil2cpp-2022/zlua`
 > **Lua 可见语义：** [../spec/](/docs/spec/00-OVERVIEW/) — 本文只描述 C++ 模块划分、初始化顺序与文件职责。
 
 ---

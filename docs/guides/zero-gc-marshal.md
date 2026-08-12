@@ -34,9 +34,9 @@ zlua.set_opaquevalue(slot, newValue)
 
 要点：
 
-- **引用类型**与 **struct** 都可走 Opaque，避免为本帧临时对象建完整 userdata  
-- **不可**把 Opaque 存进跨 `pcall` / 跨帧的全局表  
-- Lua→C# 单独形参上标 `OpaqueValue` **非法**；写回规则见 [ref/out/in](/docs/guides/ref-out-in/)  
+- **引用类型**与 **struct** 都可走 Opaque，避免为本帧临时对象建完整 userdata
+- **不可**把 Opaque 存进跨 `pcall` / 跨帧的全局表
+- Lua→C# 单独形参上标 `OpaqueValue` **非法**；写回规则见 [ref/out/in](/docs/guides/ref-out-in/)
 
 ## 2. UnpackedValues：struct 多槽展开
 
@@ -96,13 +96,6 @@ ByObjUserData **仍会**在 Lua 侧分配 **userdata**，参与 Lua GC。只是�
 | **Table** | struct / `Nullable<struct>` 键值 | **有** table |
 | **UserData** on `string` | 巨大 string 避免 Lua string 拷贝 | **有** ByObj userdata |
 
-
-
-
-
-
-
-
 ## 学习路径
 
 | | |
@@ -112,8 +105,8 @@ ByObjUserData **仍会**在 Lua 侧分配 **userdata**，参与 Lua GC。只是�
 
 ## 相关文档
 
-- [LuaMarshalAs](/docs/guides/lua-marshal-as/)  
-- [值类型](/docs/guides/value-types/)  
-- [ref / out / in](/docs/guides/ref-out-in/)  
-- [GC 对比](/docs/compare/GC/)  
+- [LuaMarshalAs](/docs/guides/lua-marshal-as/)
+- [值类型](/docs/guides/value-types/)
+- [ref / out / in](/docs/guides/ref-out-in/)
+- [GC 对比](/docs/compare/GC/)
 - [02-MARSHAL-AS](/docs/spec/marshal/02-MARSHAL-AS/) · [04-OPAQUE](/docs/spec/marshal/04-OPAQUE/)

@@ -40,8 +40,8 @@ local Nested = CSharp.AC['Outer+Nested']   -- 嵌套类型用 +
 含点号的 namespace **不能** `CSharp.AC.MyGame.UI.Panel` 链式点开，必须字符串键。
 :::
 
-- 类型 **懒加载**；仅 **public** 可见  
-- 静态与实例元数据 **独立**，不可混用  
+- 类型 **懒加载**；仅 **public** 可见
+- 静态与实例元数据 **独立**，不可混用
 
 ## 2. 静态成员（字段、属性、方法）
 
@@ -88,9 +88,9 @@ print(demo.x)
 
 ### 字段与 Property 要点
 
-- 无参 `{ get; set; }` 与字段语法一致；Il2Cpp Player 上简单 int property 可走 offset 快路径，热路径优先 `demo.x` 而非 `GetX()`  
-- 带参 indexer（`this[int]`）按 **方法** 分派，不能随意写 `obj[i]`（szarray 等有专门规则，见 [数组](/docs/guides/arrays/)）  
-- 未注册成员 **strict miss** → `error`，无反射 fallback  
+- 无参 `{ get; set; }` 与字段语法一致；Il2Cpp Player 上简单 int property 可走 offset 快路径，热路径优先 `demo.x` 而非 `GetX()`
+- 带参 indexer（`this[int]`）按 **方法** 分派，不能随意写 `obj[i]`（szarray 等有专门规则，见 [数组](/docs/guides/arrays/)）
+- 未注册成员 **strict miss** → `error`，无反射 fallback
 
 ### 继承
 
@@ -98,8 +98,8 @@ print(demo.x)
 
 ### nil 与 null
 
-- Lua `nil` → C# 引用类型 `null`；反之亦然  
-- 值类型 struct **不能**为 nil（除非 `Nullable<T>`，见 [值类型](/docs/guides/value-types/)）  
+- Lua `nil` → C# 引用类型 `null`；反之亦然
+- 值类型 struct **不能**为 nil（除非 `Nullable<T>`，见 [值类型](/docs/guides/value-types/)）
 
 ## 5. Event（`add_` / `remove_`）
 
@@ -154,18 +154,6 @@ end
 | `member not writable` | 只读 Property |
 | Event `.get` 为 nil | 改用 `add_` / `remove_` |
 
-
-
-
-
-
-
-
-
-
-
-
-
 ## 学习路径
 
 | | |
@@ -175,7 +163,7 @@ end
 
 ## 相关文档
 
-- [类型系统规范](/docs/spec/02-TYPE-SYSTEM/)  
-- [CSharp 根表参考](/docs/reference/lua/csharp-root/)  
-- [元表模型](/docs/concepts/metatable-model/)  
+- [类型系统规范](/docs/spec/02-TYPE-SYSTEM/)
+- [CSharp 根表参考](/docs/reference/lua/csharp-root/)
+- [元表模型](/docs/concepts/metatable-model/)
 - [方法重载](/docs/guides/overloads/)

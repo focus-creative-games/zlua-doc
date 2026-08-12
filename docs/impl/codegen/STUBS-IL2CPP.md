@@ -5,8 +5,8 @@ title: "Il2Cpp Generated Stubs"
 
 # Il2Cpp Generated Stubs
 
-> **输出目录：** `libil2cpp/zlua/generated/`（构建写入 `build-win64/.../zlua/generated/`）  
-> **生成器：** `Packages/com.code-philosophy.zlua/Editor/CppCodeGen/`  
+> **输出目录：** `libil2cpp/zlua/generated/`（构建写入 `build-win64/.../zlua/generated/`）
+> **生成器：** `Packages/com.code-philosophy.zlua/Editor/CppCodeGen/`
 > **运行时加载：** `LuaAppDomain::Initialize` → `*Bridge::Initialize`
 
 ---

@@ -5,8 +5,8 @@ title: "多版本管理"
 
 # 11 — 多版本管理（Unity / Lua / 安装）
 
-> 包内 **不** 携带完整 `libil2cpp` 树；安装时在当前 Unity 自带源码上叠加 **patch + zlua-runtime + 选定 Lua**。  
-> 本文是 UPM 包布局、`LocalInstaller`、Lua 版本切换、原生 DLL 命名，以及 Il2Cpp **`ZLuaConf.inc` / Compatible 头**（§12）的实现规范。  
+> 包内 **不** 携带完整 `libil2cpp` 树；安装时在当前 Unity 自带源码上叠加 **patch + zlua-runtime + 选定 Lua**。
+> 本文是 UPM 包布局、`LocalInstaller`、Lua 版本切换、原生 DLL 命名，以及 Il2Cpp **`ZLuaConf.inc` / Compatible 头**（§12）的实现规范。
 > Lua 可见语义仍以本目录其它 spec 为准；本文不改变互操作语义。
 
 ---
@@ -91,8 +91,8 @@ Library/ZLua/LuaSrcCache/
 | Unity patch 目录 | `patches/libil2cpp/{major}.{minor}/`，Unity 6 另可回退到 `patches/libil2cpp/{major}/` | `2022.3/`、`6000/` |
 | Unity patch 文件 | 仅 `{major}.{minor}.{patch}.patch`（**无** `default.patch`）；共用区间只保留区间最小版本文件名 | `2022.3.0.patch` / `6000.0.0.patch` |
 
-**Lua / Unity patch 选择（floor，相同规则）：** 在选定系列目录内取版本号 **≤** 当前产品版本的 **最大** `{X.Y.Z}.patch`；若存在与当前版本同名（或去字母后缀后同名）的文件，即为该规则的快速命中。apply 失败 → Install 失败（不静默换其它文件）。  
-**生成 / 维护：** 若多个小版本可共用同一份 patch 内容，**只保留该共用区间的最小版本号文件**。**禁止** `default.patch`（Lua 与 libil2cpp 皆然）。  
+**Lua / Unity patch 选择（floor，相同规则）：** 在选定系列目录内取版本号 **≤** 当前产品版本的 **最大** `{X.Y.Z}.patch`；若存在与当前版本同名（或去字母后缀后同名）的文件，即为该规则的快速命中。apply 失败 → Install 失败（不静默换其它文件）。
+**生成 / 维护：** 若多个小版本可共用同一份 patch 内容，**只保留该共用区间的最小版本号文件**。**禁止** `default.patch`（Lua 与 libil2cpp 皆然）。
 **Unity 系列目录：** 先尝试 `{major}.{minor}/`（如 `2022.3/`、`6000.3/`），再对 Unity 6（`major >= 6000`）回退 `{major}/`（如 `6000/`）；**目录选定后**再在该目录内做 floor 选文件。
 
 **禁止** 在 `ZLua~` 下放置完整 `libil2cpp-{unity}` 树或整棵上游 Lua 源码树作为安装源。
@@ -113,16 +113,16 @@ Library/ZLua/LuaSrcCache/
 
 ### 3.1 顺序（必须）
 
-1. 解析 Settings `luaVersionId`（空则默认 `lua-5.5.0`，见 §6.2）  
-2. **确保 Lua 源码在 `Library/ZLua/LuaSrcCache`**：已缓存则复用；PUC-Rio 缺失则从 lua.org 下载；LuaJIT 缺失则失败并提示手动 clone  
-3. 从当前 Editor 复制官方 `il2cpp`（含 **stock** `libil2cpp`）到 Local 目录  
-4. 解析并应用 **libil2cpp patches**（§4）  
-5. 将 `ZLua~/zlua-runtime` **复制/覆盖** 到 `Local.../libil2cpp/zlua`  
-6. 将缓存中的选定 Lua 安装到 `Local.../libil2cpp/lua`：**PUC-Rio** 拷贝（并按 §5 patch）可编译 `src/`；**LuaJIT** 仅安装公共头文件（见 [build/02-LUAJIT.md](/docs/spec/build/02-LUAJIT/)）；并保证 `ZLUA_FAST_METATABLE` 符合 §5.4 / §12.5  
-7. 写入工程 **Scripting Define Symbols**（§7）  
-8. 写入 **`ZLuaConf.inc`**（§12；权威输出在 Local `libil2cpp/zlua/generated/`）  
-9. 若包内缺少对应系列 Editor 插件 DLL，**警告**（不阻断 Install）；DLL 由开发者自行替换（§8）  
-10. 写入 **install fingerprint**（§9）  
+1. 解析 Settings `luaVersionId`（空则默认 `lua-5.5.0`，见 §6.2）
+2. **确保 Lua 源码在 `Library/ZLua/LuaSrcCache`**：已缓存则复用；PUC-Rio 缺失则从 lua.org 下载；LuaJIT 缺失则失败并提示手动 clone
+3. 从当前 Editor 复制官方 `il2cpp`（含 **stock** `libil2cpp`）到 Local 目录
+4. 解析并应用 **libil2cpp patches**（§4）
+5. 将 `ZLua~/zlua-runtime` **复制/覆盖** 到 `Local.../libil2cpp/zlua`
+6. 将缓存中的选定 Lua 安装到 `Local.../libil2cpp/lua`：**PUC-Rio** 拷贝（并按 §5 patch）可编译 `src/`；**LuaJIT** 仅安装公共头文件（见 [build/02-LUAJIT.md](/docs/spec/build/02-LUAJIT/)）；并保证 `ZLUA_FAST_METATABLE` 符合 §5.4 / §12.5
+7. 写入工程 **Scripting Define Symbols**（§7）
+8. 写入 **`ZLuaConf.inc`**（§12；权威输出在 Local `libil2cpp/zlua/generated/`）
+9. 若包内缺少对应系列 Editor 插件 DLL，**警告**（不阻断 Install）；DLL 由开发者自行替换（§8）
+10. 写入 **install fingerprint**（§9）
 11. 清理 Il2Cpp / Bee 缓存；系列 / Define 变更时提示 **重启 Editor**
 
 ### 3.2 与旧行为的差异
@@ -143,11 +143,11 @@ Library/ZLua/LuaSrcCache/
 
 设当前 Unity 为 `2022.3.62f1`（比较时忽略 `f1` / `t11` 等字母后缀，按 `2022.3.62` 三元组）：
 
-1. 按序尝试系列目录：`{major}.{minor}/`，若 `major >= 6000` 再回退 `{major}/`（例：`6000.3/` → `6000/`）  
-2. 在**第一个存在的**系列目录内：  
-   - 若存在精确文件（完整版本字符串 / 去后缀 `2022.3.62` 等）→ **选用**（floor 快速路径）  
-   - 否则在目录内所有 `{major}.{minor}.{patch}.patch` 中，取版本号 **≤** `2022.3.62` 的 **最大** 者（例：仅有 `2022.3.0.patch` → 选用它）  
-3. 所有候选目录均无可用 patch → **Install 失败**  
+1. 按序尝试系列目录：`{major}.{minor}/`，若 `major >= 6000` 再回退 `{major}/`（例：`6000.3/` → `6000/`）
+2. 在**第一个存在的**系列目录内：
+   - 若存在精确文件（完整版本字符串 / 去后缀 `2022.3.62` 等）→ **选用**（floor 快速路径）
+   - 否则在目录内所有 `{major}.{minor}.{patch}.patch` 中，取版本号 **≤** `2022.3.62` 的 **最大** 者（例：仅有 `2022.3.0.patch` → 选用它）
+3. 所有候选目录均无可用 patch → **Install 失败**
 4. **不**再使用 `default.patch`
 
 选定文件后 apply 失败 → Install 失败（不得再静默换另一个文件）。
@@ -164,9 +164,9 @@ Library/ZLua/LuaSrcCache/
 
 ### 4.2 应用与校验
 
-- 推荐 unified diff；Install 前可 `--check` / 干跑  
-- 应用后应做最小校验（例如约定 hook 符号或锚点文件内容出现）  
-- 上下文漂移（Unity 小版本改动周围代码）→ 失败，需新增该断点版本的 floor patch（`{major}.{minor}.{patch}.patch`）或更新既有共用文件  
+- 推荐 unified diff；Install 前可 `--check` / 干跑
+- 应用后应做最小校验（例如约定 hook 符号或锚点文件内容出现）
+- 上下文漂移（Unity 小版本改动周围代码）→ 失败，需新增该断点版本的 floor patch（`{major}.{minor}.{patch}.patch`）或更新既有共用文件
 
 ### 4.3 与 `zlua-runtime` 的边界
 
@@ -200,20 +200,20 @@ Library/ZLua/LuaSrcCache/
 
 说明：
 
-- 5.1 / 5.2 / LuaJIT **不得** 尝试查找或 apply 系列 patch（即使误放了 `patches/lua/lua-5.1/` 等目录也应忽略）。  
-- 上述无 FastMT 路径下，Install **必须** 保证 `ZLUA_FAST_METATABLE 0`（PUC 写入本地 `luaconf.h`；LuaJIT 写入已安装头文件中的 `luaconf.h`，见 §5.4）。  
-- fingerprint 的 `luaPatchKey` 在无 patch 时为 `none`（§9）。  
+- 5.1 / 5.2 / LuaJIT **不得** 尝试查找或 apply 系列 patch（即使误放了 `patches/lua/lua-5.1/` 等目录也应忽略）。
+- 上述无 FastMT 路径下，Install **必须** 保证 `ZLUA_FAST_METATABLE 0`（PUC 写入本地 `luaconf.h`；LuaJIT 写入已安装头文件中的 `luaconf.h`，见 §5.4）。
+- fingerprint 的 `luaPatchKey` 在无 patch 时为 `none`（§9）。
 - LuaJIT 为何不能整树源码编译、Il2Cpp 平台面（Android/iOS `.a`、WebGL 禁用）以 **[build/02-LUAJIT.md](/docs/spec/build/02-LUAJIT/)** 为准。
 
 ### 5.3 patch 选择算法（仅 §5.2「需要 patch」的系列）
 
 设 Settings 为 `lua-5.4.8`，系列目录为 `patches/lua/lua-5.4/`：
 
-1. 确保缓存源码可用（§5.1）  
-2. 在系列目录列出所有 `{major}.{minor}.{patch}.patch`（忽略其它文件名，含历史 `default.patch` 若误留则不得选用）  
-3. 选择版本号 **≤** `5.4.8` 的文件中 **最大** 者（例：有 `5.4.0` / `5.4.4` / `5.4.7` → 选用 `5.4.7.patch`；若存在 `5.4.8.patch` 则直接命中）  
-4. 无满足条件的文件，或 apply 失败 → **Install 失败**（不自动降级到其它系列，也不回退到「更大」版本的 patch）  
-5. 将 patch 后的 `src/` 拷入 `Local.../libil2cpp/lua`  
+1. 确保缓存源码可用（§5.1）
+2. 在系列目录列出所有 `{major}.{minor}.{patch}.patch`（忽略其它文件名，含历史 `default.patch` 若误留则不得选用）
+3. 选择版本号 **≤** `5.4.8` 的文件中 **最大** 者（例：有 `5.4.0` / `5.4.4` / `5.4.7` → 选用 `5.4.7.patch`；若存在 `5.4.8.patch` 则直接命中）
+4. 无满足条件的文件，或 apply 失败 → **Install 失败**（不自动降级到其它系列，也不回退到「更大」版本的 patch）
+5. 将 patch 后的 `src/` 拷入 `Local.../libil2cpp/lua`
 6. 再按 §5.4 校验 / 强制 `ZLUA_FAST_METATABLE`
 
 **维护约定：** 能共用同一内容的连续小版本，只提交区间 **最小** 版本号的那一个文件；上游上下文变化导致旧 floor 无法 apply 时，再新增该断点版本的 patch（仍以最小号命名该新区间）。
@@ -233,7 +233,7 @@ Library/ZLua/LuaSrcCache/
 
 **原因摘要：**
 
-- FastMT 设计挂点是 **`luaV_finishget` / `finishset`**（Lua **5.3.2** 起）；5.3.0 / 5.3.1 仅有整块 `gettable` / `settable`，现有 gettable 快路径在 Il2Cpp 上行为不正确（ByVal 索引等），故官方支持面关闭 FastMT。  
+- FastMT 设计挂点是 **`luaV_finishget` / `finishset`**（Lua **5.3.2** 起）；5.3.0 / 5.3.1 仅有整块 `gettable` / `settable`，现有 gettable 快路径在 Il2Cpp 上行为不正确（ByVal 索引等），故官方支持面关闭 FastMT。
 - 5.1 / 5.2 / LuaJIT 无可用的 PUC-Rio FastMT patch；一律 legacy / Dispatch，宏固定为 `0`。
 
 手动 `-DZLUA_FAST_METATABLE=1` 覆盖不受支持组合 → **未定义行为**；Installer 应对不支持组合写回 `0`。
@@ -274,8 +274,8 @@ EmmyLua 调试库随附见 [build/04-EMMYLUA-DEBUGGER.md](/docs/spec/build/04-EM
 
 ### 6.2 默认版本
 
-- 字段默认值 / 空值：固定为 **`lua-5.5.0`**  
-- Install 时若为空则写回该默认值  
+- 字段默认值 / 空值：固定为 **`lua-5.5.0`**
+- Install 时若为空则写回该默认值
 - 下载失败（例如官方 FTP 无此版本）→ Install 失败并提示检查版本号；**不得**静默改用其它大版本
 
 ---
@@ -299,8 +299,8 @@ EmmyLua 调试库随附见 [build/04-EMMYLUA-DEBUGGER.md](/docs/spec/build/04-EM
 
 说明：
 
-- **不需要** `ZLUA_LUA_5_4_7` 这类精确小版本宏：源码小版本只影响 Install 拷贝的树与 fingerprint，不进入 `LUA_DLL` 映射。  
-- API 族宏对应原讨论中的「`LUA_FEAT_5_4_X`」语义，命名用 `ZLUA_LUA_5_4`，**不要** 使用易误解的 `_X` 后缀。  
+- **不需要** `ZLUA_LUA_5_4_7` 这类精确小版本宏：源码小版本只影响 Install 拷贝的树与 fingerprint，不进入 `LUA_DLL` 映射。
+- API 族宏对应原讨论中的「`LUA_FEAT_5_4_X`」语义，命名用 `ZLUA_LUA_5_4`，**不要** 使用易误解的 `_X` 后缀。
 - LuaJIT：定义 `ZLUA_USE_LUAJIT`，并按小版本定义 `ZLUA_LUAJIT_2_0` 或 `ZLUA_LUAJIT_2_1`（与 `LuaDllName` / Plugins 目录一致）。
 
 ### 7.2 互斥
@@ -331,7 +331,7 @@ EmmyLua 调试库随附见 [build/04-EMMYLUA-DEBUGGER.md](/docs/spec/build/04-EM
 | `luajit-2.0` | `ZLUA_USE_LUAJIT` + `ZLUA_LUAJIT_2_0` | `luajit20` | `luajit20.dll` | `luajit20.dylib`（**仅 x86_64**） |
 | `luajit-2.1` | `ZLUA_USE_LUAJIT` + `ZLUA_LUAJIT_2_1` | `luajit21` | `luajit21.dll` | `luajit21.dylib` |
 
-同一系列下切换源码小版本（如 `5.4.1`→`5.4.7`）**不改变** `LUA_DLL` 与 Plugins 文件名，只改变 Il2Cpp 内嵌源码树。  
+同一系列下切换源码小版本（如 `5.4.1`→`5.4.7`）**不改变** `LUA_DLL` 与 Plugins 文件名，只改变 Il2Cpp 内嵌源码树。
 用户若要在 Editor 使用其它构建，自行替换 `Plugins/lua/<series>/` 下对应文件即可（注意 Windows 已加载锁定，须重启 Editor）。
 
 EmmyLua 调试模块目录名 **`emmylua/luajit/`** 与上表 Editor 逻辑名不同：2.0/2.1 **共用** 一份 `emmy_core`（见 [04](/docs/spec/build/04-EMMYLUA-DEBUGGER/)）。
@@ -375,7 +375,7 @@ namespace ZLua
 }
 ```
 
-新增 **系列** 时：增加系列 DLL、`LuaDllName` 分支、API 族宏与 Installer 映射。  
+新增 **系列** 时：增加系列 DLL、`LuaDllName` 分支、API 族宏与 Installer 映射。
 新增同系列 **源码小版本** 时：只需增加 `lua-versions`（及必要 patch），**不必** 改 `LuaDllName` 或新增 Plugins 文件名。
 
 ### 8.3 `LuaDll.cs` 的 API 裁剪
@@ -384,7 +384,7 @@ namespace ZLua
 
 ### 8.4 Windows 加载锁定
 
-- 换系列（`lua53`↔`lua54`）或替换正在使用的同名 DLL 后，须 **重启 Editor**。  
+- 换系列（`lua53`↔`lua54`）或替换正在使用的同名 DLL 后，须 **重启 Editor**。
 - Install 在系列或 Define 变更时须提示重启。
 
 ---
@@ -405,10 +405,10 @@ Fingerprint（建议 JSON 或等价键值）至少包含：
 
 以下任一变化 → `NeedReinstall` 为真：
 
-- 包内容戳变化  
-- Settings `luaVersionId`（或默认解析结果）与 fingerprint 不一致  
-- 当前 Unity 版本与 fingerprint 不一致  
-- Local 树缺失  
+- 包内容戳变化
+- Settings `luaVersionId`（或默认解析结果）与 fingerprint 不一致
+- 当前 Unity 版本与 fingerprint 不一致
+- Local 树缺失
 
 ---
 
@@ -424,23 +424,23 @@ Fingerprint（建议 JSON 或等价键值）至少包含：
 
 ## 11. 实现检查清单
 
-- [ ] `ZLua~` 无完整 libil2cpp、无随包 Lua 上游源码  
-- [ ] PUC-Rio：缓存未命中则从 `lua.org/ftp` 下载  
-- [ ] LuaJIT：仅接受 `LuaSrcCache/luajit-{major}-{minor}` 手动源码  
-- [ ] 默认 `luaVersionId` = `lua-5.5.0`  
-- [ ] Plugins DLL 缺失仅警告  
-- [ ] libil2cpp patch：floor（≤ 当前的最大 `{X.Y.Z}.patch`），无 `default.patch`；失败不降级  
-- [ ] lua patch：仅 PUC-Rio **5.3+** apply（§5.2）；5.1 / 5.2 / LuaJIT 跳过且 `luaPatchKey=none`  
-- [ ] FastMT：仅 ≥5.3.2 可启用；5.3.0/5.3.1、5.1、5.2、LuaJIT 强制 `ZLUA_FAST_METATABLE 0`（§5.4）  
-- [ ] Define / `LuaDllName` / fingerprint / 重启提示齐全  
-- [ ] `LuaCompatible.h` / `Il2CppCompatible.h` / `ZLuaConf.inc` 符合 §12  
-- [ ] Install 写 Local `ZLuaConf.inc`；Generate/All 校验或复写，禁止过期静默使用  
+- [ ] `ZLua~` 无完整 libil2cpp、无随包 Lua 上游源码
+- [ ] PUC-Rio：缓存未命中则从 `lua.org/ftp` 下载
+- [ ] LuaJIT：仅接受 `LuaSrcCache/luajit-{major}-{minor}` 手动源码
+- [ ] 默认 `luaVersionId` = `lua-5.5.0`
+- [ ] Plugins DLL 缺失仅警告
+- [ ] libil2cpp patch：floor（≤ 当前的最大 `{X.Y.Z}.patch`），无 `default.patch`；失败不降级
+- [ ] lua patch：仅 PUC-Rio **5.3+** apply（§5.2）；5.1 / 5.2 / LuaJIT 跳过且 `luaPatchKey=none`
+- [ ] FastMT：仅 ≥5.3.2 可启用；5.3.0/5.3.1、5.1、5.2、LuaJIT 强制 `ZLUA_FAST_METATABLE 0`（§5.4）
+- [ ] Define / `LuaDllName` / fingerprint / 重启提示齐全
+- [ ] `LuaCompatible.h` / `Il2CppCompatible.h` / `ZLuaConf.inc` 符合 §12
+- [ ] Install 写 Local `ZLuaConf.inc`；Generate/All 校验或复写，禁止过期静默使用
 
 ---
 
 ## 12. Il2Cpp 运行时兼容层（`ZLuaConf` / Compatible）
 
-> 本节只约束 **Il2Cpp Player** 原生树（`zlua-runtime`）。  
+> 本节只约束 **Il2Cpp Player** 原生树（`zlua-runtime`）。
 > **Editor Mono** 继续使用 §7 Scripting Define + §8 `LuaDllName`，**不** 消费 `ZLuaConf.inc`。
 
 ### 12.1 设计目标
@@ -465,9 +465,9 @@ Fingerprint（建议 JSON 或等价键值）至少包含：
 
 **`ZLuaCommon.h` include 顺序（约定）：**
 
-1. `generated/ZLuaConf.inc`  
-2. `LuaCompatible.h`（内部再 include Lua 头并提供 shim）  
-3. `Il2CppCompatible.h`（il2cpp 头 + 引擎 shim）  
+1. `generated/ZLuaConf.inc`
+2. `LuaCompatible.h`（内部再 include Lua 头并提供 shim）
+3. `Il2CppCompatible.h`（il2cpp 头 + 引擎 shim）
 4. 然后：
 
 ```c
@@ -577,6 +577,6 @@ Editor 侧须集中版本编码（建议 `EngineVersionUtil`，与 `LuaVersionUt
 
 本文件纳入 `spec/**` 后：
 
-- 包布局、Install、多版本与 **Il2Cpp conf/Compatible** 以 **本文** 为准  
-- `00-OVERVIEW` 中「包内 `libil2cpp-2022` 整树」等过时表述应随实现同步修订  
+- 包布局、Install、多版本与 **Il2Cpp conf/Compatible** 以 **本文** 为准
+- `00-OVERVIEW` 中「包内 `libil2cpp-2022` 整树」等过时表述应随实现同步修订
 - `impl/IL2CPP.md` 等实现笔记不得覆盖本文；冲突时先修订本文或征求确认

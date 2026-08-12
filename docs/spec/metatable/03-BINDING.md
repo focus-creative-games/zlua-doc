@@ -7,7 +7,7 @@ title: "成员绑定（注册期规则）"
 
 本文档规定 **`EnsureBinding`** 阶段如何将 C# 类型成员扫描、分类并写入静态/实例三表（`methodTable`、`fieldGetterTable`、`fieldSetterTable`）。绑定完成后，运行时索引行为完全由 [02-INDEX.md](/docs/spec/metatable/02-INDEX/) 定义；本文不涉及 native 如何生成 bridge closure（见 `impl/metatable/`、`impl/codegen/`）。
 
-**关联文档：** 三表职责 → [02-INDEX.md](/docs/spec/metatable/02-INDEX/)；元表布局 → [01-LAYOUT.md](/docs/spec/metatable/01-LAYOUT/)；方法重载 → [../04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/)。
+**关联文档：** 三表职责 → [02-INDEX.md](/docs/spec/metatable/02-INDEX/)；元表布局 → [01-LAYOUT.md](/docs/spec/metatable/01-LAYOUT/)；方法重载 → [../04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/)；C# Extension → [../13-EXTENSION-METHODS.md](/docs/spec/13-EXTENSION-METHODS/)。
 
 ---
 
@@ -39,6 +39,7 @@ Bind 期按下列规则将每个 public 成员写入**唯一**目标表（或组
 | C# 成员 | 目标表 | 值 |
 |---------|--------|-----|
 | 实例 / 静态方法 | `methodTable` | 单重：direct bridge closure；**同名多重载**：默认名 → dispatch closure，并为每个候选再挂 **`MethodName(ParamTypeFullNames…)`** 全签名 direct 键（见 [../04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) §3.7） |
+| **C# extension**（配置可见） | **实例** `methodTable` | CLR 为 `static`，但按 **static-as-instance** 写入 IMT（struct 含 ByVal/ByObj）；与真实例同名则 **合并竞争**。见 [../13-EXTENSION-METHODS.md](/docs/spec/13-EXTENSION-METHODS/) |
 | 索引器 property | `methodTable` | `get_Item` / `set_Item` 或等价 dispatch closure |
 | C# **event** | `methodTable` | **`add_EventName` / `remove_EventName`** 等方法 closure；**不**生成 event 子表 |
 | 泛型方法 | `methodTable` | 默认仅全签名键；单泛型重载时可同时占默认方法名 |

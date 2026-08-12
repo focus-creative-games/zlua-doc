@@ -59,10 +59,9 @@ local bytes = zlua.to_bytes(float_arr)  -- blittable 元素
 | API | 用途 |
 |-----|------|
 | `get_opaquevalue` / `set_opaquevalue` | 同步链内读写 Opaque |
-| `new_ref` | 显式可写回引用 |
 | `to_user_data` | Opaque 升级为 userdata 门面（见规范） |
 
-见 [ref/out/in](/docs/guides/ref-out-in/)。
+`ref` struct：传同型 `Type(...)` userdata 即可写回。见 [ref/out/in](/docs/guides/ref-out-in/)。
 
 ## Delegate
 
@@ -76,24 +75,15 @@ local d = zlua.to_delegate(fn, ActionIntType)  -- 第二参须已闭合
 
 `box` / `unbox` / `cast`、`make_generic_method`、mdarray 系列、Native `__zlua_*` —— 见 [05-LIB](/docs/spec/05-LIB/)。
 
-
-
-
-
-
-
-
-
-
 ## 学习路径
 
 | | |
 |---|---|
-| **上一篇** | [LuaAlias](/docs/guides/lua-alias/) |
+| **上一篇** | [Extension 方法](/docs/guides/extension-methods/) |
 | **下一篇** | [第三方原生插件](/docs/guides/native-modules/) |
 
 ## 相关文档
 
-- [05-LIB](/docs/spec/05-LIB/)  
-- [zlua-lib 参考](/docs/reference/lua/zlua-lib/)  
+- [05-LIB](/docs/spec/05-LIB/)
+- [zlua-lib 参考](/docs/reference/lua/zlua-lib/)
 - [第三方原生插件](/docs/guides/native-modules/) — socket / cjson 等不在 zlua 标准库内

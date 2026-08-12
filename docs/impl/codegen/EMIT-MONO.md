@@ -5,8 +5,8 @@ title: "Mono Expression Emit"
 
 # Mono Expression Emit
 
-> **目标目录：** `Runtime/Mono/Emit/`（Phase 3 起）  
-> **对照 Il2Cpp：** [STUBS-IL2CPP.md](/docs/impl/codegen/STUBS-IL2CPP/)（构建期 stub 表）  
+> **目标目录：** `Runtime/Mono/Emit/`（Phase 3 起）
+> **对照 Il2Cpp：** [STUBS-IL2CPP.md](/docs/impl/codegen/STUBS-IL2CPP/)（构建期 stub 表）
 > **约束：** [../MONO.md](/docs/impl/MONO/) D3、D6、D7
 
 ---

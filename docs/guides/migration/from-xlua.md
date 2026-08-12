@@ -5,8 +5,8 @@ title: "从 xLua 迁移"
 
 # 从 xLua 迁移到 ZLua
 
-> **特性背景：** [compare/FEATURES.md](/docs/compare/FEATURES/)  
-> **性能/GC：** [compare/PERFORMANCE.md](/docs/compare/PERFORMANCE/)、[compare/GC.md](/docs/compare/GC/)  
+> **特性背景：** [compare/FEATURES.md](/docs/compare/FEATURES/)
+> **性能/GC：** [compare/PERFORMANCE.md](/docs/compare/PERFORMANCE/)、[compare/GC.md](/docs/compare/GC/)
 > **类型路径适配（可选）：** [规范 12 · xlua adaptor](/docs/spec/12-MIGRATION-ADAPTORS/) · [迁移索引](/docs/guides/migration/)
 
 ---

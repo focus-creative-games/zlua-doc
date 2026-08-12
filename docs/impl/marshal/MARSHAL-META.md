@@ -5,7 +5,7 @@ title: "MarshalMeta 与 Writer"
 
 # MarshalMeta 与 Writer
 
-> **Il2Cpp：** `marshal/MarshalMeta.cpp`、`marshal/MarshalDefs.h`  
+> **Il2Cpp：** `marshal/MarshalMeta.cpp`、`marshal/MarshalDefs.h`
 > **Mono：** `Runtime/Mono/Marshaling/MarshalDefs.cs` 及 `TypedMarshal` / `PrimitiveMarshal` / `ObjectMarshal` 等
 > **规范：** [../../spec/marshal/](/docs/spec/marshal/)（Default / MarshalAs / 各类型 push-pop 规则）
 

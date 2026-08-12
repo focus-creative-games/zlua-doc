@@ -5,8 +5,8 @@ title: "类型系统"
 
 # 02 — 类型系统
 
-> Lua 侧访问 C# **类型、成员与构造** 的规范。适用于 **Il2Cpp（Player）** 与 **Mono（Editor）**。  
-> **成员索引（`__index` / `__newindex`）** → [metatable/](/docs/spec/metatable/)  
+> Lua 侧访问 C# **类型、成员与构造** 的规范。适用于 **Il2Cpp（Player）** 与 **Mono（Editor）**。
+> **成员索引（`__index` / `__newindex`）** → [metatable/](/docs/spec/metatable/)
 > **参数 Marshal（Push/Pop）** → [marshal/](/docs/spec/marshal/)
 
 **平台原则：** Il2Cpp 侧重零 GC 与 direct `methodPointer`；Mono 可反射 / Emit，但 **Lua 可见语义必须与 Il2Cpp 一致**。

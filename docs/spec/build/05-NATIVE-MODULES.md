@@ -5,9 +5,9 @@ title: "第三方原生模块"
 
 # 构建 — 第三方原生模块（socket / cjson 等）
 
-> 约定游戏工程如何把 **非 zlua 随附** 的 Lua C 模块（如 lua-cjson、luasocket）接到 ZLua。  
-> **不**把具体第三方库 vendoring 进 `com.code-philosophy.zlua`。  
-> Editor 先例：[04-EMMYLUA-DEBUGGER](/docs/spec/build/04-EMMYLUA-DEBUGGER/)；多版本：[11-MULTI-VERSION](/docs/spec/11-MULTI-VERSION/)；宿主：[01-HOST-API](/docs/spec/01-HOST-API/)。  
+> 约定游戏工程如何把 **非 zlua 随附** 的 Lua C 模块（如 lua-cjson、luasocket）接到 ZLua。
+> **不**把具体第三方库 vendoring 进 `com.code-philosophy.zlua`。
+> Editor 先例：[04-EMMYLUA-DEBUGGER](/docs/spec/build/04-EMMYLUA-DEBUGGER/)；多版本：[11-MULTI-VERSION](/docs/spec/11-MULTI-VERSION/)；宿主：[01-HOST-API](/docs/spec/01-HOST-API/)。
 > 使用指南：[第三方原生插件](/docs/guides/native-modules/)。
 
 ---
@@ -73,7 +73,7 @@ title: "第三方原生模块"
 
 ### 3.2 PluginImporter
 
-与 EmmyLua 相同：**所有平台 `enabled: 0`**。  
+与 EmmyLua 相同：**所有平台 `enabled: 0`**。
 理由：模块由 Lua `require`/`loadlib` 加载；Unity 先 `LoadLibrary` 再 `require` 属于未定义/双载。
 
 ### 3.3 注入
@@ -100,7 +100,7 @@ title: "第三方原生模块"
 
 任选其一（工程自管构建）：
 
-- 将插件 `.c/.cpp` 编入与 `libil2cpp`（含 `libil2cpp/lua`）相同的编译单元；或  
+- 将插件 `.c/.cpp` 编入与 `libil2cpp`（含 `libil2cpp/lua`）相同的编译单元；或
 - 提供平台静态库（`.a` / `.lib`），在 iOS / Android / Windows Il2Cpp 链接阶段并入；iOS 导出对 Lua 为 `__Internal` 可见。
 
 须与 Install 选定的 Lua 小版本 / Define（`ZLUA_LUA_5_x` / `ZLUA_USE_LUAJIT` 等）一致。
@@ -163,15 +163,15 @@ NativeModuleBootstrap.Install(...)
 
 ## 8. 验收
 
-- [ ] 选定系列下 Editor `require` 目标模块成功  
-- [ ] 至少一款 Player 目标同脚本成功  
-- [ ] PluginImporter 均为 disabled  
-- [ ] 切换 `luaVersionId` 后旧二进制不可用且有明确失败，而非静默 ABI 错乱  
-- [ ] 插件未静态嵌入第二份 Lua  
+- [ ] 选定系列下 Editor `require` 目标模块成功
+- [ ] 至少一款 Player 目标同脚本成功
+- [ ] PluginImporter 均为 disabled
+- [ ] 切换 `luaVersionId` 后旧二进制不可用且有明确失败，而非静默 ABI 错乱
+- [ ] 插件未静态嵌入第二份 Lua
 
 ## 相关文档
 
-- [第三方原生插件（指南）](/docs/guides/native-modules/)  
-- [04-EMMYLUA-DEBUGGER](/docs/spec/build/04-EMMYLUA-DEBUGGER/)  
-- [01-OFFICIAL-LUA](/docs/spec/build/01-OFFICIAL-LUA/) · [02-LUAJIT](/docs/spec/build/02-LUAJIT/)  
+- [第三方原生插件（指南）](/docs/guides/native-modules/)
+- [04-EMMYLUA-DEBUGGER](/docs/spec/build/04-EMMYLUA-DEBUGGER/)
+- [01-OFFICIAL-LUA](/docs/spec/build/01-OFFICIAL-LUA/) · [02-LUAJIT](/docs/spec/build/02-LUAJIT/)
 - [11-MULTI-VERSION](/docs/spec/11-MULTI-VERSION/)

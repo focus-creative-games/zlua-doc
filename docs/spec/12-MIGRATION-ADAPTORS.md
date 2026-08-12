@@ -5,8 +5,8 @@ title: "迁移适配（xLua / toLua / SLua）"
 
 # 12 — 迁移适配（xLua / toLua / SLua）
 
-> 为从 **xLua / toLua / SLua** 迁到 ZLua 的项目提供 **Lua→C# 类型访问路径** 兼容层。  
-> 本适配 **不** 改变 ZLua 核心语义；权威类型访问仍是 `CSharp[assemblyName][typeFullName]`（见 [02-TYPE-SYSTEM.md](/docs/spec/02-TYPE-SYSTEM/)）。  
+> 为从 **xLua / toLua / SLua** 迁到 ZLua 的项目提供 **Lua→C# 类型访问路径** 兼容层。
+> 本适配 **不** 改变 ZLua 核心语义；权威类型访问仍是 `CSharp[assemblyName][typeFullName]`（见 [02-TYPE-SYSTEM.md](/docs/spec/02-TYPE-SYSTEM/)）。
 > 实现交付物位于包内 `ZLua~/adaptors/`（本文为契约）。
 
 ---
@@ -207,9 +207,9 @@ return M
 
 ### 5.2 生成步骤
 
-1. 按 §3.3 收集类型（及 toLua/SLua 别名信息）。  
-2. 写入 §3.1 形状（`top_namespace` / `full_name`；仅当 `export_name ≠ full_name` 时写出 `export_name`）。  
-3. UTF-8 写出；打印路径；非 batch 可 Reveal。  
+1. 按 §3.3 收集类型（及 toLua/SLua 别名信息）。
+2. 写入 §3.1 形状（`top_namespace` / `full_name`；仅当 `export_name ≠ full_name` 时写出 `export_name`）。
+3. UTF-8 写出；打印路径；非 batch 可 Reveal。
 4. 键序 / 数组按程序集名、`full_name` **稳定排序**。
 
 ---

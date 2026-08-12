@@ -5,9 +5,9 @@ title: "`[LuaMarshalAs]` 与 `LuaMarshalType`"
 
 # `[LuaMarshalAs]` 与 `LuaMarshalType`
 
-> **规范性：** 参数、返回值、字段、属性及类型（`class` / `struct`）上的 Marshal 覆盖规则。  
-> **默认矩阵：** 未覆盖时见 [01-OVERVIEW.md](/docs/spec/marshal/01-OVERVIEW/)。  
-> **源码：** `ZLua.Common` 中的 `LuaMarshalAsAttribute`、`LuaMarshalType`（枚举名以本文为准，含 **`OpaqueValue`**）。  
+> **规范性：** 参数、返回值、字段、属性及类型（`class` / `struct`）上的 Marshal 覆盖规则。
+> **默认矩阵：** 未覆盖时见 [01-OVERVIEW.md](/docs/spec/marshal/01-OVERVIEW/)。
+> **源码：** `ZLua.Common` 中的 `LuaMarshalAsAttribute`、`LuaMarshalType`（枚举名以本文为准，含 **`OpaqueValue`**）。
 > **外部配置：** 预编译程序集可通过 XML 配置等价规则，见 **§9**。
 
 ## 1. 概述
@@ -80,7 +80,6 @@ public sealed class LuaMarshalAsAttribute : Attribute
 | **`OpaqueValue`** | **仅 C# → Lua** | Push **OpaqueValue**（lightuserdata，无 metatable），见 [04-OPAQUE.md](/docs/spec/marshal/04-OPAQUE/)。<br>• **`ref` / `out` / `in T`**（任意 `T`）**默认** 即为本形态（无需标注）<br>• **by-val（任意 CLR 类型）均可** 显式标注强制 Push Opaque；对 **基元 / enum / `IntPtr` 等** 合法但通常 **无实质必要**（默认已是轻量 integer/number）<br>• 脚本经 `zlua.get_opaquevalue` / `zlua.set_opaquevalue` 读写；回传给 C# 时遵循 [04-OPAQUE.md §6](/docs/spec/marshal/04-OPAQUE/)<br>• **不可** 跨调用持久化；**Lua → C#** 单独形参上标注本类型视为 **非法**（§3.1） |
 | **`UnpackedValues`** | **双向** | **普通 struct / closed 泛型 struct**（§3；**不含** `Nullable` / class / interface）。将 **§5** 中 `Members` 列出的成员与 **多个连续 Lua 栈槽** 互转：<br>• **Lua → C#**：从栈上按名单 **顺序** Pop N 个值，写入对应 field/property<br>• **C# → Lua**：按名单 **顺序** Push N 个值（多返回值或展开 push）<br>须配置 **`Members`**；未配置或目标非法 → **§4**。该形参/返回值占用 **N 个** Lua 栈槽（§5.6） |
 | **`Table`** | **双向** | **普通 struct / closed 泛型 struct / `Nullable<struct>`**（§3；**不含** class / interface）。将 **§5** 中 `Members` 列出的成员与 **单个 Lua table** 互转：<br>• **Lua → C#**：Pop 一个 table（或对 `Nullable` 允许 `nil`→无值），按 **键名** 读取并写入 field/property<br>• **C# → Lua**：Push 一个 table（`Nullable` 无值 → `nil`）<br>须配置 **`Members`**（解析在 **底层 struct** 上）；未配置或目标非法 → **§4**。该形参/返回值占用 **1 个** Lua 栈槽 |
-
 
 ## 3. 各类型的合法 `LuaMarshalType` 集合
 
@@ -338,17 +337,17 @@ Codegen / Mono 反射在 Pop / Push 时按 **由细到粗** 解析；**同一目
 
 ## 9. XML 外部配置（预编译程序集）
 
-> **动机：** 许多程序集为预编译 DLL，无法添加 `[LuaMarshalAs]`。XML 提供与属性 **等价** 的外部 Marshal 规则。  
-> **与 `[LuaAlias]` 分离：** 方法别名使用 **独立** Settings 路径与根元素（见 [../04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) §5.4），**禁止**与本文件混写。  
-> **平台：** Mono（Editor）**运行时加载并解析** XML；Il2Cpp（Player）**禁止**运行时解析 XML——构建期（`ZLua/Generate/All` 等）将 XML **生成 C++ 表/数据**，运行时只查表。  
+> **动机：** 许多程序集为预编译 DLL，无法添加 `[LuaMarshalAs]`。XML 提供与属性 **等价** 的外部 Marshal 规则。
+> **与 `[LuaAlias]` 分离：** 方法别名使用 **独立** Settings 路径与根元素（见 [../04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) §5.4），**禁止**与本文件混写。
+> **平台：** Mono（Editor）**运行时加载并解析** XML；Il2Cpp（Player）**禁止**运行时解析 XML——构建期（`ZLua/Generate/All` 等）将 XML **生成 C++ 表/数据**，运行时只查表。
 > **语义：** Mono 与 Il2Cpp 的 Lua 可见结果必须一致。
 
 ### 9.1 配置入口（Settings）
 
 路径列表在 Editor **`ZLua.Settings`**（`ProjectSettings/ZLua.asset`）中配置，例如字段：
 
-- `marshalAsXmlPaths`：一组相对工程根或绝对路径；可为文件或目录。**仅** 承载 `ZLuaMarshalAs` 规则  
-- **`luaAliasXmlPaths`：** 方法别名专用路径列表（与本列表 **分开配置**）；见 [04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) §5.4  
+- `marshalAsXmlPaths`：一组相对工程根或绝对路径；可为文件或目录。**仅** 承载 `ZLuaMarshalAs` 规则
+- **`luaAliasXmlPaths`：** 方法别名专用路径列表（与本列表 **分开配置**）；见 [04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) §5.4
 - 目录：递归包含该目录下 `*.xml`（实现可约定仅一层；文档以「Settings 所列路径集合」为准）
 
 未配置任何路径 → 无 XML Marshal 规则（仅 Attribute + 默认）。路径缺失 / 无法读取 → **失败**（Editor 明确报错；Generate 中止）。
@@ -472,9 +471,9 @@ Codegen / Mono 反射在 Pop / Push 时按 **由细到粗** 解析；**同一目
 - 按 Settings 路径 **只加载 / 解析 XML**（含 §9.5 重复检测），按 `Assembly/@name` 分组存放；**不**在启动时解析元数据 token。
 - 查询表（该程序集 **首次** 查询时惰性创建并校验）：
   - **Type / Field / Property：** `Assembly` → `memberToken` → `Rule`
-  - **Param / Return：** `Assembly` → `(methodDefToken, index)` → `Rule`  
-    - Param：`index` 为 XML `@index`（`0`-based）  
-    - Return：`index = -1`  
+  - **Param / Return：** `Assembly` → `(methodDefToken, index)` → `Rule`
+    - Param：`index` 为 XML `@index`（`0`-based）
+    - Return：`index = -1`
     - **不**依赖 ParamDef / ReturnParameter metadata token（二者在 Mono 上常不存在）
 - 热路径 O(1) 查表；**不**拼字符串匹配。
 - 查询 API 与 Attribute 共用解析层：`TryAttribute`（仍可用 param token，若存在）未命中再 `TryXml`。

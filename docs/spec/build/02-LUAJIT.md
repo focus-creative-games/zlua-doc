@@ -5,10 +5,10 @@ title: "LuaJIT 构建"
 
 # 构建 — LuaJIT
 
-> 本文约定 ZLua 在 **Editor（Mono）** 与 **Il2Cpp Player** 上如何接入 **LuaJIT**。  
-> 官方 Lua（PUC-Rio）见 [01-OFFICIAL-LUA.md](/docs/spec/build/01-OFFICIAL-LUA/)。  
-> Mono × JIT 的 `lua_error` gate 见 [03-MONO-LUAJIT-CALLBACK-GATE.md](/docs/spec/build/03-MONO-LUAJIT-CALLBACK-GATE/)。  
-> 包布局、Install、Define 总规范见 [11-MULTI-VERSION.md](/docs/spec/11-MULTI-VERSION/)。  
+> 本文约定 ZLua 在 **Editor（Mono）** 与 **Il2Cpp Player** 上如何接入 **LuaJIT**。
+> 官方 Lua（PUC-Rio）见 [01-OFFICIAL-LUA.md](/docs/spec/build/01-OFFICIAL-LUA/)。
+> Mono × JIT 的 `lua_error` gate 见 [03-MONO-LUAJIT-CALLBACK-GATE.md](/docs/spec/build/03-MONO-LUAJIT-CALLBACK-GATE/)。
+> 包布局、Install、Define 总规范见 [11-MULTI-VERSION.md](/docs/spec/11-MULTI-VERSION/)。
 > 本文不改变 Lua 可见互操作语义。若与旧述「将完整 LuaJIT `src/` 拷入 `libil2cpp/lua`」冲突，**以本文为准**。
 
 ---
@@ -27,8 +27,8 @@ title: "LuaJIT 构建"
 
 **原则：**
 
-- **Editor** 通过 `DllImport` 加载 Plugins 动态库。  
-- **Il2Cpp** 中 `zlua-runtime` 直接调用 `lua_*`；JIT 路径靠 **静态库链接** 提供符号。  
+- **Editor** 通过 `DllImport` 加载 Plugins 动态库。
+- **Il2Cpp** 中 `zlua-runtime` 直接调用 `lua_*`；JIT 路径靠 **静态库链接** 提供符号。
 - Unity **不保证** 将 Windows import `.lib` 可靠链进 `GameAssembly`；故 Il2Cpp 交付面收敛为 **iOS / Android 静态 `.a`**。
 
 ---
@@ -51,7 +51,7 @@ LuaJIT 构建是 **两阶段**：
 | 天真 glob | 会编进 `host/*.c`、`luajit.c`（`main`），或同时编 amalg 与分散源 → 失败 |
 | WebGL | **无** WASM 后端，不可用 |
 
-因此：**禁止** 把「未预生成的完整 LuaJIT `src/`」当作与 PUC 相同的 Il2Cpp 输入。  
+因此：**禁止** 把「未预生成的完整 LuaJIT `src/`」当作与 PUC 相同的 Il2Cpp 输入。
 「宿主预生成后再拷可编译子集」技术上可行，但维护矩阵大；**当前产品约定**为下文：头文件 + 静态库。
 
 ---
@@ -92,9 +92,9 @@ LuaJIT 构建是 **两阶段**：
 
 说明：
 
-- Unity 对 **iOS / Android 预编译静态库（`.a`）** 有文档化支持，可将符号链进最终 native 产物。  
-- **不要**依赖「仅放置动态 `.so` + 修改 `build.gradle`」来解析 `libil2cpp` 内 C++ 对 `lua_*` 的引用：Android 上 `libil2cpp.so` 多在 **Bee/NDK 阶段**链接，Gradle 通常 **不能**补上该链接。  
-- 头文件与 `.a` 必须来自 **同一 LuaJIT 版本**，且关键宏一致（例如 iOS 上常见 `LUAJIT_DISABLE_JIT`）。  
+- Unity 对 **iOS / Android 预编译静态库（`.a`）** 有文档化支持，可将符号链进最终 native 产物。
+- **不要**依赖「仅放置动态 `.so` + 修改 `build.gradle`」来解析 `libil2cpp` 内 C++ 对 `lua_*` 的引用：Android 上 `libil2cpp.so` 多在 **Bee/NDK 阶段**链接，Gradle 通常 **不能**补上该链接。
+- 头文件与 `.a` 必须来自 **同一 LuaJIT 版本**，且关键宏一致（例如 iOS 上常见 `LUAJIT_DISABLE_JIT`）。
 - 推荐文件名在包 README / Plugins 说明中写死（如 `libluajit.a`）。
 
 ---
@@ -111,22 +111,22 @@ LuaJIT 构建是 **两阶段**：
 
 ## 7. 推荐的开发者编译提示（非唯一命令）
 
-1. 使用与缓存中一致的 LuaJIT 源码树（如 `LuaSrcCache/luajit-2.1`）。  
-2. 按目标 OS/ABI 完成官方宿主生成 + 静态库链接（参考上游 `Makefile` / `src/host/README`、交叉编译说明）。  
-3. iOS：关闭 JIT（`LUAJIT_DISABLE_JIT`）除非有明确且受支持的例外。  
-4. 将产出的 `.a` 放入 §5 路径，并确认 Inspector 中平台与 CPU 勾选正确。  
+1. 使用与缓存中一致的 LuaJIT 源码树（如 `LuaSrcCache/luajit-2.1`）。
+2. 按目标 OS/ABI 完成官方宿主生成 + 静态库链接（参考上游 `Makefile` / `src/host/README`、交叉编译说明）。
+3. iOS：关闭 JIT（`LUAJIT_DISABLE_JIT`）除非有明确且受支持的例外。
+4. 将产出的 `.a` 放入 §5 路径，并确认 Inspector 中平台与 CPU 勾选正确。
 5. 重新 Install（头文件与 Define）后打 Il2Cpp 包，验证链接无 unresolved `lua_*`。
 
 ---
 
 ## 8. 检查清单（例：`luajit-2.1`）
 
-- [ ] 已 clone 源码到 `LuaSrcCache`；执行 Install  
-- [ ] `Local.../libil2cpp/lua` **仅有头文件**（无 `lj_*.c` 等）  
-- [ ] Editor：`luajit21`（或约定名）动态库就位；具备 [callback gate](/docs/spec/build/03-MONO-LUAJIT-CALLBACK-GATE/) 原生库  
-- [ ] Define：`ZLUA_USE_LUAJIT`；`ZLUA_FAST_METATABLE` 为 `0`  
-- [ ] Il2Cpp Android/iOS：对应 ABI 的 **`libluajit.a`（或约定名）已在 Plugins 且平台已启用**  
-- [ ] 不在 WebGL 上使用本配置  
+- [ ] 已 clone 源码到 `LuaSrcCache`；执行 Install
+- [ ] `Local.../libil2cpp/lua` **仅有头文件**（无 `lj_*.c` 等）
+- [ ] Editor：`luajit21`（或约定名）动态库就位；具备 [callback gate](/docs/spec/build/03-MONO-LUAJIT-CALLBACK-GATE/) 原生库
+- [ ] Define：`ZLUA_USE_LUAJIT`；`ZLUA_FAST_METATABLE` 为 `0`
+- [ ] Il2Cpp Android/iOS：对应 ABI 的 **`libluajit.a`（或约定名）已在 Plugins 且平台已启用**
+- [ ] 不在 WebGL 上使用本配置
 
 ---
 

@@ -82,16 +82,6 @@ description: Editor Mono 下用 EmmyLua 对运行中的 Lua 断点调试（常�
 | Play 后 Editor 假死 | 关掉 `debuggerWaitIDE`，或先 F5 再 Play |
 | 扩展无 `emmylua_new` | 安装/启用 EmmyLua 后重载窗口 |
 
-
-
-
-
-
-
-
-
-
-
 ## 学习路径
 
 | | |
@@ -101,8 +91,8 @@ description: Editor Mono 下用 EmmyLua 对运行中的 Lua 断点调试（常�
 
 ## 相关文档
 
-- [规范 · EmmyLua 调试器](/docs/spec/build/04-EMMYLUA-DEBUGGER/) — ABI 目录、自建、`waitIDE`、验收清单  
-- [第三方原生插件](/docs/guides/native-modules/) — 同类 `cpath` + `require` 接入 socket/cjson 等  
-- [安装与 Lua 版本](/docs/guides/install/)  
-- [初始化与最小互调](/docs/guides/hello-interop/)  
+- [规范 · EmmyLua 调试器](/docs/spec/build/04-EMMYLUA-DEBUGGER/) — ABI 目录、自建、`waitIDE`、验收清单
+- [第三方原生插件](/docs/guides/native-modules/) — 同类 `cpath` + `require` 接入 socket/cjson 等
+- [安装与 Lua 版本](/docs/guides/install/)
+- [初始化与最小互调](/docs/guides/hello-interop/)
 - [上游 EmmyLuaDebugger](https://github.com/EmmyLua/EmmyLuaDebugger)

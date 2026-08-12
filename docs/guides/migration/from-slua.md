@@ -5,8 +5,8 @@ title: "从 SLua 迁移"
 
 # 从 SLua 迁移到 ZLua
 
-> **特性背景：** [compare/FEATURES.md](/docs/compare/FEATURES/)  
-> SLua 与 toLua 类似，强调 **导出配置 / 自动绑定**、`LuaSvr`；迁移路径与 toLua 高度重叠，本文突出 SLua 特有项。  
+> **特性背景：** [compare/FEATURES.md](/docs/compare/FEATURES/)
+> SLua 与 toLua 类似，强调 **导出配置 / 自动绑定**、`LuaSvr`；迁移路径与 toLua 高度重叠，本文突出 SLua 特有项。
 > **类型路径适配（可选）：** [规范 12 · slua adaptor](/docs/spec/12-MIGRATION-ADAPTORS/) · [迁移索引](/docs/guides/migration/)
 
 ---

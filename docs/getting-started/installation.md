@@ -96,10 +96,10 @@ git clone https://github.com/focus-creative-games/zlua-demo.git
 
 菜单 **`ZLua/Install...`** 执行 `LocalInstaller`，在工程本地生成可编译的 Il2Cpp + Lua + ZLua 树。**主要工作：**
 
-1. **复制 Editor 安装目录下的 `libil2cpp`（及配套 Il2Cpp 数据）到工程本地**，并打上包内 `libil2cpp` patch  
-2. **下载（或复用缓存）选定版本的 Lua 源码**，安装到本地 **`libil2cpp/lua`**  
-3. **将包内 `ZLua~/zlua-runtime` 复制到本地 `libil2cpp/zlua`**  
-4. 写入 scripting define、`ZLuaConf.inc` 等，并做完整性校验  
+1. **复制 Editor 安装目录下的 `libil2cpp`（及配套 Il2Cpp 数据）到工程本地**，并打上包内 `libil2cpp` patch
+2. **下载（或复用缓存）选定版本的 Lua 源码**，安装到本地 **`libil2cpp/lua`**
+3. **将包内 `ZLua~/zlua-runtime` 复制到本地 `libil2cpp/zlua`**
+4. 写入 scripting define、`ZLuaConf.inc` 等，并做完整性校验
 
 PUC-Rio 源码缓存目录一般为 `Library/ZLua/LuaSrcCache/`（如 `lua-5.5.0/`）。细则与路径命名见 [多版本管理](/docs/spec/11-MULTI-VERSION/)。
 

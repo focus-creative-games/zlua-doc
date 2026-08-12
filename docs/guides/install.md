@@ -42,6 +42,7 @@ description: UPM 引入 ZLua，用 Settings 选定 Lua 版本并完成本地 Ins
 | **Lua Version Id** | Lua / LuaJIT 版本 id；空则默认 **`lua-5.5.0`** |
 | **MarshalAs Xml Paths** | 可选；预编译程序集的 MarshalAs XML，见 [LuaMarshalAs](/docs/guides/lua-marshal-as/) |
 | **Lua Alias Xml Paths** | 可选；方法换名 XML（`ZLuaAlias`），见 [LuaAlias](/docs/guides/lua-alias/) |
+| **Lua Extension Xml Paths** | 可选；C# Extension 映射 XML（`ZLuaExtensions`），见 [Extension 方法](/docs/guides/extension-methods/) |
 
 **`luaVersionId` 写法：**
 
@@ -56,10 +57,10 @@ description: UPM 引入 ZLua，用 Settings 选定 Lua 版本并完成本地 Ins
 
 Install 主要工作：
 
-1. 复制 Editor 的 `libil2cpp` 到工程本地并打 patch  
-2. 下载（或复用缓存）选定 Lua 源码到本地 **`libil2cpp/lua`**  
-3. 将包内 `ZLua~/zlua-runtime` 复制到 **`libil2cpp/zlua`**  
-4. 写入 scripting define、`ZLuaConf.inc` 等并校验  
+1. 复制 Editor 的 `libil2cpp` 到工程本地并打 patch
+2. 下载（或复用缓存）选定 Lua 源码到本地 **`libil2cpp/lua`**
+3. 将包内 `ZLua~/zlua-runtime` 复制到 **`libil2cpp/zlua`**
+4. 写入 scripting define、`ZLuaConf.inc` 等并校验
 
 PUC-Rio 缓存一般在 `Library/ZLua/LuaSrcCache/`（如 `lua-5.5.0/`）。
 
@@ -74,8 +75,8 @@ PUC-Rio 缓存一般在 `Library/ZLua/LuaSrcCache/`（如 `lua-5.5.0/`）。
 
 ## 验证
 
-1. Settings 中版本正确，Install 日志成功  
-2. 工程能编译；下一篇用 `Initialize` + 最小互调确认 Play 有输出  
+1. Settings 中版本正确，Install 日志成功
+2. 工程能编译；下一篇用 `Initialize` + 最小互调确认 Play 有输出
 
 ## 常见问题
 
@@ -86,18 +87,6 @@ PUC-Rio 缓存一般在 `Library/ZLua/LuaSrcCache/`（如 `lua-5.5.0/`）。
 | 下载 Lua 失败 | 检查 `luaVersionId` 与网络；见 [多版本管理](/docs/spec/11-MULTI-VERSION/) |
 | 换系列后异常 | 按日志 **重启 Editor** |
 
-
-
-
-
-
-
-
-
-
-
-
-
 ## 学习路径
 
 | | |
@@ -107,7 +96,7 @@ PUC-Rio 缓存一般在 `Library/ZLua/LuaSrcCache/`（如 `lua-5.5.0/`）。
 
 ## 相关文档
 
-- [入门 · 安装与集成](/docs/getting-started/installation/) — UPM、Bootstrap 模板、完整目录树  
-- [兼容性](/docs/getting-started/compatibility/)  
-- [LuaJIT 构建](/docs/spec/build/02-LUAJIT/)  
+- [入门 · 安装与集成](/docs/getting-started/installation/) — UPM、Bootstrap 模板、完整目录树
+- [兼容性](/docs/getting-started/compatibility/)
+- [LuaJIT 构建](/docs/spec/build/02-LUAJIT/)
 - [多版本管理](/docs/spec/11-MULTI-VERSION/)

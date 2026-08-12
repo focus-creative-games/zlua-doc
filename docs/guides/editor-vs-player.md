@@ -29,32 +29,6 @@ Event、Marshal、类型访问等以 [规范](/docs/spec/00-OVERVIEW/) 为准；
 - [ ] 脚本行为符合 [规范](/docs/spec/00-OVERVIEW/)（勿依赖已废弃的 Event `.get` / `.set`）
 - [ ] 对照 [兼容性矩阵](/docs/getting-started/compatibility/) 做冒烟
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ## 学习路径
 
 | | |

@@ -12,15 +12,17 @@ description: enum、struct、Nullable 的默认跨边界形态与常见用法。
 
 ## 形态对照
 
-| 类型 | 默认跨边界形态 | 构造 userdata |
-|------|----------------|---------------|
-| **enum** | integer / number（常量） | `EnumType(value)` / `_ctor` |
+| 类型 | 默认跨边界形态 | 构造实例 |
+|------|----------------|----------|
+| **enum** | integer / number（常量） | **无** `EnumType(...)` / `_ctor`；boxed 仅用 `zlua.box` |
 | **struct** | ByValUserData 等（见规范） | `Type(...)` / `_default()` |
 | **Nullable\<T\>** | 有值同 `T`；无值 → Lua `nil` | — |
 
 默认 **不能** 用 `{ X=1, Y=2 }` 或 `foo(x, y)` 组装 struct 传入 C#，须 `Type(...)` / ByVal userdata，或显式 `[LuaMarshalAs(Table|UnpackedValues)]`（见上）。
 
 ## enum
+
+跨边界默认就是 **integer / number**（类型表上的常量也是整型，不是 userdata）：
 
 ```lua
 local Color = CSharp.AC['MyGame.Color']
@@ -29,14 +31,17 @@ host:SetColor(Color.Red)
 host:SetColor(1)              -- underlying 整型亦可
 ```
 
-需要 boxed 实例（如部分 `ref` / 泛型约束）时：
+比较常量时用 **integer**，不要当 userdata 比。类型表 **无** `__call`，**不要**写 `Color(...)` / `Color._ctor(...)`。
+
+需要 **boxed** 枚举对象（如部分 `object` 形参、数组槽位等）时，只用 `zlua.box`：
 
 ```lua
-local c = Color(Color.Red)
-local c2 = Color._ctor(2)
+local boxed = zlua.box(Color, Color.Red)
+local boxed2 = zlua.box(Color, 2)
+print(zlua.unbox(boxed))      -- underlying integer
 ```
 
-比较常量时用 **integer**，不要当 userdata 比。
+细则见 [Enum Marshal](/docs/spec/marshal/08-ENUM/)。
 
 ## struct
 
@@ -50,17 +55,16 @@ p.Y = 20
 
 | 传递 | C# 形参 | 行为 |
 |------|---------|------|
-| userdata | by-val `Point2D` | **拷贝** |
-| userdata | `ref Point2D` | **真 ref**，可写回 |
-| `zlua.new_ref(...)` | `ref`/`out` | 真 ref |
+| userdata（如 `Point2D(...)`） | by-val `Point2D` | **拷贝** |
+| userdata（同型） | `ref` / `out` / `in Point2D` | **真 ref**，可写回 |
 
 静态成员经类型表访问；struct **无继承**。`ref struct` 不作普通 by-val。
 
 ## Nullable\<T\>
 
-- C# `null`（无值）↔ Lua `nil`  
-- 有值时按底层 `T` 的规则 Marshal  
-- 不要给非 Nullable 的值类型传 `nil`  
+- C# `null`（无值）↔ Lua `nil`
+- 有值时按底层 `T` 的规则 Marshal
+- 不要给非 Nullable 的值类型传 `nil`
 
 ## 完整示例（示意）
 
@@ -90,12 +94,11 @@ print(Vec2.Dot(Vec2(1, 0), Vec2(0, 1)))
 | 现象 | 处理 |
 |------|------|
 | enum 当 userdata 比较失败 | 用 integer 比较 |
-| struct 修改未回写 | by-val 拷贝；改用 `ref` / `new_ref` |
+| `Color(...)` / `Color._ctor` 失败 | enum **无**类型表构造；传整型，或 `zlua.box` |
+| struct 修改未回写 | by-val 拷贝；对 `ref` 形参传入同型 userdata（`Type(...)`）或走 Opaque |
 | `{X=,Y=}` 传入未标注的 struct | 标 `Table`（见 [LuaMarshalAs](/docs/guides/lua-marshal-as/)），或先 `Type(...)` |
 | `foo(x,y)` 传入未标注的 struct | 标 `UnpackedValues`（见 [0GC Marshal](/docs/guides/zero-gc-marshal/)） |
 | `ref struct` 作 by-val | 不支持 |
-
-
 
 ## 学习路径
 
@@ -106,7 +109,8 @@ print(Vec2.Dot(Vec2(1, 0), Vec2(0, 1)))
 
 ## 相关文档
 
-- [0GC Marshal](/docs/guides/zero-gc-marshal/)  
-- [LuaMarshalAs](/docs/guides/lua-marshal-as/)  
-- [Struct Marshal](/docs/spec/marshal/05-STRUCT/)  
+- [0GC Marshal](/docs/guides/zero-gc-marshal/)
+- [LuaMarshalAs](/docs/guides/lua-marshal-as/)
+- [Struct Marshal](/docs/spec/marshal/05-STRUCT/)
+- [Enum Marshal](/docs/spec/marshal/08-ENUM/)
 - [ref / out / in](/docs/guides/ref-out-in/)

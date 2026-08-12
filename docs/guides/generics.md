@@ -55,18 +55,6 @@ SomeType.Foo(inst, value)
 | `List` 找不到 | 使用 `System.Collections.Generic.List`1`` 全名 + 括号键 |
 | 对已闭合方法误传 `make_generic_inst` | 仅开放泛型方法需要 |
 
-
-
-
-
-
-
-
-
-
-
-
-
 ## 学习路径
 
 | | |
@@ -76,6 +64,6 @@ SomeType.Foo(inst, value)
 
 ## 相关文档
 
-- [zlua 库规范](/docs/spec/05-LIB/)  
-- [类型系统](/docs/spec/02-TYPE-SYSTEM/)  
+- [zlua 库规范](/docs/spec/05-LIB/)
+- [类型系统](/docs/spec/02-TYPE-SYSTEM/)
 - [数组](/docs/guides/arrays/)

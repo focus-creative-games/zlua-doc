@@ -5,7 +5,7 @@ title: "方法重载"
 
 # 04 — 方法重载
 
-> C# 方法重载在 Lua 侧的解析与调用策略。适用于 **Il2Cpp（Player）** 与 **Mono（Editor）**。  
+> C# 方法重载在 Lua 侧的解析与调用策略。适用于 **Il2Cpp（Player）** 与 **Mono（Editor）**。
 > 继承与 Bind 规则见 [02-TYPE-SYSTEM.md](/docs/spec/02-TYPE-SYSTEM/) §5；`zlua` API 见 [05-LIB.md](/docs/spec/05-LIB/)。
 
 ---
@@ -43,7 +43,6 @@ flowchart LR
 
 ---
 
-
 ## 3. 默认名与 dispatch
 
 ### 3.1 注册规则（按最终名字分组）
@@ -58,7 +57,8 @@ flowchart LR
 来源可以是：
 
 - 多个 C# 同名重载（默认名相同）；或
-- `[LuaAlias]` / XML 把不同方法挂到 **同一最终名**（与默认名或其他别名重复均允许）。
+- `[LuaAlias]` / XML 把不同方法挂到 **同一最终名**（与默认名或其他别名重复均允许）；或
+- **C# extension**（经 [13-EXTENSION-METHODS](/docs/spec/13-EXTENSION-METHODS/) 配置注入 IMT）与真实例方法 **同一最终名** → **合并竞争**（无「实例优先于扩展」）；全签名键与匹配均按去掉 `this` 后的形参计算。
 
 > **`zlua.register_method` 除外：** 运行时注册 **禁止** 使用已存在的最终名（见 §6.1），因此不会通过该 API 扩大已有 overload 组。
 
@@ -226,11 +226,10 @@ Native 回调：`__zlua_create_signature`（`ZLuaLib.cpp`）。建议在项目 `
 "Run" + "(System.Int32)"  →  Lua 元表键 "Run(System.Int32)"
 ```
 
-该键在 **同名多候选** 时 **暴露** 为 `methodTable` 的 `__index` 字符串键（§3.7）。  
+该键在 **同名多候选** 时 **暴露** 为 `methodTable` 的 `__index` 字符串键（§3.7）。
 **禁止** 把 **仅** 参数括号（如 `"(System.Int32)"`）当作方法键；必须带方法名。
 
 ---
-
 
 ## 5. 别名机制（`[LuaAlias]`）
 
@@ -332,7 +331,7 @@ public void Run(int value) { ... }
 | `Method/@signature` | 参数类型列表，圆括号包裹：`()` / `(T1,T2)`；byref 后缀 `&`；数组 `T[]`；**不含**返回类型（与 MarshalAs 的 Method 定位约定一致） |
 | `Method/@alias` | **必填**；非空；作为该方法的 **唯一最终 Lua 名**（§5.1，替换默认名） |
 
-**本文件允许的内容：** 仅 `Assembly` → `Type` → 带 `@alias` 的 `Method`。  
+**本文件允许的内容：** 仅 `Assembly` → `Type` → 带 `@alias` 的 `Method`。
 **禁止：** `MarshalAs` / `Param` / `Return` / `Field` / `Property` 子元素，或 Method 缺少 `@alias` → **失败**。
 
 | 其它约束 | 说明 |
@@ -358,8 +357,8 @@ public void Run(int value) { ... }
 
 显式点名某一重载时，优先顺序：
 
-1. **全签名键**（§3.7，Bind 期自动，无需 API）  
-2. Bind 期 **`[LuaAlias]`** 短名  
+1. **全签名键**（§3.7，Bind 期自动，无需 API）
+2. Bind 期 **`[LuaAlias]`** 短名
 3. 从全签名键 / 别名取出 direct closure 后 **`register_method`** 挂自定义短名（便于冒号调用）
 
 `zlua.signature(...)`（§4.1）用于拼出 / 对照参数括号部分，**不是**单独的元表键。
@@ -534,3 +533,5 @@ assert.equal(CSharp.AC.Demo.add_one(7), 7)
 | `MetaBinding` | dispatch、direct closure、`register_method` |
 | `ZLuaLib.cpp` | `__zlua_create_signature`、`__zlua_register_method` |
 | Codegen | `[LuaAlias]` 写入元数据 |
+
+C# Extension 注入 IMT 与合并竞争见 [13-EXTENSION-METHODS](/docs/spec/13-EXTENSION-METHODS/)。

@@ -105,25 +105,15 @@ local list = ListInt()
 
 ---
 
-## ref / out / in
+## Opaque / ref
 
-### `zlua.new_ref(ref_type [, value, ...]) → structUserdata`
-
-创建 **真 ref** 槽位（StructUserData）。裸 Lua number/string 传 ref 形参时为 **拷贝语义**。
-
-| 参数 | 说明 |
-|------|------|
-| `ref_type` | `zlua.types.*` 或 struct / enum 类型表 |
-| `value...` | 可选初始值；省略或 nil → `default(T)` |
-
-```lua
-local n = zlua.new_ref(zlua.types.int32, 5)
-local out = zlua.new_ref(zlua.types.int32)  -- out 参数
-```
+`ref` / `out` / `in` **无** 单独的 `zlua.new_ref`（已移除）。Lua→C# 写回依赖实参形态：同型 **ByValUserData**（如 `Point2D(...)`）或兼容 **Opaque**；裸 number/string 只进临时槽。见 [ref/out/in 指南](/docs/guides/ref-out-in/)、[03-BYREF](/docs/spec/marshal/03-BYREF/)。
 
 ### `zlua.to_user_data(opaque) → userdata`
 
 将 C#→Lua 推送的 **OpaqueValue**（lightuserdata）升级为 StructUserData / ClassUserData。须在 **同步调用链** 内使用。
+
+另：`get_opaquevalue` / `set_opaquevalue` 见同规范 Opaque 节。
 
 ---
 
@@ -163,7 +153,7 @@ local handler = zlua.to_delegate(function(x) print(x) end, CSharp.AC['System.Act
 | typeof / types / signature | ✅ | ✅ |
 | register_method | ✅ | ✅ |
 | make_generic_type / make_generic_inst | ✅ | ✅ |
-| new_ref / to_user_data | ✅ | ✅ |
+| get/set_opaquevalue / to_user_data | ✅ | ✅ |
 | make_szarray_* / new_szarray_* | ✅ | ✅ |
 | make_mdarray_* | ✅ | ✅ |
 | to_table / to_bytes | ✅ | ✅ |

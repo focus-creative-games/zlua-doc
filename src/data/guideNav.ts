@@ -20,6 +20,7 @@ export const GUIDE_NAV: GuideNavItem[] = [
   {slug: 'zero-gc-marshal', title: '0GC Marshal'},
   {slug: 'overloads', title: '方法重载'},
   {slug: 'lua-alias', title: 'LuaAlias'},
+  {slug: 'extension-methods', title: 'Extension 方法'},
   {slug: 'zlua-lib', title: '常用 zlua 库'},
   {slug: 'native-modules', title: '第三方原生插件'},
   {slug: 'migration', title: '迁移指南'},

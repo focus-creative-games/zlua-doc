@@ -39,9 +39,9 @@ public class Bootstrap : MonoBehaviour
 }
 ```
 
-- `module` 为**逻辑名**（无路径、无扩展名），如 `"app"`  
-- 返回 UTF-8 源码字符串；找不到返回 `null`  
-- **不需要**手动创建 `LuaState` / 注册 Wrap  
+- `module` 为**逻辑名**（无路径、无扩展名），如 `"app"`
+- 返回 UTF-8 源码字符串；找不到返回 `null`
+- **不需要**手动创建 `LuaState` / 注册 Wrap
 
 ## 2. 最简 C# → Lua
 
@@ -122,18 +122,6 @@ lua main start
 
 下一篇处理 **Player 构建**（Generate、Sync）。互调 API 本身在 Editor / Player **相同**；未 Generate 的 Player 会在运行期失败。
 
-
-
-
-
-
-
-
-
-
-
-
-
 ## 学习路径
 
 | | |
@@ -143,7 +131,7 @@ lua main start
 
 ## 相关文档
 
-- [快速开始](/docs/getting-started/quick-start/)  
-- [C# 调用 Lua](/docs/guides/csharp-calling-lua/)  
-- [Lua 调用 C#](/docs/guides/lua-calling-csharp/)  
+- [快速开始](/docs/getting-started/quick-start/)
+- [C# 调用 Lua](/docs/guides/csharp-calling-lua/)
+- [Lua 调用 C#](/docs/guides/lua-calling-csharp/)
 - [宿主 API](/docs/spec/01-HOST-API/)

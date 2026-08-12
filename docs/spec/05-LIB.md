@@ -5,8 +5,8 @@ title: "zlua 标准库"
 
 # 05 — `zlua` 标准库
 
-> 全局 **`zlua`** 表的 Lua API。  
-> 源码：`Packages/com.code-philosophy.zlua/ZLua~/lualib/zlualib.lua`  
+> 全局 **`zlua`** 表的 Lua API。
+> 源码：`Packages/com.code-philosophy.zlua/ZLua~/lualib/zlualib.lua`
 > Native：`build-win64/.../libil2cpp/zlua/lvm/ZLuaLib.cpp`（`RegisterGlobals`）
 
 初始化时 native 注册 `__zlua_*` 全局 C 函数，再 `dostring` 加载 `zlualib.lua` 封装为 `zlua.*`。

@@ -5,7 +5,7 @@ title: "数组 Marshal"
 
 # 数组 Marshal
 
-> **规范性：** 一维向量数组（szarray）、多维数组（mdarray）及 `byte[]` 在 Lua 与 C# 之间的 Marshal 规则。  
+> **规范性：** 一维向量数组（szarray）、多维数组（mdarray）及 `byte[]` 在 Lua 与 C# 之间的 Marshal 规则。
 > **相关：** 类型表、创建、`#`、`get`/`set` → [`../02-TYPE-SYSTEM.md`](/docs/spec/02-TYPE-SYSTEM/) §数组；`zlua.to_bytes` / `to_table` → [`../05-LIB.md`](/docs/spec/05-LIB/)；class ByObj 基础 → [`06-CLASS.md`](/docs/spec/marshal/06-CLASS/)；`[LuaMarshalAs]` → [`02-MARSHAL-AS.md`](/docs/spec/marshal/02-MARSHAL-AS/)。
 
 **平台原则：** Mono 与 Il2Cpp 的 **Lua 可见语义一致**；数组实例为 **ByObjUserData**（引用类型，走 ObjectRegistry / GCHandle 路径）。

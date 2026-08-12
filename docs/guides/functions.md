@@ -9,7 +9,7 @@ description: Lua function ↔ C# Delegate 的三条路径与注意事项。
 | 路径 | 写法 | 说明 |
 |------|------|------|
 | **Lua → C# 形参** | `obj:Foo(function(...) end)` | 隐式 `ReadDelegate` |
-| **C# delegate → Lua** | `handler(42)` / `handler:Invoke(42)` | DelegateUserData + `__call` |
+| **C# → Lua**（回调槽） | `handler(...)` | 可能是 **function** 或 DelegateUserData；统一用调用语法 |
 | **C# 按名取 Lua** | `GetFunction<T>(mod, name)` | 见 [C# 调用 Lua](/docs/guides/csharp-calling-lua/) |
 
 权威：[函数 Marshal](/docs/spec/marshal/09-FUNCTION/)、[`to_delegate`](/docs/spec/05-LIB/)。
@@ -45,16 +45,24 @@ logic.Combine = function(a, b) return a + b end
 print(logic:Run(3, 5))
 ```
 
-## 2. C# delegate 传入 Lua
+## 2. C# 侧回调传到 Lua
+
+从 C# 取回的回调槽 **统一** 用调用语法：
 
 ```lua
 local handler = host:GetHandler()
 handler(42)
-handler:Invoke(42)
 ```
 
+| 槽位来源 | `type(handler)` | 说明 |
+|----------|-----------------|------|
+| 原生 C# delegate | userdata（`__call`） | `handler(...)` 即可 |
+| Lua function 经 C# 再传回 | **`function`** | 仍是 Lua function，**不是** delegate |
+
+因此 **不要** 依赖 `handler:Invoke(...)`：对 function 无效，且与「往返后仍是 function」的设计不一致。细则见 [09-FUNCTION](/docs/spec/marshal/09-FUNCTION/)。
+
 :::warning
-**Open delegate**（`target == null`）当前不支持。
+原生 **Open delegate**（`target == null`）当前不支持。
 :::
 
 ## 3. 何时用 GetFunction / to_delegate
@@ -69,9 +77,9 @@ handler:Invoke(42)
 
 ## 4. Event 与生命周期
 
-- Event 用 `add_` / `remove_`（见 [Lua 调用 C#](/docs/guides/lua-calling-csharp/#5-eventadd_--remove_)）  
-- 取消订阅须 **同一** function 引用  
-- multicast 保持多播语义；Lua function 经 registry ref——避免 C# 长期持有 delegate 却销毁 Lua 环境  
+- Event 用 `add_` / `remove_`（见 [Lua 调用 C#](/docs/guides/lua-calling-csharp/#5-eventadd_--remove_)）
+- 取消订阅须 **同一** function 引用
+- multicast 保持多播语义；Lua function 经 registry ref——避免 C# 长期持有 delegate 却销毁 Lua 环境
 
 ## 常见错误
 
@@ -82,18 +90,6 @@ handler:Invoke(42)
 | `to_delegate` 类型不对 | 第二参不是闭合委托类型 |
 | remove 无效 | 不是同一 function 引用 |
 
-
-
-
-
-
-
-
-
-
-
-
-
 ## 学习路径
 
 | | |
@@ -103,6 +99,6 @@ handler:Invoke(42)
 
 ## 相关文档
 
-- [C# 调用 Lua](/docs/guides/csharp-calling-lua/)  
-- [函数 Marshal](/docs/spec/marshal/09-FUNCTION/)  
+- [C# 调用 Lua](/docs/guides/csharp-calling-lua/)
+- [函数 Marshal](/docs/spec/marshal/09-FUNCTION/)
 - [从 xLua 迁移](/docs/guides/migration/from-xlua/)

@@ -6,7 +6,7 @@ description: zlua.types 内置 corlib 类型常量表。
 
 # zlua.types
 
-`zlua.types` 在 `zlualib.lua` 加载时初始化，提供常用 **System 类型全名字符串**，可直接作为 `zlua.signature`、`zlua.make_generic_type`、`zlua.new_ref` 等的 typeArg，等价于 `zlua.typeof(CSharp.mscorlib....)` 的简写。
+`zlua.types` 在 `zlualib.lua` 加载时初始化，提供常用 **System 类型全名字符串**，可直接作为 `zlua.signature`、`zlua.make_generic_type`、`zlua.box` 等的 typeArg，等价于 `zlua.typeof(CSharp.mscorlib....)` 的简写。
 
 源码：[ZLua~/lualib/zlualib.lua](https://github.com/focus-creative-games/zlua/blob/main/ZLua~/lualib/zlualib.lua)
 
@@ -19,14 +19,14 @@ description: zlua.types 内置 corlib 类型常量表。
 | Lua 键 | System 类型 | 典型用途 |
 |--------|-------------|----------|
 | `zlua.types.void` | `System.Void` | 仅签名场景（无参构造等） |
-| `zlua.types.bool` | `System.Boolean` | signature、ref 槽 |
+| `zlua.types.bool` | `System.Boolean` | signature、泛型实参 |
 | `zlua.types.char` | `System.Char` | signature |
 | `zlua.types.byte` | `System.Byte` | signature |
 | `zlua.types.sbyte` | `System.SByte` | signature |
 | `zlua.types.short` | `System.Int16` | signature |
 | `zlua.types.ushort` | `System.UInt16` | signature |
 | `zlua.types.int` | `System.Int32` | signature（与 `int32` 相同） |
-| `zlua.types.int32` | `System.Int32` | signature、ref int |
+| `zlua.types.int32` | `System.Int32` | signature、泛型实参 |
 | `zlua.types.uint` | `System.UInt32` | signature |
 | `zlua.types.long` | `System.Int64` | signature |
 | `zlua.types.ulong` | `System.UInt64` | signature |
@@ -47,12 +47,6 @@ description: zlua.types 内置 corlib 类型常量表。
 local sig = zlua.signature(zlua.types.int32, zlua.types.string)
 -- 同名多候选时 Bind 已挂好，直接：
 -- demo['SomeMethod(System.Int32,System.String)'](demo, …)
-```
-
-### ref 槽
-
-```lua
-local n = zlua.new_ref(zlua.types.int32, 5)
 ```
 
 ### 泛型闭合

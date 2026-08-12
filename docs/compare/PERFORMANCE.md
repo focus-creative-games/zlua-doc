@@ -7,7 +7,7 @@ title: "性能对比"
 
 正式结论仅引用 **Il2Cpp Player**（Mono Editor 不代表发布性能）。
 
-**基准工程：** [focus-creative-games/zlua-benchmark](https://github.com/focus-creative-games/zlua-benchmark)（ZLua / xLua / toLua / SLua 四方对齐）。  
+**基准工程：** [focus-creative-games/zlua-benchmark](https://github.com/focus-creative-games/zlua-benchmark)（ZLua / xLua / toLua / SLua 四方对齐）。
 **最新报告：** [comparison_20260728_121554.md](https://github.com/focus-creative-games/zlua-benchmark/blob/main/reports/comparison_20260728_121554.md)
 
 | 项 | 值 |

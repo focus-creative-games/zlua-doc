@@ -5,8 +5,8 @@ title: "ObjectRegistry / StructRegistry"
 
 # ObjectRegistry / StructRegistry
 
-> **Il2Cpp：** `marshal/ObjectRegistry.cpp`、`marshal/StructRegistry.cpp`  
-> **Mono：** `Runtime/Mono/Marshaling/ObjectRegistry.cs`、`StructRegistry.cs`  
+> **Il2Cpp：** `marshal/ObjectRegistry.cpp`、`marshal/StructRegistry.cpp`
+> **Mono：** `Runtime/Mono/Marshaling/ObjectRegistry.cs`、`StructRegistry.cs`
 > **语义：** [../../spec/10-LIFETIME.md](/docs/spec/10-LIFETIME/)、[../../spec/marshal/06-CLASS.md](/docs/spec/marshal/06-CLASS/)、[../../spec/marshal/05-STRUCT.md](/docs/spec/marshal/05-STRUCT/)
 
 ---

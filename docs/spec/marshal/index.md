@@ -5,7 +5,7 @@ title: "Marshal 规范（`spec/marshal/`）"
 
 # Marshal 规范（`spec/marshal/`）
 
-> **规范性：** C# ↔ Lua 值在栈上的形态与转换规则。  
+> **规范性：** C# ↔ Lua 值在栈上的形态与转换规则。
 > **实现：** → [../../impl/marshal/](/docs/impl/marshal/)。
 
 ## 本目录
@@ -25,9 +25,9 @@ title: "Marshal 规范（`spec/marshal/`）"
 
 ## 阅读顺序
 
-1. **[01-OVERVIEW.md](/docs/spec/marshal/01-OVERVIEW/)** — 默认行为总表  
-2. **[02-MARSHAL-AS.md](/docs/spec/marshal/02-MARSHAL-AS/)** — 何时覆盖默认、如何配置 Table/Unpacked/Params  
-3. **按类型深入：** [05-STRUCT](/docs/spec/marshal/05-STRUCT/) / [06-CLASS](/docs/spec/marshal/06-CLASS/) / [07-ARRAY](/docs/spec/marshal/07-ARRAY/) / [08-ENUM](/docs/spec/marshal/08-ENUM/) / [09-FUNCTION](/docs/spec/marshal/09-FUNCTION/)  
+1. **[01-OVERVIEW.md](/docs/spec/marshal/01-OVERVIEW/)** — 默认行为总表
+2. **[02-MARSHAL-AS.md](/docs/spec/marshal/02-MARSHAL-AS/)** — 何时覆盖默认、如何配置 Table/Unpacked/Params
+3. **按类型深入：** [05-STRUCT](/docs/spec/marshal/05-STRUCT/) / [06-CLASS](/docs/spec/marshal/06-CLASS/) / [07-ARRAY](/docs/spec/marshal/07-ARRAY/) / [08-ENUM](/docs/spec/marshal/08-ENUM/) / [09-FUNCTION](/docs/spec/marshal/09-FUNCTION/)
 4. **双向 byref 分叉：** Lua→C# → [03-BYREF.md](/docs/spec/marshal/03-BYREF/)；C#→Lua → [04-OPAQUE.md](/docs/spec/marshal/04-OPAQUE/)
 
 ## 交叉引用

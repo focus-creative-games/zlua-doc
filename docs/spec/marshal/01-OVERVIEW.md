@@ -5,8 +5,8 @@ title: "Marshal 总览 — 默认规则矩阵"
 
 # Marshal 总览 — 默认规则矩阵
 
-> **规范性：** 未标注 `[LuaMarshalAs]`（或标注为 `LuaMarshalType.Default`）时，各 CLR 类型在 **C# ↔ Lua** 双向调用中的默认 Marshal。  
-> **覆盖：** 参数、返回值、字段、属性上的 `[LuaMarshalAs]` 见 [02-MARSHAL-AS.md](/docs/spec/marshal/02-MARSHAL-AS/)。  
+> **规范性：** 未标注 `[LuaMarshalAs]`（或标注为 `LuaMarshalType.Default`）时，各 CLR 类型在 **C# ↔ Lua** 双向调用中的默认 Marshal。
+> **覆盖：** 参数、返回值、字段、属性上的 `[LuaMarshalAs]` 见 [02-MARSHAL-AS.md](/docs/spec/marshal/02-MARSHAL-AS/)。
 > **实现：** → [../../impl/marshal/](/docs/impl/marshal/)。
 
 ## 1. 平台原则

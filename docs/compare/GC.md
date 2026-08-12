@@ -5,7 +5,7 @@ title: "GC 差异"
 
 # GC 差异 — 理论分析对比
 
-> **性质：** 理论分析，非 benchmark。  
+> **性质：** 理论分析，非 benchmark。
 > **ZLua 细节：** 以 [spec/10-LIFETIME.md](/docs/spec/10-LIFETIME/)、[spec/marshal/](/docs/spec/marshal/) 为准。
 
 ---

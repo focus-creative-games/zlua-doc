@@ -41,7 +41,7 @@ local v = zlua.get_opaquevalue(slot)
 zlua.set_opaquevalue(slot, newValue)
 ```
 
-也可用 `zlua.new_ref(Point2D, ...)` 显式建可写回引用。详见 [常用 zlua 库](/docs/guides/zlua-lib/)。
+对 `ref Point2D` 等值类型形参，传入同型 **ByValUserData**（如 `Point2D(1, 2)`）即可写回；无需额外 API。详见 [值类型](/docs/guides/value-types/)、[常用 zlua 库](/docs/guides/zlua-lib/)。
 
 :::warning
 Opaque **不可**跨 `pcall` / 跨帧持久化当长期句柄用。需要 userdata 门面时用 `zlua.to_user_data`（见规范）。
@@ -49,22 +49,7 @@ Opaque **不可**跨 `pcall` / 跨帧持久化当长期句柄用。需要 userda
 
 ## 与值类型章的关系
 
-by-val struct 是 **拷贝**；要「改字段并反映到 C#」须走 `ref` / Opaque / `new_ref`。见 [值类型](/docs/guides/value-types/)。
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+by-val struct 是 **拷贝**；要「改字段并反映到 C#」须对 `ref` 形参传入同型 userdata，或走 Opaque。见 [值类型](/docs/guides/value-types/)。
 
 ## 学习路径
 
@@ -75,7 +60,7 @@ by-val struct 是 **拷贝**；要「改字段并反映到 C#」须走 `ref` / O
 
 ## 相关文档
 
-- [BYREF](/docs/spec/marshal/03-BYREF/)  
-- [OPAQUE](/docs/spec/marshal/04-OPAQUE/)  
-- [LuaMarshalAs](/docs/guides/lua-marshal-as/)  
+- [BYREF](/docs/spec/marshal/03-BYREF/)
+- [OPAQUE](/docs/spec/marshal/04-OPAQUE/)
+- [LuaMarshalAs](/docs/guides/lua-marshal-as/)
 - [0GC Marshal](/docs/guides/zero-gc-marshal/)

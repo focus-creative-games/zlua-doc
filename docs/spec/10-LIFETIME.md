@@ -5,7 +5,7 @@ title: "生命周期与 GC"
 
 # 10 — 生命周期、GC 与异常边界
 
-> `ObjectRegistry`、Struct 相关 Registry、Opaque 有效期、单 `lua_State` 与 C#↔Lua 异常转换。  
+> `ObjectRegistry`、Struct 相关 Registry、Opaque 有效期、单 `lua_State` 与 C#↔Lua 异常转换。
 > Opaque 细节 → [marshal/04-OPAQUE.md](/docs/spec/marshal/04-OPAQUE/)；Registry 实现 → [impl/marshal/REGISTRIES.md](/docs/impl/marshal/REGISTRIES/)。
 
 ---
@@ -214,7 +214,7 @@ Player 域重载时须完整 Shutdown，避免 registry 泄漏与 stale root。
 | C# 抛异常 | `luaL_error` 等价；消息含类型 / 方法上下文（Mono / Il2Cpp 一致或等价） |
 | 脚本 | `pcall` 捕获 string / 错误对象 |
 
-**Editor Mono（所有 Lua 系列）：** 不得在托管 reverse-P/Invoke 帧内调用 `lua_error`。须经 **native callback gate**：托管 push 错误并返回 sentinel，native 在托管返回后再 `lua_error`。规范见 [build/03-MONO-LUAJIT-CALLBACK-GATE.md](/docs/spec/build/03-MONO-LUAJIT-CALLBACK-GATE/)。  
+**Editor Mono（所有 Lua 系列）：** 不得在托管 reverse-P/Invoke 帧内调用 `lua_error`。须经 **native callback gate**：托管 push 错误并返回 sentinel，native 在托管返回后再 `lua_error`。规范见 [build/03-MONO-LUAJIT-CALLBACK-GATE.md](/docs/spec/build/03-MONO-LUAJIT-CALLBACK-GATE/)。
 Il2Cpp 不使用该 gate；另遵守「`lua_error` 时无 C++ 析构依赖」的工程约束。回调内 `Debug.Log` 堆栈抓取问题另见实现 `LuaPrintBuffer`（延迟刷出）。
 
 ### 8.3 错误消息

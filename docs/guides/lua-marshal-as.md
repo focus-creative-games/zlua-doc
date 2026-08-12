@@ -16,7 +16,7 @@ description: 覆盖默认 Marshal；Bytes / Opaque / UnpackedValues / Table / Us
 - 巨大 `string` 不想拷成 Lua string（`UserData` → ByObj）
 - 预编译 DLL 无法改源码 → Settings 挂 XML
 
-可标注：**参数 / 返回值 / 字段 / 属性 / 类型（class、struct）**。  
+可标注：**参数 / 返回值 / 字段 / 属性 / 类型（class、struct）**。
 **不可**标在方法上；**不可**标在仍含未绑定泛型形参的槽位。
 
 ## 常用 `LuaMarshalType`
@@ -157,13 +157,6 @@ Settings **MarshalAs Xml Paths**；Mono 运行时解析；Il2Cpp 在 **Generate*
 
 要点：`Param` 用 **`index`（0-based，不含 this）**；`type` 用 **`OpaqueValue`**（勿用废弃名）；别名走独立 `luaAliasXmlPaths`。完整 schema 见 [规范 §9](/docs/spec/marshal/02-MARSHAL-AS/)。
 
-
-
-
-
-
-
-
 ## 学习路径
 
 | | |
@@ -173,8 +166,8 @@ Settings **MarshalAs Xml Paths**；Mono 运行时解析；Il2Cpp 在 **Generate*
 
 ## 相关文档
 
-- [0GC Marshal](/docs/guides/zero-gc-marshal/)  
-- [值类型](/docs/guides/value-types/)  
-- [02-MARSHAL-AS](/docs/spec/marshal/02-MARSHAL-AS/)  
-- [OPAQUE](/docs/spec/marshal/04-OPAQUE/)  
+- [0GC Marshal](/docs/guides/zero-gc-marshal/)
+- [值类型](/docs/guides/value-types/)
+- [02-MARSHAL-AS](/docs/spec/marshal/02-MARSHAL-AS/)
+- [OPAQUE](/docs/spec/marshal/04-OPAQUE/)
 - [Marshal 速查表](/docs/reference/marshal-cheatsheet/)

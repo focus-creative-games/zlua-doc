@@ -5,7 +5,7 @@ title: "Delegate / 函数 Marshal"
 
 # Delegate / 函数 Marshal
 
-> **规范性：** C# `Delegate` 与 Lua 函数之间的双向 Marshal。  
+> **规范性：** C# `Delegate` 与 Lua 函数之间的双向 Marshal。
 > **相关：** class ByObj 基础 → [`06-CLASS.md`](/docs/spec/marshal/06-CLASS/)；`GetFunction` → [`../01-HOST-API.md`](/docs/spec/01-HOST-API/)；C#→Lua byref → [`04-OPAQUE.md`](/docs/spec/marshal/04-OPAQUE/)；Lua→C# byref → [`03-BYREF.md`](/docs/spec/marshal/03-BYREF/)；`to_delegate` → [`../05-LIB.md`](/docs/spec/05-LIB/)。
 
 **平台原则：** Mono 与 Il2Cpp 的 **Lua 可见语义一致**；实现路径可不同（Il2Cpp：构建期 C++ bridge；Mono：运行时 Expression Emit）。
@@ -119,17 +119,18 @@ PushDelegate(d):
 - **类型表**与普通 class 相同（含闭合泛型 delegate）。
 - **静态成员**走 `SMT`；**实例成员**（含 `Invoke`）走 `IMT`；**无需**为传递原生 delegate 单独生成 bridge。
 
-### 3.3 Lua 调用方式（DelegateUserData）
+### 3.3 Lua 调用方式
 
-| 写法 | 说明 |
+**推荐始终** `d(a, b)` / `handler(...)`：与「Lua function 经 C# 再取回仍是 function」一致，两分支都能用。
+
+| 写法 | 适用 |
 |------|------|
-| `d:Invoke(a, b)` | 显式调用 `Invoke` |
-| `d(a, b)` | **`IMT.__call`** → 收集参数并转发到 `Invoke` |
+| `d(a, b)` | **function** 与 **DelegateUserData**（后者经 `IMT.__call` → `Invoke`） |
+| `d:Invoke(a, b)` | **仅** DelegateUserData；对 function **无效**，文档与业务代码 **不推荐** |
 
 ```lua
-local handler = someObj.Handler   -- 原生 C# delegate
-handler(42)                        -- __call
-handler:Invoke(42)
+local handler = someObj.Handler   -- 可能是原生 delegate 或往返后的 function
+handler(42)
 
 -- 往返：Lua→C#→Lua 时得到 function
 obj:RegisterCallback(function(v) end)

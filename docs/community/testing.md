@@ -5,7 +5,7 @@ title: "测试框架"
 
 # 测试框架
 
-> ZLua **正确性测试**的目录布局、C# Runner、Lua 用例组织与执行方式。  
+> ZLua **正确性测试**的目录布局、C# Runner、Lua 用例组织与执行方式。
 > **原则：** 不依赖 Unity Test Framework；**不包含 benchmark**（性能见 [compare/PERFORMANCE.md](/docs/compare/PERFORMANCE/)）。
 
 ---

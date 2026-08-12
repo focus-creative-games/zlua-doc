@@ -5,7 +5,7 @@ title: "Class / Interface Marshal"
 
 # Class / Interface Marshal
 
-> **规范性：** 引用类型（`class`、`interface`、`string`、数组实例、delegate 实例等）在 Lua 与 C# 之间的默认 Marshal 规则。  
+> **规范性：** 引用类型（`class`、`interface`、`string`、数组实例、delegate 实例等）在 Lua 与 C# 之间的默认 Marshal 规则。
 > **相关：** 类型表与成员访问 → [`../02-TYPE-SYSTEM.md`](/docs/spec/02-TYPE-SYSTEM/)；`ref`/`out`/`in` 总览 → [`03-BYREF.md`](/docs/spec/marshal/03-BYREF/)；`[LuaMarshalAs]` → [`02-MARSHAL-AS.md`](/docs/spec/marshal/02-MARSHAL-AS/)；`zlua.cast` → [`../05-LIB.md`](/docs/spec/05-LIB/)。
 
 **平台原则：** Mono 与 Il2Cpp 的 **Lua 可见语义一致**；class 实例默认 **GCHandle + full userdata**（Il2Cpp：`ObjectRegistry` + `Il2CppObject*`）。

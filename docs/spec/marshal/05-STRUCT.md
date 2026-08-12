@@ -5,10 +5,10 @@ title: "Struct Marshal"
 
 # Struct Marshal
 
-> **规范性：** C# struct（值类型）与 Lua 互操作的传递、构造与写回规则。  
-> **OpaqueValue / byref（C#→Lua）：** 见 [04-OPAQUE.md](/docs/spec/marshal/04-OPAQUE/)。  
-> **Lua→C# byref 真 ref：** 见 [03-BYREF.md](/docs/spec/marshal/03-BYREF/)。  
-> **Table / UnpackedValues：** 见 [02-MARSHAL-AS.md §5–§6](/docs/spec/marshal/02-MARSHAL-AS/)。  
+> **规范性：** C# struct（值类型）与 Lua 互操作的传递、构造与写回规则。
+> **OpaqueValue / byref（C#→Lua）：** 见 [04-OPAQUE.md](/docs/spec/marshal/04-OPAQUE/)。
+> **Lua→C# byref 真 ref：** 见 [03-BYREF.md](/docs/spec/marshal/03-BYREF/)。
+> **Table / UnpackedValues：** 见 [02-MARSHAL-AS.md §5–§6](/docs/spec/marshal/02-MARSHAL-AS/)。
 > **实现细节（GC、Registry 等）：** → [../../impl/marshal/](/docs/impl/marshal/)。
 
 ## 1. 设计目标

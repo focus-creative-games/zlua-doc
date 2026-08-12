@@ -5,7 +5,7 @@ title: "Mono 实现说明"
 
 # Mono 实现说明
 
-> **源码根：** `Packages/com.code-philosophy.zlua/Runtime/Mono/`  
+> **源码根：** `Packages/com.code-philosophy.zlua/Runtime/Mono/`
 > **Lua 可见语义：** [../spec/](/docs/spec/00-OVERVIEW/) — 本文只写 Editor Mono 的目录、初始化与 Il2Cpp 差异。
 
 ---

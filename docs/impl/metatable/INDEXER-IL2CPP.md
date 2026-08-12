@@ -5,7 +5,7 @@ title: "Il2Cpp Dispatch* Indexer"
 
 # Il2Cpp Dispatch* Indexer
 
-> **源码：** `mt/TypeRegistryCommon.cpp`、`mt/MetaBinding.cpp`  
+> **源码：** `mt/TypeRegistryCommon.cpp`、`mt/MetaBinding.cpp`
 > **语义权威：** [../../spec/metatable/02-INDEX.md](/docs/spec/metatable/02-INDEX/)
 
 ---

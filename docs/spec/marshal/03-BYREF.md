@@ -5,8 +5,8 @@ title: "`ref` / `in` / `out` Marshal"
 
 # `ref` / `in` / `out` Marshal
 
-> **规范性：** byref 形参（元素类型记为 **A**）在 C# ↔ Lua 双向调用中的 Marshal 语义。  
-> **C#→Lua：** 默认 **OpaqueValue**，细节见 [04-OPAQUE.md](/docs/spec/marshal/04-OPAQUE/)。  
+> **规范性：** byref 形参（元素类型记为 **A**）在 C# ↔ Lua 双向调用中的 Marshal 语义。
+> **C#→Lua：** 默认 **OpaqueValue**，细节见 [04-OPAQUE.md](/docs/spec/marshal/04-OPAQUE/)。
 > **Lua→C#：** 本节 §3 起。
 
 ## 1. 适用范围
@@ -152,7 +152,7 @@ PopRefArgument(luaIndex, A):
   return BindRef(&temp)
 ```
 
-Il2Cpp：`temp` 位于当前 `MethodBridge` / 调用帧；ByValUserData 为 `lua_newuserdata` payload。  
+Il2Cpp：`temp` 位于当前 `MethodBridge` / 调用帧；ByValUserData 为 `lua_newuserdata` payload。
 Mono：实现可不同（pin / box），**可观察语义**须与上表一致。
 
 ---

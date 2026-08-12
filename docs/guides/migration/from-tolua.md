@@ -5,8 +5,8 @@ title: "从 toLua 迁移"
 
 # 从 toLua（tolua#）迁移到 ZLua
 
-> **特性背景：** [compare/FEATURES.md](/docs/compare/FEATURES/)  
-> toLua / tolua# 以 **预生成 Wrap**、**LuaState**、全局导出类为特征；ZLua 以 **懒绑定**、**CSharp 根表**、**Il2Cpp 内嵌桥** 为特征。  
+> **特性背景：** [compare/FEATURES.md](/docs/compare/FEATURES/)
+> toLua / tolua# 以 **预生成 Wrap**、**LuaState**、全局导出类为特征；ZLua 以 **懒绑定**、**CSharp 根表**、**Il2Cpp 内嵌桥** 为特征。
 > **类型路径适配（可选）：** [规范 12 · tolua adaptor](/docs/spec/12-MIGRATION-ADAPTORS/) · [迁移索引](/docs/guides/migration/)
 
 ---

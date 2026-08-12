@@ -5,7 +5,7 @@ title: "总览"
 
 # 00 — 总览
 
-> ZLua 产品目标、双运行时架构、文档地图与初始化流程。  
+> ZLua 产品目标、双运行时架构、文档地图与初始化流程。
 > 术语见 [GLOSSARY.md](/docs/concepts/glossary/)。
 
 ---
@@ -82,7 +82,7 @@ Mono（Editor）允许反射 / Emit 慢路径，但 **Lua 可见语义必须与 
 - `libil2cpp/lua` — Install 按选定引擎叠加：**PUC-Rio** 为可编译源码树（经 patch，见 [build/01-OFFICIAL-LUA.md](/docs/spec/build/01-OFFICIAL-LUA/)）；**LuaJIT** 为公共头文件（静态库由开发者放入 Plugins，见 [build/02-LUAJIT.md](/docs/spec/build/02-LUAJIT/)）
 - `libil2cpp/zlua` — ZLua native 实现（来自包内 `ZLua~/zlua-runtime`）
 
-开发期可编辑参考：`build-win64/Il2CppOutputProject/IL2CPP/libil2cpp/zlua`。  
+开发期可编辑参考：`build-win64/Il2CppOutputProject/IL2CPP/libil2cpp/zlua`。
 包布局、多 Unity / 多 Lua、patch、DLL 命名、Il2Cpp `ZLuaConf.inc` / Compatible 头 → [11-MULTI-VERSION.md](/docs/spec/11-MULTI-VERSION/)（§12）。
 
 ---
@@ -101,6 +101,7 @@ Docs/
 │   ├── 10-LIFETIME.md          Registry、GC、异常边界
 │   ├── 11-MULTI-VERSION.md     Unity/Lua 多版本、Install、DLL、ZLuaConf
 │   ├── 12-MIGRATION-ADAPTORS.md xLua/toLua/SLua Lua→C# 类型路径适配
+│   ├── 13-EXTENSION-METHODS.md C# Extension → 被扩展类型 IMT
 │   ├── build/                  官方 Lua / LuaJIT 构建；Mono gate；EmmyLua 调试器
 │   ├── metatable/              __index、三表、布局
 │   └── marshal/                Push/Pop、[LuaMarshalAs]
@@ -122,7 +123,8 @@ Docs/
 9. Editor Mono 回调错误边界（全系列） → [build/03-MONO-LUAJIT-CALLBACK-GATE.md](/docs/spec/build/03-MONO-LUAJIT-CALLBACK-GATE/)
 10. Editor EmmyLua 调试器 → [build/04-EMMYLUA-DEBUGGER.md](/docs/spec/build/04-EMMYLUA-DEBUGGER/)
 11. 第三方原生模块（socket / cjson 等） → [build/05-NATIVE-MODULES.md](/docs/spec/build/05-NATIVE-MODULES/)
-11. 从 xLua / toLua / SLua 迁移类型访问适配 → [12-MIGRATION-ADAPTORS.md](/docs/spec/12-MIGRATION-ADAPTORS/)
+12. 从 xLua / toLua / SLua 迁移类型访问适配 → [12-MIGRATION-ADAPTORS.md](/docs/spec/12-MIGRATION-ADAPTORS/)
+13. C# Extension 方法 → [13-EXTENSION-METHODS.md](/docs/spec/13-EXTENSION-METHODS/)
 
 **冲突裁决：** `spec/**` > Il2Cpp 源码 > `impl/**`。
 

@@ -5,7 +5,7 @@ title: "宿主 API"
 
 # 01 — 宿主 API
 
-> `LuaAppDomain`（含 **`GetFunction`**）、**`[LuaMarshalAs]`**、**`[LuaAlias]`**。  
+> `LuaAppDomain`（含 **`GetFunction`**）、**`[LuaMarshalAs]`**、**`[LuaAlias]`**。
 > C#→Lua / Lua→C# Marshal 细节见 [marshal/](/docs/spec/marshal/)。
 
 ---
@@ -79,10 +79,10 @@ public static T GetFunction<T>(string luaModule, string luaMethodName)
 
 ### 2.2 行为
 
-1. 按 `luaModule` 加载（或命中已加载）模块表  
-2. 取 `module[luaMethodName]`，须为 Lua `function`  
-3. 按 `T` 的签名将 function **Marshal** 为 closed delegate（规则同 [marshal/09-FUNCTION.md](/docs/spec/marshal/09-FUNCTION/)）  
-4. 返回该 `T` 实例  
+1. 按 `luaModule` 加载（或命中已加载）模块表
+2. 取 `module[luaMethodName]`，须为 Lua `function`
+3. 按 `T` 的签名将 function **Marshal** 为 closed delegate（规则同 [marshal/09-FUNCTION.md](/docs/spec/marshal/09-FUNCTION/)）
+4. 返回该 `T` 实例
 
 **缓存：** API **不保证**跨调用复用同一 delegate 实例；热路径由调用方自行保存（字段 / 局部变量）。须在 `Initialize` **之后**再调用（例如 `Awake`）；**勿**放在与 `RuntimeInitializeOnLoadMethod` 同类型的 static 字段初始化器中。
 

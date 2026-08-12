@@ -7,8 +7,8 @@ title: "迁移指南"
 
 从常见 Unity Lua 绑定方案迁移到 **ZLua** 的索引与共用清单。
 
-> **背景差异：** 见 [compare/FEATURES.md](/docs/compare/FEATURES/)。  
-> **ZLua 状态：** Mono（Editor）与 Il2Cpp（Player）**均已完成**；迁移验收以 [spec](/docs/spec/00-OVERVIEW/) 与双端冒烟为准。  
+> **背景差异：** 见 [compare/FEATURES.md](/docs/compare/FEATURES/)。
+> **ZLua 状态：** Mono（Editor）与 Il2Cpp（Player）**均已完成**；迁移验收以 [spec](/docs/spec/00-OVERVIEW/) 与双端冒烟为准。
 > **适配契约（权威）：** [12-MIGRATION-ADAPTORS.md](/docs/spec/12-MIGRATION-ADAPTORS/)。
 
 ---

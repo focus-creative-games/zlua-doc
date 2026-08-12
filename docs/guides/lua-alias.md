@@ -131,21 +131,17 @@ d:print(1)      -- 组内选 LogA(int)
 | XML 不生效（Player） | 未重新 **Generate**；或路径写在了 `marshalAsXmlPaths` |
 | 与 MarshalAs 写在同一根元素 | 须独立 `ZLuaAlias` 文件 |
 
-
-
-
-
-
 ## 学习路径
 
 | | |
 |---|---|
 | **上一篇** | [方法重载](/docs/guides/overloads/) |
-| **下一篇** | [常用 zlua 库](/docs/guides/zlua-lib/) |
+| **下一篇** | [Extension 方法](/docs/guides/extension-methods/) |
 
 ## 相关文档
 
-- [方法重载](/docs/guides/overloads/)  
-- [重载规范 §5](/docs/spec/04-METHOD-OVERLOAD/)  
-- [LuaAlias 参考](/docs/reference/csharp/lua-alias/)  
+- [方法重载](/docs/guides/overloads/)
+- [重载规范 §5](/docs/spec/04-METHOD-OVERLOAD/)
+- [LuaAlias 参考](/docs/reference/csharp/lua-alias/)
+- [Extension 方法](/docs/guides/extension-methods/)（另一套 XML：`ZLuaExtensions`）
 - [LuaMarshalAs](/docs/guides/lua-marshal-as/)（另一套 XML，勿混用）

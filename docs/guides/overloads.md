@@ -62,7 +62,7 @@ demo:run_i32(10)    -- 短名 + 冒号，O(1)；Run(int) 已换名，不再挂 "
 demo:Run("hi")      -- 未换名的 Run(string)
 ```
 
-别名是 **换名**（替换默认 Lua 键），不是追加。XML（`luaAliasXmlPaths` / `ZLuaAlias`）与更多例子见 [LuaAlias](/docs/guides/lua-alias/)。
+别名是 **换名**（替换默认 Lua 键），不是追加。XML（`luaAliasXmlPaths` / `ZLuaAlias`）与更多例子见 [LuaAlias](/docs/guides/lua-alias/)。C# extension 挂实例表见 [Extension 方法](/docs/guides/extension-methods/)。
 
 ## `register_method`：短名 + 冒号
 
@@ -76,7 +76,7 @@ zlua.register_method("run_i32", run_i32)
 demo:run_i32(5)
 ```
 
-两参数形式（与 [05-LIB](/docs/spec/05-LIB/) 一致）：`zlua.register_method(aliasName, directClosure)`。  
+两参数形式（与 [05-LIB](/docs/spec/05-LIB/) 一致）：`zlua.register_method(aliasName, directClosure)`。
 `aliasName` 若已存在（含 `Run`、全签名键、其它别名）→ 报错，不覆盖。
 
 也可从 `[LuaAlias]` 键取 closure 再挂另一个自定义名。
@@ -89,15 +89,6 @@ demo:run_i32(5)
 | 想用 `demo['(System.Int32)']` | **禁止**；必须带方法名：`Run(System.Int32)` |
 | `register_method` 报已占用 | 换未使用的别名；不要覆盖 `Run` / 已有全签名键 |
 
-
-
-
-
-
-
-
-
-
 ## 学习路径
 
 | | |
@@ -107,6 +98,6 @@ demo:run_i32(5)
 
 ## 相关文档
 
-- [LuaAlias 指南](/docs/guides/lua-alias/) — Attribute + XML 专篇  
-- [方法重载规范](/docs/spec/04-METHOD-OVERLOAD/) §3.7、§5、§6  
+- [LuaAlias 指南](/docs/guides/lua-alias/) — Attribute + XML 专篇
+- [方法重载规范](/docs/spec/04-METHOD-OVERLOAD/) §3.7、§5、§6
 - [常用 zlua 库](/docs/guides/zlua-lib/)

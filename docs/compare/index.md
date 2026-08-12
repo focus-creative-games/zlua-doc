@@ -5,7 +5,7 @@ title: "与 xLua / toLua / SLua 对比"
 
 # 与 xLua / toLua / SLua 对比
 
-> **性质：** 选型与分析材料，**不是** ZLua 行为规范。  
+> **性质：** 选型与分析材料，**不是** ZLua 行为规范。
 > **覆盖：** xLua、toLua/tolua#、SLua 与 ZLua 四方对比。
 
 ## 本目录

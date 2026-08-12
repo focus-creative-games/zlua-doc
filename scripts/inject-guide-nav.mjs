@@ -28,6 +28,7 @@ const chain = [
   {slug: '/docs/guides/zero-gc-marshal/', title: '0GC Marshal'},
   {slug: '/docs/guides/overloads/', title: '方法重载'},
   {slug: '/docs/guides/lua-alias/', title: 'LuaAlias'},
+  {slug: '/docs/guides/extension-methods/', title: 'Extension 方法'},
   {slug: '/docs/guides/zlua-lib/', title: '常用 zlua 库'},
   {slug: '/docs/guides/native-modules/', title: '第三方原生插件'},
   {slug: '/docs/guides/migration/', title: '迁移指南'},
@@ -66,7 +67,9 @@ for (const file of fs.readdirSync(guidesDir)) {
   let content = fs.readFileSync(filePath, 'utf8');
 
   content = content.replace(/\r\n/g, '\n');
+  // 去掉旧学习路径；勿留下大段空行（此前替换成单个 \n 会让空行在「相关文档」前堆积）
   content = content.replace(/\n## 学习路径\n[\s\S]*?(?=\n## |$)/g, '\n');
+  content = content.replace(/\n{3,}/g, '\n\n');
 
   const navBlock = buildNavBlock(chain[idx - 1], chain[idx + 1]);
   const marker = '\n## 相关文档\n';
@@ -75,6 +78,7 @@ for (const file of fs.readdirSync(guidesDir)) {
   } else {
     content = content.trimEnd() + '\n\n' + navBlock;
   }
+  content = content.replace(/\n{3,}/g, '\n\n').replace(/\n*$/, '\n');
 
   fs.writeFileSync(filePath, content, 'utf8');
   console.log('updated', file);

@@ -5,8 +5,8 @@ title: "Mono 三表 Indexer 实现"
 
 # Mono 三表 Indexer 实现
 
-> **源码：** `Runtime/Mono/Mt/TypeMemberLuaIndexer.cs`  
-> **语义权威：** [../../spec/metatable/02-INDEX.md](/docs/spec/metatable/02-INDEX/)  
+> **源码：** `Runtime/Mono/Mt/TypeMemberLuaIndexer.cs`
+> **语义权威：** [../../spec/metatable/02-INDEX.md](/docs/spec/metatable/02-INDEX/)
 > **重写约束：** [../MONO.md](/docs/impl/MONO/) D2、D5、D7
 
 ---
