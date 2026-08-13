@@ -25,6 +25,7 @@ title: "Host API"
 public interface ILuaRuntime
 {
     void Initialize(Func<string, object> moduleLoader);
+    void Reset(Func<string, object> moduleLoader);
     void ProcessPendingRefReleases();
     Delegate GetFunction(Type delegateType, string luaModule, string luaMethodName);
 }
@@ -32,6 +33,7 @@ public interface ILuaRuntime
 public static class LuaAppDomain
 {
     public static void Initialize(Func<string, object> moduleLoader);
+    public static void Reset(Func<string, object> moduleLoader);
 
     public static T GetFunction<T>(string luaModule, string luaMethodName)
         where T : MulticastDelegate;
@@ -41,8 +43,27 @@ public static class LuaAppDomain
 ```
 
 Does **not** use `RuntimeInitializeOnLoadMethod` / `SetRuntime` for implicit registration; the backend is resolved on the first `Initialize` (or `GetFunction`).
+The host surface does **not** expose `Shutdown`; tearing down and rebuilding the domain goes only through `Reset`.
 
-### 1.2 Module loader
+### 1.2 Domain reset (`Reset`)
+
+Used for hot reload or clearing the script world: tear down the single main `lua_State`, then recreate it with the given loader.
+
+| API | Behavior |
+|-----|----------|
+| `Reset(loader)` | **Schedule only**: store the loader; actual teardown + rebuild runs at this frame’s **EndOfFrame** (`LuaFramePump` / `WaitForEndOfFrame`). Multiple schedules keep the last loader. When applied: drain pending refs → shut down Registry / module cache → `lua_close` → new `lua_State` and install `loader`. Il2Cpp process-level Bridge / XML tables / InternalCall are **kept**. |
+| `Initialize(loader)` | Only on first use (or when there is no main state yet) create `lua_State` and install the loader. Calling again when **already initialized** → **throws** (use `Reset`; **no** longer supports “swap loader only”). |
+
+**Contract:**
+
+1. `Reset` does **not** tear down the state at the call site; **after EndOfFrame applies**, invoking **old** `GetFunction` delegates → throws a C# exception.
+2. Old delegates are **all invalid**; the host must re-`GetFunction` after Reset takes effect and discard cached `Action` / `Func` fields.
+3. Because real teardown is at EndOfFrame, calling `Reset` mid C#↔Lua call is allowed (queue only); do not keep using old delegates after that frame’s EndOfFrame.
+4. Editor Emmy: teardown stops the debugger with `lua_close`; after rebuild, Settings decide whether to restart.
+
+See [10-LIFETIME.md](/docs/spec/10-LIFETIME/) §7.
+
+### 1.3 Module loader
 
 `moduleLoader(moduleName)` is provided by the host and returns Lua module source (usually a `string`). Native integrates it with `__zlua_load_module` and package.searchers.
 
@@ -51,11 +72,11 @@ Does **not** use `RuntimeInitializeOnLoadMethod` / `SetRuntime` for implicit reg
 - Module names match the `luaModule` string passed to `GetFunction`
 - Loader failures should throw a clear exception; avoid silent nil
 
-### 1.3 Frame pump
+### 1.4 Frame pump
 
-`LuaAppDomain.Initialize` registers `LuaFramePump`, which calls `ProcessPendingRefReleases` on Unity `Update` (and similar) to handle deferred release of delegates / Lua refs. See [10-LIFETIME.md](/docs/spec/10-LIFETIME/).
+`LuaAppDomain.Initialize` registers `LuaFramePump`: `LateUpdate` drains pending refs; `WaitForEndOfFrame` runs a scheduled `Reset`. See [10-LIFETIME.md](/docs/spec/10-LIFETIME/).
 
-### 1.4 Editor debugger (optional)
+### 1.5 Editor debugger (optional)
 
 **Editor Mono only:** if Settings `enableDebugger` is true, `LuaMonoAppDomain.Initialize` calls `LuaEnv.StartDebugger` after the normal init completes (inject `emmy_core`, `tcpListen`, optional `waitIDE`). Spec: [build/04-EMMYLUA-DEBUGGER.md](/docs/spec/build/04-EMMYLUA-DEBUGGER/). Does **not** change `GetFunction` / Marshal semantics; Il2Cpp Player does **not** use this entry point.
 
@@ -85,7 +106,7 @@ public static T GetFunction<T>(string luaModule, string luaMethodName)
 3. **Marshal** the function to a closed delegate matching `T`’s signature (same rules as [marshal/09-FUNCTION.md](/docs/spec/marshal/09-FUNCTION/))
 4. Return that `T` instance
 
-**Caching:** The API does **not** guarantee reusing the same delegate instance across calls; hot paths should cache locally (field / local). Call only **after** `Initialize` (e.g. `Awake`); do **not** put it in a static field initializer of the same kind as `RuntimeInitializeOnLoadMethod`.
+**Caching:** The API does **not** guarantee reusing the same delegate instance across calls; hot paths should cache locally (field / local). Call only **after** `Initialize` (e.g. `Awake`); do **not** put it in a static field initializer of the same kind as `RuntimeInitializeOnLoadMethod`. After `Reset` takes effect, old delegates are invalid — re-`GetFunction`.
 
 ### 2.3 Examples
 

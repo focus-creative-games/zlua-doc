@@ -52,7 +52,7 @@ flowchart LR
 |------|------|
 | **统一双向调用** | C#→Lua：`GetFunction<T>`；Lua→C#：`CSharp` 懒注册，语法贴近 C# |
 | **自动生成（Lua→C#）** | Editor Emit / Il2Cpp Generate C++ stub；C#→Lua 无 per-call codegen |
-| **深度集成** | `LuaAppDomain.Initialize` 一次完成 CLR + `lua_State` + `zlua` 库 |
+| **深度集成** | `LuaAppDomain.Initialize` 一次完成 CLR + `lua_State` + `zlua` 库；热更清空走 `Reset` |
 | **C++ 直桥** | Player 字段 offset 直读、方法经 `methodPointer`，无海量 C# Wrap |
 | **零 Wrapper 膨胀** | 相同签名共享桥接函数，而非每成员一个 Wrap |
 

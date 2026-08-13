@@ -56,6 +56,11 @@ Breakpoints miss, cannot connect, Play freezes: see [EmmyLua debugger](/docs/gui
 - Has `LuaAppDomain.Initialize` run?
 - Do module / method match Lua `return { ... }` keys?
 - Does the Lua module `return { method = ... }`?
+- Just after `Reset`: old delegates are invalid — re-`GetFunction`
+
+### Second `Initialize` throws
+
+When a main `lua_State` already exists, use `LuaAppDomain.Reset(loader)`; you **cannot** call `Initialize` again to “swap loader only”. See [LuaAppDomain](/docs/reference/csharp/lua-app-domain/).
 
 ---
 

@@ -52,7 +52,7 @@ flowchart LR
 |------|------|
 | **Unified bidirectional calls** | C#→Lua: `GetFunction<T>`; Lua→C#: lazy `CSharp` registration, syntax close to C# |
 | **Auto-gen (Lua→C#)** | Editor Emit / Il2Cpp Generate C++ stubs; C#→Lua has no per-call codegen |
-| **Deep integration** | One `LuaAppDomain.Initialize` sets up CLR + `lua_State` + `zlua` lib |
+| **Deep integration** | One `LuaAppDomain.Initialize` sets up CLR + `lua_State` + `zlua` lib; clear after hot reload via `Reset` |
 | **C++ direct bridge** | Player reads field offsets directly, methods via `methodPointer` — no huge C# Wrap |
 | **No wrapper bloat** | Same signatures share bridge functions instead of one Wrap per member |
 

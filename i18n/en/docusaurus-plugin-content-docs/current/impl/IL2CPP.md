@@ -65,7 +65,9 @@ Optional: `LuaAppDomain::InitializeFromManaged(Il2CppDelegate*)` injects a manag
 | 7 | `LuaLoader::InstallHooks()` | `package.searchers` / custom loader |
 | 8 | `AssemblyRegistry::InitializeCSharpRoot(L)` | Attach `csharp` root table; deferred type-bind entry |
 
-**Shutdown** (`LuaEnv::Shutdown`) releases in **reverse** order: `ProcessPendingRefReleases` → `MetaTableCache` → `StructRegistry` → `ObjectRegistry` → `LuaGlobalRefs::Clear` → release error handler ref → `lua_close` → `LuaLoader::Clear`.
+**Host `Reset`:** Public API is `LuaAppDomain.Reset(loader)` (schedule → real work at EndOfFrame). When applied: internal `LuaEnv::Shutdown` + `Initialize` again per §2.2 and install the new loader. Process-level Bridge / XML / MetadataUtil / InternalCall are **not** unloaded by Reset. Calling managed `Initialize` again when already initialized → throws.
+
+**Internal Shutdown** (`LuaEnv::Shutdown`) releases in **reverse** order: `ProcessPendingRefReleases` → `MetaTableCache` → `StructRegistry` → `ObjectRegistry` → `LuaGlobalRefs::Clear` → release error handler ref → `lua_close` → `LuaLoader::Clear`. The host surface does **not** expose `Shutdown`.
 
 ## 3. File → responsibility table
 
@@ -73,7 +75,7 @@ Optional: `LuaAppDomain::InitializeFromManaged(Il2CppDelegate*)` injects a manag
 
 | File | Responsibility |
 |------|----------------|
-| `LuaAppDomain.cpp/.h` | Il2Cpp entry: `Initialize` / `InitializeFromManaged` / `Shutdown` forwarding |
+| `LuaAppDomain.cpp/.h` | Il2Cpp entry: `Initialize` / `InitializeFromManaged` / internal `Shutdown`; managed `Reset` is scheduled via the frame pump |
 | `LuaEnv.cpp/.h` | Global `lua_State`, globals/libs registration, error handler, dostring, pending ref queue |
 | `ZLuaLib.cpp` | C API: `zlua.import_type`, `zlua.cast`, `zlua.box`, etc. (semantics: [../spec/05-LIB.md](/docs/spec/05-LIB/)) |
 | `LuaInternalCalls.cpp/.h` | InternalCall registration |

@@ -70,7 +70,7 @@ adaptor.init(export_types)
 | 步骤 | 说明 |
 |------|------|
 | 引入 ZLua 包 | 替换原插件 asmdef 引用 |
-| 初始化 | `LuaAppDomain.Initialize(moduleLoader)` 替代 `LuaEnv` / `LuaState` / `LuaSvr` |
+| 初始化 | `LuaAppDomain.Initialize(moduleLoader)` 替代 `LuaEnv` / `LuaState` / `LuaSvr`；热更清空用 `Reset`（**无**公开 `Shutdown`） |
 | 模块 loader | 对接现有 `require` 路径；Player 需 `.lua.txt` 规则 |
 | 删除旧 native | 移除 libxlua / tolua binding 等与 ZLua 冲突的 native 插件 |
 | **（可选）适配** | 上节五步；未 `init` 则无 `CS` / `UnityEngine.*` 等副作用 |

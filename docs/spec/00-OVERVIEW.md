@@ -175,15 +175,15 @@ assembly.__index(typeFullName)
 
 之后 Lua 侧通过类型表 / userdata 元表访问成员，**无需** `[MonoLuaCallback]` 或手动 Export。
 
-### 4.4 关闭
+### 4.4 整域 Reset / 关闭
 
-宿主销毁或域卸载时：
+宿主公开 API **无** `Shutdown`；热更或清空脚本世界用 `LuaAppDomain.Reset(loader)`（调用当下仅预约，本帧 **EndOfFrame** 才真正 teardown + 按 Initialize 路径重建）。内部 teardown 顺序概念上为：
 
 1. 排空 pending Lua ref 释放队列
 2. `ObjectRegistry::Shutdown`、Struct registry shutdown
-3. 关闭 `lua_State`
+3. 关闭 `lua_State`（随后重建并安装新 loader）
 
-顺序细节见 [10-LIFETIME.md](/docs/spec/10-LIFETIME/) 与 [impl/IL2CPP.md](/docs/impl/IL2CPP/)。
+旧 `GetFunction` 委托在 Reset 生效后一律作废。顺序细节见 [10-LIFETIME.md](/docs/spec/10-LIFETIME/) §7 与 [impl/IL2CPP.md](/docs/impl/IL2CPP/)。
 
 ---
 

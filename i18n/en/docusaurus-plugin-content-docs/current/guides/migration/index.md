@@ -70,7 +70,7 @@ Execute in order; each solution doc has before/after and specific pitfalls.
 | Step | Notes |
 |------|------|
 | Add ZLua package | Replace old plugin asmdef references |
-| Initialize | `LuaAppDomain.Initialize(moduleLoader)` replaces `LuaEnv` / `LuaState` / `LuaSvr` |
+| Initialize | `LuaAppDomain.Initialize(moduleLoader)` replaces `LuaEnv` / `LuaState` / `LuaSvr`; clear after hot reload with `Reset` (**no** public `Shutdown`) |
 | Module loader | Wire existing `require` paths; Player needs `.lua.txt` rules |
 | Remove old native | Remove libxlua / tolua binding etc. that conflict with ZLua |
 | **(Optional) adaptor** | Five steps above; without `init` there is no `CS` / `UnityEngine.*` side effect |

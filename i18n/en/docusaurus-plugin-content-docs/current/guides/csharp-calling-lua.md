@@ -66,7 +66,7 @@ Key points:
 - Modules must **`return { key = fn }`**; the key name = GetFunction’s method
 - Nested paths: `module.Replace('.', '/')` (e.g. `battle.ai`)
 - Sync before Player builds; see [Build workflow](/docs/guides/build/)
-- Hot-update extension point = replace the loader delegate; note StreamingAssets is read-only on Android
+- For hot reload / clearing the script world use `LuaAppDomain.Reset(loader)` (takes effect at EndOfFrame; old `GetFunction` delegates are invalid and must be rebound); **no** longer supports “swap loader only” on an already-initialized domain. Note StreamingAssets is read-only on Android
 
 ### Multiple modules
 

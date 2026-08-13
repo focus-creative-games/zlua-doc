@@ -56,6 +56,11 @@ Canonical 工程：[zlua-demo](https://github.com/focus-creative-games/zlua-demo
 - 是否已 `LuaAppDomain.Initialize`
 - module / method 是否与 Lua `return { ... }` 键名一致
 - Lua 模块是否 `return { method = ... }`
+- 是否刚 `Reset`：旧委托已作废，须重新 `GetFunction`
+
+### 再次 `Initialize` 抛异常
+
+已有主 `lua_State` 时须 `LuaAppDomain.Reset(loader)`，**不能**再次 `Initialize`「只换 loader」。详见 [LuaAppDomain](/docs/reference/csharp/lua-app-domain/)。
 
 ---
 

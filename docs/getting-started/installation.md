@@ -207,6 +207,7 @@ public class Bootstrap : MonoBehaviour
 | UPM 安装 | ✅ | ✅ |
 | Settings + Install | ✅ | ✅（本地树供 Player 构建） |
 | `LuaAppDomain.Initialize` | ✅ | ✅ |
+| `LuaAppDomain.Reset` | ✅ | ✅ |
 | `GetFunction<T>` | ✅ | ✅ |
 | 完整 Lua↔C# API | ✅ | ✅（语义一致；实现路径不同） |
 

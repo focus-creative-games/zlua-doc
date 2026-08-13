@@ -165,7 +165,9 @@ Lua 协程可在 **同一** `lua_State` 内使用；Opaque handle **不得** 从
 
 ---
 
-## 7. 初始化与 Shutdown 顺序
+## 7. 初始化与整域 Reset 顺序
+
+宿主公开 API 为 `LuaAppDomain.Initialize` / `Reset`（**无**公开 `Shutdown`）。内部 teardown 与 `ObjectRegistry::Shutdown` 等仍按下列顺序执行。
 
 ### 7.1 Initialize（概念）
 
@@ -180,18 +182,27 @@ Lua 协程可在 **同一** `lua_State` 内使用；Opaque handle **不得** 从
 8. （Il2Cpp）RegisterPushRootCallback for struct roots
 ```
 
-### 7.2 Shutdown（概念）
+已存在主 `lua_State` 时再次 `Initialize` → 抛异常（应改用 `Reset`）。
+
+### 7.2 Reset（概念）
+
+`Reset(loader)` **先预约**，在本帧 **EndOfFrame** 由 `LuaFramePump` 真正执行（整域 teardown + 按 §7.1 再 Initialize）：
 
 ```
+调用当下：
+1. 记录 pending loader（后者覆盖前者）
+2. 确保帧泵已注册；不立刻 lua_close
+
+EndOfFrame：
 1. 排空 pending ref 释放
-2. 解除未完成的 C#↔Lua 调用（宿主责任）
-3. ObjectRegistry::Shutdown
-4. Struct registry shutdown
-5. TypeRegistry / 其它 registry cleanup
-6. lua_close
+2. ObjectRegistry::Shutdown / Struct / MetaTable 等
+3. lua_close（旧 GetFunction 委托一律作废）
+4. 按 §7.1 重建 lua_State 并安装 loader
 ```
 
-Player 域重载时须完整 Shutdown，避免 registry 泄漏与 stale root。
+Il2Cpp：**进程级** Bridge / XML 绑定表 / MetadataUtil / InternalCall **不**随 Reset 卸载；仅重建 state 级资源。
+
+Player / 热更清空脚本世界时用 `Reset`，避免 registry 泄漏与 stale root。因实际拆 state 推迟到帧末，无需在跨边界调用中途禁止调用 `Reset`。
 
 ---
 

@@ -165,7 +165,9 @@ Lua coroutines may run within the **same** `lua_State`; Opaque handles must **no
 
 ---
 
-## 7. Initialize and Shutdown order
+## 7. Initialize and domain Reset order
+
+The public host API is `LuaAppDomain.Initialize` / `Reset` (**no** public `Shutdown`). Internal teardown and `ObjectRegistry::Shutdown` still follow the order below.
 
 ### 7.1 Initialize (conceptual)
 
@@ -180,18 +182,27 @@ Lua coroutines may run within the **same** `lua_State`; Opaque handles must **no
 8. (Il2Cpp) RegisterPushRootCallback for struct roots
 ```
 
-### 7.2 Shutdown (conceptual)
+Calling `Initialize` again when a main `lua_State` already exists → throws (use `Reset`).
+
+### 7.2 Reset (conceptual)
+
+`Reset(loader)` is **scheduled first**; `LuaFramePump` applies it at this frame’s **EndOfFrame** (full-domain teardown + Initialize per §7.1):
 
 ```
+At call site:
+1. Record pending loader (later calls overwrite earlier ones)
+2. Ensure the frame pump is registered; do not lua_close immediately
+
+EndOfFrame:
 1. Drain pending ref releases
-2. Tear down unfinished C#↔Lua calls (host responsibility)
-3. ObjectRegistry::Shutdown
-4. Struct registry shutdown
-5. TypeRegistry / other registry cleanup
-6. lua_close
+2. ObjectRegistry::Shutdown / Struct / MetaTable / …
+3. lua_close (all old GetFunction delegates become invalid)
+4. Rebuild lua_State per §7.1 and install loader
 ```
 
-On Player domain reload, full Shutdown is required to avoid registry leaks and stale roots.
+Il2Cpp: **process-level** Bridge / XML binding tables / MetadataUtil / InternalCall are **not** unloaded by Reset; only state-level resources are rebuilt.
+
+Use `Reset` when clearing the script world on Player / hot reload to avoid registry leaks and stale roots. Because real teardown is deferred to end of frame, mid-boundary `Reset` calls need not be forbidden.
 
 ---
 

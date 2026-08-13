@@ -175,15 +175,15 @@ assembly.__index(typeFullName)
 
 Afterwards Lua accesses members via the type table / userdata metatable — **no** `[MonoLuaCallback]` or manual Export required.
 
-### 4.4 Shutdown
+### 4.4 Domain Reset / shutdown
 
-When the host is destroyed or the domain unloads:
+The public host API has **no** `Shutdown`; for hot reload or clearing the script world use `LuaAppDomain.Reset(loader)` (schedule only at the call site; this frame’s **EndOfFrame** runs teardown + rebuild via the Initialize path). Internal teardown conceptually:
 
 1. Drain the pending Lua ref release queue
 2. `ObjectRegistry::Shutdown`, struct registry shutdown
-3. Close `lua_State`
+3. Close `lua_State` (then rebuild and install the new loader)
 
-Ordering details: [10-LIFETIME.md](/docs/spec/10-LIFETIME/) and [impl/IL2CPP.md](/docs/impl/IL2CPP/).
+Old `GetFunction` delegates are all invalid after Reset takes effect. Ordering details: [10-LIFETIME.md](/docs/spec/10-LIFETIME/) §7 and [impl/IL2CPP.md](/docs/impl/IL2CPP/).
 
 ---
 

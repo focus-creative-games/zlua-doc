@@ -25,6 +25,7 @@ title: "宿主 API"
 public interface ILuaRuntime
 {
     void Initialize(Func<string, object> moduleLoader);
+    void Reset(Func<string, object> moduleLoader);
     void ProcessPendingRefReleases();
     Delegate GetFunction(Type delegateType, string luaModule, string luaMethodName);
 }
@@ -32,6 +33,7 @@ public interface ILuaRuntime
 public static class LuaAppDomain
 {
     public static void Initialize(Func<string, object> moduleLoader);
+    public static void Reset(Func<string, object> moduleLoader);
 
     public static T GetFunction<T>(string luaModule, string luaMethodName)
         where T : MulticastDelegate;
@@ -41,7 +43,27 @@ public static class LuaAppDomain
 ```
 
 **不** 使用 `RuntimeInitializeOnLoadMethod` / `SetRuntime` 做隐式注册；首次 `Initialize`（或 `GetFunction`）时解析后端。
-### 1.2 模块加载器
+宿主面 **不** 暴露 `Shutdown`；整域拆掉再重建只走 `Reset`。
+
+### 1.2 整域重置（`Reset`）
+
+用于热更或清空脚本世界：拆掉当前唯一主 `lua_State`，再以给定 loader 重建。
+
+| API | 行为 |
+|-----|------|
+| `Reset(loader)` | **仅预约**：保存 loader，在本帧 **EndOfFrame**（`LuaFramePump` / `WaitForEndOfFrame`）才真正执行 teardown + 重建。多次预约以最后一次 loader 为准。真正执行时：排空 pending ref → 关闭 Registry / 模块缓存 → `lua_close` → 新建 `lua_State` 并安装 `loader`。Il2Cpp 进程级 Bridge / XML 表 / InternalCall **保留**。 |
+| `Initialize(loader)` | 仅首次（或进程内尚无主 state）创建 `lua_State` 并安装 loader。**已初始化**时再次调用 → **抛异常**（须 `Reset`；**不**再支持「只换 loader」）。 |
+
+**契约：**
+
+1. `Reset` **调用当下**不拆 state；**EndOfFrame 应用之后**，对**旧** `GetFunction` 委托的调用 → 抛 C# 异常。
+2. 旧委托 **一律作废**；宿主须在 Reset 生效后重新 `GetFunction` 并丢弃字段里缓存的 `Action` / `Func`。
+3. 因真正 teardown 在 EndOfFrame，允许在 C#↔Lua 调用中途调用 `Reset`（只排队）；勿在同一帧 EndOfFrame 之后仍使用旧委托。
+4. Editor Emmy：teardown 随 `lua_close` 停止调试器；重建后按 Settings 决定是否重启。
+
+详见 [10-LIFETIME.md](/docs/spec/10-LIFETIME/) §7。
+
+### 1.3 模块加载器
 
 `moduleLoader(moduleName)` 由宿主提供，返回 Lua 模块源码（通常为 `string`）。native 通过 `__zlua_load_module` 与 package.searchers 集成。
 
@@ -50,11 +72,11 @@ public static class LuaAppDomain
 - 模块名与 `GetFunction` 的 `luaModule` 字符串一致
 - loader 失败应抛出明确异常，避免 silent nil
 
-### 1.3 帧泵
+### 1.4 帧泵
 
-`LuaAppDomain.Initialize` 注册 `LuaFramePump`，在 Unity `Update` 等时机调用 `ProcessPendingRefReleases`，处理 delegate / Lua ref 等延迟释放。详见 [10-LIFETIME.md](/docs/spec/10-LIFETIME/)。
+`LuaAppDomain.Initialize` 注册 `LuaFramePump`：`LateUpdate` 排空 pending ref；`WaitForEndOfFrame` 执行已预约的 `Reset`。详见 [10-LIFETIME.md](/docs/spec/10-LIFETIME/)。
 
-### 1.4 Editor 调试器（可选）
+### 1.5 Editor 调试器（可选）
 
 仅 **Editor Mono**：若 Settings `enableDebugger` 为 true，`LuaMonoAppDomain.Initialize` 在现有初始化完成之后调用 `LuaEnv.StartDebugger`（注入 `emmy_core`、`tcpListen`、可选 `waitIDE`）。规范见 [build/04-EMMYLUA-DEBUGGER.md](/docs/spec/build/04-EMMYLUA-DEBUGGER/)。**不**改变 `GetFunction` / Marshal 语义；Il2Cpp Player **不**适用本入口。
 
@@ -84,7 +106,7 @@ public static T GetFunction<T>(string luaModule, string luaMethodName)
 3. 按 `T` 的签名将 function **Marshal** 为 closed delegate（规则同 [marshal/09-FUNCTION.md](/docs/spec/marshal/09-FUNCTION/)）
 4. 返回该 `T` 实例
 
-**缓存：** API **不保证**跨调用复用同一 delegate 实例；热路径由调用方自行保存（字段 / 局部变量）。须在 `Initialize` **之后**再调用（例如 `Awake`）；**勿**放在与 `RuntimeInitializeOnLoadMethod` 同类型的 static 字段初始化器中。
+**缓存：** API **不保证**跨调用复用同一 delegate 实例；热路径由调用方自行保存（字段 / 局部变量）。须在 `Initialize` **之后**再调用（例如 `Awake`）；**勿**放在与 `RuntimeInitializeOnLoadMethod` 同类型的 static 字段初始化器中。`Reset` 生效后旧委托一律作废，须重新 `GetFunction`。
 
 ### 2.3 示例
 

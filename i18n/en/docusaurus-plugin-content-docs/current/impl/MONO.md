@@ -65,9 +65,11 @@ First `LuaAppDomain.Initialize(moduleLoader)`:
 | 6 | `EnsureBuiltinZLuaLib()` | Embed `zlualib.lua` equivalent |
 | 7 | `DelegateBridges.Warmup()` | Warmup for `DelegateBridge::Initialize` |
 
-**Repeat Initialize:** If `_luaEnv` already exists, only update loader and `EnsureBuiltinZLuaLib()`.
+**Repeat Initialize:** Calling `Initialize` again when a main `lua_State` already exists → **throws** (use `LuaAppDomain.Reset`; **no** longer supports “swap loader only”).
 
-**Shutdown:** `ProcessPendingRefReleases` → `LuaEnv.Dispose()` (reverse-order Registry / MetaTableCache release; see `LuaEnv.cs`).
+**Reset:** Host schedules; `LuaFramePump` applies at **EndOfFrame**: internal teardown (same as Shutdown) + Initialize again per the table above. Public API has **no** `Shutdown`.
+
+**Internal Shutdown / Dispose:** `ProcessPendingRefReleases` → `LuaEnv.Dispose()` (reverse-order Registry / MetaTableCache release; see `LuaEnv.cs`).
 
 Il2Cpp additionally loads stub tables early at AppDomain level (`MethodBridge::Initialize`, etc.); Mono bridges are written into the three tables by **Emit at type bind** (Phase 3).
 

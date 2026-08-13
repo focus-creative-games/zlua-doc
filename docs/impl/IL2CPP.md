@@ -69,7 +69,9 @@ Player 进程进入 Il2Cpp 后，托管侧调用 `LuaAppDomain::Initialize()`，
 | 7 | `LuaLoader::InstallHooks()` | `package.searchers` / 自定义 loader |
 | 8 | `AssemblyRegistry::InitializeCSharpRoot(L)` | 挂 `csharp` 根表，延迟类型绑定入口 |
 
-**Shutdown**（`LuaEnv::Shutdown`）与上述 **逆序** 释放：`ProcessPendingRefReleases` → `MetaTableCache` → `StructRegistry` → `ObjectRegistry` → `LuaGlobalRefs::Clear` → 释放 error handler ref → `lua_close` → `LuaLoader::Clear`。
+**宿主 `Reset`：** 公开面为 `LuaAppDomain.Reset(loader)`（预约 → EndOfFrame 真正执行）。真正执行时：内部 `LuaEnv::Shutdown` + 按 §2.2 再 `Initialize` 并安装新 loader。进程级 Bridge / XML / MetadataUtil / InternalCall **不**随 Reset 卸载。已初始化时再次托管 `Initialize` → 抛异常。
+
+**内部 Shutdown**（`LuaEnv::Shutdown`）与上述 **逆序** 释放：`ProcessPendingRefReleases` → `MetaTableCache` → `StructRegistry` → `ObjectRegistry` → `LuaGlobalRefs::Clear` → 释放 error handler ref → `lua_close` → `LuaLoader::Clear`。宿主面 **不** 暴露 `Shutdown`。
 
 ---
 
@@ -79,7 +81,7 @@ Player 进程进入 Il2Cpp 后，托管侧调用 `LuaAppDomain::Initialize()`，
 
 | 文件 | 职责 |
 |------|------|
-| `LuaAppDomain.cpp/.h` | Il2Cpp 入口：`Initialize` / `InitializeFromManaged` / `Shutdown` 转发 |
+| `LuaAppDomain.cpp/.h` | Il2Cpp 入口：`Initialize` / `InitializeFromManaged` / 内部 `Shutdown`；托管 `Reset` 走帧泵预约 |
 | `LuaEnv.cpp/.h` | 全局 `lua_State`、globals/libs 注册、error handler、dostring、pending ref 队列 |
 | `ZLuaLib.cpp` | C API 实现：`zlua.import_type`、`zlua.cast`、`zlua.box` 等（语义见 [../spec/05-LIB.md](/docs/spec/05-LIB/)） |
 | `LuaInternalCalls.cpp/.h` | InternalCall 注册 |

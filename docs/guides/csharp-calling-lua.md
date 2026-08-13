@@ -66,7 +66,7 @@ private static string LoadLuaModule(string module)
 - 模块须 **`return { key = fn }`**；键名 = GetFunction 的 method
 - 子路径：`module.Replace('.', '/')`（如 `battle.ai`）
 - Player 构建前 Sync，见 [构建流程](/docs/guides/build/)
-- 热更扩展点 = 替换 loader 委托；Android 上 StreamingAssets 只读需注意
+- 热更 / 清空脚本世界用 `LuaAppDomain.Reset(loader)`（EndOfFrame 生效；旧 `GetFunction` 委托作废，须重新绑定）；**不**再支持对已初始化域「只换 loader」。Android 上 StreamingAssets 只读需注意
 
 ### 多模块
 

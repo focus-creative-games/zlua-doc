@@ -207,6 +207,7 @@ public class Bootstrap : MonoBehaviour
 | UPM install | ✅ | ✅ |
 | Settings + Install | ✅ | ✅ (local tree for Player builds) |
 | `LuaAppDomain.Initialize` | ✅ | ✅ |
+| `LuaAppDomain.Reset` | ✅ | ✅ |
 | `GetFunction<T>` | ✅ | ✅ |
 | Full Lua↔C# API | ✅ | ✅ (same semantics; different implementation paths) |
 

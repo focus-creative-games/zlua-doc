@@ -73,9 +73,11 @@ Runtime/Mono/              ←→  Il2Cpp zlua/
 | 6 | `EnsureBuiltinZLuaLib()` | 嵌入 `zlualib.lua` 等价物 |
 | 7 | `DelegateBridges.Warmup()` | `DelegateBridge::Initialize` 预热 |
 
-**重复 Initialize：** 若 `_luaEnv` 已存在，仅更新 loader 并 `EnsureBuiltinZLuaLib()`。
+**重复 Initialize：** 已有主 `lua_State` 时再次 `Initialize` → **抛异常**（须 `LuaAppDomain.Reset`；**不**再支持「只换 loader」）。
 
-**Shutdown：** `ProcessPendingRefReleases` → `LuaEnv.Dispose()`（逆序释放 Registry / MetaTableCache，见 `LuaEnv.cs`）。
+**Reset：** 宿主面预约后由 `LuaFramePump` 在 **EndOfFrame** 执行：内部 teardown（同 Shutdown）+ 按上表再 Initialize。公开 API **无** `Shutdown`。
+
+**内部 Shutdown / Dispose：** `ProcessPendingRefReleases` → `LuaEnv.Dispose()`（逆序释放 Registry / MetaTableCache，见 `LuaEnv.cs`）。
 
 Il2Cpp 在 AppDomain 级额外提前执行 `MethodBridge::Initialize` 等 stub 表加载；Mono 对应桥由 **Emit 按类型绑定** 写入三表（Phase 3）。
 
