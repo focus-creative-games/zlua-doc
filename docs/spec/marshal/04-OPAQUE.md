@@ -33,7 +33,7 @@ OpaqueValue 是 **C# 调用 Lua** 时，将某个 **形参/局部在 C# 调用�
 | 规则 | 说明 |
 |------|------|
 | **仅 C# → Lua 创建** | 只由 native 在 C# 调 Lua 的 marshal 路径 Push；**无** Lua API 伪造合法 handle |
-| **可产生 OpaqueValue 的形参** | ① **`ref` / `in` / `out T`**（**任意** `T`）——**默认**即为 OpaqueValue（§3.1）；② **任意 by-val CLR 类型**——标注 `[LuaMarshalAs(OpaqueValue)]` 即可 Push Opaque（含基元 / enum；对后者通常无实质必要） |
+| **可产生 OpaqueValue 的形参** | ① **`ref` / `in` / `out T`**（**任意** `T`）——**默认**即为 OpaqueValue（§3.1）；② **by-val** 且类型在 [02-MARSHAL-AS.md §3](/docs/spec/marshal/02-MARSHAL-AS/) 合法集合内——标注 `[LuaMarshalAs(OpaqueValue)]` 即可 Push Opaque。**基元** 与 **`IntPtr` / `UIntPtr` / `nint` / `nuint`** **禁止** by-val 标注 `OpaqueValue`（仅 `Default`） |
 | **方向限制** | `OpaqueValue` 标注仅用于 **C#→Lua**；标在纯 Lua→C# 形参上非法（见 [02-MARSHAL-AS.md §3.1](/docs/spec/marshal/02-MARSHAL-AS/)） |
 | 槽义 | `valueAddress` 指向该实参在 **当前 C# 栈帧** 上的存储位置（by-val 为值槽；`ref`/`in`/`out` 为 **指针槽**） |
 
@@ -42,7 +42,7 @@ OpaqueValue 是 **C# 调用 Lua** 时，将某个 **形参/局部在 C# 调用�
 | 方向 | 规则 |
 |------|------|
 | **C# → Lua** | 形参为 **`ref` / `out` / `in T`** 时，**默认** Push **OpaqueValue**（登记 byref 类型 + 指针槽地址）；**无需** 再标 `OpaqueValue` |
-| **非 byref** | 默认走 [01-OVERVIEW.md](/docs/spec/marshal/01-OVERVIEW/)；任意类型标注 `OpaqueValue` 时 Push Opaque（基元 / enum 合法但通常无实质必要） |
+| **非 byref** | 默认走 [01-OVERVIEW.md](/docs/spec/marshal/01-OVERVIEW/)；仅当类型在 [02-MARSHAL-AS.md §3](/docs/spec/marshal/02-MARSHAL-AS/) 允许 `OpaqueValue` 时，标注后 Push Opaque。**基元 / `IntPtr` 族 by-val 不可标** |
 
 因此 Lua 回调收到的 `ref int x` **不是** integer，而是 **lightuserdata handle**；须用 §5 API 读整数 / 写回。若再传给其它 C# 方法：对 **struct / 托管引用类型** 形参可将 handle **原样** 传回（§6）；对 **`int` 等简单类型** 形参 **必须** 先 `get_opaquevalue`（§6）。
 
@@ -152,7 +152,7 @@ struct 的 **默认 C#→Lua by-val** 路径在同步调用链内也可能产出
 | 维度 | 结论 |
 |------|------|
 | 仅 C#→Lua 创建 | 地址来自 C# 调用栈；Lua 无法伪造合法槽 |
-| 谁可 Opaque | **`ref`/`in`/`out`（任意 T）** 默认；**任意 by-val 类型**均可标注 `OpaqueValue`（基元 / enum 合法但通常无实质必要） |
+| 谁可 Opaque | **`ref`/`in`/`out`（任意 T）** 默认；by-val 见 [02-MARSHAL-AS.md §3](/docs/spec/marshal/02-MARSHAL-AS/)（**基元 / `IntPtr` 族禁止** by-val `OpaqueValue`） |
 | 无 metatable | 避免误当 userdata 成员访问；强制经 get/set |
 | 禁止跨调用保存 | `generation` 拦截过期 use-after-return |
 | get 解引用 byref | `ref int` 对脚本呈现为 int，符合默认 marshal 心智 |

@@ -77,7 +77,7 @@ public sealed class LuaMarshalAsAttribute : Attribute
 | **`Default`** | 双向 | 使用 [01-OVERVIEW.md](/docs/spec/marshal/01-OVERVIEW/) 默认规则，不做额外转换。 |
 | **`UserData`** | 双向 | **仅** 可标注于 **托管引用类型** 与 **struct**（§3）；**不可** 用于基元 / `enum` / `IntPtr` 等。语义：强制走 **UserData 形态**（ByObjUserData / ByValUserData / ClassUserData 等）。<br>• **实质有效的目标：** 几乎只有 **`string`**——默认 C#↔Lua 为 Lua **string**，标注后改为 **ByObjUserData**（托管 `System.String` 对象）<br>• **class / interface / 数组 / 普通 struct / object：** 默认 marshal **已是** UserData，标注与 `Default` **等价**<br>• **`Delegate`：** 可标注，但 **无实质作用**——仍按 [09-FUNCTION.md](/docs/spec/marshal/09-FUNCTION/) Marshal 为 **Lua function** 或既有 bridge |
 | **`Bytes`** | 双向 | **强制** 在 C# **`byte[]`** 与 Lua **`string`** 之间转换。<br>• C# **`byte[]`**：默认 ByObjUserData → Lua **string**（原始 octet，非 UTF-8 文本语义）<br>• 标注于 **`byte[]` 形参/返回值** 时，Lua 侧须传 **string**；Pop 时 **不接受** ByObjUserData / table<br>• 若标注于 **`string`** 形参/返回值，则走 **`byte[]` ↔ string** 的对偶规则 |
-| **`OpaqueValue`** | **仅 C# → Lua** | Push **OpaqueValue**（lightuserdata，无 metatable），见 [04-OPAQUE.md](/docs/spec/marshal/04-OPAQUE/)。<br>• **`ref` / `out` / `in T`**（任意 `T`）**默认** 即为本形态（无需标注）<br>• **by-val（任意 CLR 类型）均可** 显式标注强制 Push Opaque；对 **基元 / enum / `IntPtr` 等** 合法但通常 **无实质必要**（默认已是轻量 integer/number）<br>• 脚本经 `zlua.get_opaquevalue` / `zlua.set_opaquevalue` 读写；回传给 C# 时遵循 [04-OPAQUE.md §6](/docs/spec/marshal/04-OPAQUE/)<br>• **不可** 跨调用持久化；**Lua → C#** 单独形参上标注本类型视为 **非法**（§3.1） |
+| **`OpaqueValue`** | **仅 C# → Lua** | Push **OpaqueValue**（lightuserdata，无 metatable），见 [04-OPAQUE.md](/docs/spec/marshal/04-OPAQUE/)。<br>• **`ref` / `out` / `in T`**（任意 `T`）**默认** 即为本形态（无需标注）<br>• **by-val** 可对 **struct / 托管引用 / enum / 指针等**（见 §3）显式标注强制 Push Opaque；**基元** 与 **`IntPtr` / `UIntPtr` / `nint` / `nuint`** **禁止** 标注（仅 `Default`，§3）——默认已是 integer/number，无实质必要，且便于热路径优化<br>• 脚本经 `zlua.get_opaquevalue` / `zlua.set_opaquevalue` 读写；回传给 C# 时遵循 [04-OPAQUE.md §6](/docs/spec/marshal/04-OPAQUE/)<br>• **不可** 跨调用持久化；**Lua → C#** 单独形参上标注本类型视为 **非法**（§3.1） |
 | **`UnpackedValues`** | **双向** | **普通 struct / closed 泛型 struct**（§3；**不含** `Nullable` / class / interface）。将 **§5** 中 `Members` 列出的成员与 **多个连续 Lua 栈槽** 互转：<br>• **Lua → C#**：从栈上按名单 **顺序** Pop N 个值，写入对应 field/property<br>• **C# → Lua**：按名单 **顺序** Push N 个值（多返回值或展开 push）<br>须配置 **`Members`**；未配置或目标非法 → **§4**。该形参/返回值占用 **N 个** Lua 栈槽（§5.6） |
 | **`Table`** | **双向** | **普通 struct / closed 泛型 struct / `Nullable<struct>`**（§3；**不含** class / interface）。将 **§5** 中 `Members` 列出的成员与 **单个 Lua table** 互转：<br>• **Lua → C#**：Pop 一个 table（或对 `Nullable` 允许 `nil`→无值），按 **键名** 读取并写入 field/property<br>• **C# → Lua**：Push 一个 table（`Nullable` 无值 → `nil`）<br>须配置 **`Members`**（解析在 **底层 struct** 上）；未配置或目标非法 → **§4**。该形参/返回值占用 **1 个** Lua 栈槽 |
 
@@ -87,12 +87,12 @@ public sealed class LuaMarshalAsAttribute : Attribute
 
 下表「合法集合」列出的为 **`Default` 之外** 可显式标注的值；未列出的 `LuaMarshalType` 对该类型 **非法**。
 
-**`OpaqueValue`：** **所有** CLR 类型均可在 **C#→Lua** 方向合法标注（§3.1）；`ref`/`in`/`out` 默认已是 Opaque，无需再标。对基元 / enum / `IntPtr` 等标注虽合法，通常 **无实质收益**。
+**`OpaqueValue`：** 仅对 §3 表中列出的类型可在 **C#→Lua** 方向合法标注（§3.1）；**不是**「任意 by-val 均可」。**基元** 与 **`IntPtr` / `UIntPtr` / `nint` / `nuint`** **仅允许 `Default`**（禁止 `OpaqueValue` / `UserData` 等），以便热路径省去 Opaque 分支。`ref`/`in`/`out`（含 `ref int`）默认已是 Opaque，**无需**再标；见「byref」行。
 
 | C# 类型（分类） | 合法 `LuaMarshalType`（`Default` 除外） | 说明 |
 |-----------------|----------------------------------------|------|
-| **基元**（`bool`、`char`、`byte`…`ulong`、`float`、`double`） | `OpaqueValue` | **`UserData` 非法**；`OpaqueValue` 合法但通常无实质必要。若为 **`ref`/`in`/`out` 基元** → 默认已是 Opaque（见「byref」行） |
-| **`IntPtr` / `UIntPtr` / `nint` / `nuint`** | `OpaqueValue` | 同基元 |
+| **基元**（`bool`、`char`、`byte`…`ulong`、`float`、`double`） | （无；**仅 `Default`**） | **`UserData` / `OpaqueValue` 均非法**。默认已是 integer/boolean/number；禁止 `OpaqueValue` 便于优化。若为 **`ref`/`in`/`out` 基元** → 默认已是 Opaque（见「byref」行），**不是** by-val 上标 `OpaqueValue` |
+| **`IntPtr` / `UIntPtr` / `nint` / `nuint`** | （无；**仅 `Default`**） | 同基元：仅 `Default`（整型数值 Marshal）；**禁止** `OpaqueValue` / `UserData` |
 | **`string`** | `UserData`、`Bytes`、`OpaqueValue` | `UserData`：强制 ByObjUserData；`Bytes`：octet string；`OpaqueValue`：**仅 C#→Lua** |
 | **`byte[]`** | `Bytes`、`UserData`、`OpaqueValue` | `Bytes`：↔ Lua string；`UserData` 与默认等价；`OpaqueValue`：**仅 C#→Lua** |
 | **`T[]`（szarray）** | `UserData`、`OpaqueValue` | `UserData` 与默认等价；`OpaqueValue`：**仅 C#→Lua** |
@@ -104,7 +104,7 @@ public sealed class LuaMarshalAsAttribute : Attribute
 | **`Delegate` 及子类** | `UserData`、`OpaqueValue` | `UserData` 无实质作用；`OpaqueValue`：**仅 C#→Lua** |
 | **`object`** | `UserData`、`OpaqueValue` | `OpaqueValue`：**仅 C#→Lua** |
 | **`ref` / `in` / `out T`（任意 T）** | （通常无需标注） | C#→Lua **默认** OpaqueValue（[04-OPAQUE.md](/docs/spec/marshal/04-OPAQUE/)）。显式 `[OpaqueValue]` **合法** |
-| **`Nullable<T>`**（`T` 为 struct） | `UserData`、`OpaqueValue`、**`Table`** | 合法集合 **不** 含 `UnpackedValues`（多槽无法区分 `nil`=无值）。`Table` 的 `Members` 针对 **底层 `T`**；`nil`↔无值，table↔有值。`T` 为基元/enum 时除 `Default`/`OpaqueValue`/`UserData`（若适用）外无 Table |
+| **`Nullable<T>`**（`T` 为 struct） | `UserData`、`OpaqueValue`、**`Table`** | 合法集合 **不** 含 `UnpackedValues`（多槽无法区分 `nil`=无值）。`Table` 的 `Members` 针对 **底层 `T`**；`nil`↔无值，table↔有值。`T` 为基元/enum 时除 `Default`/`OpaqueValue`/`UserData`（若适用）外通常无 `Table` |
 | **非托管指针**（`T*`、`void*` 等） | `OpaqueValue` | 默认可 `Default`（Pointer 透传，见 [10-POINTER.md](/docs/spec/marshal/10-POINTER/)）；亦可标 `OpaqueValue`（C#→Lua） |
 | **函数指针**（`delegate*<…>`） | `OpaqueValue` | 同非托管指针 |
 | **`TypedReference`** | （通常无需标注） | **默认即 OpaqueValue**（双向均 **仅** 此形态，见 [10-POINTER.md](/docs/spec/marshal/10-POINTER/)）。显式 `[OpaqueValue]` 合法且等价；`UserData` / `Table` 等 **非法** |
@@ -327,8 +327,8 @@ Codegen / Mono 反射在 Pop / Push 时按 **由细到粗** 解析；**同一目
 |------|------|------------------------|
 | C# 调 Lua，struct 形参 | 视上下文可能为 OpaqueValue 或 userdata | `OpaqueValue` → 强制 OpaqueValue |
 | struct 形参 | userdata | `Table` / `UnpackedValues`（`Nullable` 仅 `Table`） |
-| C# 调 Lua，`ref int` | OpaqueValue（默认） | 无需标注 |
-| C# 调 Lua，by-val `int` + `OpaqueValue` | integer | 合法；Push Opaque（通常无实质必要） |
+| C# 调 Lua，`ref int` | OpaqueValue（默认） | 无需标注；显式 `[OpaqueValue]` 合法（byref 行） |
+| C# 调 Lua，by-val `int` + `OpaqueValue` | integer | **非法**（基元仅 `Default`）；Mono 回退 / Generate 失败（§4） |
 | Lua 调 C#，`string` 形参 | Lua string | `UserData` → **ByObjUserData** |
 | Lua 调 C#，`byte[]` 形参 | ByObjUserData 或 table | `Bytes` → Lua string |
 | `params T[]` 形参 | 同 szarray（单槽） | **无** 专用覆盖；仅可标 `OpaqueValue`（C#→Lua） |

@@ -33,7 +33,7 @@ Unlike long-lived **ByObjUserData / StructUserData**, OpaqueValue does **not** r
 | Rule | Notes |
 |------|-------|
 | **Created only on C# → Lua** | Pushed only by native on the C#→Lua marshal path; **no** Lua API to forge a valid handle |
-| **Parameters that can produce OpaqueValue** | ① **`ref` / `in` / `out T`** (**any** `T`) — **default** OpaqueValue (§3.1); ② **any by-val CLR type** — annotate `[LuaMarshalAs(OpaqueValue)]` to Push Opaque (including primitives / enum; usually unnecessary for the latter) |
+| **Parameters that can produce OpaqueValue** | ① **`ref` / `in` / `out T`** (**any** `T`) — **default** OpaqueValue (§3.1); ② **by-val** types in the legal set of [02-MARSHAL-AS.md §3](/docs/spec/marshal/02-MARSHAL-AS/) — annotate `[LuaMarshalAs(OpaqueValue)]` to Push Opaque. **Primitives** and **`IntPtr` / `UIntPtr` / `nint` / `nuint`** **must not** use by-val `OpaqueValue` (`Default` only) |
 | **Direction limit** | `OpaqueValue` annotation is **C#→Lua only**; on a pure Lua→C# parameter it is illegal (see [02-MARSHAL-AS.md §3.1](/docs/spec/marshal/02-MARSHAL-AS/)) |
 | Slot meaning | `valueAddress` points at that argument's storage on the **current C# stack frame** (by-val = value slot; `ref`/`in`/`out` = **pointer slot**) |
 
@@ -42,7 +42,7 @@ Unlike long-lived **ByObjUserData / StructUserData**, OpaqueValue does **not** r
 | Direction | Rules |
 |-----------|-------|
 | **C# → Lua** | When parameter is **`ref` / `out` / `in T`**, **default** Push **OpaqueValue** (register byref type + pointer-slot address); **no** need to annotate `OpaqueValue` again |
-| **Non-byref** | Default follows [01-OVERVIEW.md](/docs/spec/marshal/01-OVERVIEW/); any type annotated `OpaqueValue` Pushes Opaque (primitives / enum legal but usually unnecessary) |
+| **Non-byref** | Default follows [01-OVERVIEW.md](/docs/spec/marshal/01-OVERVIEW/); Push Opaque only when the type allows `OpaqueValue` per [02-MARSHAL-AS.md §3](/docs/spec/marshal/02-MARSHAL-AS/). **Primitives / `IntPtr` family by-val must not annotate** |
 
 Thus a Lua callback receiving `ref int x` gets a **lightuserdata handle**, not an integer; use §5 APIs to read/write. When passing to another C# method: for **struct / managed reference** parameters, pass the handle **as-is** (§6); for **simple types like `int`**, you **must** `get_opaquevalue` first (§6).
 
@@ -152,7 +152,7 @@ Struct shapes: [05-STRUCT.md](/docs/spec/marshal/05-STRUCT/).
 | Dimension | Conclusion |
 |-----------|------------|
 | Created only C#→Lua | Address comes from C# call stack; Lua cannot forge a valid slot |
-| Who can be Opaque | **`ref`/`in`/`out` (any T)** by default; **any by-val type** may annotate `OpaqueValue` (primitives / enum legal but usually unnecessary) |
+| Who can be Opaque | **`ref`/`in`/`out` (any T)** by default; by-val per [02-MARSHAL-AS.md §3](/docs/spec/marshal/02-MARSHAL-AS/) (**primitives / `IntPtr` family forbid** by-val `OpaqueValue`) |
 | No metatable | Avoid mistaken userdata member access; force get/set |
 | No cross-call save | `generation` blocks expired use-after-return |
 | get dereferences byref | `ref int` appears as int to script, matching default-marshal mental model |

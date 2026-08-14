@@ -77,7 +77,7 @@ Violations → **Il2Cpp Generate / XML fail**; **Mono Attribute** path: **§4.1*
 | **`Default`** | Bidirectional | Use [01-OVERVIEW.md](/docs/spec/marshal/01-OVERVIEW/) defaults; no extra conversion. |
 | **`UserData`** | Bidirectional | **Only** on **managed reference types** and **struct** (§3); **not** for primitives / `enum` / `IntPtr`, etc. Semantics: force **UserData shape** (ByObjUserData / ByValUserData / ClassUserData, etc.).<br>• **Substantively useful mainly for `string`:** default C#↔Lua is Lua **string**; with annotation → **ByObjUserData** (managed `System.String` object)<br>• **class / interface / arrays / ordinary struct / object:** default marshal **already** UserData; annotation ≡ `Default`<br>• **`Delegate`:** may annotate but **no real effect**—still marshals as **Lua function** or existing bridge per [09-FUNCTION.md](/docs/spec/marshal/09-FUNCTION/) |
 | **`Bytes`** | Bidirectional | **Force** conversion between C# **`byte[]`** and Lua **`string`**.<br>• C# **`byte[]`:** default ByObjUserData → Lua **string** (raw octets, not UTF-8 text semantics)<br>• On **`byte[]` parameters/returns**, Lua must pass **string**; Pop does **not** accept ByObjUserData / table<br>• On **`string`** parameters/returns, dual **`byte[]` ↔ string** rules apply |
-| **`OpaqueValue`** | **C# → Lua only** | Push **OpaqueValue** (lightuserdata, no metatable); see [04-OPAQUE.md](/docs/spec/marshal/04-OPAQUE/).<br>• **`ref` / `out` / `in T`** (any `T`) **default** to this shape (no annotation needed)<br>• **Any by-val CLR type** may explicitly annotate to force Opaque Push; legal but usually **unnecessary** for **primitives / enum / `IntPtr`** (already lightweight integer/number)<br>• Scripts R/W via `zlua.get_opaquevalue` / `zlua.set_opaquevalue`; pass-back to C# follows [04-OPAQUE.md §6](/docs/spec/marshal/04-OPAQUE/)<br>• Must **not** persist across calls; annotating this on a **Lua → C#**-only parameter is **illegal** (§3.1) |
+| **`OpaqueValue`** | **C# → Lua only** | Push **OpaqueValue** (lightuserdata, no metatable); see [04-OPAQUE.md](/docs/spec/marshal/04-OPAQUE/).<br>• **`ref` / `out` / `in T`** (any `T`) **default** to this shape (no annotation needed)<br>• **by-val** may explicitly annotate for **struct / managed references / enum / pointers**, etc. (see §3) to force Opaque Push; **primitives** and **`IntPtr` / `UIntPtr` / `nint` / `nuint`** **must not** annotate ( **`Default` only**, §3)—already integer/number, no real need, and this enables hot-path optimization<br>• Scripts R/W via `zlua.get_opaquevalue` / `zlua.set_opaquevalue`; pass-back to C# follows [04-OPAQUE.md §6](/docs/spec/marshal/04-OPAQUE/)<br>• Must **not** persist across calls; annotating this on a **Lua → C#**-only parameter is **illegal** (§3.1) |
 | **`UnpackedValues`** | **Bidirectional** | **Ordinary struct / closed generic struct** (§3; **excludes** `Nullable` / class / interface). Convert members listed in **§5** `Members` with **multiple contiguous Lua stack slots**:<br>• **Lua → C#:** Pop N values from the stack in list **order**, write corresponding fields/properties<br>• **C# → Lua:** Push N values in list **order** (multi-return or expanded push)<br>Requires **`Members`**; missing or illegal target → **§4**. That parameter/return occupies **N** Lua stack slots (§5.6) |
 | **`Table`** | **Bidirectional** | **Ordinary struct / closed generic struct / `Nullable<struct>`** (§3; **excludes** class / interface). Convert members listed in **§5** `Members` with a **single Lua table**:<br>• **Lua → C#:** Pop one table (or for `Nullable` allow `nil`→no value); read by **key name** and write fields/properties<br>• **C# → Lua:** Push one table (`Nullable` no value → `nil`)<br>Requires **`Members`** (resolved on the **underlying struct**); missing or illegal → **§4**. Occupies **1** Lua stack slot |
 
@@ -87,12 +87,12 @@ Each CLR parameter/return/field type may only bind a `LuaMarshalType` from **§2
 
 The “legal set” column lists values that may be annotated **besides `Default`**; unlisted `LuaMarshalType` values are **illegal** for that type.
 
-**`OpaqueValue`:** **All** CLR types may legally annotate it for **C#→Lua** (§3.1); `ref`/`in`/`out` already default to Opaque. Annotating primitives / enum / `IntPtr` is legal but usually **no benefit**.
+**`OpaqueValue`:** Only types listed in the §3 table may legally annotate it for **C#→Lua** (§3.1); it is **not** “any by-val type”. **Primitives** and **`IntPtr` / `UIntPtr` / `nint` / `nuint`** allow **`Default` only** (no `OpaqueValue` / `UserData`, etc.), so hot paths can omit Opaque branches. `ref`/`in`/`out` (including `ref int`) already default to Opaque—**no** need to annotate again; see the “byref” row.
 
 | C# type (category) | Legal `LuaMarshalType` (excl. `Default`) | Notes |
 |--------------------|------------------------------------------|-------|
-| **Primitives** (`bool`, `char`, `byte`…`ulong`, `float`, `double`) | `OpaqueValue` | **`UserData` illegal**; `OpaqueValue` legal but usually unnecessary. **`ref`/`in`/`out` primitives** → already Opaque (see “byref” row) |
-| **`IntPtr` / `UIntPtr` / `nint` / `nuint`** | `OpaqueValue` | Same as primitives |
+| **Primitives** (`bool`, `char`, `byte`…`ulong`, `float`, `double`) | (none; **`Default` only**) | **`UserData` / `OpaqueValue` both illegal**. Default is already integer/boolean/number; forbidding `OpaqueValue` enables optimization. **`ref`/`in`/`out` primitives** → already Opaque (see “byref” row)—that is **not** by-val `[OpaqueValue]` |
+| **`IntPtr` / `UIntPtr` / `nint` / `nuint`** | (none; **`Default` only**) | Same as primitives: `Default` only (integer numeric Marshal); **no** `OpaqueValue` / `UserData` |
 | **`string`** | `UserData`, `Bytes`, `OpaqueValue` | `UserData`: force ByObjUserData; `Bytes`: octet string; `OpaqueValue`: **C#→Lua only** |
 | **`byte[]`** | `Bytes`, `UserData`, `OpaqueValue` | `Bytes`: ↔ Lua string; `UserData` ≡ default; `OpaqueValue`: **C#→Lua only** |
 | **`T[]` (szarray)** | `UserData`, `OpaqueValue` | `UserData` ≡ default; `OpaqueValue`: **C#→Lua only** |
@@ -104,7 +104,7 @@ The “legal set” column lists values that may be annotated **besides `Default
 | **`Delegate` and subclasses** | `UserData`, `OpaqueValue` | `UserData` has no real effect; `OpaqueValue`: **C#→Lua only** |
 | **`object`** | `UserData`, `OpaqueValue` | `OpaqueValue`: **C#→Lua only** |
 | **`ref` / `in` / `out T` (any T)** | (usually no annotation) | C#→Lua **defaults** to OpaqueValue ([04-OPAQUE.md](/docs/spec/marshal/04-OPAQUE/). Explicit `[OpaqueValue]` **legal** |
-| **`Nullable<T>`** (`T` is struct) | `UserData`, `OpaqueValue`, **`Table`** | Legal set does **not** include `UnpackedValues` (multi-slot cannot distinguish `nil`=no value). `Table` `Members` target **underlying `T`**; `nil`↔no value, table↔has value. When `T` is primitive/enum, no Table beyond `Default`/`OpaqueValue`/`UserData` (if applicable) |
+| **`Nullable<T>`** (`T` is struct) | `UserData`, `OpaqueValue`, **`Table`** | Legal set does **not** include `UnpackedValues` (multi-slot cannot distinguish `nil`=no value). `Table` `Members` target **underlying `T`**; `nil`↔no value, table↔has value. When `T` is primitive/enum, usually no `Table` beyond `Default`/`OpaqueValue`/`UserData` (if applicable) |
 | **Unmanaged pointers** (`T*`, `void*`, etc.) | `OpaqueValue` | Default may be `Default` (Pointer pass-through; [10-POINTER.md](/docs/spec/marshal/10-POINTER/); may also annotate `OpaqueValue` (C#→Lua) |
 | **Function pointers** (`delegate*<…>`) | `OpaqueValue` | Same as unmanaged pointers |
 | **`TypedReference`** | (usually no annotation) | **Default is OpaqueValue** (bidirectional **only** this shape; [10-POINTER.md](/docs/spec/marshal/10-POINTER/). Explicit `[OpaqueValue]` legal and equivalent; `UserData` / `Table` etc. **illegal** |
@@ -327,8 +327,8 @@ If annotation is illegal or config is wrong during resolve: **Mono Attribute** a
 |----------|---------|----------------------------------|
 | C# calls Lua, struct parameter | OpaqueValue or userdata depending on context | `OpaqueValue` → force OpaqueValue |
 | struct parameter | userdata | `Table` / `UnpackedValues` (`Nullable` only `Table`) |
-| C# calls Lua, `ref int` | OpaqueValue (default) | No annotation needed |
-| C# calls Lua, by-val `int` + `OpaqueValue` | integer | Legal; Push Opaque (usually unnecessary) |
+| C# calls Lua, `ref int` | OpaqueValue (default) | No annotation needed; explicit `[OpaqueValue]` legal (byref row) |
+| C# calls Lua, by-val `int` + `OpaqueValue` | integer | **Illegal** (primitives are `Default` only); Mono fallback / Generate fails (§4) |
 | Lua calls C#, `string` parameter | Lua string | `UserData` → **ByObjUserData** |
 | Lua calls C#, `byte[]` parameter | ByObjUserData or table | `Bytes` → Lua string |
 | `params T[]` parameter | Same as szarray (single slot) | **No** dedicated override; may only annotate `OpaqueValue` (C#→Lua) |
