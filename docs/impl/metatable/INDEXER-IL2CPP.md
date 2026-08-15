@@ -70,8 +70,7 @@ static int DispatchInstanceIndex(lua_State* L)
     const char* key = luaL_checkstring(L, 2);
     const MetaInfo* info = LookupMeta(map, key);
     if (info == nullptr) {
-        lua_pushnil(L);
-        return 1;
+        return luaL_error(L, "zlua: member not found: %s.%s", typeFullName, key);
     }
     switch (info->kind) {
     case MetaKind::Method:
@@ -90,7 +89,7 @@ static int DispatchInstanceIndex(lua_State* L)
 |----------|----------------|
 | method 直接返回 closure | `PushRef(closureRef)`，不 call |
 | field/property 自动 invoke getter | C closure 内 call writer/getter |
-| `__index` miss | `lua_pushnil` |
+| `__index` miss | `luaL_error`（`zlua: member not found: …`；**禁止** `lua_pushnil`） |
 | method 优先于 field 同名 | Bind 期 `MetaBinding` 写入 map 时已消解；lookup 单表 |
 
 ### 3.1 实例变体入口
@@ -167,7 +166,7 @@ Dispatch closure 额外 upvalue 挂 `MethodGroups*`。
 
 ## 8. 调试
 
-- `LookupMeta` miss 返回 nil 时 **不** 调用 C# 反射 fallback（规范禁止）。
+- `LookupMeta` miss 时 **`luaL_error`**（**不** `pushnil`），且 **不** 调用 C# 反射 fallback（规范禁止）。
 - 对照 Mono 行为时，Il2Cpp 与 Mono 的 miss/成员集应一致（Mono 走 Lua 三表 indexer，见 [INDEXER-MONO.md](/docs/impl/metatable/INDEXER-MONO/)）。
 
 ---

@@ -38,7 +38,7 @@ title: "Glossary"
 | **IMT** | Instance Metatable: metatable on instance userdata | same |
 | **Three-table indexer** | Dispatch via `methodTable` / `fieldGetterTable` / `fieldSetterTable` (Mono) | [spec/metatable/02-INDEX.md](/docs/spec/metatable/02-INDEX/) |
 | **Il2Cpp native indexer** | `Dispatch*` C closures + `NameMetaMap` (`MetaBinding` / `TypeRegistry`) | [impl/metatable/INDEXER-IL2CPP.md](/docs/impl/metatable/INDEXER-IL2CPP/) |
-| **`__index` miss** | Unregistered member → returns **`nil`** (no reflection fallback) | [spec/metatable/02-INDEX.md](/docs/spec/metatable/02-INDEX/) |
+| **`__index` miss** | Unregistered member → **`error`** (`zlua: member not found: …`; no reflection fallback; no silent `nil`) | [spec/metatable/02-INDEX.md](/docs/spec/metatable/02-INDEX/) |
 | **`__newindex` miss** | Unregistered / non-writable member → **`error`** | same |
 | **Bind-time flattening** | Public members along the inheritance chain are written into the current type’s three tables at `EnsureBinding`; **no** runtime walk upward | [spec/02-TYPE-SYSTEM.md](/docs/spec/02-TYPE-SYSTEM/) §5 |
 | **dispatch closure** | Runtime dispatch closure bound to the default method name when multiple overloads exist | [spec/04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) |

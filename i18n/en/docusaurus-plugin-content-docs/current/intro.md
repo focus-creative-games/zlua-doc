@@ -22,7 +22,7 @@ Compared with xLua / toLua / SLua, ZLua’s core claims are:
 | **Faster** | Four-way Il2Cpp benchmarks: Lua→C# ≈ **2.57× / 3.52× / 7.68×** for xLua / toLua / SLua vs ZLua; see [Performance](/docs/compare/PERFORMANCE/) |
 | **Less GC** | Reference types and structs default to **0 GC**; flexible strategies such as OpaqueValue |
 | **Tiny bridge** | Same-signature merged C++ stubs; footprint can be an order of magnitude smaller; down to **0 bridge functions** |
-| **Broader versions** | Lua 5.1–5.5 / LuaJIT (Il2Cpp JIT only Android / iOS); Unity 2021+; Tuanjie Engine |
+| **Broader versions** | Lua 5.1–5.5 / LuaJIT (Il2Cpp JIT only Android / iOS); Unity **2021.3 / 2022.3 / Unity 6 (6000.0 / 6000.3 / 6000.5)**; Tuanjie Engine |
 | **More active maintenance** | Full-time professional team |
 
 Full rationale: **[Why ZLua](/docs/concepts/why-zlua/)**; four-way comparison: **[Comparison](/docs/compare/)**.

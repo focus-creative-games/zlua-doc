@@ -37,9 +37,9 @@ struct MethodGroups {
 };
 ```
 
-**Bind-time bucketing:** Group same-name overloads by **parameter count** (excluding `this`). Resolve first O(1)-fetches `groups->smallArgCountMethodGroups[argCount]`; if empty, linearly scans `largeArgCountMethods`.
+**Bind-time bucketing:** Group by the method’s **Lua arg-slot range**. With no defaults the key is `luaArity`; with trailing defaults the method must cover buckets `minLuaArity … luaArity` (or equivalently sit in a set Resolve can scan) so omitted defaults still hit. Resolve first O(1)-fetches `groups->smallArgCountMethodGroups[argCount]`, then consults `largeArgCountMethods` when needed.
 
-Order within the same argCount bucket = Codegen declaration order (spec §3.2 tie-break).
+Order within the same argCount bucket = Codegen declaration order (spec §3.2 tie-break). Candidates must also satisfy `GetMinLuaArity(ctx) ≤ argCount ≤ ctx->luaArity`.
 
 ## 3. `ConversionKind` and Better Match
 
@@ -62,7 +62,7 @@ struct MethodOverloadResolutionResult {
 - Returns conversion category from that argument to the parameter;
 - Matches spec §3.3 / §3.6 **better function member** rules (Identity beats ImplicitBoxing, etc.).
 
-**Per-arg compare:** Check applicability for each candidate in the bucket; pick best among applicable; ties use declaration order.
+**Per-arg compare:** Check applicability for each candidate in the bucket; pick best among applicable; when conversion scores tie, prefer smaller `optionalUsed`, then declaration order.
 
 ## 4. `Resolve` algorithm outline
 
@@ -70,26 +70,29 @@ struct MethodOverloadResolutionResult {
 MethodOverloadResolutionResult MethodOverloadResolver::Resolve(
     lua_State* L, const MethodGroups* groups, int32_t argStart, int32_t argCount)
 {
-    // 1. Fetch MethodGroup* by argCount
+    // 1. Fetch bucket by argCount (small / large); candidates must satisfy
+    //    GetMinLuaArity(ctx) ≤ argCount ≤ ctx->luaArity (trailing C# defaults → MethodDefaultArgs)
     // 2. Walk methods[]:
-    //    - param count / params array / optional rules
-    //    - GetConversionKind per arg; NotConvertible → skip
-    //    - CompareConversionKind update best / ambiguous
-    // 3. BestMatch → return method; Ambiguous → luaL_error; None → luaL_error
+    //    - Score each CLR formal; slot shortfall + ParamHasCachedDefault → optionalUsed++
+    //    - NotConvertible → skip
+    //    - Update best: better ConversionKind/score, or same score with smaller optionalUsed
+    // 3. BestMatch → return method; Ambiguous / None → ThrowFormat upstream
 }
 ```
 
-Error message prefix `zlua:`, aligned with Mono goals (spec §7).
+Error message prefix `zlua:`, aligned with Mono goals (spec §3.5 / §7). Default-parameter semantics: [../../spec/04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) §3.3.
 
 ## 5. Cooperation with `MethodMarshalCtx`
 
-Each candidate overload already has its own `MethodMarshalCtx` at bind time (`paramsMeta[]`, `retMeta`, `lua2CsInvoker` stub).
+Each candidate overload already has its own `MethodMarshalCtx` at bind time (`paramsMeta[]`, `retMeta`, `lua2CsInvoker` stub; with trailing defaults, also a `MethodDefaultArgs*`).
 
 Resolver **only selects** ctx; it does not re-marshal. After selection:
 
 ```cpp
 MethodBridge::InvokeLua2Cs(L, target, argStart, ctx);
 ```
+
+With default parameters, the Invoke path writes Bind-cached default slots for missing trailing formals.
 
 Virtual calls: `MetadataUtil::ResolveInvokeMethod(ctx->method, target, ctx->sealed)` inside `InvokeLua2Cs`.
 

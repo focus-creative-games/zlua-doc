@@ -90,7 +90,22 @@ print(demo.x)
 
 - 无参 `{ get; set; }` 与字段语法一致；Il2Cpp Player 上简单 int property 可走 offset 快路径，热路径优先 `demo.x` 而非 `GetX()`
 - 带参 indexer（`this[int]`）按 **方法** 分派，不能随意写 `obj[i]`（szarray 等有专门规则，见 [数组](/docs/guides/arrays/)）
-- 未注册成员 **strict miss** → `error`，无反射 fallback
+- 未注册成员（字段 / 方法 / 属性）**strict miss** → **`error`**（`zlua: member not found: …`），**不**返回 `nil`，无反射 fallback
+
+### 默认参数
+
+C# 方法 / 构造若带**尾部**默认参数，Lua 可省略对应实参，运行时补默认值：
+
+```csharp
+public static int Foo(int x, int y = 5) => x + y;
+```
+
+```lua
+print(CSharp.AC.Demo.Foo(1))     -- 6（y 用默认 5）
+print(CSharp.AC.Demo.Foo(1, 9))  -- 10
+```
+
+多重载时优先选用「少用默认参数」的候选。细则见 [方法重载](/docs/guides/overloads/#默认参数)。
 
 ### 继承
 
@@ -149,8 +164,8 @@ end
 | 现象 | 处理 |
 |------|------|
 | `type not found` | 程序集名、namespace 括号、是否 public |
-| `static member not found` | 勿用实例访问静态；用类型表 |
-| `instance member not found` | 拼写 / 可见性 |
+| `zlua: member not found: …` | 拼写 / 可见性；读未知成员现为 error（非 nil） |
+| `static member not found` / 误访静态 | 勿用实例访问静态；用类型表 |
 | `member not writable` | 只读 Property |
 | Event `.get` 为 nil | 改用 `add_` / `remove_` |
 

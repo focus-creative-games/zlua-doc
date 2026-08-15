@@ -245,7 +245,7 @@ zlua.set_opaquevalue(h, v + 1)
 | Treat `ref` as integer | C#→Lua Opaque | `zlua.get_opaquevalue` |
 | Opaque across frames | Forbidden by Spec | Use only within a single C#→Lua call |
 | Inherited member not found | Flattened at Bind | Confirm member is on declaring type’s public API |
-| `__index` missing member does not error | ZLua returns **nil** | Do not rely on xLua-style error |
+| `__index` missing member | ZLua **always errors** (`zlua: member not found: …`), **does not** return `nil` | Probe members with `rawget` / `pcall`; do not rely on silent `nil` |
 | Some Editor API is nil | Type unbound / not public / wrong usage | Check [Spec](/docs/spec/00-OVERVIEW/) and [impl/MONO.md](/docs/impl/MONO/) |
 | Performance expectations | xLua and ZLua architectures differ | See [compare/PERFORMANCE.md](/docs/compare/PERFORMANCE/) |
 | libil2cpp merge | Unity upgrade cost | Assess tech debt before migrating |
@@ -256,7 +256,7 @@ zlua.set_opaquevalue(h, v + 1)
 
 | xLua symptom | Possible ZLua behavior |
 |-----------|---------------|
-| `cannot find wrapper` | Type not loaded / not public / typo → `nil` or load exception |
+| `cannot find wrapper` | Type not loaded / not public / typo → clear errors such as `type not found` / `member not found` |
 | `invalid lua stack` | Marshal type mismatch → Lua error with ZLua prefix |
 | Generate missed a type | xLua missing Wrap at compile time | ZLua Binds on first access; Il2Cpp missing stub should be covered at Codegen |
 

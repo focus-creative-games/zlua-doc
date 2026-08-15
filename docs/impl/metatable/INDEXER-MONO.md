@@ -108,9 +108,10 @@ Emit 失败（无法为签名生成 Expression）→ **`EmitException`**；继�
 
 | 场景 | 行为 |
 |------|------|
-| `__index` 三表均 miss | 返回 `nil`（**不**调 C# fallback） |
+| `__index` 三表均 miss | **`error`**：`zlua: member not found: {TypeFullName}.{key}`（**不**调 C# fallback；**不**返回 `nil`） |
+| `__index` 仅 setter 表命中（只写 property） | `zlua: property has no getter: {TypeFullName}.{key}` |
 | `__newindex` setter miss 但 getter 存在 | `zlua: property is read-only: {key}` |
-| `__newindex` 完全 miss | `zlua: instance member not writable: {key}` / static 前缀变体 |
+| `__newindex` 完全 miss | `zlua: instance member not writable: {TypeFullName}.{key}` / static 前缀变体 |
 
 Phase 2 空表时，除 enum 常量等写在类型表 `T` 上的键外，任意实例成员访问均 miss。Phase 3 起已写入成员的键按上表命中。
 
@@ -142,7 +143,7 @@ Mono 与 Il2Cpp 实现路径不同，但 Lua 可见语义须一致（见 [../../
 ## 8. 验收检查项
 
 - [ ] 已注册成员：hot path 无 C# `InstanceIndex` / `StaticTypeIndex`
-- [ ] 未注册：`__index` → `nil`；`__newindex` → strict error
+- [ ] 未注册：`__index` / `__newindex` → strict error（含 `TypeFullName.key`）
 - [ ] 静/实三表隔离；struct ByVal/ByObj 各一套实例三表
 - [ ] 继承成员 Bind 期扁平化；子类覆盖同名键
 - [ ] 无 Event 子表；`add_Event` 在 `methodTable` 且为普通 closure

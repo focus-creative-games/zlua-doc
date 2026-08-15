@@ -17,6 +17,8 @@ Lua 曾考虑令 `methodTable` 的 metatable 再挂一层 field 用 `__index` �
 
 因此 field 与 method 统一由 **接收 `(obj, key)` 的 indexer 函数**分派（与 xLua `obj_indexer(obj, key)` 同构）。注册期将成员拆入三张普通 Lua table，运行时按固定顺序 `rawget` 查表，**hot path 不**调用 C# `InstanceIndex` / `StaticTypeIndex`，也不将 key 转为 C# 字符串做反射字典查找。
 
+**严格 miss：** 未注册成员的读写均须给出带 `zlua:` 前缀的明确错误（含键名），**禁止** `__index` 静默返回 `nil`（以免随后 `attempt to call/index a nil value` 难以定位）。
+
 ---
 
 ## 2. 三表职责
@@ -54,7 +56,7 @@ enum 静态常量若已作为 **integer** 直接写在类型表 `T` 上，则读
 | **可写字段** | setter closure：`function(obj, value) ... end` | `setter(obj, value)` |
 | **无参可写 property** | 同上 | `setter(obj, value)` |
 
-只写 property：仅出现在 `fieldSetterTable`；`__index` 在 `methodTable` 与 `fieldGetterTable` 均未命中时返回 `nil`（读即 miss）。
+只写 property：仅出现在 `fieldSetterTable`；`__index` 在 `methodTable` 与 `fieldGetterTable` 均未命中、但 `fieldSetterTable` 命中时，报 **`zlua: property has no getter: {key}`**（不得返回 `nil`）。
 
 readonly 字段 / 只读 property：**不在**此表；写入时在 `fieldSetterTable` miss 后报错。
 
@@ -84,7 +86,10 @@ local function index(obj, key)
   if getter ~= nil then
     return getter(obj)
   end
-  return nil
+  if rawget(fieldSetterTable, key) ~= nil then
+    error("zlua: property has no getter: " .. typeFullName .. "." .. tostring(key))
+  end
+  error("zlua: member not found: " .. typeFullName .. "." .. tostring(key))
 end
 ```
 
@@ -92,7 +97,9 @@ end
 
 - method / 有参 property / `add_*` / `remove_*`：**返回 closure**，由脚本自行 `obj:Method()` 或 `obj.add_Xxx(handler)` 调用。
 - field / 无参 property：**调用 getter** 并将返回值交给 Lua。
-- **miss：返回 `nil`**。不调用 C# 反射 fallback，不沿继承链在运行时查找（继承已在 Bind 期扁平化，见 [03-BINDING.md](/docs/spec/metatable/03-BINDING/)）。
+- **miss：`error`（strict）**。不调用 C# 反射 fallback，不沿继承链在运行时查找（继承已在 Bind 期扁平化，见 [03-BINDING.md](/docs/spec/metatable/03-BINDING/)）。
+- 错误消息须含 **`{TypeFullName}.{key}`**（`TypeFullName` 为该绑定类型的 Lua 全名）。
+- 探测「键是否存在」须用 **`rawget`**（不触发元方法），或 `pcall`；不得依赖 `__index` 返回 `nil`。
 
 ### 3.2 静态类型表（SMT）
 
@@ -102,7 +109,7 @@ end
 - 使用 **静态** 三表（与实例三表 **不可共用** upvalue）。
 - static getter closure 按静态语义实现（无 instance `GCHandle` pop，静态 field 读类型静态数据段）。
 
-**SMT 回退：** 三表均未命中时，对 **SMT 自身** 做 `rawget`（`T` 的 metatable），以解析挂在 SMT 上的保留键，例如 struct 的 `_default` closure。仍无则返回 `nil`。
+**SMT 回退：** 三表均未命中时，对 **SMT 自身** 做 `rawget`（`T` 的 metatable），以解析挂在 SMT 上的保留键，例如 struct 的 `_default` closure。仍无则 **`error("zlua: member not found: " .. typeFullName .. "." .. key)`**。
 
 **类型表直查：** 若 `key` 已存在于 `T` 本体（如 enum 常量 integer），Lua 在触发 `__index` 之前即返回值；indexer 不负责这些键。
 
@@ -121,7 +128,7 @@ local function newindex(obj, key, value)
     setter(obj, value)
     return
   end
-  error("zlua: instance member not writable: " .. tostring(key))
+  error("zlua: instance member not writable: " .. typeFullName .. "." .. tostring(key))
 end
 ```
 
@@ -143,10 +150,10 @@ enum 常量、静态 readonly 字面量等不可写键：miss 后报错，与 C#
 
 | 操作 | miss 行为 |
 |------|-----------|
-| `__index` | 返回 **`nil`** |
+| `__index` | **`error`**（strict；见 §6） |
 | `__newindex` | **`error`**（strict） |
 
-**禁止**在 miss 时调用 C# 反射或 `InstanceIndex` / `StaticTypeIndex` 兜底。未在 Bind 期注册进三表的 public 成员，对 Lua 等同于不存在（读为 nil，写报错）。
+**禁止**在 miss 时调用 C# 反射或 `InstanceIndex` / `StaticTypeIndex` 兜底。未在 Bind 期注册进三表的 public 成员，对 Lua 等同于不存在（读、写均报错）。
 
 继承的实例/静态成员须在 **EnsureBinding** 时**扁平写入**当前类型三表（见 [03-BINDING.md](/docs/spec/metatable/03-BINDING/)），因此运行时 **不**沿继承链向上查找。
 
@@ -156,12 +163,13 @@ enum 常量、静态 readonly 字面量等不可写键：miss 后报错，与 C#
 
 | 场景 | 消息（示意） |
 |------|----------------|
-| `__index` miss | 返回 **`nil`**（不报错） |
-| `__newindex` 无 setter / 不可写（实例） | `zlua: instance member not writable: {key}` |
-| `__newindex` 无 setter / 不可写（静态） | `zlua: static member not writable: {key}` |
+| `__index` miss（无 getter / 无 method / SMT 回退仍无） | `zlua: member not found: {TypeFullName}.{key}` |
+| `__index` 只写 property（仅 setter 表命中） | `zlua: property has no getter: {TypeFullName}.{key}` |
+| `__newindex` 无 setter / 不可写（实例） | `zlua: instance member not writable: {TypeFullName}.{key}` |
+| `__newindex` 无 setter / 不可写（静态） | `zlua: static member not writable: {TypeFullName}.{key}` |
 | getter 内部类型错误 | bridge 抛出，保持 `zlua:` 前缀 |
 
-只读 property 写入、只写 property 读取、对 method 名赋值等，均归入上表「不可写」或 `__index` nil 语义。
+只读 property 写入、对 method 名赋值等，均归入上表「不可写」语义。
 
 ---
 
@@ -197,7 +205,7 @@ end
 下列项在 Mono 与 Il2Cpp 上 **必须一致**（实现路径可不同）：
 
 - 已注册 method / field / property / `add_*` / `remove_*` 的读写语义
-- `__index` miss → `nil`；`__newindex` miss → error
+- `__index` miss → **error**；`__newindex` miss → error
 - 静/实例三表隔离；实例 userdata 不能隐式访问静态成员
 - Bind 期继承扁平化；派生类覆盖基类同名键
 - **无** event 子表；**无** 反射 fallback

@@ -46,7 +46,7 @@ Mono（Editor）允许反射 / Emit 慢路径，但 **Lua 可见语义必须与 
 | 项 | 规范行为 |
 |----|----------|
 | **Event 专用元表** | **无** `{ get, set, fire }`；脚本使用 `add_EventName` / `remove_EventName`（与普通方法相同） |
-| **`__index` miss** | 返回 **`nil`** |
+| **`__index` miss** | **`error`**（`zlua: member not found: {key}` 等） |
 | **`__newindex` miss** | **`error`** |
 | **实例继承运行时查找** | **无**；继承成员在 **Bind 期扁平化** 到当前类型三表（见 [02-TYPE-SYSTEM.md](/docs/spec/02-TYPE-SYSTEM/) §5） |
 

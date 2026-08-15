@@ -66,7 +66,7 @@ t:ResetLocal()   -- 冒号；底层是静态扩展方法
 
 | 现象 | 原因 |
 |------|------|
-| `obj:Foo` 为 nil | 未在被扩展类型（或基类）配置扩展类；或 Il2Cpp 未重新 Generate |
+| `member not found`（`obj:Foo`） | 未在被扩展类型（或基类）配置扩展类；或 Il2Cpp 未重新 Generate |
 | 只能 `Ext.Foo(obj)` | 未走 static-as-instance / 未进 IMT（实现须符合规范 §4） |
 | 调到错误重载 | 合并竞争；用全签名键或 Alias 消歧 |
 | 标在扩展类上的 Attribute 无效 | 发现只扫被扩展类型上的 `[LuaExtension]` |

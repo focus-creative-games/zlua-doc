@@ -108,7 +108,7 @@ local t3 = zlua.typeof(IntArr)           -- 同 typeof(int[])
 zlua.get_type_from_name(typeFullName) → typeTable
 ```
 
-按名称解析 CLR 类型并返回对应 **类型表**（与 `CSharp` / `make_*` 路径得到的类型表同构；失败 → `luaL_error` 或按实现约定返回 `nil`，以实现为准）。
+按名称解析 CLR 类型并返回对应 **类型表**（与 `CSharp` / `make_*` 路径得到的类型表同构；失败 → **`luaL_error`** / 明确错误，**不得**静默 `nil`）。
 
 | 参数 | 说明 |
 |------|------|

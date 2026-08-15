@@ -112,7 +112,7 @@ demo:run_hot(1)
 |------|------------|
 | xLua | 通常 `nil` 或 error（视 Wrap） |
 | toLua / SLua | 多 error |
-| ZLua | **`nil`**（读）；写未知键 **`error`** |
+| ZLua | 读 / 写未知键均 **`error`**（`zlua: member not found: …`；禁止静默 `nil`） |
 
 ---
 

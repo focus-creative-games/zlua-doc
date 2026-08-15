@@ -119,7 +119,7 @@ __gc → UnregisterObject → 解除 root
 | 模式 | 分配影响 |
 |------|----------|
 | Il2Cpp `Dispatch*` indexer | C++ 路径；**不** 因 indexer 额外分配 |
-| Mono 三表 Lua indexer | 纯 Lua 表查找；miss 返回 nil，**无** 临时对象 |
+| Mono 三表 Lua indexer | 纯 Lua 表查找；miss → **error**，**无** 临时对象 |
 
 ---
 

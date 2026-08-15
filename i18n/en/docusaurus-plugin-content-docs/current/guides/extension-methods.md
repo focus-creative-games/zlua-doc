@@ -66,7 +66,7 @@ Extensions and real instance methods **compete in the same overload group**; the
 
 | Symptom | Cause |
 |------|------|
-| `obj:Foo` is nil | Extension class not configured on the extended type (or base); or Il2Cpp not re-Generated |
+| `member not found` (`obj:Foo`) | Extension class not configured on the extended type (or base); or Il2Cpp not re-Generated |
 | Only `Ext.Foo(obj)` works | Not wired as static-as-instance / not in IMT (implementation must follow Spec §4) |
 | Wrong overload called | Merged competition; use full-signature keys or Alias |
 | Attribute on the extension class has no effect | Discovery only scans `[LuaExtension]` on the extended type |

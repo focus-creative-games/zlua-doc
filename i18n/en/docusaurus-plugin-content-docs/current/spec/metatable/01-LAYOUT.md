@@ -60,7 +60,7 @@ SMT
 └─ _default     → optional; **struct only** parameterless default-instance closure (key name LuaConsts::Default)
 ```
 
-`__call` and `_default` hang on the **SMT object itself**, not in the three tables. When the three tables miss, static `__index` must fall back to `rawget` on SMT (for example to fetch the `_default` closure), and return `nil` if still missing (see [02-INDEX.md](/docs/spec/metatable/02-INDEX/)).
+`__call` and `_default` hang on the **SMT object itself**, not in the three tables. When the three tables miss, static `__index` must fall back to `rawget` on SMT (for example to fetch the `_default` closure), then **error** if still missing (see [02-INDEX.md](/docs/spec/metatable/02-INDEX/)).
 
 Enum SMT has **no** `__call`. Nullable SMT has **only** `__call` (construct a value of element type `T`) and **no** `__index` / `__newindex` (see [04-SPECIAL-TYPES.md](/docs/spec/metatable/04-SPECIAL-TYPES/)).
 

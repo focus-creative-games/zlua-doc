@@ -127,7 +127,7 @@ In Project Settings → **ZLua**, put XML paths in **`luaAliasXmlPaths`** (along
 | Symptom | Cause |
 |------|------|
 | `demo:Run(10)` misses an aliased overload | Already renamed; use the alias or another un-renamed overload |
-| `demo:Bar` is nil | `Bar` was renamed by `[LuaAlias("Foo")]` |
+| `demo:Bar` → member not found | `Bar` was renamed by `[LuaAlias("Foo")]` (reading an unknown key is now error, not nil) |
 | XML ignored (Player) | Did not re-**Generate**; or path was put under `marshalAsXmlPaths` |
 | Same root element as MarshalAs | Needs a separate `ZLuaAlias` file |
 

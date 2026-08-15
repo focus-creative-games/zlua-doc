@@ -52,6 +52,8 @@ ZLua~/
 │   │   │   └── 2021.3.0.patch     # Covers 2021.3.x (shared-range minimum version)
 │   │   ├── 2022.3/
 │   │   │   └── 2022.3.0.patch     # Covers 2022.3.x; add 2022.3.N.patch at breakpoints
+│   │   ├── 6000.5/                # Unity 6000.5.x (preferred over 6000/ fallback)
+│   │   │   └── 6000.5.6.patch
 │   │   └── 6000/                  # Unity 6: try 6000.{minor}/ first, then fall back here
 │   │       └── 6000.0.0.patch
 │   └── lua/
@@ -165,7 +167,8 @@ After a file is chosen, apply failure → Install fails (must not silently switc
 |-----------|----------------------------------------|----------|------------------------|
 | `2021.3/` | 2021.3.45f2 | 2021.3.x | `2021.3.0.patch` (no `AnUnresolvedCallStubWasNotFound*`; provides **no-op** `return false`) |
 | `2022.3/` | 2022.3.62f3 | 2022.3.x | `2022.3.0.patch` (real unresolved stub detection + `LuaAppDomain::Initialize`) |
-| `6000/` | 6000.0.71f1 | **6000.0.x / 6000.3.x / 6000.5.x** (and same-series fallback) | `6000.0.0.patch` (floor hit; prefer exact `6000.{minor}/` if present) |
+| `6000.5/` | 6000.5.6f1 | **6000.5.x** | `6000.5.6.patch` (API deltas vs 6000.0, e.g. `GenericMethod.h`; runtime shims via `Il2CppCompatible.h`) |
+| `6000/` | 6000.0.71f1 | **6000.0.x / 6000.3.x** (and fallback when no exact `6000.{minor}/`) | `6000.0.0.patch` (floor hit; prefer exact `6000.{minor}/` if present) |
 
 ### 4.2 Apply and validation
 

@@ -127,7 +127,7 @@ d:print(1)      -- 组内选 LogA(int)
 | 现象 | 原因 |
 |------|------|
 | `demo:Run(10)` 调不到已标 alias 的重载 | 已换名，应使用别名或其它未换名的重载 |
-| `demo:Bar` 为 nil | `Bar` 被 `[LuaAlias("Foo")]` 换走 |
+| `demo:Bar` → member not found | `Bar` 被 `[LuaAlias("Foo")]` 换走（读未知键现为 error，非 nil） |
 | XML 不生效（Player） | 未重新 **Generate**；或路径写在了 `marshalAsXmlPaths` |
 | 与 MarshalAs 写在同一根元素 | 须独立 `ZLuaAlias` 文件 |
 

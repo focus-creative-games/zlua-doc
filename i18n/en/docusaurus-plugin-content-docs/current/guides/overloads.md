@@ -28,6 +28,35 @@ demo:Run("hello")   -- Run(string)
 
 Zero dispatch when there is only one public overload; with multiple, match by arguments.
 
+## Default parameters
+
+C# **trailing** optional formals (`HasDefault`) are supported. Lua arg count may fall in `[minArity, maxArity]`; omitted trailing formals are filled with C# defaults at invoke (cached at Bind; hot path does not parse metadata blobs).
+
+```csharp
+public static int Foo(int x, int y = 5) => x + y;
+public static string Bar(string s, int a = 1, int b = 2) => $"{s}:{a},{b}";
+public static int G(int x) => x;
+public static int G(int x, int y = 5) => x + y;
+```
+
+```lua
+Demo.Foo(1)          -- y=5
+Demo.Foo(1, 9)
+Demo.Bar("hi")       -- a=1, b=2
+Demo.Bar("hi", 7)    -- b=2
+Demo.G(1)            -- pick G(int), not the “expand defaults” G(int,int)
+Demo.G(1, 4)         -- G(int, int)
+```
+
+| Rule | Notes |
+|------|-------|
+| Trailing contiguous defaults only | Same as C#: cannot “skip” a required formal in the middle |
+| Too few args | Cannot cover the first non-default formal → `argument mismatch` / no matching overload |
+| Multi-overload tie-break | When conversion scores tie, the candidate that **uses fewer defaults** wins |
+| Constructors | `Type(...)` / `SMT.__call` support the same rules |
+
+Authoritative details: [Overload Spec](/docs/spec/04-METHOD-OVERLOAD/) §3.3.
+
 ## Full-signature keys (auto-registered on name conflicts)
 
 When the same method name has multiple overloads (e.g. `Run(int)` / `Run(string)`), besides the `Run` dispatch, Bind also hangs a **direct** key for each candidate:
@@ -85,7 +114,8 @@ You can also take a closure from a `[LuaAlias]` key and hang another custom name
 
 | Symptom | Fix |
 |------|------|
-| Wrong overload / `ambiguous overload` | Full-signature key, `[LuaAlias]`, or `register_method` short name |
+| Wrong overload / `ambiguous` | Full-signature key, `[LuaAlias]`, or `register_method` short name; watch default-parameter tie-break |
+| `argument mismatch` (with defaults) | Required formals not supplied; cannot skip middle parameters |
 | Want `demo['(System.Int32)']` | **Forbidden**; must include the method name: `Run(System.Int32)` |
 | `register_method` says already taken | Pick an unused alias; do not overwrite `Run` / existing full-signature keys |
 

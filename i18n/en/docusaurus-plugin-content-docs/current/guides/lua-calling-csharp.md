@@ -90,7 +90,22 @@ print(demo.x)
 
 - Parameterless `{ get; set; }` matches field syntax; on Il2Cpp Player, simple int properties may use an offset fast path—prefer `demo.x` over `GetX()` on hot paths
 - Parameterized indexers (`this[int]`) dispatch as **methods**; you cannot freely write `obj[i]` (szarray etc. have special rules — see [Arrays](/docs/guides/arrays/))
-- Unregistered members are a **strict miss** → `error`, with no reflection fallback
+- Unregistered members (fields / methods / properties) are a **strict miss** → **`error`** (`zlua: member not found: …`), **not** `nil`, with no reflection fallback
+
+### Default parameters
+
+If a C# method / constructor has **trailing** default parameters, Lua may omit those arguments; the runtime fills the defaults:
+
+```csharp
+public static int Foo(int x, int y = 5) => x + y;
+```
+
+```lua
+print(CSharp.AC.Demo.Foo(1))     -- 6 (y defaults to 5)
+print(CSharp.AC.Demo.Foo(1, 9))  -- 10
+```
+
+With multiple overloads, prefer the candidate that **uses fewer defaults**. Details: [Method overloads](/docs/guides/overloads/#default-parameters).
 
 ### Inheritance
 
@@ -149,8 +164,8 @@ end
 | Symptom | Fix |
 |------|------|
 | `type not found` | Assembly name, namespace brackets, whether public |
-| `static member not found` | Do not access statics via instances; use the type table |
-| `instance member not found` | Spelling / visibility |
+| `zlua: member not found: …` | Spelling / visibility; reading an unknown member is now error (not nil) |
+| `static member not found` / mistaken static access | Do not access statics via instances; use the type table |
 | `member not writable` | Read-only Property |
 | Event `.get` is nil | Use `add_` / `remove_` |
 

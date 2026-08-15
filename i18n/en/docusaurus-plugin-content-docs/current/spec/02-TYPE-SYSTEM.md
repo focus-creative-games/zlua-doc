@@ -22,7 +22,7 @@ title: "Type system"
 | Static/instance isolation | Static and instance use **independent** metadata and three tables |
 | Public only | Lua can access only `public` members |
 | Bind-time flattening | Static/instance members are written into the current type’s three tables at **EnsureBinding**; **no** runtime walk of the inheritance chain |
-| Index miss | `__index` → **`nil`**; `__newindex` → **`error`** (see [metatable/02-INDEX.md](/docs/spec/metatable/02-INDEX/)) |
+| Index miss | `__index` / `__newindex` → **`error`** (see [metatable/02-INDEX.md](/docs/spec/metatable/02-INDEX/)) |
 
 ---
 
@@ -166,6 +166,13 @@ See [05-LIB.md](/docs/spec/05-LIB/) §4.2, §4.3. `get_type_from_name(typeFullNa
 CSharp.__index(asmName) → rawget or create assembly table → rawset
 assembly.__index(typeFullName) → resolve Type → EnsureBinding → rawset
 ```
+
+| Miss | Behavior |
+|------|----------|
+| Assembly does not exist | **`error`**: `zlua: assembly not found: {assemblyName}` |
+| Type does not exist | **`error`**: `zlua: type not found: {typeFullName}` |
+
+**Do not** return `nil` for a missing assembly / type.
 
 `EnsureCSharpRoot` runs **once at startup**; afterward C# obtains the root with `lua_getglobal("CSharp")`.
 
@@ -361,16 +368,16 @@ To match C# “inherited static members accessible via the derived type name,”
 
 ### 5.2 Instance members (Bind-time flattening; no runtime promotion)
 
-**Not used:** on `__index` miss, walk the inheritance chain and **promote** into the member table. After binding, miss is `nil` / error.
+**Not used:** on `__index` miss, walk the inheritance chain and **promote** into the member table. After binding, miss is **error**.
 
 **Current spec:** same as static — at **Bind time**, flat-write base public instance members (fields, parameterless properties, methods) into the derived type’s `byvalInstanceMap` / `byobjInstanceMap` three tables; derived declarations **override** same-name base entries.
 
 Runtime `__index` / `__newindex`:
 
 ```
-1. rawget methodTable / fieldGetterTable / fieldSetterTable
+1. rawget methodTable / fieldGetterTable / fieldSetterTable (plus SMT fallback)
 2. hit → return or call
-3. miss → __index returns nil; __newindex error
+3. miss → both __index and __newindex error (see metatable/02-INDEX.md)
 ```
 
 **No** step “walk inheritance” or “promote into instanceMap”.
@@ -472,7 +479,7 @@ Differs from `zlua.to_table`’s **1-based** Lua tables ([05-LIB.md](/docs/spec/
 | `CSharp` path and `typeFullName` | Same |
 | Static/instance isolation | Same |
 | Bind-time inheritance flattening | Same |
-| `__index` nil / `__newindex` error | Same |
+| `__index` / `__newindex` miss → error | Same |
 | Event → add_/remove_ | Same |
 | Construction, dispatch, generic methods | Same |
 | Array `#`, `get`/`set` | Same |

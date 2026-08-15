@@ -46,7 +46,7 @@ Mono (Editor) may use reflection / Emit slow paths, but **Lua-visible semantics 
 | Item | Spec behavior |
 |----|----------|
 | **Dedicated Event metatable** | **No** `{ get, set, fire }`; scripts use `add_EventName` / `remove_EventName` (same as ordinary methods) |
-| **`__index` miss** | Returns **`nil`** |
+| **`__index` miss** | **`error`** (`zlua: member not found: {key}`, etc.) |
 | **`__newindex` miss** | **`error`** |
 | **Runtime inheritance lookup for instances** | **None**; inherited members are **flattened at Bind time** into the current type’s three tables (see [02-TYPE-SYSTEM.md](/docs/spec/02-TYPE-SYSTEM/) §5) |
 

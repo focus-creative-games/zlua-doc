@@ -22,7 +22,7 @@ title: "类型系统"
 | 静实例隔离 | 静态与实例使用 **独立** 元数据与三表 |
 | 仅 public | Lua 仅可访问 `public` 成员 |
 | Bind 期扁平继承 | 静/实例成员均在 **EnsureBinding** 写入当前类型三表；**无**运行时沿继承链查找 |
-| 索引 miss | `__index` → **`nil`**；`__newindex` → **`error`**（见 [metatable/02-INDEX.md](/docs/spec/metatable/02-INDEX/)） |
+| 索引 miss | `__index` / `__newindex` → **`error`**（见 [metatable/02-INDEX.md](/docs/spec/metatable/02-INDEX/)） |
 
 ---
 
@@ -166,6 +166,13 @@ local t2 = zlua.typeof(ListInt)   -- 闭合泛型 / 数组等任意类型表均�
 CSharp.__index(asmName) → rawget 或创建程序集表 → rawset
 assembly.__index(typeFullName) → 解析 Type → EnsureBinding → rawset
 ```
+
+| miss | 行为 |
+|------|------|
+| 程序集不存在 | **`error`**：`zlua: assembly not found: {assemblyName}` |
+| 类型不存在 | **`error`**：`zlua: type not found: {typeFullName}` |
+
+**禁止**对不存在的程序集 / 类型返回 `nil`。
 
 `EnsureCSharpRoot` **仅在启动时一次**；之后 C# 侧 `lua_getglobal("CSharp")` 取得根表。
 
@@ -361,16 +368,16 @@ demo:remove_ValueChanged(handler)
 
 ### 5.2 实例成员（Bind 期扁平化，无运行时 promotion）
 
-**不采用：** `__index` miss 时沿继承链查找并 **提升** 到成员表（promotion）。绑定完成后 miss 即 `nil` / error。
+**不采用：** `__index` miss 时沿继承链查找并 **提升** 到成员表（promotion）。绑定完成后 miss 即 **error**。
 
 **现行规范：** 与静态相同，在 **Bind 期** 将基类 public 实例成员（字段、无参 property、方法）**扁平写入** 派生类型的 `byvalInstanceMap` / `byobjInstanceMap` 三表；派生声明 **覆盖** 基类同名项。
 
 运行时 `__index` / `__newindex`：
 
 ```
-1. rawget methodTable / fieldGetterTable / fieldSetterTable
+1. rawget methodTable / fieldGetterTable / fieldSetterTable（及 SMT 回退）
 2. 命中 → 返回或调用
-3. 未命中 → __index 返回 nil；__newindex error
+3. 未命中 → __index / __newindex 均 error（见 metatable/02-INDEX.md）
 ```
 
 **无** 步骤「沿继承链查找」或「提升到 instanceMap」。
@@ -472,7 +479,7 @@ local x = matrix:get(0, 1)
 | `CSharp` 路径与 `typeFullName` | 一致 |
 | 静实例隔离 | 一致 |
 | Bind 期继承扁平化 | 一致 |
-| `__index` nil / `__newindex` error | 一致 |
+| `__index` / `__newindex` miss → error | 一致 |
 | Event → add_/remove_ | 一致 |
 | 构造、dispatch、泛型方法 | 一致 |
 | 数组 `#`、`get`/`set` | 一致 |

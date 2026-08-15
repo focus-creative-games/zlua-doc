@@ -194,7 +194,7 @@ local t = go.transform
 t:ResetLocal()   -- IMT；等价 TransformExt.ResetLocal(t)
 ```
 
-扩展方法 **不会**仅因存在于工程中就自动出现；未配置到该被扩展类型（或基类 Attribute / XML）则 Lua 侧为 `nil`。
+扩展方法 **不会**仅因存在于工程中就自动出现；未配置到该被扩展类型（或基类 Attribute / XML）则 Lua 侧 **`__index` miss → error**（`zlua: member not found: …`），与其它未注册成员相同。
 
 ---
 

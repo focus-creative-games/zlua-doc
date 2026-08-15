@@ -225,7 +225,7 @@ public void Run_all_lua_tests()
 | 规范条款（摘要） | 用例 id |
 |------------------|---------|
 | 含 namespace 类型须括号键 | `type_system/tc_csharp_path.test_namespaced_type_bracket` |
-| `__index` miss → nil | `type_system/tc_field_access.test_missing_field_nil` |
+| `__index` miss → error | `type_system` / `method_overload` 等 `member not found` 用例；默认参数见 `method_overload/tc_default_parameters` |
 | `zlua.make_generic_type` | `zlualib/tc_make_generic_type.test_list_int32` |
 | Lua→C# 默认 marshal | `marshal/tc_default_marshal.test_*` |
 | Opaque get/set | `zlualib/tc_get_opaquevalue.test_*` |

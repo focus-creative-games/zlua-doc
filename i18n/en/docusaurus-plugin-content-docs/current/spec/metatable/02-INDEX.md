@@ -17,6 +17,8 @@ Lua once considered giving `methodTable` a metatable whose `__index` handled fie
 
 Therefore fields and methods are uniformly dispatched by an **indexer function that receives `(obj, key)`** (isomorphic to xLua `obj_indexer(obj, key)`). At bind time, members are split into three ordinary Lua tables; at runtime, tables are queried with `rawget` in a fixed order. The **hot path does not** call C# `InstanceIndex` / `StaticTypeIndex`, and does not convert keys to C# strings for reflective dictionary lookup.
 
+**Strict miss:** reads and writes of unregistered members must raise a clear error with a `zlua:` prefix (including the key name). **`__index` must not** silently return `nil` (which would surface later as hard-to-diagnose `attempt to call/index a nil value`).
+
 ---
 
 ## 2. Three-table roles
@@ -54,7 +56,7 @@ If enum static constants are already written as **integers** directly on type ta
 | **Writable fields** | setter closure: `function(obj, value) ... end` | `setter(obj, value)` |
 | **Parameterless writable properties** | same | `setter(obj, value)` |
 
-Write-only properties appear only in `fieldSetterTable`; when `__index` misses both `methodTable` and `fieldGetterTable`, it returns `nil` (read miss).
+Write-only properties appear only in `fieldSetterTable`; when `__index` misses both `methodTable` and `fieldGetterTable` but hits `fieldSetterTable`, raise **`zlua: property has no getter: {key}`** (must not return `nil`).
 
 Readonly fields / read-only properties are **not** in this table; writes error after a `fieldSetterTable` miss.
 
@@ -84,7 +86,10 @@ local function index(obj, key)
   if getter ~= nil then
     return getter(obj)
   end
-  return nil
+  if rawget(fieldSetterTable, key) ~= nil then
+    error("zlua: property has no getter: " .. typeFullName .. "." .. tostring(key))
+  end
+  error("zlua: member not found: " .. typeFullName .. "." .. tostring(key))
 end
 ```
 
@@ -92,7 +97,9 @@ Key points:
 
 - Methods / parameterized properties / `add_*` / `remove_*`: **return the closure**; the script calls `obj:Method()` or `obj.add_Xxx(handler)` itself.
 - Fields / parameterless properties: **call the getter** and hand the return value to Lua.
-- **Miss: return `nil`**. No C# reflection fallback; no runtime walk up the inheritance chain (inheritance is Bind-time flattened; see [03-BINDING.md](/docs/spec/metatable/03-BINDING/)).
+- **Miss: `error` (strict)**. No C# reflection fallback; no runtime walk up the inheritance chain (inheritance is Bind-time flattened; see [03-BINDING.md](/docs/spec/metatable/03-BINDING/)).
+- Error messages must include **`{TypeFullName}.{key}`** (`TypeFullName` is the Lua full name of the bound type).
+- To probe “does this key exist?”, use **`rawget`** (no metamethods) or `pcall`; do not rely on `__index` returning `nil`.
 
 ### 3.2 Static type table (SMT)
 
@@ -102,7 +109,7 @@ Same logic as §3.1, except:
 - Uses the **static** three tables (upvalues **must not** be shared with the instance three tables).
 - Static getter closures follow static semantics (no instance `GCHandle` pop; static fields read the type's static data).
 
-**SMT fallback:** when all three tables miss, `rawget` the **SMT itself** (`T`'s metatable) to resolve reserved keys hung on SMT, such as a struct's `_default` closure. If still missing, return `nil`.
+**SMT fallback:** when all three tables miss, `rawget` the **SMT itself** (`T`'s metatable) to resolve reserved keys hung on SMT, such as a struct's `_default` closure. If still missing, **`error("zlua: member not found: " .. typeFullName .. "." .. key)`**.
 
 **Direct type-table lookup:** if `key` already exists on `T` itself (e.g. enum constant integers), Lua returns the value before `__index` runs; the indexer is not responsible for those keys.
 
@@ -121,7 +128,7 @@ local function newindex(obj, key, value)
     setter(obj, value)
     return
   end
-  error("zlua: instance member not writable: " .. tostring(key))
+  error("zlua: instance member not writable: " .. typeFullName .. "." .. tostring(key))
 end
 ```
 
@@ -143,10 +150,10 @@ Non-writable keys such as enum constants and static readonly literals: miss then
 
 | Operation | Miss behavior |
 |-----------|---------------|
-| `__index` | return **`nil`** |
+| `__index` | **`error`** (strict; see §6) |
 | `__newindex` | **`error`** (strict) |
 
-**Do not** call C# reflection or fall back to `InstanceIndex` / `StaticTypeIndex` on miss. Public members not registered into the three tables at Bind time are treated as nonexistent to Lua (read → nil, write → error).
+**Do not** call C# reflection or fall back to `InstanceIndex` / `StaticTypeIndex` on miss. Public members not registered into the three tables at Bind time are treated as nonexistent to Lua (read and write both error).
 
 Inherited instance/static members must be **flattened into** the current type's three tables during **EnsureBinding** (see [03-BINDING.md](/docs/spec/metatable/03-BINDING/)); therefore runtime **does not** walk up the inheritance chain.
 
@@ -156,12 +163,13 @@ Inherited instance/static members must be **flattened into** the current type's 
 
 | Scenario | Message (illustrative) |
 |----------|------------------------|
-| `__index` miss | return **`nil`** (no error) |
-| `__newindex` no setter / not writable (instance) | `zlua: instance member not writable: {key}` |
-| `__newindex` no setter / not writable (static) | `zlua: static member not writable: {key}` |
+| `__index` miss (no getter / no method / SMT fallback still empty) | `zlua: member not found: {TypeFullName}.{key}` |
+| `__index` write-only property (setter table hit only) | `zlua: property has no getter: {TypeFullName}.{key}` |
+| `__newindex` no setter / not writable (instance) | `zlua: instance member not writable: {TypeFullName}.{key}` |
+| `__newindex` no setter / not writable (static) | `zlua: static member not writable: {TypeFullName}.{key}` |
 | Type error inside getter | bridge throws, keep `zlua:` prefix |
 
-Writing a read-only property, reading a write-only property, assigning to a method name, and similar cases all fall under the “not writable” or `__index` nil semantics above.
+Writing a read-only property, assigning to a method name, and similar cases all fall under the “not writable” semantics above.
 
 ---
 
@@ -197,7 +205,7 @@ end
 The following **must be identical** on Mono and Il2Cpp (implementation paths may differ):
 
 - Read/write semantics for registered methods / fields / properties / `add_*` / `remove_*`
-- `__index` miss → `nil`; `__newindex` miss → error
+- `__index` miss → **error**; `__newindex` miss → error
 - Isolation of static/instance three tables; instance userdata cannot implicitly access static members
 - Bind-time inheritance flattening; derived types override base same-name keys
 - **No** event subtable; **no** reflection fallback

@@ -60,7 +60,7 @@ SMT
 └─ _default     → 可选；**仅 struct** 的无参默认实例 closure（键名 LuaConsts::Default）
 ```
 
-`__call` 与 `_default` 挂在 **SMT 本体**上，不进入三表。静态 `__index` 在三表均未命中时，须能回退到对 SMT 的 `rawget`（例如取 `_default` closure），再未命中则返回 `nil`（见 [02-INDEX.md](/docs/spec/metatable/02-INDEX/)）。
+`__call` 与 `_default` 挂在 **SMT 本体**上，不进入三表。静态 `__index` 在三表均未命中时，须能回退到对 SMT 的 `rawget`（例如取 `_default` closure），再未命中则 **error**（见 [02-INDEX.md](/docs/spec/metatable/02-INDEX/)）。
 
 enum 的 SMT **无** `__call`；Nullable 的 SMT **仅** `__call`（构造 element 类型 `T` 的值），**无** `__index` / `__newindex`（见 [04-SPECIAL-TYPES.md](/docs/spec/metatable/04-SPECIAL-TYPES/)）。
 

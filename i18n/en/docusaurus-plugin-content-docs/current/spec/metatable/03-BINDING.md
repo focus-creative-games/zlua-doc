@@ -66,7 +66,7 @@ Public static enum literals are preferably written **directly onto type table `T
 | Read-only | ✅ getter | ❌ |
 | Write-only | ❌ | ✅ setter |
 
-Read-only property: `__newindex` errors after a setter-table miss. Write-only property: `__index` returns `nil` when both method and getter tables miss.
+Read-only property: `__newindex` errors after a setter-table miss. Write-only property: when `__index` misses both method and getter tables but hits the setter table, raise `zlua: property has no getter: {key}`.
 
 ### 3.4 Constructors
 
@@ -94,7 +94,7 @@ Collect public instance fields / properties / methods along the base chain and w
 
 ### 4.4 No runtime promotion
 
-**The spec uses pure Bind-time flattening:** after first bind, all inherited members are already in the current type's three tables; a runtime miss is `nil` / error. **Do not** walk the inheritance chain on `__index` miss and write results back (promotion). Both Mono and Il2Cpp must follow this ruling.
+**The spec uses pure Bind-time flattening:** after first bind, all inherited members are already in the current type's three tables; a runtime miss is **error**. **Do not** walk the inheritance chain on `__index` miss and write results back (promotion). Both Mono and Il2Cpp must follow this ruling.
 
 ---
 
@@ -164,7 +164,7 @@ Binding scope for generic definition types and types with open generic parameter
 ## 10. Acceptance criteria (semantics)
 
 - Registered methods / fields / properties / `add_*` / `remove_*`: the index hot path does not depend on C# string reflection table lookup.
-- Unregistered keys: `__index` → `nil`; `__newindex` → error.
+- Unregistered keys: `__index` / `__newindex` → error (see [02-INDEX.md](/docs/spec/metatable/02-INDEX/)).
 - Static/instance three tables are isolated; inherited members are Bind-time flattened; no runtime chain lookup.
 - **No** event subtable; **no** reflection fallback.
 - Mono and Il2Cpp agree on the member set and read/write semantics.

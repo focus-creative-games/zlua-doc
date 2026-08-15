@@ -108,7 +108,7 @@ Preset constants in `zlualib.lua` (usable directly as typeArg):
 zlua.get_type_from_name(typeFullName) → typeTable
 ```
 
-Resolve a CLR type by name and return the corresponding **type table** (isomorphic to tables from `CSharp` / `make_*` paths; failure → `luaL_error` or `nil` per implementation).
+Resolve a CLR type by name and return the corresponding **type table** (isomorphic to tables from `CSharp` / `make_*` paths; failure → **`luaL_error`** / a clear error — **must not** silently return `nil`).
 
 | Parameter | Notes |
 |-----------|-------|

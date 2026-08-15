@@ -66,7 +66,7 @@ enum 的 public static literal 优先 **直接写入类型表 `T`** 为 underlyi
 | 只读 | ✅ getter | ❌ |
 | 只写 | ❌ | ✅ setter |
 
-只读 property：`__newindex` 在 setter 表 miss 后报错。只写 property：`__index` 在 method / getter 表均未命中时返回 `nil`。
+只读 property：`__newindex` 在 setter 表 miss 后报错。只写 property：`__index` 在 method / getter 表均未命中、但 setter 表命中时，报 `zlua: property has no getter: {key}`。
 
 ### 3.4 构造函数
 
@@ -94,7 +94,7 @@ public 实例构造函数 **不** 进入任何三表。绑定阶段仅收集当�
 
 ### 4.4 禁止运行时 promotion
 
-**规范采用纯 Bind 期扁平化**：首次绑定后所有继承成员已在当前类型三表中，运行时 miss 即 `nil` / error，**不得**在 `__index` miss 时再沿继承链查找并把结果写回（promotion）。Mono 与 Il2Cpp 均须遵循此裁决。
+**规范采用纯 Bind 期扁平化**：首次绑定后所有继承成员已在当前类型三表中，运行时 miss 即 **error**，**不得**在 `__index` miss 时再沿继承链查找并把结果写回（promotion）。Mono 与 Il2Cpp 均须遵循此裁决。
 
 ---
 
@@ -164,7 +164,7 @@ obj:remove_SomeEvent(handler)
 ## 10. 验收要点（语义）
 
 - 已注册 method / field / property / `add_*` / `remove_*`：索引 hot path 不依赖 C# 字符串反射查表。
-- 未注册键：`__index` → `nil`；`__newindex` → error。
+- 未注册键：`__index` / `__newindex` → error（见 [02-INDEX.md](/docs/spec/metatable/02-INDEX/)）。
 - 静/实例三表隔离；继承成员在 Bind 期已扁平化，运行时无链式查找。
 - **无** event 子表；**无** 反射 fallback。
 - Mono 与 Il2Cpp 成员集合与读写语义一致。

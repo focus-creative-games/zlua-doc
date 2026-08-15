@@ -26,7 +26,7 @@ ZLua ships as a Unity Package (UPM). **After adding the package you must still c
 
 | Item | Requirement |
 |----|------|
-| Unity | See [Compatibility](/docs/getting-started/compatibility/) (2021.3 / 2022.3 / Unity 6 / Tuanjie, etc.) |
+| Unity | See [Compatibility](/docs/getting-started/compatibility/) (2021.3 / 2022.3 / Unity 6 including 6000.5 / Tuanjie, etc.) |
 | Scripting Backend | Editor: **Mono**; Player: **Il2Cpp** |
 | Lua | Chosen in **Settings** (default **`lua-5.5.0`**); downloaded / installed into the local tree at Install |
 | Network | Needed on first Install to download PUC-Rio sources; LuaJIT must be cloned yourself, and Il2Cpp shipping is Android / iOS only (see [Multi-version](/docs/spec/11-MULTI-VERSION/), [LuaJIT build](/docs/spec/build/02-LUAJIT/)) |

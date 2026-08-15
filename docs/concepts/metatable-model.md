@@ -66,8 +66,9 @@ sequenceDiagram
 
 ```lua
 local demo = CSharp.AC.Demo()
-demo.nonExistentField = 1   -- error: member not found
-demo:PrivateMethod()        -- error（private 未注册）
+local _ = demo.nonExistentField  -- error: member not found（读也不返回 nil）
+demo.nonExistentField = 1        -- error: member not found / not writable
+demo:PrivateMethod()             -- error（private 未注册）
 ```
 
 **与 dispatch 的区别：** 多重重载时 `demo:Run(x)` 在 methodTable 上可能是 **单个 dispatch closure**，内部分派到具体桥接，仍算 methodTable 命中。

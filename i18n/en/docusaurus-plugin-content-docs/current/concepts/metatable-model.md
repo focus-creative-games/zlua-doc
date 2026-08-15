@@ -66,8 +66,9 @@ All of the following **error immediately** — no reflection lookup of private o
 
 ```lua
 local demo = CSharp.AC.Demo()
-demo.nonExistentField = 1   -- error: member not found
-demo:PrivateMethod()        -- error (private not registered)
+local _ = demo.nonExistentField  -- error: member not found (reads also do not return nil)
+demo.nonExistentField = 1        -- error: member not found / not writable
+demo:PrivateMethod()             -- error (private not registered)
 ```
 
 **Vs dispatch:** with multiple overloads, `demo:Run(x)` on methodTable may be a **single dispatch closure** that internally picks a bridge — still a methodTable hit.

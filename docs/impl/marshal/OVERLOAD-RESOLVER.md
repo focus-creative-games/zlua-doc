@@ -41,9 +41,9 @@ struct MethodGroups {
 };
 ```
 
-**绑定期分桶：** 按 **参数个数**（不含 `this`）将同名重载分组。Resolve 时先 O(1) 取 `groups->smallArgCountMethodGroups[argCount]`，若为空再查 `largeArgCountMethods` 线性扫描。
+**绑定期分桶：** 按方法的 **Lua 实参槽范围** 分组。无默认参数时键为 `luaArity`；有尾部默认时须覆盖 `minLuaArity … luaArity` 各桶（或等价地放入可被 Resolve 扫到的集合），以便省略默认实参时仍能命中。Resolve 时先 O(1) 取 `groups->smallArgCountMethodGroups[argCount]`，再必要时查 `largeArgCountMethods`。
 
-同一 argCount 桶内顺序 = Codegen 声明顺序（spec §3.2 tie-break 用）。
+同一 argCount 桶内顺序 = Codegen 声明顺序（spec §3.2 tie-break 用）。候选另须满足 `GetMinLuaArity(ctx) ≤ argCount ≤ ctx->luaArity`。
 
 ---
 
@@ -78,28 +78,31 @@ struct MethodOverloadResolutionResult {
 MethodOverloadResolutionResult MethodOverloadResolver::Resolve(
     lua_State* L, const MethodGroups* groups, int32_t argStart, int32_t argCount)
 {
-    // 1. 按 argCount 取 MethodGroup*
+    // 1. 按 argCount 取桶（small / large）；候选须满足
+    //    GetMinLuaArity(ctx) ≤ argCount ≤ ctx->luaArity（尾部 C# 默认 → MethodDefaultArgs）
     // 2. 遍历 methods[]：
-    //    - 参数个数 / params 数组 / optional 规则
-    //    - 每参 GetConversionKind；NotConvertible → 跳过
-    //    - CompareConversionKind 更新 best / ambiguous
-    // 3. BestMatch → 返回 method；Ambiguous → luaL_error；None → luaL_error
+    //    - 逐 CLR 形参打分；槽不足且 ParamHasCachedDefault → optionalUsed++
+    //    - NotConvertible → 跳过
+    //    - 更新 best：更好 ConversionKind/score，或同分下 optionalUsed 更小
+    // 3. BestMatch → 返回 method；Ambiguous / None → 上层 ThrowFormat
 }
 ```
 
-错误消息前缀 `zlua:`，与 Mono 目标一致（spec §7）。
+错误消息前缀 `zlua:`，与 Mono 目标一致（spec §3.5 / §7）。默认参数语义见 [../../spec/04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) §3.3。
 
 ---
 
 ## 5. 与 `MethodMarshalCtx` 的配合
 
-每个候选重载在 Bind 期已有独立 `MethodMarshalCtx`（含 `paramsMeta[]`、`retMeta`、`lua2CsInvoker` stub）。
+每个候选重载在 Bind 期已有独立 `MethodMarshalCtx`（含 `paramsMeta[]`、`retMeta`、`lua2CsInvoker` stub；有尾部默认时另挂 `MethodDefaultArgs*`）。
 
 Resolver **只选** ctx，不重新 marshal；选中后：
 
 ```cpp
 MethodBridge::InvokeLua2Cs(L, target, argStart, ctx);
 ```
+
+有默认参数时，Invoke 路径对未提供的尾部形参写入 Bind 期缓存的默认槽。
 
 虚调：`MetadataUtil::ResolveInvokeMethod(ctx->method, target, ctx->sealed)` 在 `InvokeLua2Cs` 内处理。
 

@@ -26,7 +26,7 @@ ZLua 以 Unity Package（UPM）形式分发。**安装 Package 后还须完成�
 
 | 项 | 要求 |
 |----|------|
-| Unity | 见 [兼容性](/docs/getting-started/compatibility/)（2021.3 / 2022.3 / Unity 6 / 团结等） |
+| Unity | 见 [兼容性](/docs/getting-started/compatibility/)（2021.3 / 2022.3 / Unity 6 含 6000.5 / 团结等） |
 | Scripting Backend | Editor：**Mono**；Player：**Il2Cpp** |
 | Lua | 由 **Settings** 指定（默认 **`lua-5.5.0`**）；Install 时下载 / 装入本地树 |
 | 网络 | 首次 Install 下载 PUC-Rio 源码时需要；LuaJIT 须自行 clone，且 Il2Cpp 发布仅 Android / iOS（见 [多版本管理](/docs/spec/11-MULTI-VERSION/)、[LuaJIT 构建](/docs/spec/build/02-LUAJIT/)） |

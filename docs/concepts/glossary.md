@@ -38,7 +38,7 @@ title: "术语表"
 | **IMT** | Instance Metatable：实例 userdata 元表 | 同上 |
 | **三表 indexer** | `methodTable` / `fieldGetterTable` / `fieldSetterTable` 分派（Mono） | [spec/metatable/02-INDEX.md](/docs/spec/metatable/02-INDEX/) |
 | **Il2Cpp native indexer** | `Dispatch*` C closure + `NameMetaMap`（`MetaBinding` / `TypeRegistry`） | [impl/metatable/INDEXER-IL2CPP.md](/docs/impl/metatable/INDEXER-IL2CPP/) |
-| **`__index` miss** | 未注册成员 → 返回 **`nil`**（禁止反射 fallback） | [spec/metatable/02-INDEX.md](/docs/spec/metatable/02-INDEX/) |
+| **`__index` miss** | 未注册成员 → **`error`**（`zlua: member not found: …`；禁止反射 fallback，禁止静默 `nil`） | [spec/metatable/02-INDEX.md](/docs/spec/metatable/02-INDEX/) |
 | **`__newindex` miss** | 未注册 / 不可写成员 → **`error`** | 同上 |
 | **Bind 期扁平化** | 继承链 public 成员在 `EnsureBinding` 时写入当前类型三表；**无**运行时向上查找 | [spec/02-TYPE-SYSTEM.md](/docs/spec/02-TYPE-SYSTEM/) §5 |
 | **dispatch closure** | 多重重载时默认方法名绑定的运行时分派闭包 | [spec/04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) |

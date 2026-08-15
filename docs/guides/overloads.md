@@ -28,6 +28,35 @@ demo:Run("hello")   -- Run(string)
 
 仅一个 public 重载时零分派；多个时按实参匹配。
 
+## 默认参数
+
+支持 C# **尾部**可选形参（`HasDefault`）。Lua 实参个数可落在 `[minArity, maxArity]`：省略的尾部形参在 invoke 时填 C# 默认值（Bind 期缓存，热路径不解析 metadata blob）。
+
+```csharp
+public static int Foo(int x, int y = 5) => x + y;
+public static string Bar(string s, int a = 1, int b = 2) => $"{s}:{a},{b}";
+public static int G(int x) => x;
+public static int G(int x, int y = 5) => x + y;
+```
+
+```lua
+Demo.Foo(1)          -- y=5
+Demo.Foo(1, 9)
+Demo.Bar("hi")       -- a=1, b=2
+Demo.Bar("hi", 7)    -- b=2
+Demo.G(1)            -- 选 G(int)，而非「用默认展开」的 G(int,int)
+Demo.G(1, 4)         -- G(int, int)
+```
+
+| 规则 | 说明 |
+|------|------|
+| 仅尾部连续默认 | 与 C# 相同：中间不能「跳过」必选形参 |
+| 过少实参 | 无法覆盖到首个无默认形参 → `argument mismatch` / 无匹配重载 |
+| 多重载 tie-break | 转换分数相同时，**少用默认参数**的候选更优 |
+| 构造 | `Type(...)` / `SMT.__call` 同样支持 |
+
+权威细则：[重载规范](/docs/spec/04-METHOD-OVERLOAD/) §3.3。
+
 ## 全签名键（同名冲突时自动注册）
 
 当同一方法名有多个重载（例如 `Run(int)` / `Run(string)`）时，除 `Run` 的 dispatch 外，Bind 还会为每个候选挂 **direct** 键：
@@ -85,7 +114,8 @@ demo:run_i32(5)
 
 | 现象 | 处理 |
 |------|------|
-| 调错重载 / `ambiguous overload` | 全签名键、`[LuaAlias]` 或 `register_method` 短名 |
+| 调错重载 / `ambiguous` | 全签名键、`[LuaAlias]` 或 `register_method` 短名；注意默认参数 tie-break |
+| `argument mismatch`（带默认） | 必选形参未给够；不能跳过中间参数 |
 | 想用 `demo['(System.Int32)']` | **禁止**；必须带方法名：`Run(System.Int32)` |
 | `register_method` 报已占用 | 换未使用的别名；不要覆盖 `Run` / 已有全签名键 |
 

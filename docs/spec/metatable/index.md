@@ -26,6 +26,6 @@ title: "元表规范（`spec/metatable/`）"
 ## 核心语义（速览）
 
 - 静/实例各一套 **三表**（method / fieldGetter / fieldSetter），由 indexer 闭包持有。
-- **`__index` miss → `nil`**；**`__newindex` miss → error`**；无 C# 反射 fallback。
+- **`__index` / `__newindex` miss → error`**（含键名的 `zlua:` 消息）；无 C# 反射 fallback。
 - 继承在 **EnsureBinding** 期 **扁平写入** 三表，运行时不上链查找。
 - struct 同时提供 **`__byval_instance_mt`** 与 **`__byobj_instance_mt`**；引用类型仅 ByObj。

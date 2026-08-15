@@ -225,7 +225,7 @@ Spec clauses should be traceable in tests. New features: **write cases first, th
 | Spec clause (summary) | Case id |
 |------------------|---------|
 | Namespaced types need bracket keys | `type_system/tc_csharp_path.test_namespaced_type_bracket` |
-| `__index` miss → nil | `type_system/tc_field_access.test_missing_field_nil` |
+| `__index` miss → error | `type_system` / `method_overload` etc. `member not found` cases; default parameters in `method_overload/tc_default_parameters` |
 | `zlua.make_generic_type` | `zlualib/tc_make_generic_type.test_list_int32` |
 | Lua→C# default marshal | `marshal/tc_default_marshal.test_*` |
 | Opaque get/set | `zlualib/tc_get_opaquevalue.test_*` |

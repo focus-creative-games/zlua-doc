@@ -245,7 +245,7 @@ zlua.set_opaquevalue(h, v + 1)
 | `ref` 当 integer | C#→Lua Opaque | `zlua.get_opaquevalue` |
 | Opaque 跨帧 | 规范禁止 | 仅在单次 C#→Lua 调用内使用 |
 | 继承成员找不到 | Bind 期扁平化 | 确认成员在声明类型 public API 中 |
-| `__index` 无成员不报错 | ZLua 返回 **nil** | 勿依赖 xLua 式 error |
+| `__index` 无成员 | ZLua **一律 error**（`zlua: member not found: …`），**不**返回 `nil` | 探测成员须 `rawget` / `pcall`；勿依赖静默 `nil` |
 | Editor 某 API 为 nil | 类型未绑定 / 非 public / 用法错误 | 查 [spec](/docs/spec/00-OVERVIEW/) 与 [impl/MONO.md](/docs/impl/MONO/) |
 | 性能预期 | xLua 与 ZLua 架构不同 | 见 [compare/PERFORMANCE.md](/docs/compare/PERFORMANCE/) |
 | libil2cpp merge | Unity 升级成本 | 评估工程债后再迁 |
@@ -256,7 +256,7 @@ zlua.set_opaquevalue(h, v + 1)
 
 | xLua 现象 | ZLua 可能表现 |
 |-----------|---------------|
-| `cannot find wrapper` | 类型未加载 / 非 public / 拼写错误 → `nil` 或 load 异常 |
+| `cannot find wrapper` | 类型未加载 / 非 public / 拼写错误 → `type not found` / `member not found` 等明确 error |
 | `invalid lua stack` | marshal 类型不匹配 → Lua error 带 ZLua 前缀 |
 | Generate 遗漏类型 | xLua 编译期即缺 Wrap | ZLua 首次访问时 Bind；Il2Cpp 缺 stub 则 Codegen 期应已覆盖 |
 

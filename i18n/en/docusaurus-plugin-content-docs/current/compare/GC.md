@@ -119,7 +119,7 @@ Used as the default path for **GetFunction delegates** / delegate bridge `ref`/`
 | Mode | Allocation impact |
 |------|----------|
 | Il2Cpp `Dispatch*` indexer | C++ path; **no** extra alloc because of indexer |
-| Mono three-table Lua indexer | Pure Lua table lookup; miss returns nil, **no** temps |
+| Mono three-table Lua indexer | Pure Lua table lookup; miss → **error**, **no** temps |
 
 ---
 

@@ -92,9 +92,31 @@ flowchart LR
 | 多参 + `params T[]` | `params` | **单栈槽**；与 szarray 相同（table / userdata / `nil`）；**不**多槽隐式收集 |
 | `UnpackedValues` 形参 | 连续 N 槽 | 该 CLR 形参占用 **N** 个 Lua 实参槽（`N = Members.Length`）；匹配时按栈槽累加，见 [marshal/02-MARSHAL-AS.md](/docs/spec/marshal/02-MARSHAL-AS/) §5.6 |
 
-**可选 / 默认参数：** Lua 实参少于形参时，若剩余形参有 C# 默认值，仍可匹配。
+**可选 / 默认参数（C# optional）：**
 
-**构造函数：** `Type(...)` / `SMT.__call` 使用与实例方法相同的分派逻辑。
+| 规则 | 说明 |
+|------|------|
+| 适用范围 | 方法与构造；形参带 CLR `HasDefault`（及可物化的默认值）的 **尾部连续** 可选段 |
+| 实参个数 | 允许 `minLuaArity ≤ argCount ≤ luaArity`（`minLuaArity` = 全参 Lua 槽数 − 可省略尾部槽数之和） |
+| 匹配 | 栈上已有槽按 §3.3 / §3.6 正常打分；不足的尾部形参记为「使用默认」，不消耗 Lua 槽 |
+| 填充时机 | Bind 期物化并缓存默认值；**invoke** 时写入未提供的形参（热路径不解析 metadata） |
+| 选优 | 转换 kind / score 相同时，**`optionalUsed` 更小**的候选更优（少用默认），再同分 → Ambiguous / 声明顺序 |
+| 不支持 | 非尾部「跳过」必选形参；无 `HasDefault` 却依赖 C# 编译器其它糖 |
+
+```csharp
+void Foo(int x, int y = 5);
+void G(int x);
+void G(int x, int y = 5);
+```
+
+| Lua | 结果 |
+|-----|------|
+| `Foo(1)` | 适用；`y` 用默认 |
+| `Foo()` | 不适用（`x` 无默认） |
+| `G(1)` | 选 `G(int)`（`optionalUsed=0` ≻ 展开默认的 `G(int,int)`） |
+| `G(1, 4)` | 选 `G(int, int)` |
+
+**构造函数：** `Type(...)` / `SMT.__call` 使用与实例方法相同的分派逻辑（含默认参数）。
 
 ### 3.4 性能说明
 
@@ -145,7 +167,8 @@ Kind 优劣链：
 
 1. 逐形参计算 `GetConversionKind`；任一 `None` → 不适用。
 2. M 优于 N：存在形参 i 使 M 更优，且不存在 j 使 N 更优。
-3. 无 strictly better → §3.2 声明顺序 tie-break。
+3. 转换分数仍相同：比较本次匹配使用的 **默认参数个数**（`optionalUsed`），更少者更优（见 §3.3）。
+4. 仍无 strictly better → Ambiguous 或声明顺序 tie-break（实现以 Ambiguous 为准时须一致）。
 
 **示例：**
 

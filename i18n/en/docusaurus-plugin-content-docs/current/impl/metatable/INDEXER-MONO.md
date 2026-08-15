@@ -98,9 +98,9 @@ Aligned with [../../spec/metatable/02-INDEX.md](/docs/spec/metatable/02-INDEX/) 
 
 | Scenario | Behavior |
 |----------|----------|
-| `__index` miss on all three tables | Return `nil` (**no** C# fallback) |
+| `__index` miss on all three tables | **`error`**: `zlua: member not found: {TypeFullName}.{key}` (**no** C# fallback; **no** `nil`) |
 | `__newindex` setter miss but getter exists | `zlua: property is read-only: {key}` |
-| `__newindex` total miss | `zlua: instance member not writable: {key}` / static prefix variant |
+| `__newindex` total miss | `zlua: instance member not writable: {TypeFullName}.{key}` / static prefix variant |
 
 With Phase 2 empty tables, any instance member access misses except keys written on type table `T` (e.g. enum constants). From Phase 3, written keys hit per the table above.
 
@@ -126,7 +126,7 @@ Mono and Il2Cpp implementation paths differ, but Lua-visible semantics must matc
 ## 8. Acceptance checklist
 
 - [ ] Registered members: hot path has no C# `InstanceIndex` / `StaticTypeIndex`
-- [ ] Unregistered: `__index` → `nil`; `__newindex` → strict error
+- [ ] Unregistered: `__index` / `__newindex` → strict error (including `TypeFullName.key`)
 - [ ] Static/instance three-table isolation; struct ByVal/ByObj each have instance three tables
 - [ ] Inherited members flattened at bind; subclass overrides same-named keys
 - [ ] No Event subtable; `add_Event` in `methodTable` as ordinary closure

@@ -26,6 +26,6 @@ This directory defines the Lua-visible layout of ZLua **type tables**, **static 
 ## Core semantics (quick view)
 
 - Static and instance each have a **three-table** set (method / fieldGetter / fieldSetter), held by the indexer closure.
-- **`__index` miss → `nil`**; **`__newindex` miss → error`**; no C# reflection fallback.
+- **`__index` / `__newindex` miss → error`** (`zlua:` messages including the key name); no C# reflection fallback.
 - Inheritance is **flattened into the three tables at EnsureBinding**; runtime does not walk the chain.
 - structs provide both **`__byval_instance_mt`** and **`__byobj_instance_mt`**; reference types are ByObj only.

@@ -32,10 +32,17 @@ Canonical project: [zlua-demo](https://github.com/focus-creative-games/zlua-demo
 
 ## Type and member access
 
-### Type is nil
+### Assembly / type not found
 
-- Assembly name / alias correct? (`CSharp['AC'] = CSharp['Assembly-CSharp']`)
+- No longer silently returns `nil`: errors look like `zlua: assembly not found: …` / `zlua: type not found: …`
+- Check assembly name / alias (`CSharp['AC'] = CSharp['Assembly-CSharp']`)
 - Namespaced types need `CSharp.AC['Ns.Type']`
+
+### `zlua: member not found: Type.key`
+
+- Spelling, whether `public`, whether statics were accessed on an instance (or vice versa)
+- Whether extension methods are configured on that type (see [Extension](/docs/guides/extension-methods/))
+- To probe whether a key exists: use **`rawget`** or `pcall`; **do not** rely on `__index` returning `nil`
 
 ### Event `.get` / `.set` is nil
 

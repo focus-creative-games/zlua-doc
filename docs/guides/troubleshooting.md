@@ -32,10 +32,17 @@ Canonical 工程：[zlua-demo](https://github.com/focus-creative-games/zlua-demo
 
 ## 类型与成员访问
 
-### 类型为 nil
+### 程序集 / 类型找不到
 
-- 程序集名 / 别名是否正确（`CSharp['AC'] = CSharp['Assembly-CSharp']`）
+- 不再静默返回 `nil`：错误形如 `zlua: assembly not found: …` / `zlua: type not found: …`
+- 检查程序集名 / 别名（`CSharp['AC'] = CSharp['Assembly-CSharp']`）
 - 含 namespace 须 `CSharp.AC['Ns.Type']`
+
+### `zlua: member not found: Type.key`
+
+- 拼写、是否 `public`、是否在实例上误访静态（或反之）
+- 扩展方法是否已配置到该类型（见 [Extension](/docs/guides/extension-methods/)）
+- 探测键是否存在：用 **`rawget`** 或 `pcall`，**不要**依赖 `__index` 返回 `nil`
 
 ### Event `.get` / `.set` 为 nil
 

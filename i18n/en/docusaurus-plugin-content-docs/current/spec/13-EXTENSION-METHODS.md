@@ -194,7 +194,7 @@ local t = go.transform
 t:ResetLocal()   -- IMT; equivalent to TransformExt.ResetLocal(t)
 ```
 
-Extension methods do **not** appear merely because they exist in the project; if not configured for that extended type (or base Attribute / XML), Lua sees `nil`.
+Extension methods do **not** appear merely because they exist in the project; if not configured for that extended type (or base Attribute / XML), Lua **`__index` miss → error** (`zlua: member not found: …`), same as any other unregistered member.
 
 ---
 

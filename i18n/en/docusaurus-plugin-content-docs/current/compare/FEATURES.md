@@ -112,7 +112,7 @@ demo:run_hot(1)
 |------|------------|
 | xLua | Usually `nil` or error (depends on Wrap) |
 | toLua / SLua | Often error |
-| ZLua | **`nil`** (read); write unknown key → **`error`** |
+| ZLua | Read / write of unknown keys both **`error`** (`zlua: member not found: …`; silent `nil` forbidden) |
 
 ---
 

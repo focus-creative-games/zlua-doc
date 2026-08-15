@@ -92,9 +92,31 @@ When the **Lua stack slot count** is acceptable, walk CLR formals from the stack
 | multi-arg + `params T[]` | `params` | **Single stack slot**; same as szarray (table / userdata / `nil`); **no** multi-slot implicit collect |
 | `UnpackedValues` formal | consecutive N slots | That CLR formal occupies **N** Lua arg slots (`N = Members.Length`); matching accumulates stack slots; see [marshal/02-MARSHAL-AS.md](/docs/spec/marshal/02-MARSHAL-AS/) §5.6 |
 
-**Optional / default parameters:** if Lua supplies fewer args than formals, remaining formals with C# defaults may still match.
+**Optional / default parameters (C# optional):**
 
-**Constructors:** `Type(...)` / `SMT.__call` use the same dispatch logic as instance methods.
+| Rule | Notes |
+|------|-------|
+| Scope | Methods and constructors; trailing contiguous optional segment of formals with CLR `HasDefault` (and a materializable default) |
+| Arg count | Allow `minLuaArity ≤ argCount ≤ luaArity` (`minLuaArity` = full Lua slot count − sum of omittable trailing slots) |
+| Matching | Present stack slots score normally per §3.3 / §3.6; missing trailing formals count as “using default” and consume no Lua slots |
+| Fill timing | Materialize and cache defaults at Bind; write missing formals at **invoke** (hot path does not parse metadata) |
+| Ranking | When conversion kind / score ties, the candidate with smaller **`optionalUsed`** wins (fewer defaults); still tied → Ambiguous / declaration order |
+| Unsupported | Skipping required formals in the middle; relying on other C# compiler sugar without `HasDefault` |
+
+```csharp
+void Foo(int x, int y = 5);
+void G(int x);
+void G(int x, int y = 5);
+```
+
+| Lua | Result |
+|-----|--------|
+| `Foo(1)` | Applicable; `y` uses default |
+| `Foo()` | Not applicable (`x` has no default) |
+| `G(1)` | Pick `G(int)` (`optionalUsed=0` ≻ expanded-default `G(int,int)`) |
+| `G(1, 4)` | Pick `G(int, int)` |
+
+**Constructors:** `Type(...)` / `SMT.__call` use the same dispatch logic as instance methods (including default parameters).
 
 ### 3.4 Performance notes
 
@@ -145,7 +167,8 @@ Kind preference chain:
 
 1. Per formal compute `GetConversionKind`; any `None` → not applicable.
 2. M beats N: some parameter i where M is better, and no j where N is better.
-3. No strictly better → §3.2 declaration-order tie-break.
+3. Conversion scores still tie: compare **default-parameter count used** this match (`optionalUsed`); fewer is better (see §3.3).
+4. Still no strictly better → Ambiguous or declaration-order tie-break (implementations that treat Ambiguous as authoritative must stay consistent).
 
 **Examples:**
 

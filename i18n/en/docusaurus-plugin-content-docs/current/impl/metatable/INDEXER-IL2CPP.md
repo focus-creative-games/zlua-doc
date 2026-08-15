@@ -64,8 +64,7 @@ static int DispatchInstanceIndex(lua_State* L)
     const char* key = luaL_checkstring(L, 2);
     const MetaInfo* info = LookupMeta(map, key);
     if (info == nullptr) {
-        lua_pushnil(L);
-        return 1;
+        return luaL_error(L, "zlua: member not found: %s.%s", typeFullName, key);
     }
     switch (info->kind) {
     case MetaKind::Method:
@@ -84,7 +83,7 @@ static int DispatchInstanceIndex(lua_State* L)
 |------------------|--------------------|
 | method returns closure directly | `PushRef(closureRef)`, no call |
 | field/property auto-invoke getter | Call writer/getter inside C closure |
-| `__index` miss | `lua_pushnil` |
+| `__index` miss | `luaL_error` (`zlua: member not found: …`; **forbid** `lua_pushnil`) |
 | method preferred over same-named field | Resolved when `MetaBinding` writes map; single-table lookup |
 
 ### 3.1 Instance variant entry points
@@ -107,7 +106,7 @@ if (info == nullptr)
 // Method / no setter → error
 ```
 
-miss → **strict error** (per spec). Read-only field (`cs2luaWriter == nullptr` on write attempt) errors in the field branch.
+On miss → **strict error** (per spec). Read-only field (`cs2luaWriter == nullptr` on write attempt) errors in the field branch.
 
 ## 5. Bind time: `MetaBinding`
 
@@ -151,8 +150,8 @@ Each `obj.field` / `obj:Method` **member fetch** via Dispatch* has fixed overhea
 
 ## 8. Debugging
 
-- `LookupMeta` miss returning nil does **not** call C# reflection fallback (spec forbids).
-- When comparing with Mono, Il2Cpp and Mono miss/member sets should match (Mono uses Lua three-table indexer; see [INDEXER-MONO.md](/docs/impl/metatable/INDEXER-MONO/).
+- On `LookupMeta` miss → **`luaL_error`** (**not** `pushnil`), and **do not** call C# reflection fallback (spec forbids).
+- When comparing with Mono, Il2Cpp and Mono miss/member sets should match (Mono uses Lua three-table indexer; see [INDEXER-MONO.md](/docs/impl/metatable/INDEXER-MONO/)).
 
 ## 9. Related files
 
