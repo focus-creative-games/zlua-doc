@@ -78,6 +78,7 @@ When a main `lua_State` already exists, use `LuaAppDomain.Reset(loader)`; you **
 | Generate | Il2Cpp must Generate C++ stubs |
 | StreamingAssets | Was Lua Synced? |
 | Deprecated APIs | Do not use Event `.get` |
+| HybridCLR combo | `HybridCLR/Installer` before `ZLua/Install`; hot-update types `Assembly.Load`’d? See [HybridCLR + ZLua](/docs/guides/hybridclr/) |
 
 ---
 

@@ -78,6 +78,7 @@ Canonical 工程：[zlua-demo](https://github.com/focus-creative-games/zlua-demo
 | Generate | Il2Cpp 必须 Generate C++ stub |
 | StreamingAssets | Lua 是否 Sync |
 | 废弃 API | 勿用 Event `.get` |
+| HybridCLR 联用 | 是否先 `HybridCLR/Installer` 再 `ZLua/Install`；热更类型是否已 `Assembly.Load`。见 [HybridCLR + ZLua](/docs/guides/hybridclr/) |
 
 ---
 

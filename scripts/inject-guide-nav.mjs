@@ -14,6 +14,7 @@ const root = path.join(__dirname, '..');
 const chainZh = [
   {slug: '/docs/getting-started/quick-start/', title: '快速开始'},
   {slug: '/docs/guides/install/', title: '安装与 Lua 版本'},
+  {slug: '/docs/guides/hybridclr/', title: '同时使用 HybridCLR + ZLua'},
   {slug: '/docs/guides/hello-interop/', title: '初始化与最小互调'},
   {slug: '/docs/guides/build/', title: '构建流程'},
   {slug: '/docs/guides/debugger/', title: 'EmmyLua 调试器'},
@@ -39,6 +40,7 @@ const chainZh = [
 const chainEn = [
   {slug: '/docs/getting-started/quick-start/', title: 'Quick start'},
   {slug: '/docs/guides/install/', title: 'Install & Lua version'},
+  {slug: '/docs/guides/hybridclr/', title: 'Using HybridCLR with ZLua'},
   {slug: '/docs/guides/hello-interop/', title: 'Init & minimal interop'},
   {slug: '/docs/guides/build/', title: 'Build pipeline'},
   {slug: '/docs/guides/debugger/', title: 'EmmyLua debugger'},

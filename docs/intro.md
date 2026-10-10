@@ -49,6 +49,7 @@ description: ZLua 是什么、核心特性与适用场景。
 - [为什么选择 ZLua](/docs/concepts/why-zlua/) — 选型理由
 - [安装与集成](/docs/getting-started/installation/) — UPM 安装与工程结构
 - [使用指南](/docs/guides/install/) — 循序渐进教程（安装 → 互调 → 构建 → …）
+- [同时使用 HybridCLR + ZLua](/docs/guides/hybridclr/) — 双包安装顺序与热更约束
 - [选型对比](/docs/compare/) — 相对 xLua / toLua / SLua
 - [性能基准](https://github.com/focus-creative-games/zlua-benchmark) — 可复现 Il2Cpp 对比与[最新报告](https://github.com/focus-creative-games/zlua-benchmark/blob/main/reports/comparison_20260728_121554.md)
 - [规范总览](/docs/spec/00-OVERVIEW/) — 权威语义契约

@@ -18,6 +18,8 @@ The Guides start here: install the package, pick a Lua version, then continue to
 The package does **not** ship a full `libil2cpp` / Lua source tree. Builds fail without Install; **`ZLua/Generate/All` also requires the local tree.**
 :::
 
+When using **HybridCLR** as a second package: install `com.code-philosophy.hybridclr` (v9.0.0+) and `com.code-philosophy.zlua` (1.0.0+), then run **`HybridCLR/Installer` first** and **`ZLua/Install` second**. See [Using HybridCLR with ZLua](/docs/guides/hybridclr/).
+
 ## 1. Add the package
 
 Edit `Packages/manifest.json`:
@@ -92,10 +94,11 @@ Directory tree, Sync script, and asmdef notes: [Installation](/docs/getting-star
 | | |
 |---|---|
 | **Previous** | [Quick start](/docs/getting-started/quick-start/) |
-| **Next** | [Init & minimal interop](/docs/guides/hello-interop/) |
+| **Next** | [Using HybridCLR with ZLua](/docs/guides/hybridclr/) |
 
 ## Related
 
+- [Using HybridCLR with ZLua](/docs/guides/hybridclr/) — dual-package workflow and Installer order
 - [Getting started · Installation](/docs/getting-started/installation/) — UPM, Bootstrap template, full directory tree
 - [Compatibility](/docs/getting-started/compatibility/)
 - [LuaJIT build](/docs/spec/build/02-LUAJIT/)
