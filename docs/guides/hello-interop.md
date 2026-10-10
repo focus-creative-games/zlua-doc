@@ -126,7 +126,7 @@ lua main start
 
 | | |
 |---|---|
-| **上一篇** | [同时使用 HybridCLR + ZLua](/docs/guides/hybridclr/) |
+| **上一篇** | [HybridCLR 集成](/docs/guides/hybridclr/) |
 | **下一篇** | [构建流程](/docs/guides/build/) |
 
 ## 相关文档

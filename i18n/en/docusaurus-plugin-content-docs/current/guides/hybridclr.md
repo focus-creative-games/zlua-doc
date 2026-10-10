@@ -1,10 +1,10 @@
 ---
-sidebar_position: 1.5
-title: Using HybridCLR with ZLua
+sidebar_position: 95
+title: HybridCLR integration
 description: Dual-package install order, loading hot-update assemblies, and Attribute-only Alias / MarshalAs / Extension on hot-update code.
 ---
 
-# Using HybridCLR with ZLua
+# HybridCLR integration
 
 ZLua is natively compatible with [HybridCLR](https://github.com/focus-creative-games/hybridclr) **v9.0.0+**: on the Il2Cpp Player you can use HybridCLR hot update together with ZLua’s Lua↔C# interop. This guide covers the **dual-package** workflow—install order, runtime loading, and configuration limits.
 

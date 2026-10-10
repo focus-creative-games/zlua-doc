@@ -18,7 +18,7 @@ description: UPM 引入 ZLua，用 Settings 选定 Lua 版本并完成本地 Ins
 包内 **不** 携带完整 `libil2cpp` / Lua 源码。未 Install 时构建会失败；**`ZLua/Generate/All` 也依赖本地树已存在。**
 :::
 
-与 **HybridCLR** 双包联用时：同时安装 `com.code-philosophy.hybridclr`（v9.0.0+）与 `com.code-philosophy.zlua`（1.0.0+），并 **先** `HybridCLR/Installer`、**再** `ZLua/Install`。详见 [同时使用 HybridCLR + ZLua](/docs/guides/hybridclr/)。
+与 **HybridCLR** 双包集成时：同时安装 `com.code-philosophy.hybridclr`（v9.0.0+）与 `com.code-philosophy.zlua`（1.0.0+），并 **先** `HybridCLR/Installer`、**再** `ZLua/Install`。详见 [HybridCLR 集成](/docs/guides/hybridclr/)。
 
 ## 1. 引入 Package
 
@@ -94,11 +94,11 @@ PUC-Rio 缓存一般在 `Library/ZLua/LuaSrcCache/`（如 `lua-5.5.0/`）。
 | | |
 |---|---|
 | **上一篇** | [快速开始](/docs/getting-started/quick-start/) |
-| **下一篇** | [同时使用 HybridCLR + ZLua](/docs/guides/hybridclr/) |
+| **下一篇** | [HybridCLR 集成](/docs/guides/hybridclr/) |
 
 ## 相关文档
 
-- [同时使用 HybridCLR + ZLua](/docs/guides/hybridclr/) — 双包联用与 Installer 顺序
+- [HybridCLR 集成](/docs/guides/hybridclr/) — 双包集成与 Installer 顺序
 - [入门 · 安装与集成](/docs/getting-started/installation/) — UPM、Bootstrap 模板、完整目录树
 - [兼容性](/docs/getting-started/compatibility/)
 - [LuaJIT 构建](/docs/spec/build/02-LUAJIT/)

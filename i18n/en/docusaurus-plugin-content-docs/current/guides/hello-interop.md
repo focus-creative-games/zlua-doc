@@ -126,7 +126,7 @@ The next page covers **Player builds** (Generate, Sync). The interop APIs themse
 
 | | |
 |---|---|
-| **Previous** | [Using HybridCLR with ZLua](/docs/guides/hybridclr/) |
+| **Previous** | [HybridCLR integration](/docs/guides/hybridclr/) |
 | **Next** | [Build pipeline](/docs/guides/build/) |
 
 ## Related

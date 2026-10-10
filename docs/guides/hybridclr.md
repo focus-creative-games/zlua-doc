@@ -1,12 +1,12 @@
 ---
-sidebar_position: 1.5
-title: 同时使用 HybridCLR + ZLua
+sidebar_position: 95
+title: HybridCLR 集成
 description: 双包安装顺序、加载热更程序集，以及热更侧 Alias / MarshalAs / Extension 的配置约束。
 ---
 
-# 同时使用 HybridCLR + ZLua
+# HybridCLR 集成
 
-ZLua 与 [HybridCLR](https://github.com/focus-creative-games/hybridclr) **v9.0.0+** 原生兼容：Il2Cpp Player 上可同时使用 HybridCLR 热更新与 ZLua 的 Lua↔C# 互操作。本篇约定 **双 Package** 联用时的安装顺序、运行时加载与配置边界。
+ZLua 与 [HybridCLR](https://github.com/focus-creative-games/hybridclr) **v9.0.0+** 原生兼容：Il2Cpp Player 上可同时使用 HybridCLR 热更新与 ZLua 的 Lua↔C# 互操作。本篇约定 **双 Package** 集成时的安装顺序、运行时加载与配置边界。
 
 未使用 HybridCLR 时，请走 [安装与 Lua 版本](/docs/guides/install/) 的常规路径即可。
 
@@ -40,7 +40,7 @@ ZLua 与 [HybridCLR](https://github.com/focus-creative-games/hybridclr) **v9.0.0
 也可使用各自仓库的 Git URL / 版本标签。HybridCLR 安装与热更工程约定以 [HybridCLR 官方文档](https://www.hybridclr.cn/) 为准；ZLua 通用步骤见 [安装与 Lua 版本](/docs/guides/install/)。
 
 :::tip 版本要求
-低于 HybridCLR **v9.0.0** 或 ZLua **1.0.0** 的组合 **不在** 本联用文档保证范围内。升级任一包后建议重新按 §2 跑一遍 Installer。
+低于 HybridCLR **v9.0.0** 或 ZLua **1.0.0** 的组合 **不在** 本集成文档保证范围内。升级任一包后建议重新按 §2 跑一遍 Installer。
 :::
 
 ## 2. Installer 顺序（必须）
@@ -59,7 +59,7 @@ flowchart LR
 | 1 | **`HybridCLR/Installer`** | 将 HybridCLR 的 C++ runtime（`il2cpp_plus` + `hybridclr/` 等）安装到工程本地 `libil2cpp` |
 | 2 | **`ZLua/Install`**（或 `ZLua/Install...`） | 在 **已存在** 的本地树上打 ZLua patch，并叠加 `zlua` / 选定 Lua 源码等 |
 
-**原因：** ZLua Install 会 **patch 本地 `libil2cpp` 代码**。该本地树须先由 HybridCLR Installer 落盘；若先跑 ZLua、或根本没有 HybridCLR 本地树，patch 目标不存在或版本不匹配，联用会失败。
+**原因：** ZLua Install 会 **patch 本地 `libil2cpp` 代码**。该本地树须先由 HybridCLR Installer 落盘；若先跑 ZLua、或根本没有 HybridCLR 本地树，patch 目标不存在或版本不匹配，集成会失败。
 
 :::danger 顺序错误
 先 `ZLua/Install` 再 `HybridCLR/Installer`，或只装其中一个，都可能导致 Player 构建失败、热更与 Lua 桥接行为异常。换 Unity 版本 / 重装本地 Il2Cpp 后，仍须按 **HybridCLR → ZLua** 重跑。

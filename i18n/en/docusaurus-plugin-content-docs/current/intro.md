@@ -49,7 +49,7 @@ Develop day-to-day in the **Editor (Mono)**; ship and measure performance on the
 - [Why ZLua](/docs/concepts/why-zlua/) — why pick ZLua
 - [Installation](/docs/getting-started/installation/) — UPM install and project layout
 - [Guides](/docs/guides/install/) — progressive tutorials (install → interop → build → …)
-- [Using HybridCLR with ZLua](/docs/guides/hybridclr/) — dual-package install order and hot-update constraints
+- [HybridCLR integration](/docs/guides/hybridclr/) — dual-package install order and hot-update constraints
 - [Comparison](/docs/compare/) — vs xLua / toLua / SLua
 - [Performance benchmarks](https://github.com/focus-creative-games/zlua-benchmark) — reproducible Il2Cpp comparison and [latest report](https://github.com/focus-creative-games/zlua-benchmark/blob/main/reports/comparison_20260728_121554.md)
 - [Spec overview](/docs/spec/00-OVERVIEW/) — authoritative semantic contract
