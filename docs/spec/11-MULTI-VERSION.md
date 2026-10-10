@@ -114,11 +114,22 @@ Library/ZLua/LuaSrcCache/
 
 ---
 
-## 3. 安装流水线（`LocalInstaller`）
+## 3. 安装流水线（`LocalInstaller` / `UnifiedInstaller`）
 
-安装输出根：`Library/ZLua/LocalIl2CppData-{platform}/`（路径以 `CommonDirs` 为准）。
+安装输出根：`Library/ZLua/LocalIl2CppData-{platform}/`（路径以 `CommonDirs` 为准）。**HybridCLR 集成分支**使用 `UnifiedInstaller`：先 HybridCLR 底座，再 ZLua overlay。
 
-### 3.1 顺序（必须）
+### 3.0 HybridCLR 底座 + ZLua 叠加（集成包）
+
+1. 按 HybridCLR 流程合并 `il2cpp_plus` + `hybridclr` → Local `libil2cpp`（含 `libil2cpp/hybridclr`）
+2. **再**应用 `ZLua~/patches/libil2cpp`（floor；打到 `il2cpp_plus` 上可能需按系列重做 patch）
+3. 拷贝 `ZLua~/zlua-runtime` → `libil2cpp/zlua`；安装 Lua；写 `ZLuaConf.inc`（`ZLUA_USE_HYBRIDCLR=1`）
+4. **唯一** `UNITY_IL2CPP_PATH = LocalIl2CppPath`（勿再安装独立 HybridCLR UPM）
+
+`ZLua/Generate/All`：CompileDll → Il2CppDef → LinkXml → **单次 StripAOT** → MethodBridge / AOTGenericReference → ZLua CodeGenerator。
+
+运行时：`method->isInterpterImpl` 时 `ResolveMethodInvoker` 固定走 `LuaInvokeInterp`（禁止特化 stub）。热更 XML 仅 **Il2Cpp**：`LoadAssembly` → `InteropMetadata.Register*` → 再访问类型（无 Reload；已 EnsureBinding 的类型不受后续 Register 影响）。
+
+### 3.1 顺序（必须，纯 ZLua / 非 HybridCLR 路径参考）
 
 1. 解析 Settings `luaVersionId`（空则默认 `lua-5.5.0`，见 §6.2）
 2. **确保 Lua 源码在 `Library/ZLua/LuaSrcCache`**：已缓存则复用；PUC-Rio 缺失则从 lua.org 下载；LuaJIT 缺失则失败并提示手动 clone
@@ -502,6 +513,7 @@ Fingerprint（建议 JSON 或等价键值）至少包含：
 | `ZLUA_TUANJIE_ENGINE` | `0` \| `1` | `1` = 团结引擎，`0` = Unity |
 | `ZLUA_UNITY_VERSION` | 十进制整数 | 见 §12.4；Unity 与团结上均填写「Unity 版本线」编码 |
 | `ZLUA_TUANJIE_VERSION` | `0` 或十进制 | **Unity 上固定 `0`**；团结上为团结引擎版本编码（与 Unity 版本不同） |
+| `ZLUA_USE_HYBRIDCLR` | `0` \| `1` | HybridCLR 集成 LocalIl2Cpp 为 `1`；启用 `LuaInvokeInterp` 等路径 |
 | `ZLUA_CONF_ID` | 字符串字面量 | 日志 / 对账，例：`"lua-5.3.8|unity-2021.3.45|tuanjie-0"` |
 
 **明确不生成：**
@@ -558,6 +570,7 @@ Editor 侧须集中版本编码（建议 `EngineVersionUtil`，与 `LuaVersionUt
 #define ZLUA_TUANJIE_ENGINE     0
 #define ZLUA_UNITY_VERSION      20210345
 #define ZLUA_TUANJIE_VERSION    0
+#define ZLUA_USE_HYBRIDCLR      0
 #define ZLUA_CONF_ID            "lua-5.3.8|unity-2021.3.45|tuanjie-0"
 ```
 
@@ -570,8 +583,11 @@ Editor 侧须集中版本编码（建议 `EngineVersionUtil`，与 `LuaVersionUt
 #define ZLUA_TUANJIE_ENGINE     1
 #define ZLUA_UNITY_VERSION      20220362
 #define ZLUA_TUANJIE_VERSION    10903
+#define ZLUA_USE_HYBRIDCLR      0
 #define ZLUA_CONF_ID            "luajit-2.1|unity-2022.3.62|tuanjie-1.9.3"
 ```
+
+**HybridCLR 集成（示意）：** `ZLUA_USE_HYBRIDCLR 1`，`ZLUA_CONF_ID` 可带 `|hybridclr` 后缀。
 
 ### 12.8 与 Mono / C# Define 对照
 

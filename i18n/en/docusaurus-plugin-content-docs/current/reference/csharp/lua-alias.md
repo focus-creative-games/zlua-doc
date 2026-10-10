@@ -58,6 +58,8 @@ public void Run(string value) { }  // default name still joins the "Run" group
 
 ## XML Config (When Source Cannot Change)
 
+> **Only** for **non–hot-update** (precompiled / AOT) assemblies. Hot-update assemblies (including HybridCLR) must use in-code `[LuaAlias]`; XML is **not** supported for them.
+
 Configured **separately** from `[LuaMarshalAs]`: Settings use the independent field **`luaAliasXmlPaths`**, root element **`ZLuaAlias`**.
 
 ```xml

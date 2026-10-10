@@ -76,6 +76,25 @@ public static class LuaAppDomain
 
 `LuaAppDomain.Initialize` 注册 `LuaFramePump`：`LateUpdate` 排空 pending ref；`WaitForEndOfFrame` 执行已预约的 `Reset`。详见 [10-LIFETIME.md](/docs/spec/10-LIFETIME/)。
 
+### 1.1 `InteropMetadata`（热更 XML，仅 Il2Cpp Player）
+
+Editor Mono **无**热更：`RegisterAliasXml` / `RegisterMarshalAsXml` / `RegisterExtensionXml` 为空实现。
+
+Il2Cpp 约定顺序：
+
+1. `Assembly.Load` / HybridCLR 加载热更程序集  
+2. `InteropMetadata.Register*` 注册该程序集的 Alias / MarshalAs / Extension XML  
+3. 再执行会触发 `EnsureBinding` 的 Lua/C# 代码  
+
+若某类型已创建 `MetaBinding`，之后再 `Register*` **不会**对该类型生效。无 `Reload` API。
+
+```csharp
+// after LoadAssembly(...)
+ZLua.InteropMetadata.RegisterAliasXml(paths, projectRoot);
+ZLua.InteropMetadata.RegisterMarshalAsXml(paths, projectRoot);
+ZLua.InteropMetadata.RegisterExtensionXml(paths, projectRoot);
+```
+
 ### 1.5 Editor 调试器（可选）
 
 仅 **Editor Mono**：若 Settings `enableDebugger` 为 true，`LuaMonoAppDomain.Initialize` 在现有初始化完成之后调用 `LuaEnv.StartDebugger`（注入 `emmy_core`、`tcpListen`、可选 `waitIDE`）。规范见 [build/04-EMMYLUA-DEBUGGER.md](/docs/spec/build/04-EMMYLUA-DEBUGGER/)。**不**改变 `GetFunction` / Marshal 语义；Il2Cpp Player **不**适用本入口。

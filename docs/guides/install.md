@@ -12,10 +12,10 @@ description: UPM 引入 ZLua，用 Settings 选定 Lua 版本并完成本地 Ins
 
 1. 在工程中引入 `com.code-philosophy.zlua`
 2. 菜单 **`ZLua/Settings...`** 选定 **Lua Version Id**（默认 **`lua-5.5.0`**）
-3. 菜单 **`ZLua/Install...`** 生成本地 `libil2cpp` + Lua + `zlua` 树
+3. 菜单 **`ZLua/Install...`** 生成本地 `libil2cpp`（HybridCLR 集成时含 `hybridclr/`）+ Lua + `zlua` 树
 
 :::warning
-包内 **不** 携带完整 `libil2cpp` / Lua 源码。未 Install 时构建会失败；**`ZLua/Generate/All` 也依赖本地树已存在。**
+包内 **不** 携带完整 `libil2cpp` / Lua 源码。未 Install 时构建会失败；**`ZLua/Generate/All` 也依赖本地树已存在。** HybridCLR 集成包勿再单独安装 `com.code-philosophy.hybridclr`。
 :::
 
 ## 1. 引入 Package
@@ -40,9 +40,9 @@ description: UPM 引入 ZLua，用 Settings 选定 Lua 版本并完成本地 Ins
 |------|------|
 | **Enable** | 是否启用 ZLua |
 | **Lua Version Id** | Lua / LuaJIT 版本 id；空则默认 **`lua-5.5.0`** |
-| **MarshalAs Xml Paths** | 可选；预编译程序集的 MarshalAs XML，见 [LuaMarshalAs](/docs/guides/lua-marshal-as/) |
-| **Lua Alias Xml Paths** | 可选；方法换名 XML（`ZLuaAlias`），见 [LuaAlias](/docs/guides/lua-alias/) |
-| **Lua Extension Xml Paths** | 可选；C# Extension 映射 XML（`ZLuaExtensions`），见 [Extension 方法](/docs/guides/extension-methods/) |
+| **MarshalAs Xml Paths** | 可选；**非热更新**预编译程序集的 MarshalAs XML（热更程序集只用 Attribute），见 [LuaMarshalAs](/docs/guides/lua-marshal-as/) |
+| **Lua Alias Xml Paths** | 可选；**非热更新**程序集的方法换名 XML（`ZLuaAlias`；热更只用 `[LuaAlias]`），见 [LuaAlias](/docs/guides/lua-alias/) |
+| **Lua Extension Xml Paths** | 可选；**非热更新**类型的 Extension 映射 XML（`ZLuaExtensions`；热更只用 `[LuaExtension]`），见 [Extension 方法](/docs/guides/extension-methods/) |
 
 **`luaVersionId` 写法：**
 

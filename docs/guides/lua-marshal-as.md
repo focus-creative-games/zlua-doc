@@ -14,7 +14,8 @@ description: 覆盖默认 Marshal；Bytes / Opaque / UnpackedValues / Table / Us
 - struct 用 **多栈槽** 或 **单 table** 组装（`UnpackedValues` / `Table`）
 - C#→Lua 强制 **Opaque**（`ref`/`out`/`in` **默认已是**）
 - 巨大 `string` 不想拷成 Lua string（`UserData` → ByObj）
-- 预编译 DLL 无法改源码 → Settings 挂 XML
+- 预编译 / AOT DLL 无法改源码 → Settings 挂 XML（**仅**非热更新程序集）
+- **热更新程序集**（含 HybridCLR）→ **只**能在代码中写 `[LuaMarshalAs]`，**不支持** XML
 
 可标注：**参数 / 返回值 / 字段 / 属性 / 类型（class、struct）**。
 **不可**标在方法上；**不可**标在仍含未绑定泛型形参的槽位。
@@ -106,7 +107,7 @@ host:TryPlace({ X = 1, Y = 2 })
 host:TryPlace(nil)                      -- Nullable 无值
 ```
 
-XML 等价（预编译程序集）：
+XML 等价（**仅**预编译 / AOT、非热更新程序集；热更程序集请用 Attribute）：
 
 ```xml
 <Type fullName="UnityEngine.Vector3">
@@ -154,6 +155,8 @@ public void HandleHuge(
 ## 简单 XML 规则
 
 Settings **MarshalAs Xml Paths**；Mono 运行时解析；Il2Cpp 在 **Generate** 写入表，**Player 不读 XML**。
+
+**热更新程序集不适用 XML**：HybridCLR 等热更 DLL 上的类型 / 成员 **必须**用 `[LuaMarshalAs]` 在代码中配置。
 
 要点：`Param` 用 **`index`（0-based，不含 this）**；`type` 用 **`OpaqueValue`**（勿用废弃名）；别名走独立 `luaAliasXmlPaths`。完整 schema 见 [规范 §9](/docs/spec/marshal/02-MARSHAL-AS/)。
 

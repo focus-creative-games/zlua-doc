@@ -14,7 +14,8 @@ When default Marshal (see [cheatsheet](/docs/reference/marshal-cheatsheet/)) is 
 - Assemble a struct from **multiple stack slots** or a **single table** (`UnpackedValues` / `Table`)
 - Force **Opaque** for C#→Lua (`ref`/`out`/`in` **already default to this**)
 - Huge `string` you do not want copied into a Lua string (`UserData` → ByObj)
-- Precompiled DLL you cannot edit → attach XML in Settings
+- Precompiled / AOT DLL you cannot edit → attach XML in Settings (**non–hot-update** assemblies only)
+- **Hot-update assemblies** (including HybridCLR) → **only** in-code `[LuaMarshalAs]`; XML is **not** supported
 
 You may annotate: **parameters / return values / fields / properties / types (class, struct)**.
 **Not** on methods; **not** on slots that still contain unbound generic type parameters.
@@ -106,7 +107,7 @@ host:TryPlace({ X = 1, Y = 2 })
 host:TryPlace(nil)                      -- Nullable 无值
 ```
 
-XML equivalent (precompiled assemblies):
+XML equivalent (**only** precompiled / AOT, non–hot-update assemblies; use Attributes on hot-update assemblies):
 
 ```xml
 <Type fullName="UnityEngine.Vector3">
@@ -154,6 +155,8 @@ Illegal type/direction → fall back to `Default` + Editor log; missing `Members
 ## Simple XML rules
 
 Settings **MarshalAs Xml Paths**; Mono parses at runtime; Il2Cpp writes tables at **Generate**; **Player does not read XML**.
+
+**XML does not apply to hot-update assemblies:** types / members in HybridCLR (and similar) hot-update DLLs **must** use in-code `[LuaMarshalAs]`.
 
 Key points: `Param` uses **`index` (0-based, excluding this)**; `type` uses **`OpaqueValue`** (not deprecated names); aliases use the separate `luaAliasXmlPaths`. Full schema: [Spec §9](/docs/spec/marshal/02-MARSHAL-AS/).
 

@@ -58,6 +58,8 @@ public void Run(string value) { }  // 默认名仍进 "Run" 组
 
 ## XML 配置（不可改源码时）
 
+> **仅**用于 **非热更新**（预编译 / AOT）程序集。热更新程序集（含 HybridCLR）须用代码中的 `[LuaAlias]`，**不支持** XML。
+
 与 `[LuaMarshalAs]` **分开配置**：Settings 使用独立字段 **`luaAliasXmlPaths`**，根元素 **`ZLuaAlias`**。
 
 ```xml

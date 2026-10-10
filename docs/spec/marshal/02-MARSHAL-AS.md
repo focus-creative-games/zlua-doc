@@ -335,9 +335,10 @@ Codegen / Mono 反射在 Pop / Push 时按 **由细到粗** 解析；**同一目
 
 ---
 
-## 9. XML 外部配置（预编译程序集）
+## 9. XML 外部配置（预编译 / AOT 程序集）
 
 > **动机：** 许多程序集为预编译 DLL，无法添加 `[LuaMarshalAs]`。XML 提供与属性 **等价** 的外部 Marshal 规则。
+> **适用范围：** XML **仅**用于 **非热更新** 程序集（预编译 / AOT DLL）。**热更新程序集**（含 HybridCLR 热更 DLL）**只支持**在代码中配置 `[LuaMarshalAs]`，**不支持**用 XML 为其配置 Marshal 规则。
 > **与 `[LuaAlias]` 分离：** 方法别名使用 **独立** Settings 路径与根元素（见 [../04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) §5.4），**禁止**与本文件混写。
 > **平台：** Mono（Editor）**运行时加载并解析** XML；Il2Cpp（Player）**禁止**运行时解析 XML——构建期（`ZLua/Generate/All` 等）将 XML **生成 C++ 表/数据**，运行时只查表。
 > **语义：** Mono 与 Il2Cpp 的 Lua 可见结果必须一致。

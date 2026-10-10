@@ -14,8 +14,9 @@ description: "[LuaExtension] 与 XML 将 C# extension 挂到被扩展类型的�
 
 | 方式 | 用法 |
 |------|------|
-| 能改被扩展类型源码 | **`[LuaExtension(typeof(FooExt), …)]` 标在被扩展类型上** |
-| 第三方 / 预编译类型 | Settings **`luaExtensionXmlPaths`** + 根元素 **`ZLuaExtensions`** |
+| 能改被扩展类型源码（含热更新程序集） | **`[LuaExtension(typeof(FooExt), …)]` 标在被扩展类型上** |
+| 第三方 / 预编译、**非热更新**类型 | Settings **`luaExtensionXmlPaths`** + 根元素 **`ZLuaExtensions`** |
+| **热更新程序集**（含 HybridCLR）内的类型 | **只**能代码中 `[LuaExtension]`；**不支持** XML |
 
 `[LuaExtension]` **不要**标在扩展类上（否则为发现扩展必须扫全程序集）。
 
@@ -36,6 +37,7 @@ public class PlayerView : MonoBehaviour { }
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
+<!-- 仅非热更新被扩展类型；热更程序集请用 [LuaExtension] -->
 <ZLuaExtensions version="1">
   <Assembly name="UnityEngine.CoreModule">
     <Type fullName="UnityEngine.Transform">
@@ -47,7 +49,7 @@ public class PlayerView : MonoBehaviour { }
 
 同一被扩展类型上：Attribute 与 XML 的扩展类列表取 **并集**。Bind **T** 时还会收集 **基类**上的 `[LuaExtension]`。
 
-Il2Cpp：XML 在 **Generate** 期写入静态表，Player **不**读 XML（改完须重新 Generate）。
+Il2Cpp：XML 在 **Generate** 期写入静态表，Player **不**读 XML（改完须重新 Generate）。**热更新程序集不适用 XML。**
 
 ## Lua 用法
 
@@ -70,6 +72,7 @@ t:ResetLocal()   -- 冒号；底层是静态扩展方法
 | 只能 `Ext.Foo(obj)` | 未走 static-as-instance / 未进 IMT（实现须符合规范 §4） |
 | 调到错误重载 | 合并竞争；用全签名键或 Alias 消歧 |
 | 标在扩展类上的 Attribute 无效 | 发现只扫被扩展类型上的 `[LuaExtension]` |
+| 热更类型上的 XML 无效 / 不被支持 | 热更新程序集须用 `[LuaExtension]`，不能靠 XML |
 
 ## 学习路径
 

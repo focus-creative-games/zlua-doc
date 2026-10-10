@@ -333,9 +333,10 @@ If annotation is illegal or config is wrong during resolve: **Mono Attribute** a
 | Lua calls C#, `byte[]` parameter | ByObjUserData or table | `Bytes` → Lua string |
 | `params T[]` parameter | Same as szarray (single slot) | **No** dedicated override; may only annotate `OpaqueValue` (C#→Lua) |
 
-## 9. XML external config (precompiled assemblies)
+## 9. XML external config (precompiled / AOT assemblies)
 
 > **Motive:** Many assemblies are precompiled DLLs and cannot add `[LuaMarshalAs]`. XML provides **equivalent** external Marshal rules.
+> **Scope:** XML is **only** for **non–hot-update** assemblies (precompiled / AOT DLLs). **Hot-update assemblies** (including HybridCLR hot-update DLLs) support **only** in-code `[LuaMarshalAs]`; configuring Marshal rules for them via XML is **not** supported.
 > **Separate from `[LuaAlias]`:** Method aliases use an **independent** Settings path and root element (see [../04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) §5.4); **do not** mix with this file.
 > **Platform:** Mono (Editor) **loads and parses XML at runtime**; Il2Cpp (Player) **forbids** runtime XML parse—build time (`ZLua/Generate/All`, etc.) **generates C++ tables/data** from XML; runtime only looks up tables.
 > **Semantics:** Mono and Il2Cpp Lua-visible results must match.

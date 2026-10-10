@@ -94,12 +94,16 @@ git clone https://github.com/focus-creative-games/zlua-demo.git
 
 ### 3. 本地安装（`ZLua/Install...`）
 
-菜单 **`ZLua/Install...`** 执行 `LocalInstaller`，在工程本地生成可编译的 Il2Cpp + Lua + ZLua 树。**主要工作：**
+菜单 **`ZLua/Install...`** 执行 **统一 Install**（HybridCLR 底座 + ZLua 叠加），在工程本地生成可编译的 Il2Cpp + HybridCLR + Lua + ZLua 树。**主要工作：**
 
-1. **复制 Editor 安装目录下的 `libil2cpp`（及配套 Il2Cpp 数据）到工程本地**，并打上包内 `libil2cpp` patch
-2. **下载（或复用缓存）选定版本的 Lua 源码**，安装到本地 **`libil2cpp/lua`**
-3. **将包内 `ZLua~/zlua-runtime` 复制到本地 `libil2cpp/zlua`**
-4. 写入 scripting define、`ZLuaConf.inc` 等，并做完整性校验
+1. **安装 HybridCLR `libil2cpp`（`il2cpp_plus` + `hybridclr/`）到本地 LocalIl2Cpp**（与独立 HybridCLR UPM 互斥，勿再装 `com.code-philosophy.hybridclr`）
+2. **再叠加 ZLua**：对 LocalIl2Cpp 打包内 `libil2cpp` patch，并将 `ZLua~/zlua-runtime` 复制到 `libil2cpp/zlua`
+3. **下载（或复用缓存）选定版本的 Lua 源码**，安装到本地 **`libil2cpp/lua`**
+4. 写入 scripting define、`ZLuaConf.inc`（含 `ZLUA_USE_HYBRIDCLR`）等，并做完整性校验；**唯一**设置 `UNITY_IL2CPP_PATH`
+
+发布前执行 **`ZLua/Generate/All`**：**只跑一次 StripAOT**，再串行 HybridCLR MethodBridge 与 ZLua CodeGenerator。
+
+热更程序集加载后、首次访问类型前，在 **Il2Cpp Player** 调用 `InteropMetadata.RegisterAliasXml` / `RegisterMarshalAsXml` / `RegisterExtensionXml`（Editor 为空实现；无 Reload）。
 
 PUC-Rio 源码缓存目录一般为 `Library/ZLua/LuaSrcCache/`（如 `lua-5.5.0/`）。细则与路径命名见 [多版本管理](/docs/spec/11-MULTI-VERSION/)。
 

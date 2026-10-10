@@ -32,6 +32,7 @@ title: "C# Extension 方法"
 | 把 `[LuaExtension]` 标在扩展类上再反查被扩展类型 | **不做**（为发现而扫全程序集） |
 | 仅在扩展类 SMT 上当静态方法调用当作「已支持 extension」 | **不足**；必须 IMT + 冒号 |
 | Il2Cpp Player 运行时读 XML | **不做**（与 LuaAlias / MarshalAs 一致） |
+| 为热更新程序集配置 Extension XML | **不做**（热更程序集仅支持代码中 `[LuaExtension]`） |
 | 开放泛型扩展方法（未闭合） | **不支持** |
 
 ### 1.3 锁定决策摘要
@@ -71,6 +72,8 @@ public class MyBehaviour : MonoBehaviour { }
 **禁止**将 `[LuaExtension]` 标在扩展类上作为发现手段。
 
 ### 2.2 XML（`luaExtensionXmlPaths` / `ZLuaExtensions`）
+
+> **适用范围：** XML **仅**用于 **非热更新** 程序集上的被扩展类型（预编译 / AOT DLL，如引擎 / 第三方包）。**热更新程序集**（含 HybridCLR 热更 DLL）内的类型 **只支持**在代码中配置 `[LuaExtension]`，**不支持**用 XML 为其配置扩展类列表。
 
 与 LuaAlias **分文件、分 Settings 字段**：
 

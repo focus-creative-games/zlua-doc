@@ -15,7 +15,8 @@ Authoritative: [Overload Spec §5](/docs/spec/04-METHOD-OVERLOAD/). Compare with
 | Scenario | Approach |
 |------|------|
 | You can edit C#; hot path wants a short name + colon | **`[LuaAlias]`** |
-| Cannot change source (precompiled DLL) | Settings **`luaAliasXmlPaths`** + `ZLuaAlias` XML |
+| Cannot change source (precompiled / AOT, **non–hot-update** DLL) | Settings **`luaAliasXmlPaths`** + `ZLuaAlias` XML |
+| **Hot-update assemblies** (including HybridCLR) | **Only** in-code `[LuaAlias]`; XML is **not** supported |
 | Cannot change C#; temporary runtime name | `zlua.register_method` (see [Overloads](/docs/guides/overloads/)) |
 | Exact pick; syntax does not matter | Full-signature key `demo['Run(System.Int32)'](demo, 5)` |
 
@@ -73,6 +74,8 @@ Static methods live on the type table: `Demo.add_i32(...)`; instance methods use
 
 ## XML configuration
 
+> **Only** for non–hot-update assemblies. For hot-update assemblies use `[LuaAlias]`; do not put them in `ZLuaAlias` XML.
+
 Separate from `[LuaMarshalAs]`:
 
 | | Alias | MarshalAs |
@@ -129,6 +132,7 @@ In Project Settings → **ZLua**, put XML paths in **`luaAliasXmlPaths`** (along
 | `demo:Run(10)` misses an aliased overload | Already renamed; use the alias or another un-renamed overload |
 | `demo:Bar` → member not found | `Bar` was renamed by `[LuaAlias("Foo")]` (reading an unknown key is now error, not nil) |
 | XML ignored (Player) | Did not re-**Generate**; or path was put under `marshalAsXmlPaths` |
+| XML on hot-update assemblies ignored / unsupported | Hot-update assemblies must use `[LuaAlias]`, not XML |
 | Same root element as MarshalAs | Needs a separate `ZLuaAlias` file |
 
 ## Learning path

@@ -40,9 +40,9 @@ Open Project Settings → **ZLua** (writes `ProjectSettings/ZLua.asset`).
 |------|------|
 | **Enable** | Whether ZLua is enabled |
 | **Lua Version Id** | Lua / LuaJIT version id; empty defaults to **`lua-5.5.0`** |
-| **MarshalAs Xml Paths** | Optional; MarshalAs XML for precompiled assemblies — see [LuaMarshalAs](/docs/guides/lua-marshal-as/) |
-| **Lua Alias Xml Paths** | Optional; method rename XML (`ZLuaAlias`) — see [LuaAlias](/docs/guides/lua-alias/) |
-| **Lua Extension Xml Paths** | Optional; C# Extension mapping XML (`ZLuaExtensions`) — see [Extension methods](/docs/guides/extension-methods/) |
+| **MarshalAs Xml Paths** | Optional; MarshalAs XML for **non–hot-update** precompiled assemblies (hot-update assemblies use Attributes only) — see [LuaMarshalAs](/docs/guides/lua-marshal-as/) |
+| **Lua Alias Xml Paths** | Optional; method rename XML for **non–hot-update** assemblies (`ZLuaAlias`; hot-update uses `[LuaAlias]` only) — see [LuaAlias](/docs/guides/lua-alias/) |
+| **Lua Extension Xml Paths** | Optional; Extension mapping XML for **non–hot-update** types (`ZLuaExtensions`; hot-update uses `[LuaExtension]` only) — see [Extension methods](/docs/guides/extension-methods/) |
 
 **`luaVersionId` formats:**
 

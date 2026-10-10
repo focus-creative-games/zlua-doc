@@ -328,6 +328,8 @@ public void Run(int value) { ... }
 
 `[LuaAlias]` and `[LuaMarshalAs]` have **different goals** (final Lua name vs parameter/return/member Marshal); they rarely intersect. XML may **share similar `Assembly` / `Type` / `Method` locating style**, but must:
 
+> **Scope:** XML is **only** for **non–hot-update** assemblies (precompiled / AOT DLLs). **Hot-update assemblies** (including HybridCLR hot-update DLLs) support **only** in-code `[LuaAlias]`; configuring alias rules for them via XML is **not** supported.
+
 | Constraint | Notes |
 |------------|-------|
 | **Separate path list** | Editor Settings field **`luaAliasXmlPaths`** (**alongside** `marshalAsXmlPaths`, configured separately) |

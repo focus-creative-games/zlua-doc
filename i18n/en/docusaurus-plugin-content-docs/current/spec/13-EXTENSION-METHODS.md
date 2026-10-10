@@ -32,6 +32,7 @@ title: "C# extension methods"
 | Putting `[LuaExtension]` on the extension class then reverse-looking up the extended type | **No** (would require scanning whole assemblies for discovery) |
 | Calling only as static methods on the extension class SMT as “extensions supported” | **Insufficient**; must be IMT + colon |
 | Il2Cpp Player reading XML at runtime | **No** (same as LuaAlias / MarshalAs) |
+| Extension XML for hot-update assemblies | **No** (hot-update assemblies support only in-code `[LuaExtension]`) |
 | Open generic extension methods (unclosed) | **Unsupported** |
 
 ### 1.3 Locked decisions summary
@@ -71,6 +72,8 @@ public class MyBehaviour : MonoBehaviour { }
 **Forbidden** to use `[LuaExtension]` on the extension class as a discovery mechanism.
 
 ### 2.2 XML (`luaExtensionXmlPaths` / `ZLuaExtensions`)
+
+> **Scope:** XML is **only** for extended types in **non–hot-update** assemblies (precompiled / AOT DLLs, e.g. engine / third-party packages). Types in **hot-update assemblies** (including HybridCLR hot-update DLLs) support **only** in-code `[LuaExtension]`; configuring their extension-class lists via XML is **not** supported.
 
 Separate files and Settings fields from LuaAlias:
 

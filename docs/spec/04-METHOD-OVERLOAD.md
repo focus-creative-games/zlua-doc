@@ -328,6 +328,8 @@ public void Run(int value) { ... }
 
 `[LuaAlias]` 与 `[LuaMarshalAs]` **目标不同**（最终 Lua 名 vs 形参/返回值/成员 Marshal），绝大多数场景无交集。XML 可 **共享类似的 `Assembly` / `Type` / `Method` 定位风格**，但必须：
 
+> **适用范围：** XML **仅**用于 **非热更新** 程序集（预编译 / AOT DLL）。**热更新程序集**（含 HybridCLR 热更 DLL）**只支持**在代码中配置 `[LuaAlias]`，**不支持**用 XML 为其配置别名规则。
+
 | 约束 | 说明 |
 |------|------|
 | **独立路径列表** | Editor Settings 字段 **`luaAliasXmlPaths`**（与 `marshalAsXmlPaths` **并列、分开配置**） |

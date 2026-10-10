@@ -15,7 +15,8 @@ description: "[LuaAlias] 换名与 XML（luaAliasXmlPaths / ZLuaAlias）。"
 | 场景 | 做法 |
 |------|------|
 | 能改 C#，热路径要短名 + 冒号 | **`[LuaAlias]`** |
-| 不能改源码（预编译 DLL） | Settings **`luaAliasXmlPaths`** + `ZLuaAlias` XML |
+| 不能改源码（预编译 / AOT、**非热更新** DLL） | Settings **`luaAliasXmlPaths`** + `ZLuaAlias` XML |
+| **热更新程序集**（含 HybridCLR） | **只**能代码中 `[LuaAlias]`；**不支持** XML |
 | 不能改 C#、运行时临时挂名 | `zlua.register_method`（见 [重载](/docs/guides/overloads/)） |
 | 只想精确点名、不在乎写法 | 全签名键 `demo['Run(System.Int32)'](demo, 5)` |
 
@@ -73,6 +74,8 @@ d:print(1)      -- 组内选 LogA(int)
 
 ## XML 配置
 
+> **仅**用于非热更新程序集。热更新程序集请用 `[LuaAlias]`，不要写进 `ZLuaAlias` XML。
+
 与 `[LuaMarshalAs]` **分开**：
 
 | | Alias | MarshalAs |
@@ -129,6 +132,7 @@ d:print(1)      -- 组内选 LogA(int)
 | `demo:Run(10)` 调不到已标 alias 的重载 | 已换名，应使用别名或其它未换名的重载 |
 | `demo:Bar` → member not found | `Bar` 被 `[LuaAlias("Foo")]` 换走（读未知键现为 error，非 nil） |
 | XML 不生效（Player） | 未重新 **Generate**；或路径写在了 `marshalAsXmlPaths` |
+| 热更程序集上的 XML 无效 / 不被支持 | 热更新程序集须用 `[LuaAlias]`，不能靠 XML |
 | 与 MarshalAs 写在同一根元素 | 须独立 `ZLuaAlias` 文件 |
 
 ## 学习路径
