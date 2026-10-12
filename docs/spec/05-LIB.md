@@ -46,8 +46,9 @@ Il2Cpp：脚本嵌入 `BuiltinScripts.inc`；Mono：Resources 或同等路径。
 | 闭合泛型 / 数组类型表 | `zlua.make_generic_type(...)` / `zlua.make_szarray_type(...)` 的返回值 |
 | `zlua.get_type_from_name` | 按 CLR 类型名解析得到的类型表（见 §4.3） |
 | **类型名字符串** | 与 §4.3 `get_type_from_name(typeFullName)` 的 **`name` 相同**（对标 `System.Type.GetType(string)`：含简单名、AQN、泛型、数组等）。凡接受 `typeArg` 的 API，字符串实参均按此解析，**不限于** mscorlib |
+| **`System.Type` 对象** | `zlua.typeof(...)` 返回的反射对象（Lua 侧为 `System.Type` 的 class userdata，含 `RuntimeType` 等子类实例）。凡接受 `typeArg` 的 API 均可直接传入，与传入对应类型表等价 |
 
-`zlua.typeof(typeTable)` 接受 **任意** ZLua 类型表（含泛型闭合表、数组类型表），返回该类型的 **`System.Type` 反射对象**（Lua 侧为 Type 的 class userdata），语义对应 C# 的 `typeof(T)`。
+`zlua.typeof(typeTable)` 接受 **任意** ZLua 类型表（含泛型闭合表、数组类型表），返回该类型的 **`System.Type` 反射对象**（Lua 侧为 Type 的 class userdata），语义对应 C# 的 `typeof(T)`。该返回值本身也可再作为 `typeArg` 使用。
 
 ---
 

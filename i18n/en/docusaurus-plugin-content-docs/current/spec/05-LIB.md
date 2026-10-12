@@ -46,8 +46,9 @@ Il2Cpp: script embedded in `BuiltinScripts.inc`; Mono: Resources or equivalent p
 | Closed generic / array type table | Return of `zlua.make_generic_type(...)` / `zlua.make_szarray_type(...)` |
 | `zlua.get_type_from_name` | Type table resolved by CLR type name (see §4.3) |
 | **Type-name string** | Same as §4.3 `get_type_from_name(typeFullName)`’s **`name`** (mirrors `System.Type.GetType(string)`: simple name, AQN, generic, array, etc.). Any API that accepts `typeArg` resolves string args this way — **not** limited to mscorlib |
+| **`System.Type` object** | Reflection object from `zlua.typeof(...)` (Type class userdata on Lua, including `RuntimeType` and other subclasses). Any API that accepts `typeArg` may take it directly; equivalent to passing the corresponding type table |
 
-`zlua.typeof(typeTable)` accepts **any** ZLua type table (including closed generics and array type tables) and returns that type’s **`System.Type` reflection object** (Type class userdata on Lua), matching C# `typeof(T)`.
+`zlua.typeof(typeTable)` accepts **any** ZLua type table (including closed generics and array type tables) and returns that type’s **`System.Type` reflection object** (Type class userdata on Lua), matching C# `typeof(T)`. That return value may itself be used again as a `typeArg`.
 
 ---
 
