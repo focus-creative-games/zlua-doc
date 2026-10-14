@@ -30,6 +30,7 @@ description: 覆盖默认 Marshal；Bytes / Opaque / UnpackedValues / Table / Us
 | `UnpackedValues` | **struct**（**不含** Nullable / class） | 多连续栈槽 ↔ `Members` |
 | `Table` | **struct** / **`Nullable<struct>`**（不含 class） | 单 table ↔ `Members` |
 | `UserData` | 实质几乎只对 **`string`** | 强制 ByObjUserData |
+| `ActualTypeUserData` | **仅返回值**；默认 ByObj 的引用类型 | 门面 = 运行时实际类型（专篇：[返回值门面类型](/docs/guides/actual-type-userdata/)） |
 
 `Table` / `UnpackedValues` **必须**配置 `Members`；名字以 `?` 结尾表示 Table 侧缺键不赋值。
 
@@ -169,6 +170,7 @@ Settings **MarshalAs Xml Paths**；Mono 运行时解析；Il2Cpp 在 **Generate*
 
 ## 相关文档
 
+- [返回值门面类型](/docs/guides/actual-type-userdata/)
 - [0GC Marshal](/docs/guides/zero-gc-marshal/)
 - [值类型](/docs/guides/value-types/)
 - [02-MARSHAL-AS](/docs/spec/marshal/02-MARSHAL-AS/)

@@ -1,5 +1,5 @@
 ---
-sidebar_position: 3
+sidebar_position: 5
 title: Supported versions & platforms
 description: Unity, Lua versions, platforms, and feature matrix supported by ZLua.
 ---

@@ -30,6 +30,7 @@ You may annotate: **parameters / return values / fields / properties / types (cl
 | `UnpackedValues` | **struct** (**not** Nullable / class) | Consecutive stack slots ↔ `Members` |
 | `Table` | **struct** / **`Nullable<struct>`** (not class) | Single table ↔ `Members` |
 | `UserData` | Effectively almost only **`string`** | Force ByObjUserData |
+| `ActualTypeUserData` | **Return only**; reference types that default to ByObj | View = runtime actual type (guide: [Return view type](/docs/guides/actual-type-userdata/)) |
 
 `Table` / `UnpackedValues` **must** configure `Members`; a name ending in `?` means a missing Table key does not assign.
 
@@ -169,6 +170,7 @@ Key points: `Param` uses **`index` (0-based, excluding this)**; `type` uses **`O
 
 ## Related
 
+- [Return view type](/docs/guides/actual-type-userdata/)
 - [0GC Marshal](/docs/guides/zero-gc-marshal/)
 - [Value types](/docs/guides/value-types/)
 - [02-MARSHAL-AS](/docs/spec/marshal/02-MARSHAL-AS/)

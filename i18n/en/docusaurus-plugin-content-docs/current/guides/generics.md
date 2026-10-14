@@ -6,7 +6,7 @@ description: Construct and call closed generic types and generic methods from Lu
 
 # Generics
 
-Use `zlua.make_generic_type` to get a **closed** generic type table, then construct and call members like any other type. For arrays, see [Arrays](/docs/guides/arrays/).
+Use `zlua.make_generic_type` to get a **closed** generic type table, then construct and call members like any other type. For calling open generic methods such as `GetComponent<T>` only, start with [Generic methods (getting started)](/docs/getting-started/generic-methods/). For arrays, see [Arrays](/docs/guides/arrays/).
 
 ## Closed generic types
 
@@ -58,6 +58,8 @@ local rb2 = go:GetComponent(zlua.typeof(Rigidbody))
 
 Ordinary methods on already-closed types (e.g. `List<int>.Add`) do **not** use this path. See [Type system §6](/docs/spec/02-TYPE-SYSTEM/), [05-LIB §9](/docs/spec/05-LIB/).
 
+After close, the return view follows the **declared type**; for a runtime-actual view see [Return view type](/docs/guides/actual-type-userdata/) or `zlua.cast`. With multiple short-name candidates, you can pass a full-signature key as `inflate`'s second argument — see [Method overloads](/docs/guides/overloads/).
+
 ## Common mistakes
 
 | Symptom | Fix |
@@ -76,6 +78,9 @@ Ordinary methods on already-closed types (e.g. `List<int>.Add`) do **not** use t
 
 ## Related
 
+- [Generic methods (getting started)](/docs/getting-started/generic-methods/) — shortest path for `GetComponent`
+- [Return view type](/docs/guides/actual-type-userdata/)
+- [Method overloads](/docs/guides/overloads/)
 - [zlua library Spec](/docs/spec/05-LIB/)
 - [Type system](/docs/spec/02-TYPE-SYSTEM/)
 - [Arrays](/docs/guides/arrays/)

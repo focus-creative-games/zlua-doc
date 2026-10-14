@@ -1,5 +1,5 @@
 ---
-sidebar_position: 4
+sidebar_position: 6
 title: Project status & roadmap
 description: Current ZLua progress and version plans.
 ---

@@ -1,5 +1,5 @@
 ---
-sidebar_position: 4
+sidebar_position: 6
 title: 项目状态与路线图
 description: ZLua 当前进度与版本计划。
 ---

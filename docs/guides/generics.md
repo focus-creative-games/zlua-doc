@@ -6,7 +6,7 @@ description: 闭合泛型类型与泛型方法在 Lua 侧的构造与调用。
 
 # 泛型
 
-用 `zlua.make_generic_type` 得到 **闭合** 泛型类型表，再像普通类型一样构造与调成员。数组见 [数组](/docs/guides/arrays/)。
+用 `zlua.make_generic_type` 得到 **闭合** 泛型类型表，再像普通类型一样构造与调成员。仅调用 `GetComponent<T>` 等开放泛型方法时，可先看 [泛型方法（入门）](/docs/getting-started/generic-methods/)。数组见 [数组](/docs/guides/arrays/)。
 
 ## 闭合泛型类型
 
@@ -58,6 +58,8 @@ local rb2 = go:GetComponent(zlua.typeof(Rigidbody))
 
 已闭合类上的普通方法（如 `List<int>.Add`）**不**走本节。详见 [类型系统 §6](/docs/spec/02-TYPE-SYSTEM/)、[05-LIB §9](/docs/spec/05-LIB/)。
 
+闭合后返回值按 **声明类型** 挂门面；若需按运行时实际类型出门面，见 [返回值门面类型](/docs/guides/actual-type-userdata/) 或 `zlua.cast`。短名多候选时可用全签名键作 `inflate` 第二参，见 [方法重载](/docs/guides/overloads/)。
+
 ## 常见错误
 
 | 现象 | 处理 |
@@ -76,6 +78,9 @@ local rb2 = go:GetComponent(zlua.typeof(Rigidbody))
 
 ## 相关文档
 
+- [泛型方法（入门）](/docs/getting-started/generic-methods/) — `GetComponent` 最短路径
+- [返回值门面类型](/docs/guides/actual-type-userdata/)
+- [方法重载](/docs/guides/overloads/)
 - [zlua 库规范](/docs/spec/05-LIB/)
 - [类型系统](/docs/spec/02-TYPE-SYSTEM/)
 - [数组](/docs/guides/arrays/)
