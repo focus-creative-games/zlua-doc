@@ -13,7 +13,7 @@ title: "Marshal 规范（`spec/marshal/`）"
 | 文件 | 内容 |
 |------|------|
 | [01-OVERVIEW.md](/docs/spec/marshal/01-OVERVIEW/) | 默认 Marshal 矩阵、integer/number、数组摘要、引用门面摘要 |
-| [02-MARSHAL-AS.md](/docs/spec/marshal/02-MARSHAL-AS/) | `[LuaMarshalAs]`、`LuaMarshalType`、合法集合、Table/Unpacked/Params/Bytes/UserData/Opaque、**XML 外部配置** |
+| [02-MARSHAL-AS.md](/docs/spec/marshal/02-MARSHAL-AS/) | `[LuaMarshalAs]`、`LuaMarshalType`（含 **`ActualTypeUserData`**）、合法集合、Table/Unpacked/Params/Bytes/UserData/Opaque、**XML 外部配置** |
 | [03-BYREF.md](/docs/spec/marshal/03-BYREF/) | `ref` / `in` / `out`（C#→Lua Opaque；Lua→C#：Opaque/ByVal 直传地址，其余临时槽） |
 | [04-OPAQUE.md](/docs/spec/marshal/04-OPAQUE/) | OpaqueValue、`get_opaquevalue` / `set_opaquevalue`、生命周期、回传分流 |
 | [05-STRUCT.md](/docs/spec/marshal/05-STRUCT/) | struct ByVal / ByObj / Handle、`box`/`unbox` |
@@ -36,7 +36,7 @@ title: "Marshal 规范（`spec/marshal/`）"
 |------|-----------|
 | `CSharp` 类型表、构造入口 | [../02-TYPE-SYSTEM.md](/docs/spec/02-TYPE-SYSTEM/) |
 | 重载与实参匹配 | [../04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) |
-| `zlua.box` / `unbox` / `cast` / `get_opaquevalue` / `set_opaquevalue` | [../05-LIB.md](/docs/spec/05-LIB/) |
+| `zlua.box` / `unbox` / `cast` / `inflate` / GTAP / `get_opaquevalue` / `set_opaquevalue` | [../05-LIB.md](/docs/spec/05-LIB/) |
 | 元表与成员索引（非 Marshal） | [../metatable/](/docs/spec/metatable/) |
 
 ## 平台原则

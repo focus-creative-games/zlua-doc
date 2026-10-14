@@ -92,7 +92,7 @@ ZLua separates static/instance into **three tables** (method / fieldGetter / fie
 |------|------|
 | xLua | Overload dispatch inside generated Wrap |
 | toLua / SLua | Dispatch inside Wrap or single signature |
-| ZLua | Registered at Bind; default **best match**; `[LuaAlias]` / `register_method` for explicit binds (see [spec/04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/)) |
+| ZLua | Registered at Bind; default **best match**; `[LuaAlias]` / full-signature keys for explicit picks (see [spec/04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/)) |
 
 **ZLua-specific capabilities:**
 
@@ -100,10 +100,9 @@ ZLua separates static/instance into **three tables** (method / fieldGetter / fie
 -- Bind-time [LuaAlias("foo_str")] single-candidate direct closure
 obj:foo_str("a")
 
--- Or attach a new name at runtime (must be free)
-local run = demo.run_i32
-zlua.register_method("run_hot", run)
-demo:run_hot(1)
+-- Full-signature key (lazy on miss); may cache locally
+local run = demo['Run(System.Int32)']
+run(demo, 1)
 ```
 
 ### 3.4 `__index` miss semantics

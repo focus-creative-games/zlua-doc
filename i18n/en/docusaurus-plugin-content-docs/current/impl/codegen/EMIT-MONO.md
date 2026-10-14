@@ -41,7 +41,7 @@ Known supported sets are covered by `Tests/Lua/**`; new signature kinds must **e
 | 3 | **Method** single overload | `methodTable` direct closure | Capture `MethodInfo` + typed pop/push |
 | 4 | **Method** multi-overload | `methodTable` dispatch closure | Calls managed `MethodOverloadResolver` (align [../marshal/OVERLOAD-RESOLVER.md](/docs/impl/marshal/OVERLOAD-RESOLVER/)) |
 | 5 | **Constructor** | `SMT.__call` | Reuse ctor overload grouping |
-| 6 | **Aliases** | Extra keys in `methodTable` | `[LuaAlias]`, `zlua.register_method` |
+| 6 | **Aliases** | Extra keys in `methodTable` | `[LuaAlias]` / Alias XML (no runtime `register_method`) |
 
 Run corresponding Lua cases after each step before continuing.
 

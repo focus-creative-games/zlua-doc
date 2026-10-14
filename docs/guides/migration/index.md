@@ -88,7 +88,7 @@ adaptor.init(export_types)
 ### 3. 成员调用与重载
 
 - `obj:Method()` 语法大多保留
-- 重载歧义 → 全签名键 `Name(Types…)` / `[LuaAlias]` / `zlua.register_method` 短名
+- 重载歧义 → 全签名键 `Name(Types…)` / Bind 期 `[LuaAlias]`（或 Alias XML）
 - Event → `add_Xxx` / `remove_Xxx`（无 xLua 式 `obj.Event = fn`）
 - **适配层不覆盖本项**
 

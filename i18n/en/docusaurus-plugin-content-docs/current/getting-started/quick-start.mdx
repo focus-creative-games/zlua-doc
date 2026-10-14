@@ -160,14 +160,14 @@ These appear in the `test_*` helpers in [app.lua](https://github.com/focus-creat
 
 ## Step 4 (optional): Method overloads
 
-`Demo.Run` has `int` and `string` overloads. Use a full-signature key, or register a short name for colon calls:
+`Demo.Run` has `int` and `string` overloads. Use a full-signature key, or a Bind-time `[LuaAlias]` short name for colon calls:
 
 ```lua
 demo['Run(System.Int32)'](demo, 10)
 
+-- Or cache the full-signature key locally (no runtime hang-short-name API)
 local run_i32 = demo['Run(System.Int32)']
-zlua.register_method("run_i32", run_i32)
-demo:run_i32(10)
+run_i32(demo, 10)
 ```
 
 See [Method overloads](/docs/guides/overloads/).

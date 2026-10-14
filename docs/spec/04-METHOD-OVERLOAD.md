@@ -17,8 +17,8 @@ C# 允许同名方法因参数类型/个数不同而重载；Lua 无静态类型
 | 目标 | 说明 |
 |------|------|
 | 易用 | `obj:Run(10)` 在常见场景下应能工作 |
-| 精确 | 同名冲突时 Bind 期自动挂 **全签名键**；亦可 `[LuaAlias]` / `register_method` 挂短名 |
-| 性能 | 热路径优先单候选 direct（全签名键、别名、或本地缓存 closure），避免反复走 dispatch |
+| 精确 | 需要点名某一重载时用 **全签名键**（miss 时懒解析，见 §3.7）；亦可 `[LuaAlias]` 挂短名 |
+| 性能 | 热路径优先单候选 direct（别名、或本地缓存 closure），避免反复走 dispatch |
 | 一致 | Mono 与 Il2Cpp 选中同一重载，错误信息一致 |
 
 ---
@@ -31,15 +31,14 @@ flowchart LR
     B -->|1| C["direct closure"]
     B -->|≥ 2| E["dispatch closure"]
     E --> F["按 §3.6 选 overload"]
-    S["全签名键 Name(Types…)"] --> C
+    S["全签名键 Name(Types…) 懒解析"] --> C
     G["[LuaAlias] / 本地缓存"] --> C
-    H["register_method 新名"] --> C
 ```
 
 1. **按最终名字分组**（§3、§5）：绑定时每个方法以其 **最终 Lua 名**（C# 默认名、`[LuaAlias]` / XML 别名）进入分组；**同名允许多个候选**（仅 Bind 期别名机制）。
 2. **单候选 → direct；多候选 → dispatch**（§3.6）。
-3. **同名多候选时额外挂全签名键**（§3.7）：每个冲突重载再注册一条 **direct** 键 `MethodName(ParamTypeFullNames…)`（**不含**返回类型），脚本可精确点名某一重载而 **不必** 先 `register_method`。
-4. **运行时**（§6）：`register_method` 仅允许挂到 **尚不存在** 的新最终名（§6.1），把已有 direct closure（常来自全签名键或 `[LuaAlias]`）挂成 **短名**，便于 `obj:alias(...)` 冒号调用。
+3. **全签名键按需懒解析**（§3.7）：Bind **不**预挂 `MethodName(ParamTypeFullNames…)`；`__index` miss 且键含 `(` 时再按签名在类型层次上查找、缓存。
+4. **元表短名冻结**：Bind 完成后 **不**提供运行时挂名 API；需要短名冒号调用时用 Bind 期 `[LuaAlias]` / XML。全签名键缓存是 miss 路径的惰性写入，不改变短名 overload 组。
 
 ---
 
@@ -59,8 +58,6 @@ flowchart LR
 - 多个 C# 同名重载（默认名相同）；或
 - `[LuaAlias]` / XML 把不同方法挂到 **同一最终名**（与默认名或其他别名重复均允许）；或
 - **C# extension**（经 [13-EXTENSION-METHODS](/docs/spec/13-EXTENSION-METHODS/) 配置注入 IMT）与真实例方法 **同一最终名** → **合并竞争**（无「实例优先于扩展」）；全签名键与匹配均按去掉 `this` 后的形参计算。
-
-> **`zlua.register_method` 除外：** 运行时注册 **禁止** 使用已存在的最终名（见 §6.1），因此不会通过该 API 扩大已有 overload 组。
 
 静态与实例分表存放（`staticMap` vs `byvalInstanceMap` / `byobjInstanceMap`）。C# 允许 `static void Foo()` 与 `void Foo()` 同名，二者互不影响。
 
@@ -122,10 +119,9 @@ void G(int x, int y = 5);
 
 dispatch 每次调用需遍历候选并重算匹配，为**低效路径**。热点若只需固定重载，应使用：
 
-- 该重载的 **全签名键**（§3.7，已是 direct）；或
 - **只含单候选** 的最终名（例如独立 `[LuaAlias("run_i32")]`）；或
-- `register_method` 挂短名后冒号调用；或
-- 在脚本内 **本地缓存** direct closure（如 `local run = demo['Run(System.Int32)']`）。
+- **全签名键**（§3.7，首次 miss 后缓存为 direct）；或
+- 在脚本内 **本地缓存** 已取得的 direct closure。
 
 ### 3.5 失败错误
 
@@ -135,7 +131,7 @@ dispatch 每次调用需遍历候选并重算匹配，为**低效路径**。热�
 no overload for Demo.Run matching (number); candidates: Run(System.Int32), Run(System.String)
 ```
 
-错误文案中的候选名与 §3.7 全签名键一致，便于脚本对照改写。
+错误文案中的候选名格式与 §3.7 全签名键一致，便于脚本对照改写。
 
 ### 3.6 隐式转换分类与最优重载选择
 
@@ -181,9 +177,11 @@ Kind 优劣链：
 
 仅当 Kind 为 `ImplicitBoxing` 时，在 **已选定重载** 的 `TryPop` 内 `Object::Box`。**禁止**在 `GetConversionKind` 循环内 Box。
 
-### 3.7 同名冲突：全签名键（Bind 期自动）
+### 3.7 全签名键（懒解析）
 
-当某一最终名（通常为 C# 默认方法名）下 **候选数 ≥ 2** 时，除将该名绑定为 **dispatch closure** 外，还须为 **每一个** 候选重载再注册一条 **direct** 元表键：
+**不**在 Bind 期向 `methodTable` / method map 预挂全签名键（避免绝大多数脚本永不访问的浪费，也避免「仅当存在重载才挂键」导致去掉重载后签名访问突然失败）。
+
+#### 3.7.1 键格式
 
 ```text
 <MethodName>(<Type0.FullName>,<Type1.FullName>,…)
@@ -191,34 +189,67 @@ Kind 优劣链：
 
 | 规则 | 说明 |
 |------|------|
-| 何时注册 | **仅** 该最终名下存在名字冲突（≥ 2 候选）时；单候选方法 **不** 强制挂全签名键 |
-| 方法名 | C# `MethodInfo.Name`（与默认最终名一致；不是 `[LuaAlias]` 短名） |
-| 参数列表 | 与 §4.1 签名字符串相同：括号 + 逗号分隔的 **`Type.FullName`**；**不含** 返回类型；byref / 数组 / 泛型写法与元数据一致 |
-| 绑定值 | 该候选的 **direct method closure**（与单重载 direct 相同） |
-| 静 / 实例 | 与方法域一致，写入对应 `staticMap` 或 instance map |
+| 方法名 | C# **`MethodInfo.Name`**（CLR 名；**不是** `[LuaAlias]` 短名） |
+| 参数列表 | 与 §4.1 相同：括号 + 逗号分隔的类型全名；**不含** 返回类型；byref / 数组 / 开放泛型形参名与元数据一致 |
+| 扩展方法 | 签名 **不含** `this` 形参（与调用侧 Lua 实参一致） |
+| 适用范围 | **任意** public 实例/静态 **方法**（含单候选；已被 `[LuaAlias]` 换名的方法仍可用 CLR 名拼键） |
+| **排除** | **类实例构造函数**、**类静态构造函数（`.cctor`）** —— 二者 **不** 参与全签名键懒解析；构造仍只走类型表 `__call` / 既有构造分派 |
 
-**示例：** `Foo` 上有 `int Run(int)` 与 `int Run(string)`：
+#### 3.7.2 `__index` miss 路径
 
-| 元表键 | 绑定 |
-|--------|------|
-| `Run` | dispatch（运行时按 §3.6 选） |
-| `Run(System.Int32)` | direct → `Run(int)` |
-| `Run(System.String)` | direct → `Run(string)` |
+访问类型/实例元表成员时，若 `methodTable`（及 field 表）均未命中，且键为字符串且 **含 `(`**：
+
+1. 在当前类型及其 **基类链** 上遍历 public 方法（静/实例与当前元表域一致；跳过 property `get_`/`set_` 访问器；**跳过** 实例构造与静态构造）。
+2. 将每个方法的 §3.7.1 键与请求键比较；**返回第一个匹配**。
+3. 生成该候选的 **direct**（或开放泛型的 GTAP）closure，写入对应 `methodTable` **与** method map（缓存），再返回。
+4. 无匹配 → 与其它 miss 相同，`member not found`。
+
+| 项 | 说明 |
+|----|------|
+| ByVal / ByObj | 在触发 miss 的那一侧表缓存；`isByVal` 与该侧一致 |
+| 与短名 | 不改变已有 short-name direct/dispatch；仅新增签名键条目 |
 
 ```lua
 local demo = CSharp.AC.Foo()
 
-demo:Run(5)                              -- dispatch → Run(int)
-demo:Run("hi")                           -- dispatch → Run(string)
-
--- 无需 register_method，直接精确点名（点号 + 显式 self）
+demo:Run(5)                              -- 短名 dispatch（若仍挂 Run）
+-- 全签名键：首次 miss → 懒解析并缓存
 demo['Run(System.Int32)'](demo, 5)
 demo['Run(System.String)'](demo, "hi")
+-- 单候选亦可：demo['GetValue()'](demo)
 ```
 
-> **冒号语法：** 键名含 `(` / `)`，不能写 `demo:Run(System.Int32)(...)`；须用括号键 + 点号调用。若需要 `demo:run_i32(5)` 这类短名冒号调用，再用 `[LuaAlias]` 或 `register_method`（§5、§6）。
+> **冒号语法：** 键名含 `(` / `)`，不能写 `demo:Run(System.Int32)(...)`；须用括号键 + 点号调用。短名冒号用 Bind 期 `[LuaAlias]` / XML（§5）。
 
-构造函数多重载时，全签名键落在类型表侧（与 `_ctor` / `__call` 分派配套的实现约定以实现为准），参数列表格式同本节。
+### 3.8 开放泛型方法调用前缀（GTAP）
+
+开放泛型方法（方法自身带泛型形参）除 [05-LIB.md](/docs/spec/05-LIB/) §9 的 `inflate` 外，可在 **调用时刻** 用 **类型前缀** 隐式闭合（**GTAP** = Generic Type Argument Prefix）。
+
+#### 3.8.1 形态
+
+```text
+实例：obj:Method(type1, …, typeN, arg1, …)
+静态：Type.Method(type1, …, typeN, arg1, …)
+```
+
+| 项 | 规则 |
+|----|------|
+| `type1…typeN` | 连续 **N** 个 **`System.Type` ByObj userdata**（`zlua.typeof`）；**N** = 该开放泛型方法的泛型形参个数 |
+| `arg…` | 闭合后签名的普通实参（可为 0 个） |
+| 禁止作前缀 | 类型表、类型名字符串、`zlua.types.*`（须 `typeof` 或改用 `inflate`） |
+
+#### 3.8.2 与普通重载的优先级
+
+当短名下同时存在 **开放泛型** 候选与 **非泛型** 候选（例如 `GetComponent<T>()` 与 `GetComponent(Type)`）时：
+
+1. 若实参前缀满足 §3.8.1，且余参对 **该开放泛型闭合后** 的形参 applicable → **优先选开放泛型路径**（inflate + 调用），**不再**把前缀 `System.Type` 当成普通 `Type` 形参送给非泛型重载。
+2. 否则按 §3.6 对非泛型（及已闭合）候选正常选优。
+
+#### 3.8.3 实现要点
+
+- direct 开放泛型 closure 与含开放泛型候选的 dispatch 均须支持 GTAP。
+- 隐式 inflate 与 `zlua.inflate` **共用 intern**；键至少含 `(closedMethod, isStatic, isByVal)`（`isByVal` 取自触发调用的元表侧）。
+- **不**改变 §3.6 的 `ConversionKind` 定义；GTAP 是在 better-member 之前的 **前缀剥离 + 候选过滤** 步骤。
 
 ---
 
@@ -249,7 +280,7 @@ Native 回调：`__zlua_create_signature`（`ZLuaLib.cpp`）。建议在项目 `
 "Run" + "(System.Int32)"  →  Lua 元表键 "Run(System.Int32)"
 ```
 
-该键在 **同名多候选** 时 **暴露** 为 `methodTable` 的 `__index` 字符串键（§3.7）。
+该键经 §3.7 miss 路径解析后缓存为 `methodTable` 字符串键。
 **禁止** 把 **仅** 参数括号（如 `"(System.Int32)"`）当作方法键；必须带方法名。
 
 ---
@@ -378,98 +409,21 @@ public void Run(int value) { ... }
 
 ---
 
-## 6. 运行时 API
+## 6. 辅助 API
 
 显式点名某一重载时，优先顺序：
 
-1. **全签名键**（§3.7，Bind 期自动，无需 API）
-2. Bind 期 **`[LuaAlias]`** 短名
-3. 从全签名键 / 别名取出 direct closure 后 **`register_method`** 挂自定义短名（便于冒号调用）
+1. Bind 期 **`[LuaAlias]`** / XML 短名
+2. **全签名键**（§3.7，懒解析）
+3. 脚本内 **本地缓存** 已取得的 direct closure
 
 `zlua.signature(...)`（§4.1）用于拼出 / 对照参数括号部分，**不是**单独的元表键。
 
-### 6.1 `zlua.register_method`
+**不提供**运行时 `zlua.register_method`：元表在 Bind 后冻结；同一 CLR 方法在 ByVal / ByObj 下对应不同 bridge，「取出再挂名」易丢失上下文。短名冒号调用只靠 Bind 期别名。
 
-**须与 `ZLuaLib.cpp` / `zlualib.lua` 一致：两参数形式。**
+开放泛型方法的闭合见 [05-LIB.md](/docs/spec/05-LIB/) §9（`inflate` / GTAP）。
 
-```lua
-zlua.register_method(aliasName, methodOrClosure) → void
-```
-
-**用途：** 把已有的 **direct** closure 挂到一个 **尚不存在** 的短名上。注册成功后，实例方法可用 **冒号** 调用（不必再写括号键 + 显式 `self`）。
-
-```lua
-local demo = CSharp.AC.Demo()
-
--- 1) 全签名键：无需 register，但须点号 + self
-demo['Run(System.Int32)'](demo, 5)
-
--- 2) 取出 direct closure，挂短名
-local run_i32 = demo['Run(System.Int32)']
-zlua.register_method("run_i32", run_i32)
-
--- 3) 之后任意该类型实例均可冒号调用
-demo:run_i32(5)
-```
-
-```lua
-local Demo = CSharp.AC.Demo
-local calc = Demo()
-
--- 亦可从 [LuaAlias] 单候选键取得 direct closure
-local run = calc.run_i32
-zlua.register_method("run_custom_i32", run)
-calc:run_custom_i32(20)
-
-local add = Demo.add_i32
-zlua.register_method("add_custom_i32", add)
-assert(Demo.add_custom_i32(3, 5) == 8)
-```
-
-| 参数 | 说明 |
-|------|------|
-| `aliasName` | 非空字符串；作为 **新的** 最终 Lua 名写入 method 表 |
-| `methodOrClosure` | **direct method closure**（单一候选；`MetaBinding::IsDirectMethodClosure` 等） |
-
-**写入目标（由 closure 内嵌 `TypeBinding` 推断）：**
-
-| closure 域 | 写入 |
-|------------|------|
-| 静态方法 | `binding->staticMap` + 静态 method 索引表 |
-| 实例 ByVal | `binding->byvalInstanceMap` |
-| 实例 ByObj | `binding->byobjInstanceMap` |
-
-**与已有键的关系（简化重载管理）：**
-
-为避免运行时改写已有 overload 组，`register_method` **不允许** `aliasName` 在目标 method 表（对应静/实例 map / `methodTable`）中 **已经存在**——无论该键当前是：
-
-- 单个 **direct** 方法；还是
-- **dispatch** 重载组；还是
-- 全签名键或其它已占用的 method 槽。
-
-| 情况 | 行为 |
-|------|------|
-| `aliasName` **不存在** | 写入 **direct** closure（该名下仅此候选） |
-| `aliasName` **已存在**（direct 或 dispatch 等） | **`luaL_error`**，不覆盖、不并入 |
-| 传入 **dispatch** closure | **`luaL_error`**（只接受可解析为单一候选的 direct closure） |
-
-与 §5 `[LuaAlias]` 的差异：别名在 **Bind 期** 允许撞名并组成 overload；`register_method` 在 **运行时** 只做「空位挂名」，**不**参与重载合并。
-
-与 §3.7 的差异：全签名键已由 Bind 提供精确入口；`register_method` 解决的是 **可读短名 + 冒号语法**，不是「唯一能点名重载的方式」。
-
-**错误：**
-
-| 条件 | 行为 |
-|------|------|
-| 参数个数 ≠ 2 | `luaL_error` |
-| 无法识别为合法 direct method closure | `luaL_error` |
-| `aliasName` 已在元表 method 侧占用 | `luaL_error` |
-
-Native：`__zlua_register_method`（Il2Cpp 已实现）。
-
-> **签名说明：** 仅接受两参数 `(aliasName, closure)`；目标表由 closure 绑定域决定，**无需**传入类型表或实例。
-
-### 6.2 `zlua.types`
+### 6.1 `zlua.types`
 
 预置 mscorlib 类型名字符串，见 [05-LIB.md](/docs/spec/05-LIB/) §4.2。
 
@@ -482,11 +436,11 @@ Native：`__zlua_register_method`（Il2Cpp 已实现）。
 | 默认分派 | `demo:Run(10)` |
 | 精确重载（全签名键，§3.7） | `demo['Run(System.Int32)'](demo, 10)` |
 | `[LuaAlias]` 短名 | `demo:run_i32(20)` |
-| `register_method` 后 | `demo:run_custom_i32(20)` |
+| 本地缓存 direct | `local run = demo['Run(System.Int32)']; run(demo, 20)` |
 | 静态 | `Demo.Add(3, 5)` / `Demo['Add(System.Int32,System.Int32)'](3, 5)` |
 | ~~仅参数括号当键~~ | ~~`demo['(System.Int32)'](...)`~~ **禁止** |
 
-实例方法：全签名键用 **点号** 并显式传 `self`；短别名（`[LuaAlias]` / `register_method`）可用 **冒号**。
+实例方法：全签名键用 **点号** 并显式传 `self`；短别名（`[LuaAlias]`）可用 **冒号**。
 
 ---
 
@@ -499,8 +453,11 @@ Native：`__zlua_register_method`（Il2Cpp 已实现）。
 | 别名允许与默认名 / 其它别名重复 | 一致 |
 | 签名格式 §4.1 | 一致 |
 | dispatch §3.3、§3.6 | 一致 |
+| GTAP §3.8（前缀 + 相对非泛型重载优先级） | 一致 |
+| 全签名键懒解析 §3.7 | 一致 |
+| `inflate` / GTAP intern 键含 `isStatic` / `isByVal` | 一致 |
 | 选中重载 | 相同实参 → 相同 C# 重载 |
-| `register_method` 两参数；**已占用名拒绝** | 一致 |
+| 元表短名 Bind 后冻结（无运行时挂短名） | 一致 |
 | 错误文案 | 一致或等价 |
 
 ---
@@ -532,19 +489,15 @@ local demo = CSharp.AC.Demo()
 
 demo:Run(10)        -- "Run" 多候选 → dispatch → Run(int)
 demo:Run("ab")      -- dispatch → Run(string)
-demo['Run(System.Int32)'](demo, 10)   -- 全签名键 → direct，无需 register_method
+demo['Run(System.Int32)'](demo, 10)   -- 全签名键 → direct
 demo:run_str("x")   -- 单候选别名 → direct
 
 demo:Foo("hi")      -- "Foo" 含 Foo(int) 与 Bar(string) → dispatch → Bar(string)
 
 local run_i32 = demo['Run(System.Int32)']
-zlua.register_method("run_cached", run_i32)   -- 须为尚未占用的新名
-demo:run_cached(20)                           -- 短名 + 冒号
+run_i32(demo, 20)                             -- 本地缓存 direct
 
-local add = CSharp.AC.Demo.add_i32
-zlua.register_method("add_one", add)           -- OK：新名
--- zlua.register_method("Add", add)            -- error：默认名 / 重载组已存在
-assert.equal(CSharp.AC.Demo.add_one(7), 7)
+assert.equal(CSharp.AC.Demo.add_i32(7), 7)    -- [LuaAlias] 短名
 ```
 
 ---
@@ -555,8 +508,8 @@ assert.equal(CSharp.AC.Demo.add_one(7), 7)
 |------|------|
 | `ValueMarshaling` / Mono 等价 | `ConversionKind`、`GetConversionKind`、`TryPop` |
 | `FindMatchingMethod` | applicable + better member |
-| `MetaBinding` | dispatch、direct closure、`register_method` |
-| `ZLuaLib.cpp` | `__zlua_create_signature`、`__zlua_register_method` |
+| `MetaBinding` | dispatch、direct closure、`inflate` 查找 |
+| `ZLuaLib.cpp` | `__zlua_create_signature`、`__zlua_inflate` |
 | Codegen | `[LuaAlias]` 写入元数据 |
 
 C# Extension 注入 IMT 与合并竞争见 [13-EXTENSION-METHODS](/docs/spec/13-EXTENSION-METHODS/)。

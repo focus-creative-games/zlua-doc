@@ -34,18 +34,29 @@ local dict = DictStrInt()
 dict:Add("hp", 100)
 ```
 
-第一个参数为 **泛型定义类型表**，其后为类型实参（`zlua.types.*`、`typeof` 结果等）。
+第一个参数为 **泛型定义类型表**，其后为类型实参（`zlua.types.*`、类型表等）。
 
 ## 泛型方法
 
-方法 **自身** 带类型参数（如 `void Foo<T>(T a)`）时，第一实参须为 `generic_inst`：
+方法 **自身** 带类型参数（如 `T GetComponent<T>()`）时，用 **`zlua.inflate`** 或调用侧 **GTAP** 闭合；**只**闭合方法的泛型形参。声明类型若仍开放（如 ``List`1``），须先 `make_generic_type` 再 `inflate`。
+
+| 路径 | 适用 |
+|------|------|
+| **`zlua.inflate`** | 按已闭合类型 + 方法名/全签名键闭合；热路径可缓存返回的 closure |
+| **GTAP** | 在短名调用前前缀 **N** 个 `System.Type`（`zlua.typeof(...)`）；**不**接受类型表 / 字符串 / `zlua.types.*` 作前缀 |
 
 ```lua
-local inst = zlua.make_generic_inst(zlua.types.int32)
-SomeType.Foo(inst, value)
+-- inflate：完整 §3 typeArg（类型表、字符串、System.Type 等）
+local GetRb = zlua.inflate(GameObject, "GetComponent",
+    CSharp['UnityEngine.CoreModule']['UnityEngine.Rigidbody'])
+local rb = GetRb(go)
+
+-- GTAP：仅 System.Type 前缀
+local Rigidbody = CSharp['UnityEngine.CoreModule']['UnityEngine.Rigidbody']
+local rb2 = go:GetComponent(zlua.typeof(Rigidbody))
 ```
 
-已闭合类上的普通方法（如 `List<int>.Add`）**不**走此路径。见 [类型系统 §6](/docs/spec/02-TYPE-SYSTEM/)。
+已闭合类上的普通方法（如 `List<int>.Add`）**不**走本节。详见 [类型系统 §6](/docs/spec/02-TYPE-SYSTEM/)、[05-LIB §9](/docs/spec/05-LIB/)。
 
 ## 常见错误
 
@@ -53,7 +64,8 @@ SomeType.Foo(inst, value)
 |------|------|
 | arity 错误 | 检查 `` `1 `` / `` `2 `` 与实参个数 |
 | `List` 找不到 | 使用 `System.Collections.Generic.List`1`` 全名 + 括号键 |
-| 对已闭合方法误传 `make_generic_inst` | 仅开放泛型方法需要 |
+| 对非开放泛型方法用 `inflate` | 仅方法自身带泛型形参时需要 |
+| GTAP 传类型表 | 须 `zlua.typeof(typeTable)`，或改用 `inflate` |
 
 ## 学习路径
 

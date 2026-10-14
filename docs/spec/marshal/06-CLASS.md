@@ -38,29 +38,34 @@ title: "Class / Interface Marshal"
 | 概念 | 含义 |
 |------|------|
 | **Identity** | userdata 载荷持有的托管对象引用（运行时 **实际实例**） |
-| **View / 门面** | userdata 挂接的 **IMT** 与成员可见性；**唯一来源 = 本次 Marshal 的声明类型** |
+| **View / 门面** | userdata 挂接的 **IMT** 与成员可见性；默认 = **本次 Marshal 的声明类型**；返回值 `ActualTypeUserData` 时 = **运行时实际类型** |
 
 ### 2.1 规则
 
-1. **C# → Lua**：始终按 **声明类型** 选择默认 marshal 形态与 ByObj IMT；**不**因运行时实际类型不同而改挂更具体类型的 mt，也 **不** 因此改走 `string` 等特殊 Marshal（例如 `object` 形参上的 `string` 实例仍为 Object userdata，不是 Lua string）。
-2. **值类型**：无继承门面问题；仍按 [`05-STRUCT.md`](/docs/spec/marshal/05-STRUCT/) 等规则。
-3. **虚方法**：成员查找使用 **声明类型** 上的 `MethodInfo`；调用时对真实 `this` 做 **虚表派发**（`override` 仍落到实现类）。
-4. **非虚 / `new` 隐藏**：走声明类型槽位（经 `Base` 门面调用 `new` 隐藏的 `Bar` 得到 `Base.Bar`）。
-5. **Downcast**：仅 [`zlua.cast`](/docs/spec/05-LIB/)（`IsAssignableFrom(targetType, obj.klass)`）；返回 **新 userdata**（同 identity、新门面）。
-6. **对象缓存**：键为 **`(identity, viewType)`**；同一实例可有多个视图 userdata。
+1. **C# → Lua（默认）**：始终按 **声明类型** 选择默认 marshal 形态与 ByObj IMT；**不**因运行时实际类型不同而改挂更具体类型的 mt，也 **不** 因此改走 `string` 等特殊 Marshal（例如 `object` 形参上的 `string` 实例仍为 Object userdata，不是 Lua string）。
+2. **例外：`[return: LuaMarshalAs(ActualTypeUserData)]`**：仍 Push **ByObj UserData**，但 **门面 / viewKlass = 运行时实际类型**；实际为 `string` 时亦为 ByObj（不转 Lua string）。见 [`02-MARSHAL-AS.md`](/docs/spec/marshal/02-MARSHAL-AS/)。成员查找与分派 **不需另改**：IMT 已挂在实际类型上。
+3. **值类型**：无继承门面问题；仍按 [`05-STRUCT.md`](/docs/spec/marshal/05-STRUCT/) 等规则。
+4. **虚方法**：成员查找使用 **当前 userdata 的 view（门面类型）** 上的 `MethodInfo`；调用时对真实 `this` 做 **虚表派发**（`override` 仍落到实现类）。默认 view=声明类型；`ActualTypeUserData` 时 view=实际类型。
+5. **非虚 / `new` 隐藏**：走 **view** 类型槽位（经 `Base` 门面调用 `new` 隐藏的 `Bar` 得到 `Base.Bar`）。
+6. **Downcast**：[`zlua.cast`](/docs/spec/05-LIB/)（`IsAssignableFrom(targetType, obj.klass)`）；返回 **新 userdata**（同 identity、新门面）。与 `ActualTypeUserData` 互补：前者脚本侧改门面，后者返回值 Push 时直接用实际类型门面。
+7. **对象缓存**：键为 **`(identity, viewType)`**；同一实例可有多个视图 userdata。
 
 ### 2.2 示例
 
 ```csharp
 Base CreateChild() => new Child();
+
+[return: LuaMarshalAs(LuaMarshalType.ActualTypeUserData)]
+Base CreateChildActual() => new Child();
 ```
 
 ```lua
-local o = ObjectFactory.CreateChild()  -- 门面 Base：不可见 Child.y；new Bar → Base.Bar
-local c = zlua.cast(o, Child)          -- 门面 Child（须 IsAssignableFrom）
+local o = ObjectFactory.CreateChild()         -- 门面 Base：不可见 Child.y；new Bar → Base.Bar
+local c = zlua.cast(o, Child)                 -- 门面 Child（须 IsAssignableFrom）
+local a = ObjectFactory.CreateChildActual()   -- 门面已是 Child（ActualTypeUserData）
 ```
 
-虚方法经 Base 门面查找 `MethodInfo`，再对真实实例 **虚派发**。
+虚方法经当前门面查找 `MethodInfo`，再对真实实例 **虚派发**。
 
 ### 2.3 `object` 形参
 
@@ -88,8 +93,8 @@ local c = zlua.cast(o, Child)          -- 门面 Child（须 IsAssignableFrom）
 |----|------|
 | **默认** C# ↔ Lua | **ByObjUserData**（ClassUserData）；门面 = **接口声明类型**（非实现类） |
 | `nil` | ↔ `null` |
-| `[LuaMarshalAs]` | `UserData`、`OpaqueValue`（**无** `Table` / `UnpackedValues`） |
-| 成员访问（默认 userdata） | 仅接口上可见成员 + 继承的接口成员；实现类独有成员不可见 |
+| `[LuaMarshalAs]` | `UserData`、`OpaqueValue`、返回值上的 `ActualTypeUserData`（**无** `Table` / `UnpackedValues`） |
+| 成员访问（默认 userdata） | 仅接口上可见成员 + 继承的接口成员；实现类独有成员不可见（`ActualTypeUserData` 返回后门面=实现类，可见实现类成员） |
 
 ---
 
@@ -159,4 +164,4 @@ CS.Demo.Append(sb, "!")   -- 共享引用，内容可变
 | [`07-ARRAY.md`](/docs/spec/marshal/07-ARRAY/) | 数组 ByObjUserData |
 | [`09-FUNCTION.md`](/docs/spec/marshal/09-FUNCTION/) | Delegate Marshal |
 | [`../02-TYPE-SYSTEM.md`](/docs/spec/02-TYPE-SYSTEM/) | 类型表、IMT、成员访问 |
-| [`../05-LIB.md`](/docs/spec/05-LIB/) | `cast`、`box` |
+| [`../05-LIB.md`](/docs/spec/05-LIB/) | `cast`、`box`、`inflate` / GTAP |

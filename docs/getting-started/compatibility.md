@@ -69,7 +69,7 @@ Lua 可见语义两端一致；Indexer / 桥接实现不同。详见 [项目状�
 | Property（无参） | ✅ | ✅ | |
 | Property（indexer） | ✅ | ✅ | 经 `get_Item` / `set_Item` 等方法形式访问，见 [字段与属性](/docs/guides/lua-calling-csharp/) |
 | 方法重载 dispatch | ✅ | ✅ | |
-| `[LuaAlias]` / `register_method` | ✅ | ✅ | |
+| `[LuaAlias]` / 全签名键 | ✅ | ✅ | 短名仅 Bind 期别名；无运行时 `register_method` |
 | 泛型类 / 泛型方法 | ✅ | ✅ | 开放泛型须先闭合；静态泛型方法有限制 |
 | Array（szarray / mdarray） | ✅ | ✅ | mdarray 不可 table 序列化 |
 | Event 专用元表 | ❌ | ❌ | 使用 `add_` / `remove_` 普通方法 |
@@ -97,10 +97,10 @@ Lua 可见语义两端一致；Indexer / 桥接实现不同。详见 [项目状�
 
 | API | Mono | Il2Cpp |
 |-----|:----:|:------:|
-| `typeof` / `get_type_from_name` / `make_generic_*` | ✅ | ✅ |
+| `typeof` / `get_type_from_name` / `make_generic_type` | ✅ | ✅ |
+| `inflate` / GTAP | ✅ | ✅ | 开放泛型方法闭合 |
 | szarray / mdarray 工厂 | ✅ | ✅ |
 | opaque get/set、`box`/`unbox` | ✅ | ✅ |
-| `register_method` | ✅ | ✅ |
 
 ## 开发环境建议
 

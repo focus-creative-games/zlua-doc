@@ -213,7 +213,7 @@ Spec clauses should be traceable in tests. New features: **write cases first, th
 |-----------|---------------|-----------------|
 | [spec/02-TYPE-SYSTEM.md](/docs/spec/02-TYPE-SYSTEM/) | `type_system` | `tc_csharp_path`, `tc_generic_type`, `tc_array_type`, `tc_field_access`, `tc_property_access`, `tc_box_unbox` |
 | [spec/metatable/](/docs/spec/metatable/) | `type_system` (index/bind) | `tc_field_*`, `tc_property_*`, `tc_event_access` |
-| [spec/04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) | `method_overload` | `tc_method_call`, `tc_register_method` |
+| [spec/04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) | `method_overload` | `tc_method_call`, full-signature key / Alias cases |
 | [spec/marshal/](/docs/spec/marshal/) | `marshal` | `tc_default_marshal`, `tc_marshal_struct`, `tc_marshal_enum`, `tc_marshal_delegate`, etc. |
 | [spec/marshal/09-FUNCTION.md](/docs/spec/marshal/09-FUNCTION/) | `function_marshal` | `tc_delegate_marshal` |
 | [spec/01-HOST-API.md](/docs/spec/01-HOST-API/) | `getfunction` | `tc_getfunction_marshal`, `tc_getfunction_unity_vector` |

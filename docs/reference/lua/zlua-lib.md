@@ -6,7 +6,7 @@ description: 全局 zlua 表的 Lua API 参考。
 
 # zlua 标准库
 
-全局 **`zlua`** 在 `lua_State` 初始化时加载（`zlualib.lua`）。**类型访问**走 `CSharp`；**类型构造、重载、ref、数组、delegate 转换**走 `zlua`。
+全局 **`zlua`** 在 `lua_State` 初始化时加载（`zlualib.lua`）。**类型访问**走 `CSharp`；**类型构造、泛型方法闭合、ref、数组、delegate 转换**走 `zlua`。重载分派与全签名键在 **元表** 上完成，Bind 后 **不提供** 运行时方法别名注册。
 
 源码：[ZLua~/lualib/zlualib.lua](https://github.com/focus-creative-games/zlua/blob/main/ZLua~/lualib/zlualib.lua)
 
@@ -59,30 +59,13 @@ local sig = zlua.signature(zlua.types.int32, zlua.types.string)
 -- 全签名键 = 方法名 .. sig → "Run(System.Int32,System.String)"
 ```
 
-同名多候选时 Bind 已自动注册全签名键，一般直接：
+Bind **不会**预先为每个方法挂全签名键。访问元表时若 method 表未命中，且键为含 `(` 的签名字符串，则 **懒解析** 对应重载、生成 direct closure 并 **写入缓存**：
 
 ```lua
-demo['Run(System.Int32)'](demo, 10)
+demo['Run(System.Int32)'](demo, 10)   -- 首次 miss 后该键为 direct
 ```
 
-**禁止**把仅参数括号（无方法名）当作元表键。
-
-### `zlua.register_method(aliasName, closure) → void`
-
-把 **direct** closure 挂到尚未占用的短名；注册后可用冒号调用。
-
-| 参数 | 说明 |
-|------|------|
-| `aliasName` | 新 method 键；不得与已有默认名 / 全签名键 / 别名冲突 |
-| `closure` | direct method closure（如 `demo['Run(System.Int32)']`） |
-
-```lua
-local run_i32 = demo['Run(System.Int32)']
-zlua.register_method("run_i32", run_i32)
-demo:run_i32(20)   -- 短名 + 冒号；这才是 register 的收益
-```
-
-两参数形式；目标表由 closure 绑定域推断。详见 [重载规范 §6.1](/docs/spec/04-METHOD-OVERLOAD/)。
+**禁止**把仅参数括号（无方法名）当作元表键。短名冒号调用靠 Bind 期 `[LuaAlias]` / XML，见 [重载规范](/docs/spec/04-METHOD-OVERLOAD/)。
 
 ---
 
@@ -99,9 +82,29 @@ local ListInt = zlua.make_generic_type(
 local list = ListInt()
 ```
 
-### `zlua.make_generic_inst(typeArg...) → genericInst`
+### `zlua.inflate(type, methodNameOrSignature, typeArg...) → closure`
 
-泛型 **方法** 的类型实参包（非类型表）。
+在 **已闭合** 声明类型上查找 **开放泛型方法**，用 typeArg 单态化后返回 **direct closure**（可与 GTAP 隐式闭合 **intern** 同一 registry closure）。
+
+| 参数 | 说明 |
+|------|------|
+| `type` | 声明该方法的类型，**须已闭合**（类型表或 §3 可解析为类型的 typeArg） |
+| `methodNameOrSignature` | 短方法名或全签名键（开放泛型形参用参数名，如 `"Describe(T)"`） |
+| `typeArg...` | §3 typeArg；个数 = 该方法泛型形参个数 |
+
+```lua
+local GetRb = zlua.inflate(GameObject, "GetComponent",
+    CSharp['UnityEngine.CoreModule']['UnityEngine.Rigidbody'])
+local rb = GetRb(go)
+```
+
+实例方法返回的 closure 为 **ByObj** 约定：`f(self, …)`。声明类型仍开放时须先 `make_generic_type`。完整规则：[05-LIB §9.1](/docs/spec/05-LIB/)。
+
+**GTAP（开放泛型调用前缀）：** 对元表上的开放泛型短名调用时，可在普通实参前连续放置 **N** 个 **`System.Type`**（`zlua.typeof(...)`）隐式闭合；**不**接受类型表 / 字符串 / `zlua.types.*` 作前缀。与 `inflate` 共用 intern 键空间。详见 [05-LIB §9.2](/docs/spec/05-LIB/)、[重载规范 §3.8](/docs/spec/04-METHOD-OVERLOAD/)。
+
+```lua
+local rb = go:GetComponent(zlua.typeof(Rigidbody))   -- GTAP
+```
 
 ---
 
@@ -151,8 +154,7 @@ local handler = zlua.to_delegate(function(x) print(x) end, CSharp.AC['System.Act
 | API | Mono | Il2Cpp |
 |-----|:----:|:------:|
 | typeof / types / signature | ✅ | ✅ |
-| register_method | ✅ | ✅ |
-| make_generic_type / make_generic_inst | ✅ | ✅ |
+| make_generic_type / inflate | ✅ | ✅ |
 | get/set_opaquevalue / to_user_data | ✅ | ✅ |
 | make_szarray_* / new_szarray_* | ✅ | ✅ |
 | make_mdarray_* | ✅ | ✅ |

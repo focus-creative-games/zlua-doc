@@ -88,7 +88,7 @@ Execute in order; each solution doc has before/after and specific pitfalls.
 ### 3. Member calls and overloads
 
 - `obj:Method()` syntax mostly stays
-- Overload ambiguity → full-signature key `Name(Types…)` / `[LuaAlias]` / `zlua.register_method` short name
+- Overload ambiguity → full-signature key `Name(Types…)` / Bind-time `[LuaAlias]` (or Alias XML)
 - Event → `add_Xxx` / `remove_Xxx` (no xLua-style `obj.Event = fn`)
 - **Adaptor does not cover this item**
 

@@ -116,25 +116,24 @@ Mono Phase 3：`ConstructorEmitter` 已替换 `ConstructorNotReady`；当前按 
 
 ---
 
-## 7. 全签名键、别名、`register_method` 与 Resolver
+## 7. 全签名键、别名与 Resolver
 
 规范：
 
 | 来源 | 撞名策略 |
 |------|----------|
 | Bind 期默认名 + `[LuaAlias]` | **允许**；按最终名聚合进 `MethodGroups` |
-| Bind 期同名多候选 | 默认名 → dispatch；**每个候选**再挂全签名键 `Name(Types…)` → direct |
-| 运行时 `register_method` | **禁止**占用已有 method / overload / 全签名键名；仅空位挂 direct（短名 + 冒号） |
+| Bind 期同名多候选 | 默认名 → dispatch；全签名键 **不**预挂，见 [04-METHOD-OVERLOAD](/docs/spec/04-METHOD-OVERLOAD/) §3.7 miss 懒解析 |
+| 运行时挂短名 | **不提供** `register_method`；短名仅 Bind 期别名 |
 
 | 机制 | 实现落点 |
 |------|----------|
 | 单候选 → direct closure | `MetaBinding::CreateDirectMethodClosureRef` |
 | 多候选 → dispatch | `CreateMethodDispatchClosureRef` → Resolver |
-| 全签名键 | Bind 期写入与候选一一对应的 direct 键 |
+| 全签名键 | `__index` miss 懒解析后缓存为 direct |
 | `[LuaAlias]` | Bind 期并入对应最终名的 `MethodGroups` |
-| `register_method` | 名已存在 → error；否则写入 method map / 索引表（direct closure） |
 
-别名键仅在该最终名 **只有一个候选** 时为 O(1) direct；Bind 期撞名则走 Resolver。全签名键始终为对应候选的 direct。
+别名键仅在该最终名 **只有一个候选** 时为 O(1) direct；Bind 期撞名则走 Resolver。全签名键解析后为对应候选的 direct。
 
 ---
 

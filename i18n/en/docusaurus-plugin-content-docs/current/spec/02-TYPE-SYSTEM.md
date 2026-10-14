@@ -240,7 +240,7 @@ The same managed object may have multiple userdata (different views); `zlua.cast
 | Reference | Use |
 |-----------|-----|
 | `T.__instance_mt` → `IMT` | Attach at construction |
-| `IMT.__type` → `T` | `typeof`, register_method domain inference |
+| `IMT.__type` → `T` | `typeof`, binding-domain inference |
 | `TypeBinding` | Holds staticMap, byval/byobj instance maps |
 
 ### 3.4 Deferred init (EnsureBinding)
@@ -329,7 +329,7 @@ Assigning a readonly field → `__newindex` error.
 
 ### 4.4 Methods
 
-See [04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/): single candidate → direct closure; multiple → dispatch; `[LuaAlias]` / `register_method`.
+See [04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/): single candidate → direct closure; multiple → dispatch; `[LuaAlias]` / full-signature keys.
 
 ### 4.5 Events (no dedicated metatable)
 
@@ -392,21 +392,29 @@ If the inheritance tree has multiple public candidates with the same **final nam
 
 ## 6. Generic methods
 
-For methods that **themselves** have generic parameters, e.g. `void Foo<T>(T a)`. Methods on a closed generic class do **not** use this section.
+For methods that **themselves** have generic parameters, e.g. `void Foo<T>(T a)` / `T GetComponent<T>()`. Methods on a closed generic class do **not** use this section.
 
-### 6.1 Calling convention
+Full APIs and typeArg rules: [05-LIB.md](/docs/spec/05-LIB/) §9. Overload / GTAP priority: [04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) §3.8.
+
+### 6.1 Calling convention (two paths)
+
+| Path | Example |
+|------|---------|
+| **`zlua.inflate`** | `local f = zlua.inflate(Type, "Foo", zlua.types.int32); f(obj, value)` — `Type` must already be closed |
+| **GTAP** | `obj:Foo(zlua.typeof(CSharp…Int32), value)` — prefix is `System.Type` only; `isByVal` comes from the calling-side metatable |
 
 ```lua
--- Type.Foo is a direct generic method closure
-local foo_int = zlua.make_generic_method(Type.Foo, zlua.types.int32)
+local foo_int = zlua.inflate(Type, "Foo", zlua.types.int32)
 foo_int(obj, value)   -- static: no obj needed
+
+local GetRb = zlua.inflate(GameObject, "GetComponent", Rigidbody)
 ```
 
-Use [05-LIB.md](/docs/spec/05-LIB/) `make_generic_method` to specialize the generic method closure.
+Declared return façades follow the closed signature; if an API can only return a base/interface type and Lua should see actual-type members, see [marshal/02-MARSHAL-AS.md](/docs/spec/marshal/02-MARSHAL-AS/) `ActualTypeUserData` or `zlua.cast`.
 
 ### 6.2 Caching
 
-Same `(genericMethodBase, typeArgs…)` **intern**s to one inflated direct closure (Il2Cpp: written under an internal signature key in `NameMetaMap`).
+The same closed result **intern**s to one direct closure; the key at least includes **`(closedMethod, isStatic, isByVal)`** (shared by `inflate` and GTAP).
 
 ---
 

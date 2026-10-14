@@ -9,7 +9,7 @@ description: 日常最常用的 zlua API；其余见规范。
 | 层 | 职责 |
 |----|------|
 | **`CSharp`** | 程序集 / 类型 / 成员 / 构造 |
-| **`zlua`** | 类型构造辅助、opaque、数组、delegate、重载短名 |
+| **`zlua`** | 类型构造辅助、opaque、数组、delegate、泛型方法闭合（`inflate`） |
 | **实例 userdata** | 成员经元表，不经 `zlua` |
 
 全文 API：[05-LIB](/docs/spec/05-LIB/)、[参考](/docs/reference/lua/zlua-lib/)。本篇只列最常用。
@@ -24,18 +24,16 @@ description: 日常最常用的 zlua API；其余见规范。
 
 ## 重载
 
-同名多候选时，Bind 已自动挂全签名键（如 `Run(System.Int32)`），一般 **不必** 先调库：
+同名多候选时，短名走 dispatch；精确点名某一重载用 **全签名键**（`__index` miss 时懒解析并缓存为 direct）。需要 **冒号 + 短名** 时在 C# 或 XML 配 **`[LuaAlias]`**（Bind 后元表冻结，**不提供**运行时挂短名）：
 
 ```lua
 demo['Run(System.Int32)'](demo, 5)
-```
 
-需要短名 + 冒号时再 `register_method`：
-
-```lua
+-- 热路径：首次 miss 后键已缓存
 local run_i32 = demo['Run(System.Int32)']
-zlua.register_method("run_i32", run_i32)
-demo:run_i32(5)   -- 注册后的好处：可读短名 + 冒号语法
+run_i32(demo, 20)
+
+-- Bind 期别名：demo:run_i32(5)  （见 [LuaAlias](/docs/guides/lua-alias/)）
 ```
 
 `zlua.signature(...)` 只生成参数括号部分（如 `"(System.Int32)"`），用于对照/拼接；**不能**单独当元表键。见 [方法重载](/docs/guides/overloads/)。
@@ -52,7 +50,7 @@ local t = zlua.to_table(arr)
 local bytes = zlua.to_bytes(float_arr)  -- blittable 元素
 ```
 
-见 [泛型](/docs/guides/generics/)、[数组](/docs/guides/arrays/)。
+开放泛型 **方法** 用 `zlua.inflate` 或调用侧 **GTAP**（前缀 `zlua.typeof(...)`），见 [泛型](/docs/guides/generics/)。
 
 ## Opaque / ref
 
@@ -73,7 +71,7 @@ local d = zlua.to_delegate(fn, ActionIntType)  -- 第二参须已闭合
 
 ## 其它（需要时再查规范）
 
-`box` / `unbox` / `cast`、`make_generic_method`、mdarray 系列、Native `__zlua_*` —— 见 [05-LIB](/docs/spec/05-LIB/)。
+`box` / `unbox` / `cast`、`inflate` / GTAP、mdarray 系列、Native `__zlua_*` —— 见 [05-LIB](/docs/spec/05-LIB/) §9。
 
 ## 学习路径
 

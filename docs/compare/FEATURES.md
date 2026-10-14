@@ -92,7 +92,7 @@ ZLua 静/实例 **分离三表**（method / fieldGetter / fieldSetter）；继�
 |------|------|
 | xLua | 生成 Wrap 内 overload 分派 |
 | toLua / SLua | Wrap 内分派或单一签名 |
-| ZLua | Bind 期注册；默认 **最佳匹配**；`[LuaAlias]` / `register_method` 显式绑定（见 [spec/04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/)） |
+| ZLua | Bind 期注册；默认 **最佳匹配**；`[LuaAlias]` / 全签名键显式点名（见 [spec/04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/)） |
 
 **ZLua 特有能力：**
 
@@ -100,10 +100,9 @@ ZLua 静/实例 **分离三表**（method / fieldGetter / fieldSetter）；继�
 -- Bind 期 [LuaAlias("foo_str")] 单候选 direct closure
 obj:foo_str("a")
 
--- 或运行时挂新名（须尚未占用）
-local run = demo.run_i32
-zlua.register_method("run_hot", run)
-demo:run_hot(1)
+-- 全签名键（miss 懒解析）；可本地缓存
+local run = demo['Run(System.Int32)']
+run(demo, 1)
 ```
 
 ### 3.4 `__index` miss 语义

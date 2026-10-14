@@ -47,7 +47,7 @@ System.Linq.Expressions → Compile() → LuaCSFunction / delegate
 | 3 | **Method** 单重载 | `methodTable` direct closure | 捕获 `MethodInfo` + typed pop/push |
 | 4 | **Method** 多重载 | `methodTable` dispatch closure | 内调 managed `MethodOverloadResolver`（对齐 [../marshal/OVERLOAD-RESOLVER.md](/docs/impl/marshal/OVERLOAD-RESOLVER/)） |
 | 5 | **Constructor** | `SMT.__call` | 复用 ctor overload 分组 |
-| 6 | **别名** | `methodTable` 额外键 | `[LuaAlias]`、`zlua.register_method` |
+| 6 | **别名** | `methodTable` 额外键 | `[LuaAlias]` / Alias XML（无运行时 `register_method`） |
 
 每步完成后跑对应 Lua case，再进入下一步。
 

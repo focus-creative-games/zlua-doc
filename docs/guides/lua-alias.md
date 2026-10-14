@@ -17,8 +17,7 @@ description: "[LuaAlias] 换名与 XML（luaAliasXmlPaths / ZLuaAlias）。"
 | 能改 C#，热路径要短名 + 冒号 | **`[LuaAlias]`** |
 | 不能改源码（预编译 / AOT、**非热更新** DLL） | Settings **`luaAliasXmlPaths`** + `ZLuaAlias` XML |
 | **热更新程序集**（含 HybridCLR） | **只**能代码中 `[LuaAlias]`；**不支持** XML |
-| 不能改 C#、运行时临时挂名 | `zlua.register_method`（见 [重载](/docs/guides/overloads/)） |
-| 只想精确点名、不在乎写法 | 全签名键 `demo['Run(System.Int32)'](demo, 5)` |
+| 只想精确点名、不在乎写法 | 全签名键 `demo['Run(System.Int32)'](demo, 5)`（可本地缓存 direct） |
 
 ## `[LuaAlias]` 属性
 
@@ -117,13 +116,13 @@ d:print(1)      -- 组内选 LogA(int)
 
 在 Project Settings → **ZLua** 里把 XML 路径填入 **`luaAliasXmlPaths`**（与 MarshalAs 路径列表并列）。
 
-## 与全签名键 / `register_method`
+## 与全签名键
 
 | 方式 | 说明 |
 |------|------|
-| 全签名键 | Bind 自动；不换默认名；写法 `demo['Run(System.Int32)'](demo, 5)` |
+| 全签名键 | `__index` miss 懒解析并缓存；不换默认名；`demo['Run(System.Int32)'](demo, 5)` |
 | `[LuaAlias]` / XML | Bind 期 **换名**；热路径首选短名冒号 |
-| `register_method` | 运行时把已有 direct 挂到 **空位**短名；不合并 overload |
+| 本地缓存 | `local run = demo['Run(System.Int32)']`；**无**运行时挂短名 API |
 
 ## 常见错误
 

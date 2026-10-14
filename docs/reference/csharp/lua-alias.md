@@ -90,15 +90,15 @@ public void Run(string value) { }  // 默认名仍进 "Run" 组
 | 实例方法 | 实例 `methodTable` | `obj:alias(...)` |
 | 静态方法 | 类型表 `methodTable` | `TypeTable.alias(...)` |
 
-## 与全签名键 / `register_method` 的关系
+## 与全签名键的关系
 
 | 方式 | 时机 | 适用 |
 |------|------|------|
-| 全签名键 `Run(System.Int32)` | Bind 期自动（同名多候选） | 精确点名，无需改 C#、无需 API |
-| `[LuaAlias]` / XML | 类型 `EnsureBinding` 时 | 编译期固定短名、热路径首选 |
-| `zlua.register_method` | Lua 运行时 | 把 direct（常来自全签名键）挂成自定义短名，便于 `obj:alias(...)` |
+| 全签名键 `Run(System.Int32)` | `__index` miss 懒解析并缓存 | 精确点名，无需改 C#、无需运行时 API |
+| `[LuaAlias]` / XML | 类型 `EnsureBinding` 时 | Bind 期固定短名、热路径首选冒号 |
+| 本地缓存 direct | 脚本自行保存 closure | 热路径复用；**无**运行时挂短名 API |
 
-`[LuaAlias]` / XML 是 methodTable 上的 **换名**（替换默认键）；全签名键解决「点名哪一个重载」；`register_method` 在运行时挂 **额外** 空位短名。
+`[LuaAlias]` / XML 是 methodTable 上的 **换名**（替换默认键）；全签名键解决「点名哪一个重载」。
 
 ## Mono / Il2Cpp 支持
 

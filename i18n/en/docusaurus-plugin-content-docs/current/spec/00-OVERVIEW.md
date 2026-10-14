@@ -193,7 +193,7 @@ Old `GetFunction` delegates are all invalid after Reset takes effect. Ordering d
 |------|----------|
 | `__index` / three tables / miss semantics | [metatable/](/docs/spec/metatable/) |
 | Push / Pop / ref / Opaque | [marshal/](/docs/spec/marshal/) |
-| `zlua.make_*` / `register_method` | [05-LIB.md](/docs/spec/05-LIB/) |
+| `zlua.make_*` / `inflate` / GTAP | [05-LIB.md](/docs/spec/05-LIB/) |
 | `GetFunction` and Delegate bridge | [01-HOST-API.md](/docs/spec/01-HOST-API/) |
 | ObjectRegistry / GC root | [10-LIFETIME.md](/docs/spec/10-LIFETIME/) |
 | xLua / toLua / SLua type-path adaptors | [12-MIGRATION-ADAPTORS.md](/docs/spec/12-MIGRATION-ADAPTORS/) |
@@ -214,9 +214,9 @@ print(demo:GetX())
 
 -- Explicit overload (see 04-METHOD-OVERLOAD)
 demo['Run(System.Int32)'](demo, 42)          -- full-signature key
-local run = demo['Run(System.Int32)']
-zlua.register_method("run_i32", run)         -- short name then colon call
-demo:run_i32(42)
+local run = demo['Run(System.Int32)']        -- cache direct locally
+run(demo, 42)
+-- Short colon names: Bind-time [LuaAlias], not runtime register_method
 ```
 
 C# side:

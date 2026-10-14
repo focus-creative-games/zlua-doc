@@ -240,7 +240,7 @@ instance userdata
 | 引用 | 用途 |
 |------|------|
 | `T.__instance_mt` → `IMT` | 构造时挂接 |
-| `IMT.__type` → `T` | `typeof`、register_method 域推断 |
+| `IMT.__type` → `T` | `typeof`、绑定域推断 |
 | `TypeBinding` | 持有 staticMap、byval/byobj instance map |
 
 ### 3.4 延迟初始化（EnsureBinding）
@@ -329,7 +329,7 @@ local p = Point(3, 4)
 
 ### 4.4 方法
 
-见 [04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/)：单重 → direct closure；多重 → dispatch；`[LuaAlias]` / `register_method`。
+见 [04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/)：单重 → direct closure；多重 → dispatch；`[LuaAlias]` / 全签名键。
 
 ### 4.5 事件（无专用元表）
 
@@ -392,21 +392,29 @@ demo:remove_ValueChanged(handler)
 
 ## 6. 泛型方法
 
-针对 **方法自身** 带泛型参数，如 `void Foo<T>(T a)`。闭合泛型类上的方法 **不** 走本节。
+针对 **方法自身** 带泛型参数，如 `void Foo<T>(T a)` / `T GetComponent<T>()`。闭合泛型类上的方法 **不** 走本节。
 
-### 6.1 调用约定
+完整 API 与 typeArg 规则见 [05-LIB.md](/docs/spec/05-LIB/) §9；重载与 GTAP 优先级见 [04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) §3.8。
+
+### 6.1 调用约定（两路径）
+
+| 路径 | 示例 |
+|------|------|
+| **`zlua.inflate`** | `local f = zlua.inflate(Type, "Foo", zlua.types.int32); f(obj, value)` — `Type` 须已闭合 |
+| **GTAP** | `obj:Foo(zlua.typeof(CSharp…Int32), value)` — 前缀仅 `System.Type`；`isByVal` 取自调用侧元表 |
 
 ```lua
--- Type.Foo 为 direct generic method closure
-local foo_int = zlua.make_generic_method(Type.Foo, zlua.types.int32)
+local foo_int = zlua.inflate(Type, "Foo", zlua.types.int32)
 foo_int(obj, value)   -- 静态则无需 obj
+
+local GetRb = zlua.inflate(GameObject, "GetComponent", Rigidbody)
 ```
 
-使用 [05-LIB.md](/docs/spec/05-LIB/) `make_generic_method` 单态化泛型方法 closure。
+闭合后返回值的 **声明门面** 按闭合签名；若 API 只能返回基类/接口且希望 Lua 侧按实际类型访问成员，见 [marshal/02-MARSHAL-AS.md](/docs/spec/marshal/02-MARSHAL-AS/) `ActualTypeUserData` 或 `zlua.cast`。
 
 ### 6.2 缓存
 
-相同 `(genericMethodBase, typeArgs…)` **intern** 为同一 inflated direct closure（Il2Cpp：写入 `NameMetaMap` 内部签名键）。
+相同闭合结果 **intern** 为同一 direct closure；键至少含 **`(closedMethod, isStatic, isByVal)`**（`inflate` 与 GTAP 共用）。
 
 ---
 

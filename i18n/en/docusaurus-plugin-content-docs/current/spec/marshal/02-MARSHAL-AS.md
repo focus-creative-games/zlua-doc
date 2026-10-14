@@ -19,9 +19,9 @@ title: "`[LuaMarshalAs]` and `LuaMarshalType`"
 
 Must **not** annotate **methods** (annotate each parameter/return separately).
 
-Must **not** apply to **undetermined (open / containing generic parameters) CLR type positions** (§1.1); may apply to **closed** generic type positions (e.g. `List<int>` parameters). XML rules share the **same constraints** as Attribute (§9.3.1).
+Member slots (parameters / returns / fields / properties) may be annotated on **open or not-fully-closed** CLR types (e.g. `T`, `List<T>`); the **§3 legal set** is judged at resolve time against the **type actually used for Marshal** (closed slots on closed methods). **Type-level** annotations remain allowed only on non-generic types (§1.1). XML shares the **same constraints** as Attribute (§9.3.1).
 
-Overrides must be in the **§3 legal set**; otherwise **§4.1** falls back to `Default` and logs an error in the Editor.
+Overrides must be in the **§3 legal set**; otherwise **§4.1** falls back to `Default` and logs an error in the Editor (same as any other `LuaMarshalType`; XML / Generate: §4.2).
 
 ```csharp
 public enum LuaMarshalType
@@ -32,6 +32,7 @@ public enum LuaMarshalType
     OpaqueValue,
     UnpackedValues,   // struct / closed generic struct: multi Lua stack slots ↔ listed members (excl. Nullable)
     Table,            // struct / closed generic struct / Nullable<struct>: single Lua table ↔ listed members
+    ActualTypeUserData, // return only: ByObj façade = runtime actual type (see §2)
 }
 
 [AttributeUsage(
@@ -53,22 +54,21 @@ public sealed class LuaMarshalAsAttribute : Attribute
 }
 ```
 
-### 1.1 Generics: only “determined” type positions
-
-`[LuaMarshalAs]` (and equivalent XML) must **not** be used on types that still contain unbound generic parameters:
+### 1.1 Generics: type-level vs member slots
 
 | Forbidden | Allowed |
 |-----------|---------|
-| Type-level on open definitions: `[LuaMarshalAs] class MyList<T>` / ``struct Foo`1`` | Type-level on **non-generic** `class` / `struct` |
-| Parameter/return/field/property CLR type is a generic parameter or open construction: `void Foo([LuaMarshalAs] T a)`, `List<T> items` | Closed construction: `void Foo([LuaMarshalAs] List<int> arr)`, field `List<int> Body` |
-| Undetermined slots on generic methods (including ordinary methods on generic classes while the slot still contains `T`) | Slots on the same method whose types are already closed |
+| **Type-level** on open definitions: `[LuaMarshalAs] class MyList<T>` / ``struct Foo`1``; XML type-level `MarshalAs` on a generic type | Type-level on **non-generic** `class` / `struct` |
+| Expecting closed instance `List<int>` to **inherit** type-level rules from ``List`1`` | Member rules under an open generic **declaring type** XML `Type` (``MyList`1`` / `GameObject`) targeting Field / Property / Param / Return (**including** not-fully-closed slots such as `T` / `List<T>`) |
+| | Attribute / XML on returns/parameters of open generic methods (e.g. `Return` + `ActualTypeUserData` on `T GetComponent<T>()`) |
 
 Notes:
 
 - C# **cannot** put type-level attributes on closed instances like `List<int>`; type-level exists only on type definitions. Thus **generic types (open definitions) forbid type-level** `[LuaMarshalAs]` / XML type-level `MarshalAs`; closed instances also do **not** inherit type-level rules by “normalizing to the open definition”.
-- Member rules may still hang under an open generic **declaring type** XML `Type` (``MyList`1``) as long as the target Field/Property/Param/Return CLR type is **determined**.
+- Member rules bind to the **open method/member definition** (XML by definition token; Attribute remains visible on closed `MethodInfo`). **§3 legality** is judged at Resolve against the **current MethodInfo/field CLR type**: after GTAP / `inflate` / `MakeGenericMethod`, use the **closed** slot type (apply if compatible; otherwise → §4).
+- Example: XML configures `Return`=`ActualTypeUserData` for `GetComponent` (``GetComponent`1``, `signature="()"`); after `GetComponent(zlua.typeof(BoxCollider))` closes, the return type is `BoxCollider`, which accepts ActualType under the class legal set.
 
-Violations → **Il2Cpp Generate / XML fail**; **Mono Attribute** path: **§4.1** (log + fall back to Default).
+**Type-level** violations → **Il2Cpp Generate / XML fail**; **Mono Attribute** path: **§4.1**. Illegal `LuaMarshalType` on member slots (relative to the closed type) → same §4 (no separate hard-fail merely because the slot was once open `T`).
 
 ## 2. `LuaMarshalType` enum notes
 
@@ -80,6 +80,7 @@ Violations → **Il2Cpp Generate / XML fail**; **Mono Attribute** path: **§4.1*
 | **`OpaqueValue`** | **C# → Lua only** | Push **OpaqueValue** (lightuserdata, no metatable); see [04-OPAQUE.md](/docs/spec/marshal/04-OPAQUE/).<br>• **`ref` / `out` / `in T`** (any `T`) **default** to this shape (no annotation needed)<br>• **by-val** may explicitly annotate for **struct / managed references / enum / pointers**, etc. (see §3) to force Opaque Push; **primitives** and **`IntPtr` / `UIntPtr` / `nint` / `nuint`** **must not** annotate ( **`Default` only**, §3)—already integer/number, no real need, and this enables hot-path optimization<br>• Scripts R/W via `zlua.get_opaquevalue` / `zlua.set_opaquevalue`; pass-back to C# follows [04-OPAQUE.md §6](/docs/spec/marshal/04-OPAQUE/)<br>• Must **not** persist across calls; annotating this on a **Lua → C#**-only parameter is **illegal** (§3.1) |
 | **`UnpackedValues`** | **Bidirectional** | **Ordinary struct / closed generic struct** (§3; **excludes** `Nullable` / class / interface). Convert members listed in **§5** `Members` with **multiple contiguous Lua stack slots**:<br>• **Lua → C#:** Pop N values from the stack in list **order**, write corresponding fields/properties<br>• **C# → Lua:** Push N values in list **order** (multi-return or expanded push)<br>Requires **`Members`**; missing or illegal target → **§4**. That parameter/return occupies **N** Lua stack slots (§5.6) |
 | **`Table`** | **Bidirectional** | **Ordinary struct / closed generic struct / `Nullable<struct>`** (§3; **excludes** class / interface). Convert members listed in **§5** `Members` with a **single Lua table**:<br>• **Lua → C#:** Pop one table (or for `Nullable` allow `nil`→no value); read by **key name** and write fields/properties<br>• **C# → Lua:** Push one table (`Nullable` no value → `nil`)<br>Requires **`Members`** (resolved on the **underlying struct**); missing or illegal → **§4**. Occupies **1** Lua stack slot |
+| **`ActualTypeUserData`** | **C# → Lua (return) only** | **Only** on **return values** whose declared type defaults to **ByObj UserData** (`class` / `interface` / `object` / arrays, etc., §3). Semantics:<br>• Shape remains **ByObj UserData** (does not switch Default’s special paths such as Lua `string` for declared `string`)<br>• **`viewKlass` / IMT façade = runtime actual type** (`obj.GetType()` / `obj->klass`), not the declared type<br>• If the actual type is **`string`**, still Push **ByObj UserData** (façade `System.String`) — **not** a Lua `string`<br>• `null` → `nil`<br>• **No** separate method/indexer dispatch changes: lookup already uses viewKlass; with actual-type view, dispatch follows the actual type<br>• On **parameters / fields / properties / type-level**, or declared type outside the legal set → same as any other illegal annotation (**§4**: Mono Attribute falls back to `Default`; XML / Generate §4.2) |
 
 ## 3. Legal `LuaMarshalType` sets per type
 
@@ -93,17 +94,17 @@ The “legal set” column lists values that may be annotated **besides `Default
 |--------------------|------------------------------------------|-------|
 | **Primitives** (`bool`, `char`, `byte`…`ulong`, `float`, `double`) | (none; **`Default` only**) | **`UserData` / `OpaqueValue` both illegal**. Default is already integer/boolean/number; forbidding `OpaqueValue` enables optimization. **`ref`/`in`/`out` primitives** → already Opaque (see “byref” row)—that is **not** by-val `[OpaqueValue]` |
 | **`IntPtr` / `UIntPtr` / `nint` / `nuint`** | (none; **`Default` only**) | Same as primitives: `Default` only (integer numeric Marshal); **no** `OpaqueValue` / `UserData` |
-| **`string`** | `UserData`, `Bytes`, `OpaqueValue` | `UserData`: force ByObjUserData; `Bytes`: octet string; `OpaqueValue`: **C#→Lua only** |
-| **`byte[]`** | `Bytes`, `UserData`, `OpaqueValue` | `Bytes`: ↔ Lua string; `UserData` ≡ default; `OpaqueValue`: **C#→Lua only** |
-| **`T[]` (szarray)** | `UserData`, `OpaqueValue` | `UserData` ≡ default; `OpaqueValue`: **C#→Lua only** |
-| **`T[,…]` (mdarray)** | `UserData`, `OpaqueValue` | Same; Lua→C# does **not** accept table because of annotation |
+| **`string`** | `UserData`, `Bytes`, `OpaqueValue` | `UserData`: force ByObjUserData; `Bytes`: octet string; `OpaqueValue`: **C#→Lua only**; **`ActualTypeUserData` illegal** (default is not ByObj) |
+| **`byte[]`** | `Bytes`, `UserData`, `OpaqueValue`, `ActualTypeUserData` | `Bytes`: ↔ Lua string; `UserData` ≡ default; `OpaqueValue`: **C#→Lua only**; `ActualTypeUserData`: **return only** |
+| **`T[]` (szarray)** | `UserData`, `OpaqueValue`, `ActualTypeUserData` | `UserData` ≡ default; `OpaqueValue`: **C#→Lua only**; `ActualTypeUserData`: **return only** |
+| **`T[,…]` (mdarray)** | `UserData`, `OpaqueValue`, `ActualTypeUserData` | Same; Lua→C# does **not** accept table because of annotation; `ActualTypeUserData`: **return only** |
 | **`enum`** | `OpaqueValue` | by-val **cannot** `UserData`; boxed via `zlua.box` ([08-ENUM.md](/docs/spec/marshal/08-ENUM/). `OpaqueValue` legal but usually unnecessary. **`ref`/`in`/`out` enum** → see “byref” |
-| **`struct`** (ordinary value type / **closed** generic struct; not ref struct) | `UserData`, `OpaqueValue`, `Table`, `UnpackedValues` | `UserData` ≡ default; `OpaqueValue`: **C#→Lua only**; `Table` / `UnpackedValues` need member list |
-| **`class`** | `UserData`, `OpaqueValue` | `UserData` ≡ default; `OpaqueValue`: **C#→Lua only**; **no** `Table` / `UnpackedValues` |
-| **`interface`** | `UserData`, `OpaqueValue` | Default ByObjUserData; `UserData` ≡ default; **no** `Table` / `UnpackedValues` |
-| **`Delegate` and subclasses** | `UserData`, `OpaqueValue` | `UserData` has no real effect; `OpaqueValue`: **C#→Lua only** |
-| **`object`** | `UserData`, `OpaqueValue` | `OpaqueValue`: **C#→Lua only** |
-| **`ref` / `in` / `out T` (any T)** | (usually no annotation) | C#→Lua **defaults** to OpaqueValue ([04-OPAQUE.md](/docs/spec/marshal/04-OPAQUE/). Explicit `[OpaqueValue]` **legal** |
+| **`struct`** (ordinary value type / **closed** generic struct; not ref struct) | `UserData`, `OpaqueValue`, `Table`, `UnpackedValues` | `UserData` ≡ default; `OpaqueValue`: **C#→Lua only**; `Table` / `UnpackedValues` need member list; **no** `ActualTypeUserData` |
+| **`class`** | `UserData`, `OpaqueValue`, `ActualTypeUserData` | `UserData` ≡ default; `OpaqueValue`: **C#→Lua only**; `ActualTypeUserData`: **return only**; **no** `Table` / `UnpackedValues` |
+| **`interface`** | `UserData`, `OpaqueValue`, `ActualTypeUserData` | Default ByObjUserData; `UserData` ≡ default; `ActualTypeUserData`: **return only** (façade = implementing class); **no** `Table` / `UnpackedValues` |
+| **`Delegate` and subclasses** | `UserData`, `OpaqueValue` | `UserData` has no real effect; `OpaqueValue`: **C#→Lua only**; **no** `ActualTypeUserData` |
+| **`object`** | `UserData`, `OpaqueValue`, `ActualTypeUserData` | `OpaqueValue`: **C#→Lua only**; `ActualTypeUserData`: **return only** (façade = actual type; actual `string` still ByObj) |
+| **`ref` / `in` / `out T` (any T)** | (usually no annotation) | C#→Lua **defaults** to OpaqueValue ([04-OPAQUE.md](/docs/spec/marshal/04-OPAQUE/). Explicit `[OpaqueValue]` **legal**; **no** `ActualTypeUserData` |
 | **`Nullable<T>`** (`T` is struct) | `UserData`, `OpaqueValue`, **`Table`** | Legal set does **not** include `UnpackedValues` (multi-slot cannot distinguish `nil`=no value). `Table` `Members` target **underlying `T`**; `nil`↔no value, table↔has value. When `T` is primitive/enum, usually no `Table` beyond `Default`/`OpaqueValue`/`UserData` (if applicable) |
 | **Unmanaged pointers** (`T*`, `void*`, etc.) | `OpaqueValue` | Default may be `Default` (Pointer pass-through; [10-POINTER.md](/docs/spec/marshal/10-POINTER/); may also annotate `OpaqueValue` (C#→Lua) |
 | **Function pointers** (`delegate*<…>`) | `OpaqueValue` | Same as unmanaged pointers |
@@ -118,12 +119,13 @@ The “legal set” column lists values that may be annotated **besides `Default
 |------------------|------------------------------|
 | `UserData`, `Bytes`, `Table`, `UnpackedValues` | **Bidirectional** (Pop / Push may apply; depends on parameter/return direction) |
 | `OpaqueValue` | **C# → Lua only** (returns, or push args when C# calls Lua); on a **pure Lua→C# parameter** → **illegal** |
+| `ActualTypeUserData` | **Return values only** (C# → Lua Push); on parameters / fields / properties / type-level → **illegal** (handled per §4, same as any other type) |
 
 ## 4. Illegal annotations and config errors
 
 ### 4.1 Mono Attribute: always log + fall back to Default
 
-When **Mono** runtime parses **Attribute** (including type-level), these cases do **not** abort binding:
+When **Mono** runtime parses **Attribute** (including type-level), these cases do **not** abort binding (**including illegal `ActualTypeUserData`** — no special exception vs other `LuaMarshalType` values):
 
 | Behavior | Notes |
 |----------|-------|
@@ -133,9 +135,9 @@ When **Mono** runtime parses **Attribute** (including type-level), these cases d
 
 Coverage includes but is not limited to:
 
-- Type / direction outside §3 legal set (e.g. `Table` on class, `OpaqueValue` on a Lua→C# parameter)
+- Type / direction outside §3 legal set (e.g. `Table` on class, `OpaqueValue` on a Lua→C# parameter, **`ActualTypeUserData` not on a return**, return type that does not allow ActualType, etc.) — including incompatibilities that appear only after close (e.g. open method annotated `Bytes`, closed to non-`byte[]`/`string`)
 - `Table` / `UnpackedValues`: missing/empty **Members**, nonexistent member names, R/W permission mismatch, `?` used outside Table, **`UnpackedValues` on `Nullable<T>`**
-- Attribute on undetermined generic positions (§1.1) also falls back on Mono Attribute path (distinct from hard fail on XML/Generate)
+- Illegal member-slot `LuaMarshalType` relative to the **closed** type follows §4 (no separate hard-fail merely because the slot was once open `T`)
 
 **Example:**
 
@@ -144,9 +146,14 @@ Coverage includes but is not limited to:
   parameter 'value' (System.Int32): LuaMarshalType.UserData is not allowed; falling back to Default.
 ```
 
+```text
+[ZLua] Invalid LuaMarshalAs: ...GetComp(string name)
+  parameter 'name' (System.String): LuaMarshalType.ActualTypeUserData is not allowed; falling back to Default.
+```
+
 ### 4.2 Il2Cpp Generate / XML load: config errors may hard-fail
 
-**Il2Cpp Codegen (Generate)** and **MarshalAs XML load** may **fail and abort** on §4.1-class errors (visible in CI / Editor); they do **not** silently write into Player binding tables. Typical text:
+**Il2Cpp Codegen (Generate)** and **MarshalAs XML load** may **fail and abort** on §4.1-class errors (visible in CI / Editor); they do **not** silently write into Player binding tables (**including illegal `ActualTypeUserData`**, same as any other `LuaMarshalType`). Typical text:
 
 ```text
 [ZLua] LuaMarshalAs configuration error: ...Foo(MyStruct v)
@@ -424,8 +431,9 @@ Root element:
 | Correct | Incorrect |
 |---------|-----------|
 | `void Foo([LuaMarshalAs(Bytes)] List<int> arr)` / XML Param pointing at that closed parameter | `[LuaMarshalAs] class MyList<T>`; type-level XML `MarshalAs` on ``MyList`1`` |
-| XML `Type fullName="MyList`1"` configuring **closed** Field/Param under it | `void Foo([LuaMarshalAs] T a)`; Field type `T` / `List<T>` still with `MarshalAs` |
-| Type-level Attribute / XML on non-generic types | Expecting `List<int>` to inherit type-level rules from ``List`1`` |
+| XML under `Type fullName="UnityEngine.Component"` configuring `Return`=`ActualTypeUserData` for ``GetComponent`1`` / `GetComponent(System.Type)` (on the **declaring type**; usable via `GameObject` inheritance) | Expecting `List<int>` to inherit type-level rules from ``List`1``; or hanging `GetComponent` on `GameObject` (not DeclaringType) |
+| XML under `Type fullName="MyList`1"` configuring Field/Param/Return rules (slots may be `T` / `List<T>`) | Using a closed generic instance name as `Type/@fullName` container |
+| Type-level Attribute / XML on non-generic types | Hanging `MarshalAs` directly on `Method` (no method-level override) |
 
 **Forbidden:**
 
@@ -433,7 +441,7 @@ Root element:
 - Locating `Param` with a `name` attribute
 - XML `type` using deprecated `OpaqueLightUserData` string → **fail** (must be `OpaqueValue`)
 - XML `Type/@fullName` as a closed generic instance name → **fail** (members hang on open definition / non-generic declaring type)
-- Type-level or member-level rules on **undetermined** types → **fail** (§1.1)
+- **Type-level** rules on open generic types → **fail** (§1.1); member-slot legality is judged after close (§1.1 / §4)
 
 ### 9.4 Parse and validation
 

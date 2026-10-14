@@ -20,7 +20,7 @@ At init, native registers `__zlua_*` global C functions, then `dostring`s `zlual
 | Layer | Role |
 |-------|------|
 | **`CSharp`** | Assembly / type lazy load; static members; `Type(...)` construction |
-| **`zlua`** | Type construction helpers, opaque, boxing, arrays, delegates, method-alias registration |
+| **`zlua`** | Type construction helpers, opaque, boxing, arrays, delegates, generic method closing (`inflate`) |
 | **Instance userdata** | Members via type metatables, **not** via `zlua` |
 
 `zlua` does **not** replace `CSharp` for type access.
@@ -49,6 +49,8 @@ Il2Cpp: script embedded in `BuiltinScripts.inc`; Mono: Resources or equivalent p
 | **`System.Type` object** | Reflection object from `zlua.typeof(...)` (Type class userdata on Lua, including `RuntimeType` and other subclasses). Any API that accepts `typeArg` may take it directly; equivalent to passing the corresponding type table |
 
 `zlua.typeof(typeTable)` accepts **any** ZLua type table (including closed generics and array type tables) and returns that type’s **`System.Type` reflection object** (Type class userdata on Lua), matching C# `typeof(T)`. That return value may itself be used again as a `typeArg`.
+
+**Subset: GTAP prefix (§9.2).** When calling an open generic method, prefix type arguments accept **only** **`System.Type` objects** (ByObj userdata) from the table above — **not** type tables / strings / `zlua.types.*`. For full §3 ergonomics use `zlua.inflate` (§9.1); its typeArgs match this section **exactly**.
 
 ---
 
@@ -317,26 +319,79 @@ Argument must be a **rank-1 szarray** userdata of any element type. Returned tab
 
 ## 9. Generic methods
 
-### 9.1 `zlua.make_generic_method`
+Open generic methods (method-level type parameters, e.g. `T GetComponent<T>()`) have two closing paths with the same semantics but different scenarios:
+
+| Path | Use when | typeArg rules |
+|------|----------|---------------|
+| **`zlua.inflate`** (§9.1) | Close method generics by **closed** declaring type + method name/signature; cache closure on hot paths | **Full §3 typeArg** |
+| **GTAP** (§9.2) | Pass `System.Type` prefixes at the call site (via metatable short names) | **`System.Type` userdata only** |
+
+> **`zlua.make_generic_method` / `zlua.register_method` are not provided:** the same CLR method maps to different bridges under ByVal / ByObj (and static/instance); “take a closure, specialize, then hang a name” easily loses `isByVal` context. Metatables are **frozen** after Bind; the method table must not be rewritten at runtime.
+
+Return-value facades of closed methods follow the **declared types of the closed signature**. To hang the facade on the runtime actual type, see [marshal/02-MARSHAL-AS.md](/docs/spec/marshal/02-MARSHAL-AS/) `ActualTypeUserData`.
+
+**Scope:** `inflate` / GTAP close **only** the method’s own generic formals. If the declaring type is still open (e.g. `List\`1`), first use `zlua.make_generic_type` to obtain a closed type, then `inflate` method generics on it.
+
+### 9.1 `zlua.inflate`
 
 ```lua
-zlua.make_generic_method(genericMethodBase, typeArg1, ...) → closure
+zlua.inflate(type, methodNameOrSignature, typeArg1, ..., typeArgN) → closure
 ```
+
+On the given **closed** type, look up an **open generic method** by **name or full-signature key**, monomorphize with typeArgs, and return a **direct closure** (may be cached locally).
 
 | Parameter | Notes |
 |-----------|-------|
-| `genericMethodBase` | **direct method closure** on a type table (unspecialized generic method) |
-| `typeArg…` | Generic arguments; count must match the method’s generic formals |
+| `type` | Declaring type of the open generic method: **must be closed** (not `IsGenericTypeDefinition`, no unbound generic parameters). **Type table** or a §3 typeArg that resolves to a type (prefer type table / `System.Type`) |
+| `methodNameOrSignature` | **String**: short method name (e.g. `"GetComponent"`) or [04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) §3.7 **full-signature key** (open generic formals use parameter names, e.g. `"Describe(T)"`; **no** CLR `` `n `` suffix) |
+| `typeArg1…typeArgN` | §3 typeArg; **`N ≥ 1`** and **`N` =** count of generic formals on the target open method |
 
-Returns a specialized **direct closure**; same `(base, typeArgs…)` **intern**s (written under an internal signature key in `staticMap` / instance map).
+| Behavior | Rules |
+|----------|-------|
+| Lookup | Search **static map + ByObj instance map** on that type (inheritance-flattened binding). Short name with multiple candidates not uniqued by arity → error (use full-signature key) |
+| Instance convention | Returned instance-method closure uses **ByObj** calling convention: must be `f(self, …)` with `self` as class / boxed struct userdata; **does not** produce a separate ByVal-side closure via `inflate` alone (struct ByVal open generics use **GTAP** on that side’s metatable) |
+| intern | Key includes at least **`(closedMethod, isStatic, isByVal)`** (closed `MethodInfo` + static/instance + ByVal/ByObj). Same key **intern**s to one registry closure; **shared** key space with GTAP implicit inflate |
+| Failure | Declaring type not closed / invalid type / missing name / not open generic / arity mismatch / ambiguity / `MakeGenericMethod` constraint failure → **`luaL_error`** with a clear reason |
 
-**Requirement:** must not pass a **dispatch closure**.
-
-**Native:** `__zlua_make_generic_method`
+**Native:** `__zlua_inflate`
 
 ```lua
-local bar_int = zlua.make_generic_method(MyType.GenericBar, zlua.types.int32)
-bar_int(obj, 42)
+-- Unity: cache GetComponent<Rigidbody> (declaring type may be GameObject; after inheritance flatten, Component’s method is found)
+local GetRb = zlua.inflate(GameObject, "GetComponent",
+    CSharp['UnityEngine.CoreModule']['UnityEngine.Rigidbody'])
+local rb = GetRb(go)
+
+-- typeArg may be type table / string / System.Type (§3)
+local GetBox = zlua.inflate(GameObject, "GetComponent", zlua.typeof(BoxCollider))
+local GetTr = zlua.inflate(GameObject, "GetComponent", "UnityEngine.Transform")
+
+-- Generic class: close declaring type first, then inflate method generics
+local ListInt = zlua.make_generic_type(
+    CSharp.mscorlib['System.Collections.Generic.List`1'], zlua.types.int32)
+-- local f = zlua.inflate(ListInt, "ConvertAll", ...)
+```
+
+### 9.2 Open-generic call prefix (GTAP)
+
+When invoking an **open generic** direct (or a dispatch that includes open-generic candidates) on a type/instance metatable, place **N** type prefixes **before** ordinary arguments to inflate implicitly, then match the remaining args against the closed signature.
+
+| Rule | Notes |
+|------|-------|
+| Prefix | After `self` (if any), **N** consecutive args must be **`System.Type` ByObj userdata** (`zlua.typeof(...)`); **N** = method generic formal count |
+| Remaining | Ordinary args of the closed method (may be zero, e.g. `GetComponent<T>()`) |
+| **Not** accepted | Type tables, type-name strings, `zlua.types.*` as GTAP prefixes (use `typeof` first, or `inflate`) |
+| Overload priority | If an **open generic** candidate matches “prefix N × `System.Type` + remaining args applicable to the closed signature”, it **wins over** ordinary non-generic overloads (including `GetComponent(Type)`) |
+| `isByVal` | Taken from the **metatable side that triggered the call** (ByObj IMT or ByVal IMT), then interned together with the closed `MethodInfo` |
+| intern | Implicit inflate **shares the same intern** as explicit `inflate` (key includes `isStatic` / `isByVal`) |
+| Failure | Insufficient/wrong prefix / constraint failure → overload failure or a clear error (consistent across platforms) |
+
+See [04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) §3.8.
+
+```lua
+local Rigidbody = CSharp['UnityEngine.CoreModule']['UnityEngine.Rigidbody']
+local rb = go:GetComponent(zlua.typeof(Rigidbody))   -- GTAP → GetComponent<Rigidbody>()
+-- go:GetComponent(Rigidbody)                        -- ✗ type table is not a GTAP prefix
+-- go:GetComponent("UnityEngine.Rigidbody")          -- string overload (if any), not GTAP
 ```
 
 ---
@@ -380,27 +435,17 @@ function zlua.signature(...)
 end
 ```
 
-### 11.2 `zlua.register_method`
+### 11.2 Exact overload and short names
 
-```lua
-zlua.register_method(aliasName, methodOrClosure) → void
-```
-
-Full semantics: [04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) §6.1.
-
-Highlights:
-
-- Same-name overloads already have **full-signature keys** at Bind (e.g. `Run(System.Int32)`); you may call `obj['Run(System.Int32)'](obj, …)` directly — **no** need for `register_method` first
-- `register_method` hangs a **direct** closure on an **unused** short name; then **colon** works: `obj:run_i32(5)`
-- Existing `aliasName` (default name / full-signature key / other alias) → `luaL_error`; does not merge overloads
+- **Full-signature keys** (e.g. `Run(System.Int32)`) are lazily resolved and cached on `__index` miss (see [04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) §3.7); you may call `obj['Run(System.Int32)'](obj, …)`
+- For short-name colon calls, use Bind-time **`[LuaAlias]`** / XML aliases (same doc §5)
+- **No** runtime `register_method`; short names are **frozen** after Bind
 
 ```lua
 local run_i32 = demo['Run(System.Int32)']
-zlua.register_method("run_i32", run_i32)
-demo:run_i32(5)
+run_i32(demo, 5)
+-- Or after Bind-time [LuaAlias("run_i32")]: demo:run_i32(5)
 ```
-
-**Native:** `__zlua_register_method`
 
 ---
 
@@ -420,8 +465,7 @@ Globals actually registered by **`ZLuaLib::RegisterGlobals`**; `zlualib.lua` wra
 | `__zlua_new_szarray_by_szarray_type` | `zlua.new_szarray_by_szarray_type` | |
 | `__zlua_new_mdarray_by_mdarray_type` | `zlua.new_mdarray_by_mdarray_type` | |
 | `__zlua_new_mdarray_by_spec` | `zlua.new_mdarray_by_spec` | |
-| `__zlua_make_generic_method` | `zlua.make_generic_method` | |
-| `__zlua_register_method` | `zlua.register_method` | Two parameters |
+| `__zlua_inflate` | `zlua.inflate` | Close method generics by closed declaring type + name/signature + typeArgs |
 | `__zlua_box` | `zlua.box` | |
 | `__zlua_unbox` | `zlua.unbox` | |
 | `__zlua_cast` | `zlua.cast` | |
@@ -460,14 +504,17 @@ local fraw = zlua.to_bytes(floats)   -- #fraw == 16
 -- opaque (inside a C#→Lua callback)
 -- local v = zlua.get_opaquevalue(refHandle)
 
--- Full-signature key / short name
+-- Full-signature key / [LuaAlias] short name (see 04-METHOD-OVERLOAD)
 demo['Run(System.Int32)'](demo, 10)
 local run = demo['Run(System.Int32)']
-zlua.register_method("run_hot", run)
-demo:run_hot(99)
+run(demo, 99)
 
 -- Façade
 local child = zlua.cast(demo, CSharp.AC.Child)
+
+-- Generic methods: inflate / GTAP (see §9)
+-- local GetRb = zlua.inflate(GameObject, "GetComponent", Rigidbody)
+-- local rb = go:GetComponent(zlua.typeof(Rigidbody))
 ```
 
 ---
@@ -480,7 +527,7 @@ zlua = zlua or {}
 function zlua.typeof(typeTable) return __zlua_typeof(typeTable) end
 function zlua.get_type_from_name(typeFullName) return __zlua_get_type_from_name(typeFullName) end
 function zlua.make_generic_type(genericType, ...) return __zlua_make_generic_type(genericType, ...) end
-function zlua.make_generic_method(genericMethodBase, ...) return __zlua_make_generic_method(genericMethodBase, ...) end
+function zlua.inflate(type, methodNameOrSignature, ...) return __zlua_inflate(type, methodNameOrSignature, ...) end
 function zlua.make_szarray_type(elementType) return __zlua_make_szarray_type(elementType) end
 function zlua.make_mdarray_type(elementType, rank) return __zlua_make_mdarray_type(elementType, rank) end
 function zlua.new_szarray_by_element_type(elementType, length) return __zlua_new_szarray_by_element_type(elementType, length) end
@@ -495,7 +542,6 @@ function zlua.set_opaquevalue(opaque_handle, new_value) return __zlua_set_opaque
 function zlua.box(typeArg, value) return __zlua_box(typeArg, value) end
 function zlua.unbox(boxedValue) return __zlua_unbox(boxedValue) end
 function zlua.cast(obj, targetType) return __zlua_cast(obj, targetType) end
-function zlua.register_method(aliasName, methodOrClosure) return __zlua_register_method(aliasName, methodOrClosure) end
 
 zlua.types = { /* see §4.2 */ }
 ```

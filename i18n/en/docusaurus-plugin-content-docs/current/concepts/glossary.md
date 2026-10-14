@@ -42,7 +42,7 @@ title: "Glossary"
 | **`__newindex` miss** | Unregistered / non-writable member → **`error`** | same |
 | **Bind-time flattening** | Public members along the inheritance chain are written into the current type’s three tables at `EnsureBinding`; **no** runtime walk upward | [spec/02-TYPE-SYSTEM.md](/docs/spec/02-TYPE-SYSTEM/) §5 |
 | **dispatch closure** | Runtime dispatch closure bound to the default method name when multiple overloads exist | [spec/04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) |
-| **direct method closure** | Bridge closure for a single overload, full-signature key, or alias; may use `register_method` | MetaBinding |
+| **direct method closure** | Bridge closure for a single overload, full-signature key, or alias | MetaBinding |
 | **Full-signature key** | Auto-attached `Name(Type.FullName,…)` direct key when multiple same-name candidates exist (excludes return type) | [spec/04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) §3.7 |
 
 ## Marshal shapes

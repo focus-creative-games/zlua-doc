@@ -296,7 +296,7 @@ C#→Lua **不**依赖 IL weave / 专用 stub：经 `GetFunction` → Delegate �
 | 文档 | 内容 |
 |------|------|
 | [00-OVERVIEW.md](/docs/spec/00-OVERVIEW/) | 双运行时、初始化 |
-| [04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) | dispatch、`register_method` |
+| [04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) | dispatch、全签名键、GTAP |
 | [marshal/01-OVERVIEW.md](/docs/spec/marshal/01-OVERVIEW/) | Marshal 总览 |
 | [marshal/09-FUNCTION.md](/docs/spec/marshal/09-FUNCTION/) | Delegate ↔ Lua function |
 | [10-LIFETIME.md](/docs/spec/10-LIFETIME/) | GC、单 lua_State |

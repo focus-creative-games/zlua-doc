@@ -34,29 +34,34 @@ For all **reference type** parameters, return values, and fields/properties (`cl
 | Concept | Meaning |
 |---------|---------|
 | **Identity** | Managed object reference in userdata payload (runtime **actual instance**) |
-| **View / façade** | **IMT** and member visibility on userdata; **sole source = declared type of this Marshal** |
+| **View / façade** | **IMT** and member visibility on userdata; default = **declared type of this Marshal**; with return `ActualTypeUserData` = **runtime actual type** |
 
 ### 2.1 Rules
 
-1. **C# → Lua:** Always choose default marshal shape and ByObj IMT by **declared type**; do **not** reattach a more specific runtime type's mt, and do **not** switch to special Marshal such as `string` (e.g. a `string` instance on an `object` parameter remains Object userdata, not Lua string).
-2. **Value types:** No inheritance-façade issue; follow [`05-STRUCT.md`](/docs/spec/marshal/05-STRUCT/) etc.
-3. **Virtual methods:** Member lookup uses `MethodInfo` on the **declared type**; call does **vtable dispatch** on the real `this` (`override` still lands on the implementing class).
-4. **Non-virtual / `new` hide:** Use declared-type slot (calling `new`-hidden `Bar` via `Base` façade yields `Base.Bar`).
-5. **Downcast:** Only [`zlua.cast`](/docs/spec/05-LIB/) (`IsAssignableFrom(targetType, obj.klass)`); returns **new userdata** (same identity, new façade).
-6. **Object cache:** Key is **`(identity, viewType)`**; one instance may have multiple view userdata.
+1. **C# → Lua (default):** Always choose default marshal shape and ByObj IMT by **declared type**; do **not** reattach a more specific runtime type's mt, and do **not** switch to special Marshal such as `string` (e.g. a `string` instance on an `object` parameter remains Object userdata, not Lua string).
+2. **Exception: `[return: LuaMarshalAs(ActualTypeUserData)]`:** Still Push **ByObj UserData**, but **façade / viewKlass = runtime actual type**; actual `string` remains ByObj (not Lua string). See [`02-MARSHAL-AS.md`](/docs/spec/marshal/02-MARSHAL-AS/). No separate dispatch changes: IMT is already on the actual type.
+3. **Value types:** No inheritance-façade issue; follow [`05-STRUCT.md`](/docs/spec/marshal/05-STRUCT/) etc.
+4. **Virtual methods:** Member lookup uses `MethodInfo` on the **current userdata view (façade type)**; call does **vtable dispatch** on the real `this` (`override` still lands on the implementing class). Default view = declared type; with `ActualTypeUserData`, view = actual type.
+5. **Non-virtual / `new` hide:** Use **view**-type slot (calling `new`-hidden `Bar` via `Base` façade yields `Base.Bar`).
+6. **Downcast:** [`zlua.cast`](/docs/spec/05-LIB/) (`IsAssignableFrom(targetType, obj.klass)`); returns **new userdata** (same identity, new façade). Complements `ActualTypeUserData`: script-side façade change vs Push-time actual-type façade.
+7. **Object cache:** Key is **`(identity, viewType)`**; one instance may have multiple view userdata.
 
 ### 2.2 Example
 
 ```csharp
 Base CreateChild() => new Child();
+
+[return: LuaMarshalAs(LuaMarshalType.ActualTypeUserData)]
+Base CreateChildActual() => new Child();
 ```
 
 ```lua
-local o = ObjectFactory.CreateChild()  -- façade Base: Child.y invisible; new Bar → Base.Bar
-local c = zlua.cast(o, Child)          -- façade Child (requires IsAssignableFrom)
+local o = ObjectFactory.CreateChild()         -- façade Base: Child.y invisible; new Bar → Base.Bar
+local c = zlua.cast(o, Child)                 -- façade Child (requires IsAssignableFrom)
+local a = ObjectFactory.CreateChildActual()   -- façade already Child (ActualTypeUserData)
 ```
 
-Virtual methods look up `MethodInfo` via Base façade, then **virtual-dispatch** on the real instance.
+Virtual methods look up `MethodInfo` via the current façade, then **virtual-dispatch** on the real instance.
 
 ### 2.3 `object` parameters
 
@@ -80,8 +85,8 @@ On misuse: **Mono** error-logs and falls back to `Default`; **Il2Cpp Generate / 
 |------|-------|
 | **Default** C# ↔ Lua | **ByObjUserData** (ClassUserData); façade = **interface declared type** (not implementing class) |
 | `nil` | ↔ `null` |
-| `[LuaMarshalAs]` | `UserData`, `OpaqueValue` (**no** `Table` / `UnpackedValues`) |
-| Member access (default userdata) | Only members visible on the interface + inherited interfaces; implementing-class-only members invisible |
+| `[LuaMarshalAs]` | `UserData`, `OpaqueValue`, return-only `ActualTypeUserData` (**no** `Table` / `UnpackedValues`) |
+| Member access (default userdata) | Only members visible on the interface + inherited interfaces; implementing-class-only members invisible (after `ActualTypeUserData` return, façade = implementing class, so its members are visible) |
 
 ## 5. `ref` / `out` / `in` reference-type parameters (Lua → C#)
 
@@ -143,4 +148,4 @@ CS.Demo.Append(sb, "!")   -- shared reference; content mutable
 | [`07-ARRAY.md`](/docs/spec/marshal/07-ARRAY/) | Array ByObjUserData |
 | [`09-FUNCTION.md`](/docs/spec/marshal/09-FUNCTION/) | Delegate Marshal |
 | [`../02-TYPE-SYSTEM.md`](/docs/spec/02-TYPE-SYSTEM/) | Type tables, IMT, member access |
-| [`../05-LIB.md`](/docs/spec/05-LIB/) | `cast`, `box` |
+| [`../05-LIB.md`](/docs/spec/05-LIB/) | `cast`, `box`, `inflate` / GTAP |

@@ -160,14 +160,14 @@ print(CSharp.AC.Demo.GetSX())         -- 10
 
 ## 第 4 步（可选）：方法重载
 
-`Demo.Run` 有 `int` 与 `string` 两个重载。可用全签名键精确点名，或挂短名后冒号调用：
+`Demo.Run` 有 `int` 与 `string` 两个重载。可用全签名键精确点名，或 Bind 期 `[LuaAlias]` 短名冒号调用：
 
 ```lua
 demo['Run(System.Int32)'](demo, 10)
 
+-- 也可本地缓存全签名键（无运行时挂短名 API）
 local run_i32 = demo['Run(System.Int32)']
-zlua.register_method("run_i32", run_i32)
-demo:run_i32(10)
+run_i32(demo, 10)
 ```
 
 详见 [方法重载](/docs/guides/overloads/)。

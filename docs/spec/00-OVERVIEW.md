@@ -193,7 +193,7 @@ assembly.__index(typeFullName)
 |------|----------|
 | `__index` / 三表 / miss 语义 | [metatable/](/docs/spec/metatable/) |
 | Push / Pop / ref / Opaque | [marshal/](/docs/spec/marshal/) |
-| `zlua.make_*` / `register_method` | [05-LIB.md](/docs/spec/05-LIB/) |
+| `zlua.make_*` / `inflate` / GTAP | [05-LIB.md](/docs/spec/05-LIB/) |
 | `GetFunction` 与 Delegate 桥 | [01-HOST-API.md](/docs/spec/01-HOST-API/) |
 | ObjectRegistry / GC root | [10-LIFETIME.md](/docs/spec/10-LIFETIME/) |
 | xLua / toLua / SLua 类型路径适配 | [12-MIGRATION-ADAPTORS.md](/docs/spec/12-MIGRATION-ADAPTORS/) |
@@ -214,9 +214,9 @@ print(demo:GetX())
 
 -- 显式重载（见 04-METHOD-OVERLOAD）
 demo['Run(System.Int32)'](demo, 42)          -- 全签名键
-local run = demo['Run(System.Int32)']
-zlua.register_method("run_i32", run)         -- 短名后可冒号
-demo:run_i32(42)
+local run = demo['Run(System.Int32)']        -- 本地缓存 direct
+run(demo, 42)
+-- 短名冒号：Bind 期 [LuaAlias]，非运行时 register_method
 ```
 
 C# 侧：

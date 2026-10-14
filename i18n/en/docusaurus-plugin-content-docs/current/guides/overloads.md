@@ -1,12 +1,12 @@
 ---
 sidebar_position: 12
 title: Method overloads
-description: Default dispatch, full-signature keys, LuaAlias, and register_method short names.
+description: Default dispatch, lazy full-signature keys and caching, and LuaAlias short names.
 ---
 
 # Method overloads
 
-Lua has no static types, so same-name multiple signatures cannot be chosen at compile time. ZLua provides: default dispatch, **full-signature keys** (automatic at Bind), `[LuaAlias]`, and `register_method` short names. See: [Demo.Run](https://github.com/focus-creative-games/zlua-demo/blob/main/Assets/Demo.cs), [app.lua](https://github.com/focus-creative-games/zlua-demo/blob/main/LuaScripts/app.lua).
+Lua has no static types, so same-name multiple signatures cannot be chosen at compile time. ZLua provides: default dispatch, **full-signature keys** (lazy resolution on `__index` miss, then cached), Bind-time **`[LuaAlias]` / XML** short names, and **local caching** of direct closures in scripts. See: [Demo.Run](https://github.com/focus-creative-games/zlua-demo/blob/main/Assets/Demo.cs), [app.lua](https://github.com/focus-creative-games/zlua-demo/blob/main/LuaScripts/app.lua).
 
 Day-to-day `demo:Run(10)` is enough in [Lua calling C#](/docs/guides/lua-calling-csharp/); read this page for ambiguity or hot paths. Authoritative details: [Overload Spec](/docs/spec/04-METHOD-OVERLOAD/).
 
@@ -15,9 +15,11 @@ Day-to-day `demo:Run(10)` is enough in [Lua calling C#](/docs/guides/lua-calling
 | Approach | Syntax | When |
 |------|------|--------|
 | Default dispatch | `demo:Run(10)` | Arguments uniquely match |
-| **Full-signature key** (automatic) | `demo['Run(System.Int32)'](demo, 5)` | Exact pick; **no** `register_method` needed |
-| `[LuaAlias]` | `demo:run_i32(5)` | You can edit C#; short name on hot paths |
-| `register_method` | After register: `demo:run_i32(5)` | Cannot edit C#; still want short name + **colon** |
+| **Full-signature key** (lazy) | `demo['Run(System.Int32)'](demo, 5)` | Pick one overload exactly; first access resolves on miss and caches as direct |
+| `[LuaAlias]` / XML | `demo:run_i32(5)` | You can edit C# or XML; hot path needs **colon + short name** |
+| Local direct cache | `local run = demo['Run(System.Int32)']; run(demo, 5)` | Same fixed overload in a tight loop |
+
+After Bind, there is **no** runtime API to attach new short names; colon + short name is Bind-time alias only.
 
 ## Default dispatch
 
@@ -26,7 +28,7 @@ demo:Run(10)        -- Run(int)
 demo:Run("hello")   -- Run(string)
 ```
 
-Zero dispatch when there is only one public overload; with multiple, match by arguments.
+With a single public overload, the short name is **direct** (zero dispatch); with multiple, you get **dispatch** matched by arguments.
 
 ## Default parameters
 
@@ -57,25 +59,38 @@ Demo.G(1, 4)         -- G(int, int)
 
 Authoritative details: [Overload Spec](/docs/spec/04-METHOD-OVERLOAD/) §3.3.
 
-## Full-signature keys (auto-registered on name conflicts)
+## Full-signature keys (lazy resolution)
 
-When the same method name has multiple overloads (e.g. `Run(int)` / `Run(string)`), besides the `Run` dispatch, Bind also hangs a **direct** key for each candidate:
+Bind does **not** pre-hang `MethodName(Type.FullName,…)` keys for every method. On metatable access, if the method table misses and the key is a string containing `(`, ZLua looks up by signature on the type and base-class chain, builds a **direct** closure, **caches** it, and returns it.
 
-`MethodName(parameter Type.FullName, …)` (**no** return type):
+| Item | Notes |
+|------|-------|
+| Key format | `MethodName(parameter Type.FullName,…)`, **no** return type; name is CLR `MethodInfo.Name` (not a `[LuaAlias]` short name) |
+| Scope | **Any** public instance/static method (including single-candidate; aliased methods still use CLR name in the key) |
+| Excluded | Instance constructors and static `.cctor` — construction stays on type-table `__call` |
+| vs short name | Does not change existing `Run` direct/dispatch; adds signature-key entries only |
+
+With multiple overloads, short `Run` stays dispatch; full-signature keys bypass dispatch:
 
 | Key | Meaning |
 |----|------|
-| `Run` | Runtime dispatch |
-| `Run(System.Int32)` | Fixed `Run(int)` |
+| `Run` | Runtime dispatch (when multiple candidates) |
+| `Run(System.Int32)` | Fixed `Run(int)` (cached after first bracket-key access) |
 | `Run(System.String)` | Fixed `Run(string)` |
 
 ```lua
--- 精确调用，不必 register_method
 demo['Run(System.Int32)'](demo, 5)
 demo['Run(System.String)'](demo, "hi")
+-- Single candidate works too: demo['GetValue()'](demo)
+
+-- Hot path: after first miss the key is cached; keep a local
+local run_i32 = demo['Run(System.Int32)']
+run_i32(demo, 20)
 ```
 
-Keys contain parentheses, so you **cannot** write `demo:Run(System.Int32)(...)`; use bracket keys + dot + explicit `self`.
+Keys contain parentheses, so you **cannot** write `demo:Run(System.Int32)(...)`; use bracket keys + dot + explicit `self`. For **colon + short name**, configure `[LuaAlias]` in C# or XML (next section).
+
+Use `zlua.signature(...)` to build the parameter parenthesis part; see [Overload Spec](/docs/spec/04-METHOD-OVERLOAD/) §4.1.
 
 ## `[LuaAlias]`
 
@@ -87,37 +102,21 @@ public void Run(string value) { }
 ```
 
 ```lua
-demo:run_i32(10)    -- 短名 + 冒号，O(1)；Run(int) 已换名，不再挂 "Run"
-demo:Run("hi")      -- 未换名的 Run(string)
+demo:run_i32(10)    -- short name + colon, direct; Run(int) renamed, default "Run" not registered for it
+demo:Run("hi")      -- Run(string) not renamed → dispatch
 ```
 
 An alias is a **rename** (replaces the default Lua key), not an append. XML (`luaAliasXmlPaths` / `ZLuaAlias`) and more examples: [LuaAlias](/docs/guides/lua-alias/). C# extensions on the instance table: [Extension methods](/docs/guides/extension-methods/).
-
-## `register_method`: short name + colon
-
-Full-signature keys already allow exact calls, but the syntax is verbose. `register_method` hangs a **direct closure** onto an unused short name; then you can use colon:
-
-```lua
-local run_i32 = demo['Run(System.Int32)']
-zlua.register_method("run_i32", run_i32)
-
--- 好处：短名进入 method 表，之后直接
-demo:run_i32(5)
-```
-
-Two-argument form (per [05-LIB](/docs/spec/05-LIB/)): `zlua.register_method(aliasName, directClosure)`.
-If `aliasName` already exists (including `Run`, full-signature keys, other aliases) → error; no overwrite.
-
-You can also take a closure from a `[LuaAlias]` key and hang another custom name.
 
 ## Common mistakes
 
 | Symptom | Fix |
 |------|------|
-| Wrong overload / `ambiguous` | Full-signature key, `[LuaAlias]`, or `register_method` short name; watch default-parameter tie-break |
+| Wrong overload / `ambiguous` | Full-signature key, `[LuaAlias]`, or cache a direct closure locally; watch default-parameter tie-break |
 | `argument mismatch` (with defaults) | Required formals not supplied; cannot skip middle parameters |
 | Want `demo['(System.Int32)']` | **Forbidden**; must include the method name: `Run(System.Int32)` |
-| `register_method` says already taken | Pick an unused alias; do not overwrite `Run` / existing full-signature keys |
+| Full-signature key `member not found` | Check CLR method name and `Type.FullName` against metadata; constructors are not full-signature keys |
+| Want runtime short-name registration | Not supported; use Bind-time `[LuaAlias]` / XML, or bracket keys + local cache |
 
 ## Learning path
 

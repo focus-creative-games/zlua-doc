@@ -69,7 +69,7 @@ For other platform issues, please file an Issue.
 | Property (no args) | ✅ | ✅ | |
 | Property (indexer) | ✅ | ✅ | Via method forms `get_Item` / `set_Item`; see [Fields & properties](/docs/guides/lua-calling-csharp/) |
 | Method overload dispatch | ✅ | ✅ | |
-| `[LuaAlias]` / `register_method` | ✅ | ✅ | |
+| `[LuaAlias]` / full-signature keys | ✅ | ✅ | Short names only via Bind-time aliases; no runtime `register_method` |
 | Generic class / method | ✅ | ✅ | Open generics must be closed first; static generic methods have limits |
 | Array (szarray / mdarray) | ✅ | ✅ | mdarray cannot be table-serialized |
 | Event-specific metatable | ❌ | ❌ | Use ordinary `add_` / `remove_` methods |
@@ -97,10 +97,9 @@ For other platform issues, please file an Issue.
 
 | API | Mono | Il2Cpp |
 |-----|:----:|:------:|
-| `typeof` / `get_type_from_name` / `make_generic_*` | ✅ | ✅ |
+| `typeof` / `get_type_from_name` / `make_generic_*` / `inflate` | ✅ | ✅ |
 | szarray / mdarray factories | ✅ | ✅ |
 | opaque get/set, `box`/`unbox` | ✅ | ✅ |
-| `register_method` | ✅ | ✅ |
 
 ## Recommended environments
 

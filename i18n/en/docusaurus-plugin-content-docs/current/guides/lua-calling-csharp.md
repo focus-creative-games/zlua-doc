@@ -157,7 +157,7 @@ end
 
 ## Method overloads preview
 
-`demo:Run(10)` and `demo:Run("hi")` use runtime dispatch when there are multiple overloads. Exact picks use full-signature keys `demo['Run(System.Int32)'](demo, 10)` (automatic at Bind; no API); short hot-path names use `[LuaAlias]` or `register_method`. See [Method overloads](/docs/guides/overloads/).
+`demo:Run(10)` and `demo:Run("hi")` use runtime dispatch when there are multiple overloads. Exact picks use full-signature keys `demo['Run(System.Int32)'](demo, 10)` (lazy-resolved on miss and cached); short hot-path names use Bind-time `[LuaAlias]` / XML. See [Method overloads](/docs/guides/overloads/).
 
 ## Common mistakes
 

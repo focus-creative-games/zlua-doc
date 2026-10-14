@@ -34,18 +34,29 @@ local dict = DictStrInt()
 dict:Add("hp", 100)
 ```
 
-The first argument is the **generic definition type table**; the rest are type arguments (`zlua.types.*`, `typeof` results, etc.).
+The first argument is the **generic definition type table**; the rest are type arguments (`zlua.types.*`, type tables, etc.).
 
 ## Generic methods
 
-When the method **itself** has type parameters (e.g. `void Foo<T>(T a)`), the first argument must be a `generic_inst`:
+When the method **itself** has type parameters (e.g. `T GetComponent<T>()`), close them with **`zlua.inflate`** or call-site **GTAP**; this closes **only** the method's generic formals. If the declaring type is still open (e.g. ``List`1``), call `make_generic_type` first, then `inflate`.
+
+| Path | When |
+|------|------|
+| **`zlua.inflate`** | Close by closed type + method name or full-signature key; cache the returned closure on hot paths |
+| **GTAP** | Prefix **N** `System.Type` values (`zlua.typeof(...)`) before ordinary args on a short-name call; **not** type tables / strings / `zlua.types.*` |
 
 ```lua
-local inst = zlua.make_generic_inst(zlua.types.int32)
-SomeType.Foo(inst, value)
+-- inflate: full §3 typeArg (type table, string, System.Type, etc.)
+local GetRb = zlua.inflate(GameObject, "GetComponent",
+    CSharp['UnityEngine.CoreModule']['UnityEngine.Rigidbody'])
+local rb = GetRb(go)
+
+-- GTAP: System.Type prefixes only
+local Rigidbody = CSharp['UnityEngine.CoreModule']['UnityEngine.Rigidbody']
+local rb2 = go:GetComponent(zlua.typeof(Rigidbody))
 ```
 
-Ordinary methods on already-closed types (e.g. `List<int>.Add`) do **not** use this path. See [Type system §6](/docs/spec/02-TYPE-SYSTEM/).
+Ordinary methods on already-closed types (e.g. `List<int>.Add`) do **not** use this path. See [Type system §6](/docs/spec/02-TYPE-SYSTEM/), [05-LIB §9](/docs/spec/05-LIB/).
 
 ## Common mistakes
 
@@ -53,7 +64,8 @@ Ordinary methods on already-closed types (e.g. `List<int>.Add`) do **not** use t
 |------|------|
 | Wrong arity | Check `` `1 `` / `` `2 `` vs argument count |
 | `List` not found | Use full name `System.Collections.Generic.List`1` with bracket keys |
-| Passing `make_generic_inst` to an already-closed method | Only needed for open generic methods |
+| Using `inflate` on a non-open-generic method | Only when the method itself has generic formals |
+| Passing a type table to GTAP | Use `zlua.typeof(typeTable)`, or use `inflate` |
 
 ## Learning path
 

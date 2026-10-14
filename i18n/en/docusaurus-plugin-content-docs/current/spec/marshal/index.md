@@ -13,7 +13,7 @@ title: "Marshal Spec (`spec/marshal/`)"
 | File | Contents |
 |------|----------|
 | [01-OVERVIEW.md](/docs/spec/marshal/01-OVERVIEW/) | Default marshal matrix, integer/number, array summary, reference façade summary |
-| [02-MARSHAL-AS.md](/docs/spec/marshal/02-MARSHAL-AS/) | `[LuaMarshalAs]`, `LuaMarshalType`, legal sets, Table/Unpacked/Params/Bytes/UserData/Opaque, **XML external config** |
+| [02-MARSHAL-AS.md](/docs/spec/marshal/02-MARSHAL-AS/) | `[LuaMarshalAs]`, `LuaMarshalType` (incl. **`ActualTypeUserData`**), legal sets, Table/Unpacked/Params/Bytes/UserData/Opaque, **XML external config** |
 | [03-BYREF.md](/docs/spec/marshal/03-BYREF/) | `ref` / `in` / `out` (C#→Lua Opaque; Lua→C#: Opaque/ByVal pass address; otherwise temp slots) |
 | [04-OPAQUE.md](/docs/spec/marshal/04-OPAQUE/) | OpaqueValue, `get_opaquevalue` / `set_opaquevalue`, lifetime, pass-back split |
 | [05-STRUCT.md](/docs/spec/marshal/05-STRUCT/) | struct ByVal / ByObj / Handle, `box`/`unbox` |
@@ -36,7 +36,7 @@ title: "Marshal Spec (`spec/marshal/`)"
 |-------|-------------|
 | `CSharp` type tables, construction entry | [../02-TYPE-SYSTEM.md](/docs/spec/02-TYPE-SYSTEM/) |
 | Overloads and argument matching | [../04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) |
-| `zlua.box` / `unbox` / `cast` / `get_opaquevalue` / `set_opaquevalue` | [../05-LIB.md](/docs/spec/05-LIB/) |
+| `zlua.box` / `unbox` / `cast` / `inflate` / GTAP / `get_opaquevalue` / `set_opaquevalue` | [../05-LIB.md](/docs/spec/05-LIB/) |
 | Metatables and member indexing (not Marshal) | [../metatable/](/docs/spec/metatable/) |
 
 ## Platform principles

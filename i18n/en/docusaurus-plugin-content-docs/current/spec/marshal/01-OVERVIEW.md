@@ -109,13 +109,14 @@ For all **reference type** parameters, return values, and fields/properties (`cl
 | Concept | Meaning |
 |---------|---------|
 | **Identity** | Managed object reference held by userdata (runtime actual instance) |
-| **View / façade** | **IMT** and member visibility attached to userdata; **sole source = declared type of this Marshal** |
+| **View / façade** | **IMT** and member visibility attached to userdata; default = **declared type**; `ActualTypeUserData` returns = **actual type** |
 
 **Rule summary:**
 
-1. **C# → Lua:** Always choose default marshal shape and ByObj IMT by **declared type**; do **not** reattach the actual runtime type's mt, and do **not** switch to special Marshal such as `string` because of runtime type.
-2. **Downcast:** Only `zlua.cast(obj, targetType)` (see [../05-LIB.md](/docs/spec/05-LIB/); target must be assignable from current façade type; returns **new userdata** (same identity, new façade).
-3. **Object cache:** Key is **`(identity, viewType)`**; one instance may have multiple view userdata.
+1. **C# → Lua (default):** Always choose default marshal shape and ByObj IMT by **declared type**; do **not** reattach the actual runtime type's mt, and do **not** switch to special Marshal such as `string` because of runtime type.
+2. **Exception:** With `[LuaMarshalAs(ActualTypeUserData)]` on a return, ByObj **view = runtime actual type** (still ByObj; actual `string` is not converted to Lua string). See [02-MARSHAL-AS.md](/docs/spec/marshal/02-MARSHAL-AS/), [06-CLASS.md](/docs/spec/marshal/06-CLASS/).
+3. **Downcast:** `zlua.cast(obj, targetType)` (see [../05-LIB.md](/docs/spec/05-LIB/); target must be assignable from current façade type; returns **new userdata** (same identity, new façade).
+4. **Object cache:** Key is **`(identity, viewType)`**; one instance may have multiple view userdata.
 
 Full rules: [06-CLASS.md](/docs/spec/marshal/06-CLASS/).
 

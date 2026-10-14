@@ -68,7 +68,7 @@ Lua→C#：ByVal userdata 或 Opaque 可写回；裸 number **不回写**。C#�
 
 ### 方法重载怎么选？
 
-默认 `demo:Run(10)` 走 dispatch；精确点名用全签名键 `demo['Run(System.Int32)'](demo, 10)`；热路径短名用 `[LuaAlias]` 或 `register_method` 后再 `demo:run_i32(10)`。见 [方法重载](/docs/guides/overloads/)。
+默认 `demo:Run(10)` 走 dispatch；精确点名用全签名键 `demo['Run(System.Int32)'](demo, 10)`；热路径短名用 Bind 期 `[LuaAlias]` 后再 `demo:run_i32(10)`。见 [方法重载](/docs/guides/overloads/)。
 
 ### Lua 如何传回调给 C#？
 

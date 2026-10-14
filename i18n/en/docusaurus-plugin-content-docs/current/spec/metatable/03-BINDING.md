@@ -38,11 +38,11 @@ At Bind time, each public member is written into a **unique** target table (or i
 
 | C# member | Target table | Value |
 |-----------|--------------|-------|
-| Instance / static methods | `methodTable` | Single overload: direct bridge closure; **same-name multiple overloads**: default name → dispatch closure, plus a full-signature direct key **`MethodName(ParamTypeFullNames…)`** for each candidate (see [../04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) §3.7) |
+| Instance / static methods | `methodTable` | Single overload: direct bridge closure; **same-name multiple overloads**: default name → dispatch closure. Full-signature keys are **not** pre-hung at Bind; see [../04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) §3.7 lazy resolve |
 | **C# extensions** (configured as visible) | **instance** `methodTable` | CLR marks them `static`, but they are written as **static-as-instance** into the IMT (structs include ByVal/ByObj); same-name real instance methods **compete/merge**. See [../13-EXTENSION-METHODS.md](/docs/spec/13-EXTENSION-METHODS/) |
 | Indexer properties | `methodTable` | `get_Item` / `set_Item` or equivalent dispatch closure |
 | C# **events** | `methodTable` | **`add_EventName` / `remove_EventName`** method closures; **do not** create an event subtable |
-| Generic methods | `methodTable` | By default only full-signature keys; a single generic overload may also occupy the default method name |
+| Generic methods | `methodTable` | Short names may hang GTAP/direct; full-signature keys lazy-resolve (§3.7). Runtime close: [`05-LIB`](/docs/spec/05-LIB/) `inflate` / GTAP ([`04-METHOD-OVERLOAD`](/docs/spec/04-METHOD-OVERLOAD/) §3.8); closed closures **intern** by `(closedMethod, isStatic, isByVal)` |
 
 Parameterized properties **must not** enter `fieldGetterTable` / `fieldSetterTable`; Lua can only access them via `obj:get_PropName(args)` / `obj:set_PropName(args, value)` or indexer method names (see [../02-TYPE-SYSTEM.md](/docs/spec/02-TYPE-SYSTEM/) §properties).
 
@@ -112,7 +112,9 @@ Field offsets and method `this` resolution differences are in [../marshal/05-STR
 
 ## 6. Method overloads and aliases
 
-Multiple candidate methods under the same **final Lua name**: write a **dispatch closure** into `methodTable`, and write a **full-signature direct key** for each candidate ([../04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) §3.7). Final names also come from `[LuaAlias]` / XML (same document §3, §5). Runtime `zlua.register_method` **must not** take an existing method name or overload-group name (§6.1); its purpose is to hang an existing direct (including full-signature keys) under a **short name** for colon calls.
+Multiple candidate methods under the same **final Lua name**: write a **dispatch closure** into `methodTable`. Full-signature keys: [../04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) §3.7 (cached after miss lazy-resolve). Final names also come from `[LuaAlias]` / XML (same document §3, §5).
+
+**Short-name freeze:** After Bind there is **no** runtime API to hang short names (no `register_method`). Full-signature keys may only be written lazily via the §3.7 miss path.
 
 `[LuaAlias]` **may** duplicate the default method name or other aliases; duplicates merge into the same overload group.
 

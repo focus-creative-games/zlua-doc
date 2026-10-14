@@ -20,7 +20,7 @@ title: "元表规范（`spec/metatable/`）"
 
 - 类型命名、`CSharp` 路径、泛型/数组类型入口 → [../02-TYPE-SYSTEM.md](/docs/spec/02-TYPE-SYSTEM/)
 - C# ↔ Lua 值形态与 Push/Pop → [../marshal/](/docs/spec/marshal/)
-- 方法重载 dispatch、`register_method` → [../04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/)
+- 方法重载 dispatch、全签名键、GTAP → [../04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/)
 - **Event：无专用元表子表**；脚本使用 `add_EventName` / `remove_EventName` 普通方法（见 [03-BINDING.md](/docs/spec/metatable/03-BINDING/)）
 
 ## 核心语义（速览）

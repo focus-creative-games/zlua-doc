@@ -277,7 +277,7 @@ C#→Lua does **not** rely on IL weave / dedicated stubs: it goes through `GetFu
 | Doc | Content |
 |-----|---------|
 | [00-OVERVIEW.md](/docs/spec/00-OVERVIEW/) | Dual runtime, initialization |
-| [04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) | dispatch, `register_method` |
+| [04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) | dispatch, full-signature keys, GTAP |
 | [marshal/01-OVERVIEW.md](/docs/spec/marshal/01-OVERVIEW/) | Marshal overview |
 | [marshal/09-FUNCTION.md](/docs/spec/marshal/09-FUNCTION/) | Delegate ↔ Lua function |
 | [10-LIFETIME.md](/docs/spec/10-LIFETIME/) | GC, single lua_State |

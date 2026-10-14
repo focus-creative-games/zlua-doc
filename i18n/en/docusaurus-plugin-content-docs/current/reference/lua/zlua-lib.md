@@ -6,7 +6,7 @@ description: Lua API reference for the global zlua table.
 
 # zlua Standard Library
 
-The global **`zlua`** table is loaded when `lua_State` initializes (`zlualib.lua`). **Type access** goes through `CSharp`; **type construction, overloads, ref, arrays, and delegate conversion** go through `zlua`.
+The global **`zlua`** table is loaded when `lua_State` initializes (`zlualib.lua`). **Type access** goes through `CSharp`; **type construction, generic method closing, ref, arrays, and delegate conversion** go through `zlua`. Overload dispatch and full-signature keys live on **metatables**; there is **no** runtime method-alias registration after Bind.
 
 Source: [ZLua~/lualib/zlualib.lua](https://github.com/focus-creative-games/zlua/blob/main/ZLua~/lualib/zlualib.lua)
 
@@ -60,30 +60,13 @@ local sig = zlua.signature(zlua.types.int32, zlua.types.string)
 -- Full-signature key = method name .. sig → "Run(System.Int32,System.String)"
 ```
 
-When multiple same-name candidates exist, Bind already registered full-signature keys; typically:
+Bind does **not** pre-register every full-signature key. On metatable access, if the method table misses and the key is a parenthesized signature string, the matching overload is **lazily resolved**, a direct closure is created, **cached**, and returned:
 
 ```lua
-demo['Run(System.Int32)'](demo, 10)
+demo['Run(System.Int32)'](demo, 10)   -- after first miss this key is direct
 ```
 
-**Do not** use parameter-only parentheses (no method name) as a metatable key.
-
-### `zlua.register_method(aliasName, closure) → void`
-
-Hangs a **direct** closure under an unused short name; after registration, colon-call works.
-
-| Parameter | Description |
-|-----------|-------------|
-| `aliasName` | New method key; must not collide with existing default / full-signature / alias keys |
-| `closure` | Direct method closure (e.g. `demo['Run(System.Int32)']`) |
-
-```lua
-local run_i32 = demo['Run(System.Int32)']
-zlua.register_method("run_i32", run_i32)
-demo:run_i32(20)   -- short name + colon; this is the benefit of register
-```
-
-Two-argument form; target table is inferred from the closure's binding domain. See [overload spec §6.1](/docs/spec/04-METHOD-OVERLOAD/).
+**Do not** use parameter-only parentheses (no method name) as a metatable key. Colon + short name relies on Bind-time `[LuaAlias]` / XML; see [overload spec](/docs/spec/04-METHOD-OVERLOAD/).
 
 ---
 
@@ -100,9 +83,29 @@ local ListInt = zlua.make_generic_type(
 local list = ListInt()
 ```
 
-### `zlua.make_generic_inst(typeArg...) → genericInst`
+### `zlua.inflate(type, methodNameOrSignature, typeArg...) → closure`
 
-Type-argument pack for a generic **method** (not a type table).
+On a **closed** declaring type, finds an **open generic method**, monomorphizes with typeArgs, and returns a **direct closure** (**intern**s with GTAP implicit close).
+
+| Parameter | Description |
+|-----------|-------------|
+| `type` | Type that declares the method; **must be closed** (type table or §3 typeArg) |
+| `methodNameOrSignature` | Short name or full-signature key (open generic formals use parameter names, e.g. `"Describe(T)"`) |
+| `typeArg...` | §3 typeArgs; count = number of method generic formals |
+
+```lua
+local GetRb = zlua.inflate(GameObject, "GetComponent",
+    CSharp['UnityEngine.CoreModule']['UnityEngine.Rigidbody'])
+local rb = GetRb(go)
+```
+
+Instance-method closures use **ByObj** calling convention: `f(self, …)`. If the declaring type is still open, call `make_generic_type` first. Full rules: [05-LIB §9.1](/docs/spec/05-LIB/).
+
+**GTAP (generic type argument prefix):** When calling an open generic by short name on a metatable, place **N** **`System.Type`** values (`zlua.typeof(...)`) before ordinary args to close implicitly; **not** type tables / strings / `zlua.types.*`. Shares intern key space with `inflate`. See [05-LIB §9.2](/docs/spec/05-LIB/), [overload spec §3.8](/docs/spec/04-METHOD-OVERLOAD/).
+
+```lua
+local rb = go:GetComponent(zlua.typeof(Rigidbody))   -- GTAP
+```
 
 ---
 
@@ -152,8 +155,7 @@ Lua-visible semantics are **consistent** on both ends; all rows below are implem
 | API | Mono | Il2Cpp |
 |-----|:----:|:------:|
 | typeof / types / signature | ✅ | ✅ |
-| register_method | ✅ | ✅ |
-| make_generic_type / make_generic_inst | ✅ | ✅ |
+| make_generic_type / inflate | ✅ | ✅ |
 | get/set_opaquevalue / to_user_data | ✅ | ✅ |
 | make_szarray_* / new_szarray_* | ✅ | ✅ |
 | make_mdarray_* | ✅ | ✅ |

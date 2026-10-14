@@ -20,7 +20,7 @@ This directory defines the Lua-visible layout of ZLua **type tables**, **static 
 
 - Type naming, `CSharp` paths, generic/array type entry points → [../02-TYPE-SYSTEM.md](/docs/spec/02-TYPE-SYSTEM/)
 - C# ↔ Lua value shapes and Push/Pop → [../marshal/](/docs/spec/marshal/)
-- Method overload dispatch, `register_method` → [../04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/)
+- Method overload dispatch, full-signature keys, GTAP → [../04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/)
 - **Event: no dedicated metatable subtable**; scripts use ordinary methods `add_EventName` / `remove_EventName` (see [03-BINDING.md](/docs/spec/metatable/03-BINDING/))
 
 ## Core semantics (quick view)

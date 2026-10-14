@@ -102,25 +102,24 @@ Type `SMT.__call` uses the same `MethodGroups` / Resolver mechanism; ctx comes f
 
 Mono Phase 3: `ConstructorEmitter` replaced `ConstructorNotReady`; currently **first-wins by arity**; full better-member Resolver still pending.
 
-## 7. Full-signature keys, aliases, `register_method`, and Resolver
+## 7. Full-signature keys, aliases, and Resolver
 
 Spec:
 
 | Source | Name-collision policy |
 |--------|----------------------|
 | Bind-time default name + `[LuaAlias]` | **Allowed**; aggregate into `MethodGroups` by final name |
-| Multiple bind-time candidates with same name | Default name → dispatch; **each candidate** also gets full-signature key `Name(Types…)` → direct |
-| Runtime `register_method` | **Forbidden** to occupy existing method / overload / full-signature key names; only empty slots get direct (short name + colon) |
+| Multiple bind-time candidates with same name | Default name → dispatch; full-signature keys are **not** pre-hung — see [04-METHOD-OVERLOAD](/docs/spec/04-METHOD-OVERLOAD/) §3.7 miss lazy resolve |
+| Runtime hang short name | **`register_method` is not provided**; short names only via Bind-time aliases |
 
 | Mechanism | Implementation landing |
 |-----------|------------------------|
 | Single candidate → direct closure | `MetaBinding::CreateDirectMethodClosureRef` |
 | Multi candidate → dispatch | `CreateMethodDispatchClosureRef` → Resolver |
-| Full-signature keys | Bind-time write one direct key per candidate |
+| Full-signature keys | Lazily resolved on `__index` miss, then cached as direct |
 | `[LuaAlias]` | Bind-time merge into `MethodGroups` for that final name |
-| `register_method` | Name exists → error; else write method map / index table (direct closure) |
 
-Alias keys are O(1) direct only when that final name has **exactly one** candidate; bind-time collisions go through Resolver. Full-signature keys are always direct for their candidate.
+Alias keys are O(1) direct only when that final name has **exactly one** candidate; bind-time collisions go through Resolver. After resolve, full-signature keys are direct for their candidate.
 
 ## 8. Known limits (code status)
 

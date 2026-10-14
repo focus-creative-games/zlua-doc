@@ -9,7 +9,7 @@ description: The most-used zlua APIs day to day; the rest are in the Spec.
 | Layer | Role |
 |----|------|
 | **`CSharp`** | Assemblies / types / members / construction |
-| **`zlua`** | Type-construction helpers, opaque, arrays, delegates, overload short names |
+| **`zlua`** | Type-construction helpers, opaque, arrays, delegates, generic method closing (`inflate`) |
 | **Instance userdata** | Members via metatable, not via `zlua` |
 
 Full API: [05-LIB](/docs/spec/05-LIB/), [reference](/docs/reference/lua/zlua-lib/). This page lists only the most common.
@@ -24,18 +24,16 @@ Full API: [05-LIB](/docs/spec/05-LIB/), [reference](/docs/reference/lua/zlua-lib
 
 ## Overloads
 
-When there are multiple same-name candidates, Bind already hangs full-signature keys (e.g. `Run(System.Int32)`); you usually **do not** need a library call first:
+When multiple same-name candidates exist, the short name uses dispatch; to pick one overload exactly, use a **full-signature key** (lazy resolve on `__index` miss, then cached as direct). For **colon + short name**, configure **`[LuaAlias]`** in C# or XML (metatables are frozen after Bind; **no** runtime short-name registration):
 
 ```lua
 demo['Run(System.Int32)'](demo, 5)
-```
 
-For short name + colon, then `register_method`:
-
-```lua
+-- Hot path: after the first miss the key is cached
 local run_i32 = demo['Run(System.Int32)']
-zlua.register_method("run_i32", run_i32)
-demo:run_i32(5)   -- 注册后的好处：可读短名 + 冒号语法
+run_i32(demo, 20)
+
+-- Bind-time alias: demo:run_i32(5)  (see [LuaAlias](/docs/guides/lua-alias/))
 ```
 
 `zlua.signature(...)` only builds the parameter-parentheses part (e.g. `"(System.Int32)"`) for comparison/concatenation; it **cannot** be a metatable key alone. See [Method overloads](/docs/guides/overloads/).
@@ -49,10 +47,10 @@ local ListInt = zlua.make_generic_type(
 
 local arr = zlua.new_szarray_by_element_type(zlua.types.int32, 4)
 local t = zlua.to_table(arr)
-local bytes = zlua.to_bytes(float_arr)  -- blittable 元素
+local bytes = zlua.to_bytes(float_arr)  -- blittable elements
 ```
 
-See [Generics](/docs/guides/generics/), [Arrays](/docs/guides/arrays/).
+Open generic **methods** use `zlua.inflate` or call-site **GTAP** (`zlua.typeof(...)` prefixes); see [Generics](/docs/guides/generics/).
 
 ## Opaque / ref
 
@@ -66,14 +64,14 @@ See [Generics](/docs/guides/generics/), [Arrays](/docs/guides/arrays/).
 ## Delegate
 
 ```lua
-local d = zlua.to_delegate(fn, ActionIntType)  -- 第二参须已闭合
+local d = zlua.to_delegate(fn, ActionIntType)  -- second arg must be closed
 ```
 
 Usually **unnecessary** when the parameter is already a concrete `Action`/`Func`. See [Function](/docs/guides/functions/).
 
 ## Other (look up Spec when needed)
 
-`box` / `unbox` / `cast`, `make_generic_method`, mdarray family, Native `__zlua_*` — see [05-LIB](/docs/spec/05-LIB/).
+`box` / `unbox` / `cast`, `inflate` / GTAP, mdarray family, Native `__zlua_*` — see [05-LIB](/docs/spec/05-LIB/) §9.
 
 ## Learning path
 

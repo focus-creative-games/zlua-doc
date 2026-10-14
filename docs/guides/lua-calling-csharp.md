@@ -157,7 +157,7 @@ end
 
 ## 方法重载预告
 
-`demo:Run(10)` 与 `demo:Run("hi")` 在多重载时走运行时分派。精确点名用全签名键 `demo['Run(System.Int32)'](demo, 10)`（Bind 自动，无需 API）；热路径短名用 `[LuaAlias]` 或 `register_method`。见 [方法重载](/docs/guides/overloads/)。
+`demo:Run(10)` 与 `demo:Run("hi")` 在多重载时走运行时分派。精确点名用全签名键 `demo['Run(System.Int32)'](demo, 10)`（miss 懒解析并缓存）；热路径短名用 Bind 期 `[LuaAlias]` / XML。见 [方法重载](/docs/guides/overloads/)。
 
 ## 常见错误
 

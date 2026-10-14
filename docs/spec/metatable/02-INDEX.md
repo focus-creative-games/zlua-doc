@@ -190,13 +190,11 @@ end
 
 ---
 
-## 8. 与 `register_method` 的交互
+## 8. 元表冻结与全签名懒解析
 
-`zlua.register_method`（及 Mono 等价 API）在运行时向目标类型的 method 表挂一个 **新的** 最终名 → **direct** closure（完整规则见 [../04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) §6.1）。
+Bind 完成后 **不**提供运行时挂短名 API（不提供 `zlua.register_method`）。短名冒号调用依赖 Bind 期 `[LuaAlias]` / XML。
 
-- `aliasName` **尚不存在** → 写入；之后 `__index` 返回该 closure。
-- `aliasName` **已存在**（单个方法或 overload 组）→ **`luaL_error`**，不覆盖、不并入。
-- 与 field / property 的 method 优先规则见 §2.4；`register_method` 仍只检查 **method 侧**是否已占用该名。
+`__index` 在 method / field miss 且键含 `(` 时，按 [../04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) §3.7 懒解析全签名方法并缓存到 `methodTable`。除此以外不得改写三表。
 
 ---
 

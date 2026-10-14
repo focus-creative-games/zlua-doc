@@ -20,7 +20,7 @@ title: "zlua 标准库"
 | 层级 | 职责 |
 |------|------|
 | **`CSharp`** | 程序集 / 类型懒加载；静态成员；`Type(...)` 构造 |
-| **`zlua`** | 类型构造辅助、opaque、装箱、数组、delegate、方法别名注册 |
+| **`zlua`** | 类型构造辅助、opaque、装箱、数组、delegate、泛型方法闭合（`inflate`） |
 | **实例 userdata** | 成员经类型元表访问，**不经** `zlua` |
 
 `zlua` **不**替代 `CSharp` 访问类型。
@@ -49,6 +49,8 @@ Il2Cpp：脚本嵌入 `BuiltinScripts.inc`；Mono：Resources 或同等路径。
 | **`System.Type` 对象** | `zlua.typeof(...)` 返回的反射对象（Lua 侧为 `System.Type` 的 class userdata，含 `RuntimeType` 等子类实例）。凡接受 `typeArg` 的 API 均可直接传入，与传入对应类型表等价 |
 
 `zlua.typeof(typeTable)` 接受 **任意** ZLua 类型表（含泛型闭合表、数组类型表），返回该类型的 **`System.Type` 反射对象**（Lua 侧为 Type 的 class userdata），语义对应 C# 的 `typeof(T)`。该返回值本身也可再作为 `typeArg` 使用。
+
+**子集：GTAP 前缀（§9.2）** 在调用开放泛型方法时，前缀类型实参 **仅** 接受上表中的 **`System.Type` 对象**（ByObj userdata），**不**接受类型表 / 字符串 / `zlua.types.*`。需要易用 typeArg 时用 `zlua.inflate`（§9.1），其 typeArg 与本节 **完全一致**。
 
 ---
 
@@ -317,26 +319,79 @@ zlua.to_table(szarray) → table
 
 ## 9. 泛型方法
 
-### 9.1 `zlua.make_generic_method`
+开放泛型方法（方法自身带泛型形参，如 `T GetComponent<T>()`）有两条闭合路径，语义一致、场景不同：
+
+| 路径 | 适用 | typeArg 规则 |
+|------|------|--------------|
+| **`zlua.inflate`**（§9.1） | 按 **已闭合** 声明类型 + 方法名/签名闭合方法泛型；热路径可缓存 closure | **完整 §3 typeArg** |
+| **GTAP**（§9.2） | 调用时前缀传入 `System.Type`（走已挂元表短名） | **仅** `System.Type` userdata |
+
+> **不提供** `zlua.make_generic_method` / `zlua.register_method`：同一 CLR 方法在 ByVal / ByObj（及静/实例）下对应不同 bridge；「取出 closure 再闭合 / 再挂名」易丢失 `isByVal` 上下文。元表在 Bind 后 **冻结**，运行时不得改写 method 表。
+
+闭合后的返回值门面按 **闭合后签名的声明类型**；若需按运行时实际类型挂门面，见 [marshal/02-MARSHAL-AS.md](/docs/spec/marshal/02-MARSHAL-AS/) `ActualTypeUserData`。
+
+**范围：** `inflate` / GTAP **只**闭合 **方法自身** 的泛型形参。声明类型若仍开放（如 `List\`1`），须先 `zlua.make_generic_type` 得到闭合类型，再对其上的方法泛型做 `inflate`。
+
+### 9.1 `zlua.inflate`
 
 ```lua
-zlua.make_generic_method(genericMethodBase, typeArg1, ...) → closure
+zlua.inflate(type, methodNameOrSignature, typeArg1, ..., typeArgN) → closure
 ```
+
+在指定 **已闭合** 类型上按 **方法名或全签名键** 查找 **开放泛型方法**，用 typeArg 单态化后返回 **direct closure**（可本地缓存）。
 
 | 参数 | 说明 |
 |------|------|
-| `genericMethodBase` | 类型表上的 **direct method closure**（未单态化的泛型方法） |
-| `typeArg…` | 泛型实参；个数须与方法泛型形参一致 |
+| `type` | 声明该开放泛型方法的类型：**须已闭合**（非 `IsGenericTypeDefinition`、且不含未绑定泛型形参）。**类型表** 或 §3 可解析为类型的 typeArg（推荐类型表 / `System.Type`） |
+| `methodNameOrSignature` | **字符串**：短方法名（如 `"GetComponent"`）或 [04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) §3.7 **全签名键**（开放泛型形参用参数名，如 `"Describe(T)"`；**不含** CLR `` `n `` 后缀） |
+| `typeArg1…typeArgN` | §3 typeArg；**`N ≥ 1`** 且 **`N` = 目标开放泛型方法的泛型形参个数** |
 
-返回单态化后的 **direct closure**；相同 `(base, typeArgs…)` **intern**（写入 `staticMap` / instance map 的内部签名键）。
+| 行为 | 规则 |
+|------|------|
+| 查找 | 在该类型 **静态 map + ByObj 实例 map** 中找开放泛型方法（继承扁平化后的绑定）。短名多候选且无法由 arity 唯一确定 → 报错（改用全签名键） |
+| 实例约定 | 返回的实例方法 closure 为 **ByObj** 调用约定：须 `f(self, …)`，`self` 为 class / boxed struct userdata；**不**经 `inflate` 单独产出 ByVal 侧 closure（struct ByVal 开放泛型走该侧元表上的 **GTAP**） |
+| intern | 键至少包含 **`(closedMethod, isStatic, isByVal)`**（闭合后的 `MethodInfo` + 静/实例 + ByVal/ByObj）。相同键 **intern** 为同一 registry closure；与 GTAP 隐式闭合 **共用** 该键空间 |
+| 失败 | 声明类型未闭合 / 类型无效 / 名不存在 / 非开放泛型 / 元数不符 / 歧义 / `MakeGenericMethod` 约束失败 → **`luaL_error`**（明确原因） |
 
-**要求：** 不能传入 **dispatch closure**。
-
-**Native：** `__zlua_make_generic_method`
+**Native：** `__zlua_inflate`
 
 ```lua
-local bar_int = zlua.make_generic_method(MyType.GenericBar, zlua.types.int32)
-bar_int(obj, 42)
+-- Unity：缓存 GetComponent<Rigidbody>（声明类型可为 GameObject；继承扁平后可找到 Component 上的方法）
+local GetRb = zlua.inflate(GameObject, "GetComponent",
+    CSharp['UnityEngine.CoreModule']['UnityEngine.Rigidbody'])
+local rb = GetRb(go)
+
+-- typeArg 可用类型表 / 字符串 / System.Type（§3）
+local GetBox = zlua.inflate(GameObject, "GetComponent", zlua.typeof(BoxCollider))
+local GetTr = zlua.inflate(GameObject, "GetComponent", "UnityEngine.Transform")
+
+-- 泛型类须先闭合声明类型，再 inflate 方法泛型
+local ListInt = zlua.make_generic_type(
+    CSharp.mscorlib['System.Collections.Generic.List`1'], zlua.types.int32)
+-- local f = zlua.inflate(ListInt, "ConvertAll", ...)
+```
+
+### 9.2 开放泛型调用前缀（GTAP）
+
+对挂在类型/实例元表上的 **开放泛型** direct（或 dispatch 中含开放泛型候选）调用时，可在 **普通实参之前** 放置 **N** 个类型前缀，隐式 inflate 后再按闭合签名匹配余参。
+
+| 规则 | 说明 |
+|------|------|
+| 前缀 | `self`（若有）之后连续 **N** 个实参须为 **`System.Type` 的 ByObj userdata**（`zlua.typeof(...)` 产物）；**N** = 该方法泛型形参个数 |
+| 余参 | 前缀之后为闭合方法的普通实参（含 0 个，如 `GetComponent<T>()`） |
+| **不**接受 | 类型表、类型名字符串、`zlua.types.*` 作为 GTAP 前缀（须先 `typeof`，或改用 `inflate`） |
+| 重载优先级 | 若某 **开放泛型** 候选满足「前缀 N × `System.Type` + 余参匹配闭合签名」，**优先于** 普通非泛型重载（含 `GetComponent(Type)`） |
+| `isByVal` | 取自 **触发调用的那一侧元表**（ByObj IMT 或 ByVal IMT），再与闭合 `MethodInfo` 一并 intern |
+| intern | 隐式 inflate 的 closure 与显式 `inflate` **同一 intern**（键含 `isStatic` / `isByVal`） |
+| 失败 | 前缀不足/类型不符 / 约束失败 → 按重载失败或明确错误（与平台一致） |
+
+详见 [04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) §3.8。
+
+```lua
+local Rigidbody = CSharp['UnityEngine.CoreModule']['UnityEngine.Rigidbody']
+local rb = go:GetComponent(zlua.typeof(Rigidbody))   -- GTAP → GetComponent<Rigidbody>()
+-- go:GetComponent(Rigidbody)                        -- ✗ 类型表不是 GTAP 前缀
+-- go:GetComponent("UnityEngine.Rigidbody")          -- 走 string 重载（若存在），不是 GTAP
 ```
 
 ---
@@ -380,27 +435,17 @@ function zlua.signature(...)
 end
 ```
 
-### 11.2 `zlua.register_method`
+### 11.2 精确重载与短名
 
-```lua
-zlua.register_method(aliasName, methodOrClosure) → void
-```
-
-完整语义见 [04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) §6.1。
-
-要点：
-
-- 同名重载在 Bind 期已有 **全签名键**（如 `Run(System.Int32)`），可直接 `obj['Run(System.Int32)'](obj, …)`，**不必**先 `register_method`
-- `register_method` 把 **direct** closure 挂到 **尚未占用** 的短名；之后可用 **冒号**：`obj:run_i32(5)`
-- `aliasName` 已存在（默认名 / 全签名键 / 其它别名）→ `luaL_error`，不合并重载
+- **全签名键**（如 `Run(System.Int32)`）在 `__index` miss 时懒解析并缓存（见 [04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) §3.7），可 `obj['Run(System.Int32)'](obj, …)`
+- 需要短名冒号调用时，用 Bind 期 **`[LuaAlias]`** / XML 别名（同文档 §5）
+- **不提供**运行时 `register_method`；短名在 Bind 后冻结
 
 ```lua
 local run_i32 = demo['Run(System.Int32)']
-zlua.register_method("run_i32", run_i32)
-demo:run_i32(5)
+run_i32(demo, 5)
+-- 或 Bind 期 [LuaAlias("run_i32")] 后：demo:run_i32(5)
 ```
-
-**Native：** `__zlua_register_method`
 
 ---
 
@@ -420,8 +465,7 @@ demo:run_i32(5)
 | `__zlua_new_szarray_by_szarray_type` | `zlua.new_szarray_by_szarray_type` | |
 | `__zlua_new_mdarray_by_mdarray_type` | `zlua.new_mdarray_by_mdarray_type` | |
 | `__zlua_new_mdarray_by_spec` | `zlua.new_mdarray_by_spec` | |
-| `__zlua_make_generic_method` | `zlua.make_generic_method` | |
-| `__zlua_register_method` | `zlua.register_method` | 两参数 |
+| `__zlua_inflate` | `zlua.inflate` | 按已闭合声明类型 + 名/签名 + typeArg 闭合方法泛型 |
 | `__zlua_box` | `zlua.box` | |
 | `__zlua_unbox` | `zlua.unbox` | |
 | `__zlua_cast` | `zlua.cast` | |
@@ -460,14 +504,17 @@ local fraw = zlua.to_bytes(floats)   -- #fraw == 16
 -- opaque（C# 调 Lua 回调内）
 -- local v = zlua.get_opaquevalue(refHandle)
 
--- 全签名键 / 短名
+-- 全签名键 / [LuaAlias] 短名（见 04-METHOD-OVERLOAD）
 demo['Run(System.Int32)'](demo, 10)
 local run = demo['Run(System.Int32)']
-zlua.register_method("run_hot", run)
-demo:run_hot(99)
+run(demo, 99)
 
 -- 门面
 local child = zlua.cast(demo, CSharp.AC.Child)
+
+-- 泛型方法：inflate / GTAP（见 §9）
+-- local GetRb = zlua.inflate(GameObject, "GetComponent", Rigidbody)
+-- local rb = go:GetComponent(zlua.typeof(Rigidbody))
 ```
 
 ---
@@ -480,7 +527,7 @@ zlua = zlua or {}
 function zlua.typeof(typeTable) return __zlua_typeof(typeTable) end
 function zlua.get_type_from_name(typeFullName) return __zlua_get_type_from_name(typeFullName) end
 function zlua.make_generic_type(genericType, ...) return __zlua_make_generic_type(genericType, ...) end
-function zlua.make_generic_method(genericMethodBase, ...) return __zlua_make_generic_method(genericMethodBase, ...) end
+function zlua.inflate(type, methodNameOrSignature, ...) return __zlua_inflate(type, methodNameOrSignature, ...) end
 function zlua.make_szarray_type(elementType) return __zlua_make_szarray_type(elementType) end
 function zlua.make_mdarray_type(elementType, rank) return __zlua_make_mdarray_type(elementType, rank) end
 function zlua.new_szarray_by_element_type(elementType, length) return __zlua_new_szarray_by_element_type(elementType, length) end
@@ -495,7 +542,6 @@ function zlua.set_opaquevalue(opaque_handle, new_value) return __zlua_set_opaque
 function zlua.box(typeArg, value) return __zlua_box(typeArg, value) end
 function zlua.unbox(boxedValue) return __zlua_unbox(boxedValue) end
 function zlua.cast(obj, targetType) return __zlua_cast(obj, targetType) end
-function zlua.register_method(aliasName, methodOrClosure) return __zlua_register_method(aliasName, methodOrClosure) end
 
 zlua.types = { /* 见 §4.2 */ }
 ```

@@ -68,7 +68,7 @@ Luaâ†’C#: ByVal userdata or Opaque can write back; bare numbers **do not**. C#â†
 
 ### How are method overloads chosen?
 
-Default `demo:Run(10)` uses dispatch; precise naming uses the full-signature key `demo['Run(System.Int32)'](demo, 10)`; for hot-path short names use `[LuaAlias]` or `register_method` then `demo:run_i32(10)`. See [Method overloads](/docs/guides/overloads/).
+Default `demo:Run(10)` uses dispatch; precise naming uses the full-signature key `demo['Run(System.Int32)'](demo, 10)`; for hot-path short names use Bind-time `[LuaAlias]` then `demo:run_i32(10)`. See [Method overloads](/docs/guides/overloads/).
 
 ### How does Lua pass callbacks to C#?
 

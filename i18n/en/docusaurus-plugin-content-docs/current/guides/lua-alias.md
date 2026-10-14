@@ -17,8 +17,7 @@ Authoritative: [Overload Spec §5](/docs/spec/04-METHOD-OVERLOAD/). Compare with
 | You can edit C#; hot path wants a short name + colon | **`[LuaAlias]`** |
 | Cannot change source (precompiled / AOT, **non–hot-update** DLL) | Settings **`luaAliasXmlPaths`** + `ZLuaAlias` XML |
 | **Hot-update assemblies** (including HybridCLR) | **Only** in-code `[LuaAlias]`; XML is **not** supported |
-| Cannot change C#; temporary runtime name | `zlua.register_method` (see [Overloads](/docs/guides/overloads/)) |
-| Exact pick; syntax does not matter | Full-signature key `demo['Run(System.Int32)'](demo, 5)` |
+| Exact pick; syntax does not matter | Full-signature key `demo['Run(System.Int32)'](demo, 5)` (may cache the direct locally) |
 
 ## `[LuaAlias]` attribute
 
@@ -117,13 +116,13 @@ This file **only** allows `Assembly` → `Type` → `Method` with `@alias`. Do n
 
 In Project Settings → **ZLua**, put XML paths in **`luaAliasXmlPaths`** (alongside the MarshalAs path list).
 
-## vs full-signature keys / `register_method`
+## vs full-signature keys
 
 | Approach | Notes |
 |------|------|
-| Full-signature key | Automatic at Bind; default name unchanged; `demo['Run(System.Int32)'](demo, 5)` |
+| Full-signature key | Lazy-resolved on `__index` miss and cached; default name unchanged; `demo['Run(System.Int32)'](demo, 5)` |
 | `[LuaAlias]` / XML | **Rename** at Bind; preferred short colon names on hot paths |
-| `register_method` | At runtime, hang an existing direct onto a **vacant** short name; does not merge overloads |
+| Local cache | `local run = demo['Run(System.Int32)']`; **no** runtime short-name hang API |
 
 ## Common mistakes
 

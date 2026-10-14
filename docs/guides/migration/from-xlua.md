@@ -319,10 +319,9 @@ obj['Foo(System.String)'](obj, "a")
 -- 或 Bind 期 [LuaAlias] 短名
 obj:foo_str("a")
 
--- 或 register_method 挂自定义短名后冒号调用
+-- 全签名键可本地缓存（无运行时挂短名 API）
 local foo_i32 = obj['Foo(System.Int32)']
-zlua.register_method("foo_i32", foo_i32)
-obj:foo_i32(1)
+foo_i32(obj, 1)
 ```
 
 ### 5.3 C# 主循环调 Lua

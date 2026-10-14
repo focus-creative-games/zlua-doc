@@ -17,8 +17,8 @@ C# allows same-named methods overloaded by parameter types/arity; Lua has no sta
 | Goal | Notes |
 |------|-------|
 | Usability | `obj:Run(10)` should work in common cases |
-| Precision | On name collisions, Bind auto-hangs **full-signature keys**; scripts may also use `[LuaAlias]` / `register_method` for short names |
-| Performance | Hot paths prefer single-candidate direct (full-signature key, alias, or locally cached closure); avoid repeated dispatch |
+| Precision | To name a specific overload, use a **full-signature key** (lazy resolution on miss, §3.7); or a short name via `[LuaAlias]` |
+| Performance | Hot paths prefer single-candidate direct (alias, or locally cached closure); avoid repeated dispatch |
 | Consistency | Mono and Il2Cpp select the same overload; error text is consistent |
 
 ---
@@ -31,15 +31,14 @@ flowchart LR
     B -->|1| C["direct closure"]
     B -->|≥ 2| E["dispatch closure"]
     E --> F["pick overload per §3.6"]
-    S["full-signature key Name(Types…)"] --> C
+    S["full-signature key Name(Types…) lazy resolve"] --> C
     G["[LuaAlias] / local cache"] --> C
-    H["register_method new name"] --> C
 ```
 
 1. **Group by final name** (§3, §5): at bind time each method enters a group under its **final Lua name** (C# default name, `[LuaAlias]` / XML alias); **multiple candidates under one name are allowed** (bind-time alias mechanism only).
 2. **Single candidate → direct; multiple → dispatch** (§3.6).
-3. **On multi-candidate same name, also hang full-signature keys** (§3.7): each colliding overload also registers a **direct** key `MethodName(ParamTypeFullNames…)` (**excluding** return type) so scripts can name an overload precisely **without** `register_method` first.
-4. **Runtime** (§6): `register_method` may only hang onto a final name that **does not yet exist** (§6.1), attaching an existing direct closure (often from a full-signature key or `[LuaAlias]`) as a **short name** for `obj:alias(...)` colon calls.
+3. **Full-signature keys resolved lazily on demand** (§3.7): Bind does **not** pre-hang `MethodName(ParamTypeFullNames…)`; on `__index` miss when the key contains `(`, look up by signature on the type hierarchy and cache.
+4. **Metatable short names frozen after Bind**: no runtime API to hang names; short-name colon calls use Bind-time `[LuaAlias]` / XML only. Full-signature key caching is lazy write on the miss path and does not change short-name overload groups.
 
 ---
 
@@ -59,8 +58,6 @@ Sources may be:
 - Multiple C# same-name overloads (same default name); or
 - `[LuaAlias]` / XML hanging different methods on the **same final name** (colliding with default names or other aliases is allowed); or
 - **C# extensions** (injected into IMT per [13-EXTENSION-METHODS](/docs/spec/13-EXTENSION-METHODS/)) and real instance methods with the **same final name** → **merged competition** (no “instance beats extension”); full-signature keys and matching both use formals **after** dropping `this`.
-
-> **Except `zlua.register_method`:** runtime registration **forbids** an already-existing final name (see §6.1), so that API cannot enlarge an existing overload group.
 
 Static and instance live in separate tables (`staticMap` vs `byvalInstanceMap` / `byobjInstanceMap`). C# may have both `static void Foo()` and `void Foo()`; they do not interfere.
 
@@ -122,10 +119,9 @@ void G(int x, int y = 5);
 
 Each dispatch call walks candidates and recomputes matches — a **slow path**. If a hot path needs a fixed overload, use:
 
-- That overload’s **full-signature key** (§3.7, already direct); or
 - A final name with **only one candidate** (e.g. a unique `[LuaAlias("run_i32")]`); or
-- `register_method` short name then colon call; or
-- **Locally cache** a direct closure in script (e.g. `local run = demo['Run(System.Int32)']`).
+- A **full-signature key** (§3.7, cached as direct after first miss); or
+- **Locally cache** a direct closure obtained in script.
 
 ### 3.5 Failure errors
 
@@ -181,9 +177,11 @@ Kind preference chain:
 
 Only when Kind is `ImplicitBoxing`, `Object::Box` inside `TryPop` of the **already selected** overload. **Forbidden** to Box inside the `GetConversionKind` loop.
 
-### 3.7 Same-name collisions: full-signature keys (automatic at Bind)
+### 3.7 Full-signature keys (lazy resolution)
 
-When a final name (usually the C# default method name) has **≥ 2 candidates**, besides binding that name to a **dispatch closure**, also register one **direct** metatable key per candidate:
+**Do not** pre-hang full-signature keys on `methodTable` / method map at Bind (avoids waste for keys most scripts never touch, and avoids “only hang when overloads exist” so removing an overload suddenly breaks signature access).
+
+#### 3.7.1 Key format
 
 ```text
 <MethodName>(<Type0.FullName>,<Type1.FullName>,…)
@@ -191,34 +189,67 @@ When a final name (usually the C# default method name) has **≥ 2 candidates**,
 
 | Rule | Notes |
 |------|-------|
-| When | **Only** when that final name has a name collision (≥ 2 candidates); single-candidate methods are **not** required to hang a full-signature key |
-| Method name | C# `MethodInfo.Name` (same as default final name; not a `[LuaAlias]` short name) |
-| Parameter list | Same signature string as §4.1: parentheses + comma-separated **`Type.FullName`**; **no** return type; byref / array / generic spelling matches metadata |
-| Bound value | That candidate’s **direct method closure** (same as single-overload direct) |
-| Static / instance | Same domain as the method; written into the corresponding `staticMap` or instance map |
+| Method name | C# **`MethodInfo.Name`** (CLR name; **not** a `[LuaAlias]` short name) |
+| Parameter list | Same as §4.1: parentheses + comma-separated type full names; **no** return type; byref / array / open-generic formal spelling matches metadata |
+| Extension methods | Signature **excludes** the `this` formal (matches Lua call-side args) |
+| Scope | **Any** public instance/static **method** (including single-candidate; methods renamed by `[LuaAlias]` may still use CLR name in the key) |
+| **Excluded** | **Instance constructors** and **static constructors (`.cctor`)** — neither participates in full-signature lazy resolution; construction still uses type-table `__call` / existing ctor dispatch only |
 
-**Example:** `Foo` has `int Run(int)` and `int Run(string)`:
+#### 3.7.2 `__index` miss path
 
-| Metatable key | Binding |
-|---------------|---------|
-| `Run` | dispatch (runtime pick per §3.6) |
-| `Run(System.Int32)` | direct → `Run(int)` |
-| `Run(System.String)` | direct → `Run(string)` |
+When accessing type/instance metatable members, if `methodTable` (and field tables) miss, and the key is a string **containing `(`**:
+
+1. Walk public methods on the current type and **base chain** (static/instance domain matches the metatable; skip property `get_`/`set_` accessors; **skip** instance and static constructors).
+2. Compare each method’s §3.7.1 key to the requested key; **return the first match**.
+3. Build that candidate’s **direct** (or open-generic GTAP) closure, write it to the corresponding `methodTable` **and** method map (cache), then return.
+4. No match → same as other misses, `member not found`.
+
+| Item | Notes |
+|------|-------|
+| ByVal / ByObj | Cache on the side that triggered the miss; `isByVal` matches that side |
+| vs short names | Does not change existing short-name direct/dispatch; only adds signature-key entries |
 
 ```lua
 local demo = CSharp.AC.Foo()
 
-demo:Run(5)                              -- dispatch → Run(int)
-demo:Run("hi")                           -- dispatch → Run(string)
-
--- No register_method needed; precise name (dot + explicit self)
+demo:Run(5)                              -- short-name dispatch (if "Run" still hangs)
+-- full-signature key: first miss → lazy resolve and cache
 demo['Run(System.Int32)'](demo, 5)
 demo['Run(System.String)'](demo, "hi")
+-- single-candidate too: demo['GetValue()'](demo)
 ```
 
-> **Colon syntax:** keys containing `(` / `)` cannot be written as `demo:Run(System.Int32)(...)`; use bracket keys + dot call. For short-name colon calls like `demo:run_i32(5)`, use `[LuaAlias]` or `register_method` (§5, §6).
+> **Colon syntax:** keys containing `(` / `)` cannot be written as `demo:Run(System.Int32)(...)`; use bracket keys + dot call. Short-name colon calls use Bind-time `[LuaAlias]` / XML (§5).
 
-For multi-overload constructors, full-signature keys live on the type-table side (implementation conventions paired with `_ctor` / `__call` dispatch); parameter-list format is the same as this section.
+### 3.8 Open-generic call prefix (GTAP)
+
+Besides [05-LIB.md](/docs/spec/05-LIB/) §9 `inflate`, open generic methods (method-level type parameters) may be closed **at the call site** with a **type prefix** (**GTAP** = Generic Type Argument Prefix).
+
+#### 3.8.1 Shape
+
+```text
+instance: obj:Method(type1, …, typeN, arg1, …)
+static:   Type.Method(type1, …, typeN, arg1, …)
+```
+
+| Item | Rules |
+|------|-------|
+| `type1…typeN` | **N** consecutive **`System.Type` ByObj userdata** (`zlua.typeof`); **N** = generic formal count of that open method |
+| `arg…` | Ordinary args of the closed signature (may be zero) |
+| Forbidden as prefix | Type tables, type-name strings, `zlua.types.*` (use `typeof` or `inflate`) |
+
+#### 3.8.2 Priority vs ordinary overloads
+
+When a short name has both **open generic** and **non-generic** candidates (e.g. `GetComponent<T>()` and `GetComponent(Type)`):
+
+1. If the arg prefix satisfies §3.8.1 and remaining args are applicable to the **closed** open-generic signature → **prefer the open-generic path** (inflate + invoke); do **not** feed the prefix `System.Type`s as ordinary `Type` formals to a non-generic overload.
+2. Otherwise select among non-generic (and already closed) candidates per §3.6.
+
+#### 3.8.3 Implementation notes
+
+- Both open-generic direct closures and dispatch groups that include open generics must support GTAP.
+- Implicit inflate shares **intern** with `zlua.inflate`; keys include at least `(closedMethod, isStatic, isByVal)` (`isByVal` from the metatable side that triggered the call).
+- Does **not** change §3.6 `ConversionKind`; GTAP is a **prefix strip + candidate filter** step before better-member.
 
 ---
 
@@ -249,7 +280,7 @@ Native callback: `__zlua_create_signature` (`ZLuaLib.cpp`). Projects should wrap
 "Run" + "(System.Int32)"  →  Lua metatable key "Run(System.Int32)"
 ```
 
-That key is **exposed** as a `methodTable` `__index` string key when there are **multiple same-name candidates** (§3.7).
+That key is resolved via the §3.7 miss path and cached as a `methodTable` string key.
 **Forbidden** to treat **only** the parameter parentheses (e.g. `"(System.Int32)"`) as a method key; the method name is required.
 
 ---
@@ -379,98 +410,21 @@ If a final method name collides with a field / parameterless property, `__index`
 
 ---
 
-## 6. Runtime API
+## 6. Helper API
 
 When naming a specific overload explicitly, preference order:
 
-1. **Full-signature key** (§3.7, automatic at Bind; no API needed)
-2. Bind-time **`[LuaAlias]`** short name
-3. Take a direct closure from a full-signature key / alias, then **`register_method`** a custom short name (for colon calls)
+1. Bind-time **`[LuaAlias]`** / XML short name
+2. **Full-signature key** (§3.7, lazy resolution)
+3. **Locally cache** a direct closure obtained in script
 
 `zlua.signature(...)` (§4.1) builds / checks the parameter-parentheses part; it is **not** a standalone metatable key.
 
-### 6.1 `zlua.register_method`
+**No** runtime `zlua.register_method`: metatable short names are frozen after Bind; the same CLR method maps to different bridges under ByVal / ByObj, so “take and re-hang” loses context. Short-name colon calls rely on Bind-time aliases only.
 
-**Must match `ZLuaLib.cpp` / `zlualib.lua`: two-parameter form.**
+Closing open generic methods: [05-LIB.md](/docs/spec/05-LIB/) §9 (`inflate` / GTAP).
 
-```lua
-zlua.register_method(aliasName, methodOrClosure) → void
-```
-
-**Purpose:** hang an existing **direct** closure onto a short name that **does not yet exist**. After success, instance methods can use **colon** calls (no bracket key + explicit `self`).
-
-```lua
-local demo = CSharp.AC.Demo()
-
--- 1) Full-signature key: no register needed, but requires dot + self
-demo['Run(System.Int32)'](demo, 5)
-
--- 2) Take direct closure, hang short name
-local run_i32 = demo['Run(System.Int32)']
-zlua.register_method("run_i32", run_i32)
-
--- 3) Thereafter any instance of that type may colon-call
-demo:run_i32(5)
-```
-
-```lua
-local Demo = CSharp.AC.Demo
-local calc = Demo()
-
--- Or obtain a direct closure from a single-candidate [LuaAlias] key
-local run = calc.run_i32
-zlua.register_method("run_custom_i32", run)
-calc:run_custom_i32(20)
-
-local add = Demo.add_i32
-zlua.register_method("add_custom_i32", add)
-assert(Demo.add_custom_i32(3, 5) == 8)
-```
-
-| Parameter | Notes |
-|-----------|-------|
-| `aliasName` | Non-empty string; written as a **new** final Lua name into the method table |
-| `methodOrClosure` | **direct method closure** (single candidate; `MetaBinding::IsDirectMethodClosure`, etc.) |
-
-**Write target (inferred from embedded `TypeBinding` in the closure):**
-
-| Closure domain | Written to |
-|----------------|------------|
-| Static method | `binding->staticMap` + static method index table |
-| Instance ByVal | `binding->byvalInstanceMap` |
-| Instance ByObj | `binding->byobjInstanceMap` |
-
-**Relation to existing keys (simplified overload management):**
-
-To avoid rewriting existing overload groups at runtime, `register_method` **disallows** `aliasName` that **already exists** in the target method table (corresponding static/instance map / `methodTable`) — whether that key is currently:
-
-- a single **direct** method; or
-- a **dispatch** overload group; or
-- a full-signature key or any other occupied method slot.
-
-| Case | Behavior |
-|------|----------|
-| `aliasName` **absent** | Write **direct** closure (sole candidate under that name) |
-| `aliasName` **already present** (direct or dispatch, etc.) | **`luaL_error`**; no overwrite, no merge |
-| Passing a **dispatch** closure | **`luaL_error`** (only accept direct closures resolvable to a single candidate) |
-
-Difference from §5 `[LuaAlias]`: aliases at **Bind time** may collide and form overloads; `register_method` at **runtime** only “hangs on an empty slot” and does **not** merge overloads.
-
-Difference from §3.7: full-signature keys already provide precise Bind-time entries; `register_method` solves **readable short names + colon syntax**, not “the only way to name an overload”.
-
-**Errors:**
-
-| Condition | Behavior |
-|-----------|----------|
-| Arg count ≠ 2 | `luaL_error` |
-| Not recognizable as a legal direct method closure | `luaL_error` |
-| `aliasName` already occupied on the metatable method side | `luaL_error` |
-
-Native: `__zlua_register_method` (implemented on Il2Cpp).
-
-> **Signature note:** only two parameters `(aliasName, closure)`; target table comes from the closure’s binding domain — **no** need to pass a type table or instance.
-
-### 6.2 `zlua.types`
+### 6.1 `zlua.types`
 
 Preset mscorlib type-name strings; see [05-LIB.md](/docs/spec/05-LIB/) §4.2.
 
@@ -483,11 +437,11 @@ Preset mscorlib type-name strings; see [05-LIB.md](/docs/spec/05-LIB/) §4.2.
 | Default dispatch | `demo:Run(10)` |
 | Precise overload (full-signature key, §3.7) | `demo['Run(System.Int32)'](demo, 10)` |
 | `[LuaAlias]` short name | `demo:run_i32(20)` |
-| After `register_method` | `demo:run_custom_i32(20)` |
+| Locally cached direct | `local run = demo['Run(System.Int32)']; run(demo, 20)` |
 | Static | `Demo.Add(3, 5)` / `Demo['Add(System.Int32,System.Int32)'](3, 5)` |
 | ~~Parameter parentheses alone as key~~ | ~~`demo['(System.Int32)'](...)`~~ **forbidden** |
 
-Instance methods: full-signature keys use **dot** with explicit `self`; short aliases (`[LuaAlias]` / `register_method`) may use **colon**.
+Instance methods: full-signature keys use **dot** with explicit `self`; short aliases (`[LuaAlias]`) may use **colon**.
 
 ---
 
@@ -496,12 +450,15 @@ Instance methods: full-signature keys use **dot** with explicit `self`; short al
 | Item | Requirement |
 |------|-------------|
 | Group by final name + dispatch §3 / §5 | Same |
-| Full-signature keys on multi-candidate §3.7 | Same |
+| Full-signature keys for multi-candidate names §3.7 | Same |
 | Aliases may collide with default / other aliases | Same |
 | Signature format §4.1 | Same |
 | dispatch §3.3, §3.6 | Same |
+| GTAP §3.8 (prefix + priority vs non-generic) | Same |
+| Full-signature lazy resolution §3.7 | Same |
+| `inflate` / GTAP intern keys include `isStatic` / `isByVal` | Same |
 | Selected overload | Same args → same C# overload |
-| `register_method` two args; **reject occupied names** | Same |
+| Metatable short names frozen after Bind (no runtime short-name hang) | Same |
 | Error text | Identical or equivalent |
 
 ---
@@ -533,19 +490,15 @@ local demo = CSharp.AC.Demo()
 
 demo:Run(10)        -- "Run" multi-candidate → dispatch → Run(int)
 demo:Run("ab")      -- dispatch → Run(string)
-demo['Run(System.Int32)'](demo, 10)   -- full-signature key → direct; no register_method
+demo['Run(System.Int32)'](demo, 10)   -- full-signature key → direct
 demo:run_str("x")   -- single-candidate alias → direct
 
 demo:Foo("hi")      -- "Foo" has Foo(int) and Bar(string) → dispatch → Bar(string)
 
 local run_i32 = demo['Run(System.Int32)']
-zlua.register_method("run_cached", run_i32)   -- must be an unused new name
-demo:run_cached(20)                           -- short name + colon
+run_i32(demo, 20)                             -- locally cached direct
 
-local add = CSharp.AC.Demo.add_i32
-zlua.register_method("add_one", add)           -- OK: new name
--- zlua.register_method("Add", add)            -- error: default name / overload group already exists
-assert.equal(CSharp.AC.Demo.add_one(7), 7)
+assert.equal(CSharp.AC.Demo.add_i32(7), 7)    -- [LuaAlias] short name
 ```
 
 ---
@@ -556,8 +509,8 @@ assert.equal(CSharp.AC.Demo.add_one(7), 7)
 |--------|------|
 | `ValueMarshaling` / Mono equivalent | `ConversionKind`, `GetConversionKind`, `TryPop` |
 | `FindMatchingMethod` | applicable + better member |
-| `MetaBinding` | dispatch, direct closure, `register_method` |
-| `ZLuaLib.cpp` | `__zlua_create_signature`, `__zlua_register_method` |
+| `MetaBinding` | dispatch, direct closure, `inflate` lookup |
+| `ZLuaLib.cpp` | `__zlua_create_signature`, `__zlua_inflate` |
 | Codegen | `[LuaAlias]` written into metadata |
 
 C# Extension injection into IMT and merged competition: [13-EXTENSION-METHODS](/docs/spec/13-EXTENSION-METHODS/).

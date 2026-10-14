@@ -90,15 +90,15 @@ Priority: **Attribute > XML**. With an alias, `MethodInfo.Name` is **not** hung.
 | Instance | Instance `methodTable` | `obj:alias(...)` |
 | Static | Type-table `methodTable` | `TypeTable.alias(...)` |
 
-## Relation to Full-Signature Keys / `register_method`
+## Relation to full-signature keys
 
 | Approach | Timing | When to use |
 |----------|--------|-------------|
-| Full-signature key `Run(System.Int32)` | Automatic at Bind (same-name multi-candidate) | Precise pick; no C# change, no API |
-| `[LuaAlias]` / XML | On type `EnsureBinding` | Compile-time short name; hot-path preferred |
-| `zlua.register_method` | Lua runtime | Hang a direct (often from a full-signature key) under a custom short name for `obj:alias(...)` |
+| Full-signature key `Run(System.Int32)` | Lazy-resolved on `__index` miss and cached | Precise pick; no C# change; no runtime hang API |
+| `[LuaAlias]` / XML | On type `EnsureBinding` | Bind-time short name; hot-path preferred colon calls |
+| Local cache of direct | Script stores the closure | Hot-path reuse; **no** runtime short-name hang API |
 
-`[LuaAlias]` / XML is a **rename** on methodTable (replaces the default key); full-signature keys pick which overload; `register_method` hangs an **extra** short name at runtime.
+`[LuaAlias]` / XML is a **rename** on methodTable (replaces the default key); full-signature keys pick which overload.
 
 ## Mono / Il2Cpp Support
 

@@ -84,7 +84,7 @@ Il2Cpp additionally loads stub tables early at AppDomain level (`MethodBridge::I
 | 4 | ✅ | Delegate Emit, most of `ZLuaLib`, `GetFunction` Delegate bridge, delete legacy | `DelegateImpl/`, `Marshaling/DelegateMarshal.cs` |
 | 5 | ✅ impl / ⏳ acceptance | NYI fill-in, Vector delegate catalog, MethodClosureTag, LuaAlias, Pointer/`params`; manifest pending Editor green | `Emit/*`, `Marshaling/PointerMarshal`, `ZLuaLib` |
 
-**Phase 5:** `register_method` / `make_generic_method` / opaque get/set implemented; open generic methods write throw stubs + tags; Unity Vector delegate catalog added; `[LuaAlias]` matches Il2Cpp (alias replaces default key); Pointer lightuserdata + DynamicMethod; TypedReference/decimal/ByRefLike rejected at call time; `params T[]` marshals as array.
+**Phase 5:** `inflate` / GTAP / opaque get/set implemented (**no** `register_method` / `make_generic_method`); open generic methods write throw stubs + tags; Unity Vector delegate catalog added; `[LuaAlias]` matches Il2Cpp (alias replaces default key); Pointer lightuserdata + DynamicMethod; TypedReference/decimal/ByRefLike rejected at call time; `params T[]` marshals as array.
 
 ## 6. Key differences from Il2Cpp
 

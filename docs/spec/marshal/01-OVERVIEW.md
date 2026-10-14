@@ -109,13 +109,14 @@ title: "Marshal 总览 — 默认规则矩阵"
 | 概念 | 含义 |
 |------|------|
 | **Identity** | userdata 持有的托管对象引用（运行时实际实例） |
-| **View / 门面** | userdata 挂接的 **IMT** 与成员可见性；**唯一来源 = 本次 Marshal 的声明类型** |
+| **View / 门面** | userdata 挂接的 **IMT** 与成员可见性；默认 = **声明类型**；`ActualTypeUserData` 返回值 = **实际类型** |
 
 **规则摘要：**
 
-1. **C# → Lua**：始终按 **声明类型** 选择默认 marshal 形态与 ByObj IMT；**不** 因运行时实际类型不同而改挂实际类型 mt，也 **不** 因此改走 `string` 等特殊 Marshal。
-2. **Downcast**：仅 `zlua.cast(obj, targetType)`（见 [../05-LIB.md](/docs/spec/05-LIB/)）；要求目标类型可从当前门面类型赋值，返回 **新 userdata**（同 identity、新门面）。
-3. **对象缓存**：键为 **`(identity, viewType)`**；同一实例可有多个视图 userdata。
+1. **C# → Lua（默认）**：始终按 **声明类型** 选择默认 marshal 形态与 ByObj IMT；**不** 因运行时实际类型不同而改挂实际类型 mt，也 **不** 因此改走 `string` 等特殊 Marshal。
+2. **例外**：返回值标注 `[LuaMarshalAs(ActualTypeUserData)]` 时，ByObj 的 **view = 运行时实际类型**（仍为 ByObj；实际 `string` 亦不转 Lua string）。见 [02-MARSHAL-AS.md](/docs/spec/marshal/02-MARSHAL-AS/)、[06-CLASS.md](/docs/spec/marshal/06-CLASS/)。
+3. **Downcast**：`zlua.cast(obj, targetType)`（见 [../05-LIB.md](/docs/spec/05-LIB/)）；要求目标类型可从当前门面类型赋值，返回 **新 userdata**（同 identity、新门面）。
+4. **对象缓存**：键为 **`(identity, viewType)`**；同一实例可有多个视图 userdata。
 
 完整规则见 [06-CLASS.md](/docs/spec/marshal/06-CLASS/)。
 

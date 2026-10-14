@@ -190,13 +190,11 @@ end
 
 ---
 
-## 8. Interaction with `register_method`
+## 8. Metatable freeze and lazy full-signature resolve
 
-`zlua.register_method` (and the Mono equivalent) attaches a **new** final name → **direct** closure to the target type's method table at runtime (full rules in [../04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) §6.1).
+After Bind, there is **no** runtime API to hang short names (no `zlua.register_method`). Short colon calls rely on Bind-time `[LuaAlias]` / XML.
 
-- `aliasName` **does not exist yet** → write it; later `__index` returns that closure.
-- `aliasName` **already exists** (single method or overload group) → **`luaL_error`**; do not overwrite or merge.
-- Method-vs-field/property priority is §2.4; `register_method` still only checks whether the **method side** already occupies that name.
+On `__index`, when method / field miss and the key contains `(`, resolve the full-signature method lazily per [../04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) §3.7 and cache it into `methodTable`. Do not rewrite the three tables otherwise.
 
 ---
 
