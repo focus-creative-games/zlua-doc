@@ -23,17 +23,19 @@ description: "[LuaExtension] 与 XML 将 C# extension 挂到被扩展类型的�
 ```csharp
 using ZLua;
 
-public static class TransformExt
+public static class MyClassExt
 {
-    public static void ResetLocal(this UnityEngine.Transform t)
+    public static void ResetLocal(this MyClass self)
     {
-        t.localPosition = UnityEngine.Vector3.zero;
+        // ...
     }
 }
 
-[LuaExtension(typeof(TransformExt))]
-public class PlayerView : MonoBehaviour { }
+[LuaExtension(typeof(MyClassExt))]
+public class MyClass { }
 ```
+
+第三方 / 无法改源码的类型用 XML（`this` 参数类型须与 `Type/@fullName` 一致）：
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -54,8 +56,8 @@ Il2Cpp：XML 在 **Generate** 期写入静态表，Player **不**读 XML（改�
 ## Lua 用法
 
 ```lua
-local t = go.transform
-t:ResetLocal()   -- 冒号；底层是静态扩展方法
+local obj = CSharp.AC.MyClass()
+obj:ResetLocal()   -- 冒号；底层是静态扩展方法 MyClassExt.ResetLocal(obj)
 ```
 
 筛选规则：扩展类上带 `ExtensionAttribute` 的 `public static` 方法，且第一个参数能接住该被扩展类型（含 `this Base` 用于 `Derived`）。开放泛型扩展 **不支持**。

@@ -55,8 +55,8 @@ When Binding type **T**, the extension-class list = **Attribute union ∪ XML un
 ```csharp
 using ZLua;
 
-[LuaExtension(typeof(TransformExt), typeof(TransformTweenExt))]
-public class MyBehaviour : MonoBehaviour { }
+[LuaExtension(typeof(MyClassExt), typeof(MyClassTweenExt))]
+public class MyClass { }
 
 // Cannot edit third-party type sources: do not try to annotate the extension class; use §2.2 XML
 ```
@@ -177,24 +177,25 @@ When matching: an extension candidate’s CLR formal sequence used for scoring i
 ## 6. Script-visible behavior (examples)
 
 ```csharp
-public static class TransformExt
+public static class MyClassExt
 {
-    public static void ResetLocal(this Transform t)
+    public static void ResetLocal(this MyClass self)
     {
-        t.localPosition = Vector3.zero;
+        // ...
     }
 }
 
-// When you can edit sources:
-[LuaExtension(typeof(TransformExt))]
-public class /* some wrapper or business type */ { }
+// When you can edit sources: Attribute on the extended type; this parameter type must match
+[LuaExtension(typeof(MyClassExt))]
+public class MyClass { }
 
-// Or XML: Type=UnityEngine.Transform → Extension=TransformExt
+// When you cannot edit sources, use XML, e.g. Type=UnityEngine.Transform → Extension=TransformExt
+// (the extension method must be this Transform, matching the extended type in XML)
 ```
 
 ```lua
-local t = go.transform
-t:ResetLocal()   -- IMT; equivalent to TransformExt.ResetLocal(t)
+local obj = MyClass()
+obj:ResetLocal()   -- IMT; equivalent to MyClassExt.ResetLocal(obj)
 ```
 
 Extension methods do **not** appear merely because they exist in the project; if not configured for that extended type (or base Attribute / XML), Lua **`__index` miss → error** (`zlua: member not found: …`), same as any other unregistered member.

@@ -55,8 +55,8 @@ Bind 类型 **T** 时，扩展类列表 = **Attribute 并集 ∪ XML 并集**（
 ```csharp
 using ZLua;
 
-[LuaExtension(typeof(TransformExt), typeof(TransformTweenExt))]
-public class MyBehaviour : MonoBehaviour { }
+[LuaExtension(typeof(MyClassExt), typeof(MyClassTweenExt))]
+public class MyClass { }
 
 // 无法改第三方类型源码时：不要试图标在扩展类上；改用 §2.2 XML
 ```
@@ -177,24 +177,25 @@ CLR 上 extension 为 **static**，Lua 侧必须表现为 **实例方法**。
 ## 6. 脚本可见行为（示例）
 
 ```csharp
-public static class TransformExt
+public static class MyClassExt
 {
-    public static void ResetLocal(this Transform t)
+    public static void ResetLocal(this MyClass self)
     {
-        t.localPosition = Vector3.zero;
+        // ...
     }
 }
 
-// 能改源码时：
-[LuaExtension(typeof(TransformExt))]
-public class /* 某包装类型或业务类型 */ { }
+// 能改源码时：Attribute 标在被扩展类型上；this 参数类型须一致
+[LuaExtension(typeof(MyClassExt))]
+public class MyClass { }
 
-// 或 XML：Type=UnityEngine.Transform → Extension=TransformExt
+// 无法改源码时用 XML，例如：Type=UnityEngine.Transform → Extension=TransformExt
+// （扩展方法须为 this Transform，与 XML 中的被扩展类型一致）
 ```
 
 ```lua
-local t = go.transform
-t:ResetLocal()   -- IMT；等价 TransformExt.ResetLocal(t)
+local obj = MyClass()
+obj:ResetLocal()   -- IMT；等价 MyClassExt.ResetLocal(obj)
 ```
 
 扩展方法 **不会**仅因存在于工程中就自动出现；未配置到该被扩展类型（或基类 Attribute / XML）则 Lua 侧 **`__index` miss → error**（`zlua: member not found: …`），与其它未注册成员相同。

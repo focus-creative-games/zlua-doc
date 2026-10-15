@@ -23,17 +23,19 @@ There is **no** global scan for `ExtensionAttribute`. The model is **extended ty
 ```csharp
 using ZLua;
 
-public static class TransformExt
+public static class MyClassExt
 {
-    public static void ResetLocal(this UnityEngine.Transform t)
+    public static void ResetLocal(this MyClass self)
     {
-        t.localPosition = UnityEngine.Vector3.zero;
+        // ...
     }
 }
 
-[LuaExtension(typeof(TransformExt))]
-public class PlayerView : MonoBehaviour { }
+[LuaExtension(typeof(MyClassExt))]
+public class MyClass { }
 ```
+
+For third-party / uneditable types, use XML (`this` parameter type must match `Type/@fullName`):
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -54,8 +56,8 @@ Il2Cpp: XML is written into static tables at **Generate** time; the Player does 
 ## Lua usage
 
 ```lua
-local t = go.transform
-t:ResetLocal()   -- 冒号；底层是静态扩展方法
+local obj = CSharp.AC.MyClass()
+obj:ResetLocal()   -- colon call; underlying static extension MyClassExt.ResetLocal(obj)
 ```
 
 Filter rules: `public static` methods on the extension class that have `ExtensionAttribute`, whose first parameter can accept the extended type (including `this Base` for `Derived`). Open generic extensions are **not** supported.
