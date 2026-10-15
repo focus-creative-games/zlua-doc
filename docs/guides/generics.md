@@ -6,7 +6,7 @@ description: 闭合泛型类型与泛型方法在 Lua 侧的构造与调用。
 
 # 泛型
 
-用 `zlua.make_generic_type` 得到 **闭合** 泛型类型表，再像普通类型一样构造与调成员。仅调用 `GetComponent<T>` 等开放泛型方法时，可先看 [泛型方法（入门）](/docs/getting-started/generic-methods/)。数组见 [数组](/docs/guides/arrays/)。
+用 `zlua.make_generic_type` 得到 **闭合** 泛型类型表，再像普通类型一样构造与调成员。仅调用 `GetComponent<T>` 等开放泛型方法时，可先看 [函数调用（入门）](/docs/getting-started/method-calls/)。数组见 [数组](/docs/guides/arrays/)。
 
 ## 闭合泛型类型
 
@@ -78,7 +78,7 @@ local rb2 = go:GetComponent(zlua.typeof(Rigidbody))
 
 ## 相关文档
 
-- [泛型方法（入门）](/docs/getting-started/generic-methods/) — `GetComponent` 最短路径
+- [函数调用（入门）](/docs/getting-started/method-calls/) — 重载 / 泛型方法 / `params`
 - [返回值门面类型](/docs/guides/actual-type-userdata/)
 - [方法重载](/docs/guides/overloads/)
 - [zlua 库规范](/docs/spec/05-LIB/)

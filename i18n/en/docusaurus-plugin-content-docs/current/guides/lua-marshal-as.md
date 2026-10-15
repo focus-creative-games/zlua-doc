@@ -143,9 +143,9 @@ public void HandleHuge(
 
 Still allocates a **Lua userdata** for GC; uncommon — see [0GC Marshal](/docs/guides/zero-gc-marshal/).
 
-### params pitfall
+### params
 
-By default you **cannot** collect multiple slots implicitly as `Sum(1,2,3)`; pass a **single** table / array userdata / `nil`.
+`params T[]` supports **expansion** (e.g. `Sum(1,2,3)`) or a whole `T[]` userdata; it does **not** accept a table / lone `nil` as the whole array. Guide: [params parameters](/docs/guides/params/).
 
 ## Precedence (mnemonic)
 
@@ -170,6 +170,7 @@ Key points: `Param` uses **`index` (0-based, excluding this)**; `type` uses **`O
 
 ## Related
 
+- [params parameters](/docs/guides/params/)
 - [Return view type](/docs/guides/actual-type-userdata/)
 - [0GC Marshal](/docs/guides/zero-gc-marshal/)
 - [Value types](/docs/guides/value-types/)

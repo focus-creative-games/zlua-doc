@@ -6,7 +6,7 @@ description: Construct and call closed generic types and generic methods from Lu
 
 # Generics
 
-Use `zlua.make_generic_type` to get a **closed** generic type table, then construct and call members like any other type. For calling open generic methods such as `GetComponent<T>` only, start with [Generic methods (getting started)](/docs/getting-started/generic-methods/). For arrays, see [Arrays](/docs/guides/arrays/).
+Use `zlua.make_generic_type` to get a **closed** generic type table, then construct and call members like any other type. For calling open generic methods such as `GetComponent<T>` only, start with [Method calls](/docs/getting-started/method-calls/). For arrays, see [Arrays](/docs/guides/arrays/).
 
 ## Closed generic types
 
@@ -78,7 +78,7 @@ After close, the return view follows the **declared type**; for a runtime-actual
 
 ## Related
 
-- [Generic methods (getting started)](/docs/getting-started/generic-methods/) — shortest path for `GetComponent`
+- [Method calls](/docs/getting-started/method-calls/) — overloads / generic methods / `params`
 - [Return view type](/docs/guides/actual-type-userdata/)
 - [Method overloads](/docs/guides/overloads/)
 - [zlua library Spec](/docs/spec/05-LIB/)

@@ -113,20 +113,23 @@ If annotated on a **`string`** parameter/return, use the dual **`byte[]` ↔ str
 
 ## 7. `params T[]` parameters
 
-`params T[]` Marshal matches §1 szarray (ByObjUserData or table); differences are Lua call shape and empty/null semantics. Details: [`02-MARSHAL-AS.md`](/docs/spec/marshal/02-MARSHAL-AS/) §7.
+**C#→Lua** Push for `params T[]` matches §1.2 szarray (**ByObjUserData**). **Lua→C#** differs from ordinary `T[]`: supports C#-style **expansion**, and does **not** accept table / nil as the whole array. Details: [`02-MARSHAL-AS.md`](/docs/spec/marshal/02-MARSHAL-AS/) §7.
 
 Summary:
 
 | Passed | C# receives |
 |--------|-------------|
-| ByObjUserData | That array reference |
-| table `{}` | **`T[0]`** |
-| table `{ … }` | **`T[n]`** built from elements |
-| **`nil`** | **`null`** (**not** empty array) |
+| Omit | **`T[0]`** |
+| 0–N args matching element `T` (expand) | New **`T[n]`** |
+| Exactly one ByObjUserData assignable to `T[]` | That array reference |
+| table as whole `T[]` | **Unsupported** |
+| `nil` as whole `null` `T[]` | **Unsupported** (`nil` may only be a null **element** when expanding) |
 
-Lua does **not** support C#-style multi-slot implicit collection (`Sum(1, 2, 3)` is **illegal**); a **single** argument must occupy the `params` slot. **No** dedicated `LuaMarshalType` (historical `ParamsTable` removed).
+**No** dedicated `LuaMarshalType` (historical `ParamsTable` removed).
 
 `params` on **GetFunction-obtained delegate calls / delegate bridges** is **unsupported**; see [`09-FUNCTION.md`](/docs/spec/marshal/09-FUNCTION/).
+
+Overload ranking (fixed arity over params expand): [`../04-METHOD-OVERLOAD.md`](/docs/spec/04-METHOD-OVERLOAD/) §3.3, §3.6.3.
 
 ## 8. `zlua.to_bytes` / `zlua.to_table`
 

@@ -86,7 +86,7 @@ When the **Lua stack slot count** is acceptable, walk CLR formals from the stack
 | primitive / `string` | **`object`** | Allowed; `ImplicitBoxing` or `ImplicitReference` |
 | ByVal value type | **`object` / implemented interface** | `ImplicitBoxing` when implicit box is possible |
 | primitive | **`class` / `interface` (not `object`)** | **No match** |
-| multi-arg + `params T[]` | `params` | **Single stack slot**; same as szarray (table / userdata / `nil`); **no** multi-slot implicit collect |
+| multi-arg + `params T[]` | `params` | **Expandable**: after fixed prefix, **0–N** Lua slots match element type `T` and pack into `T[]`; or **one** matching `T[]` ByObjUserData passed whole. Details below and [marshal/02-MARSHAL-AS.md](/docs/spec/marshal/02-MARSHAL-AS/) §7 |
 | `UnpackedValues` formal | consecutive N slots | That CLR formal occupies **N** Lua arg slots (`N = Members.Length`); matching accumulates stack slots; see [marshal/02-MARSHAL-AS.md](/docs/spec/marshal/02-MARSHAL-AS/) §5.6 |
 
 **Optional / default parameters (C# optional):**
@@ -94,10 +94,10 @@ When the **Lua stack slot count** is acceptable, walk CLR formals from the stack
 | Rule | Notes |
 |------|-------|
 | Scope | Methods and constructors; trailing contiguous optional segment of formals with CLR `HasDefault` (and a materializable default) |
-| Arg count | Allow `minLuaArity ≤ argCount ≤ luaArity` (`minLuaArity` = full Lua slot count − sum of omittable trailing slots) |
+| Arg count | Allow `minLuaArity ≤ argCount ≤ luaArity` (`minLuaArity` = full Lua slot count − sum of omittable trailing slots; include an omittable `params` slot when present) |
 | Matching | Present stack slots score normally per §3.3 / §3.6; missing trailing formals count as “using default” and consume no Lua slots |
 | Fill timing | Materialize and cache defaults at Bind; write missing formals at **invoke** (hot path does not parse metadata) |
-| Ranking | When conversion kind / score ties, the candidate with smaller **`optionalUsed`** wins (fewer defaults); still tied → Ambiguous / declaration order |
+| Ranking | When conversion kind / score ties, the candidate with smaller **`optionalUsed`** wins (fewer defaults); still tied → see §3.6.3 (includes `params` expand penalties) |
 | Unsupported | Skipping required formals in the middle; relying on other C# compiler sugar without `HasDefault` |
 
 ```csharp
@@ -113,7 +113,43 @@ void G(int x, int y = 5);
 | `G(1)` | Pick `G(int)` (`optionalUsed=0` ≻ expanded-default `G(int,int)`) |
 | `G(1, 4)` | Pick `G(int, int)` |
 
-**Constructors:** `Type(...)` / `SMT.__call` use the same dispatch logic as instance methods (including default parameters).
+**`params T[]` (C# variable arguments):**
+
+Aligned with C#: either **expand** 0–N values of `T`, or pass an **existing `T[]`**. Lua rules (Marshal details: [marshal/02-MARSHAL-AS.md](/docs/spec/marshal/02-MARSHAL-AS/) §7):
+
+| Rule | Notes |
+|------|------|
+| Scope | Trailing one-dimensional `T[]` formals with CLR `ParamArrayAttribute` on methods and constructors |
+| Arg count | `minLuaArity ≤ argCount` (omit `params` → empty `T[0]`); **no** fixed upper bound (implementations may cap overload arity buckets and route overflow through a params path) |
+| Expand | After the fixed prefix matches, **all remaining** Lua slots match element type `T` one-by-one and pack into a new `T[]` |
+| Whole pass | **Only** when the `params` position has **exactly one** argument that is **ByObjUserData assignable to `T[]`** (existing managed array); pass that reference (like C# `Foo(existingArray)`) |
+| **Forbidden** | **table** as whole `T[]`; **`nil` as whole `null` `T[]`** |
+| `nil` semantics | On the expand path, `nil` binds per element rules (reference / `Nullable` → **null element**; non-Nullable value type → no match). Omitting `params` args → **`T[0]`**, **not** a `null` array |
+| Ranking | After conversion score and `optionalUsed` tie: **not expanded** (whole userdata) beats **expanded**; then **non-`params`** candidates beat **`params`** ones (C# fixed-arity preference) |
+| Unsupported | `params` on **GetFunction / delegate bridge** (see [marshal/09-FUNCTION.md](/docs/spec/marshal/09-FUNCTION/)) |
+
+```csharp
+static int Sum(params int[] values);
+static string Pick(int x);
+static string Pick(params int[] values);
+static int Add(int a, int b);
+static int Add(params int[] values);
+static int CountNulls(params string[] values);
+```
+
+| Lua | Result |
+|-----|------|
+| `Sum(1, 2, 3)` | Expand → `int[]{1,2,3}` |
+| `Sum()` | Empty `int[0]` |
+| `Sum(arr)` (`arr` is `int[]` userdata) | Whole pass of that array |
+| `Sum({1,2,3})` | **No match** (table is not whole `T[]`; table is not `int`) |
+| `CountNulls(nil)` | Expand → `string[]{ null }` (**not** a `null` array) |
+| `Pick(7)` | Pick `Pick(int)` (fixed arity over params expand) |
+| `Pick(1, 2)` | Pick `Pick(params int[])` |
+| `Add(3, 4)` | Pick `Add(int,int)` |
+| `Add(1, 2, 3)` | Pick `Add(params int[])` |
+
+**Constructors:** `Type(...)` / `SMT.__call` use the same dispatch logic as instance methods (including default parameters and `params`).
 
 ### 3.4 Performance notes
 
@@ -164,7 +200,9 @@ Kind preference chain:
 1. Per formal compute `GetConversionKind`; any `None` → not applicable.
 2. M beats N: some parameter i where M is better, and no j where N is better.
 3. Conversion scores still tie: compare **default-parameter count used** this match (`optionalUsed`); fewer is better (see §3.3).
-4. Still no strictly better → Ambiguous or declaration-order tie-break (implementations that treat Ambiguous as authoritative must stay consistent).
+4. Still tied: compare **`paramsExpanded`** (whether this match expanded `params` across multiple slots); **not expanded** (0, including whole `T[]` userdata or omit → empty array) beats **expanded** (1).
+5. Still tied: compare **`paramsKind`** (whether the candidate has a `params` formal); **non-params** (0) beats **params** (1) (fixed-arity preference).
+6. Still no strictly better → Ambiguous or declaration-order tie-break (implementations that treat Ambiguous as authoritative must stay consistent).
 
 **Examples:**
 
@@ -172,6 +210,8 @@ Kind preference chain:
 |----------|--------|
 | `Run(10)`, `Run(int)` vs `Run(object)` | Pick `Run(int)` (Identity ≻ Boxing) |
 | `SetValue(10, 0)`, `SetValue(object,int)` vs `SetValue(object,long)` | Pick `(object,int)` (p1 Identity ≻ Numeric) |
+| `Pick(7)`, `Pick(int)` vs `Pick(params int[])` | Pick `Pick(int)` (fixed arity; `paramsKind` / not-expanded preference) |
+| `Add(3, 4)`, `Add(int,int)` vs `Add(params int[])` | Pick `Add(int,int)` |
 
 #### 3.6.4 Implicit Box at invoke
 

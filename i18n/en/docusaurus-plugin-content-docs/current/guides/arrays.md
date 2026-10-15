@@ -6,7 +6,7 @@ description: Create, index, to_table, and to_bytes for one-dimensional and multi
 
 # Arrays
 
-Use `zlua` to create **szarray** (`T[]`) and **mdarray**, and index them in Lua with C# semantics. For generic collections (`List<T>`, etc.), see [Generics](/docs/guides/generics/).
+Use `zlua` to create **szarray** (`T[]`) and **mdarray**, and index them in Lua with C# semantics. For generic collections (`List<T>`, etc.), see [Generics](/docs/guides/generics/). For trailing **`params T[]`**, see [params parameters](/docs/guides/params/).
 
 ## One-dimensional arrays `T[]`
 

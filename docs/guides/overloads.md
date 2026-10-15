@@ -8,7 +8,7 @@ description: 默认分派、全签名键懒解析与缓存、[LuaAlias] 短名�
 
 Lua 无静态类型，同名多签名不能靠编译期选定。ZLua 提供：默认分派、**全签名键**（`__index` miss 时懒解析并缓存）、Bind 期 **`[LuaAlias]` / XML** 短名，以及脚本内 **本地缓存** direct closure。参考：[Demo.Run](https://github.com/focus-creative-games/zlua-demo/blob/main/Assets/Demo.cs)、[app.lua](https://github.com/focus-creative-games/zlua-demo/blob/main/LuaScripts/app.lua)。
 
-更短入门见 [方法重载（入门）](/docs/getting-started/method-overloads/)。日常 `demo:Run(10)` 在 [Lua 调用 C#](/docs/guides/lua-calling-csharp/) 已够用；歧义或热路径再读本篇。权威细则：[重载规范](/docs/spec/04-METHOD-OVERLOAD/)。
+更短入门见 [函数调用（入门）](/docs/getting-started/method-calls/)。日常 `demo:Run(10)` 在 [Lua 调用 C#](/docs/guides/lua-calling-csharp/) 已够用；歧义或热路径再读本篇。权威细则：[重载规范](/docs/spec/04-METHOD-OVERLOAD/)。
 
 开放泛型方法（`GetComponent<T>` 等）不是重载问题，见 [泛型](/docs/guides/generics/)。
 
@@ -129,7 +129,8 @@ demo:Run("hi")      -- 未换名的 Run(string) → dispatch
 
 ## 相关文档
 
-- [方法重载（入门）](/docs/getting-started/method-overloads/)
+- [函数调用（入门）](/docs/getting-started/method-calls/)
+- [params 参数](/docs/guides/params/)
 - [LuaAlias 指南](/docs/guides/lua-alias/) — Attribute + XML 专篇
 - [泛型](/docs/guides/generics/) — 开放泛型方法（非重载）
 - [方法重载规范](/docs/spec/04-METHOD-OVERLOAD/) §3.7、§5、§6

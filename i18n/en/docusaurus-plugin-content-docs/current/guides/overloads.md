@@ -8,7 +8,7 @@ description: Default dispatch, lazy full-signature keys and caching, and LuaAlia
 
 Lua has no static types, so same-name multiple signatures cannot be chosen at compile time. ZLua provides: default dispatch, **full-signature keys** (lazy resolution on `__index` miss, then cached), Bind-time **`[LuaAlias]` / XML** short names, and **local caching** of direct closures in scripts. See: [Demo.Run](https://github.com/focus-creative-games/zlua-demo/blob/main/Assets/Demo.cs), [app.lua](https://github.com/focus-creative-games/zlua-demo/blob/main/LuaScripts/app.lua).
 
-Short intro: [Method overloads (getting started)](/docs/getting-started/method-overloads/). Day-to-day `demo:Run(10)` is enough in [Lua calling C#](/docs/guides/lua-calling-csharp/); read this page for ambiguity or hot paths. Authoritative details: [Overload Spec](/docs/spec/04-METHOD-OVERLOAD/).
+Short intro: [Method calls](/docs/getting-started/method-calls/). Day-to-day `demo:Run(10)` is enough in [Lua calling C#](/docs/guides/lua-calling-csharp/); read this page for ambiguity or hot paths. Authoritative details: [Overload Spec](/docs/spec/04-METHOD-OVERLOAD/).
 
 Open generic methods (`GetComponent<T>`, etc.) are not an overload problem — see [Generics](/docs/guides/generics/).
 
@@ -129,7 +129,8 @@ An alias is a **rename** (replaces the default Lua key), not an append. XML (`lu
 
 ## Related
 
-- [Method overloads (getting started)](/docs/getting-started/method-overloads/)
+- [Method calls](/docs/getting-started/method-calls/)
+- [params parameters](/docs/guides/params/)
 - [LuaAlias guide](/docs/guides/lua-alias/) — Attribute + XML deep dive
 - [Generics](/docs/guides/generics/) — open generic methods (not overloads)
 - [Method overload Spec](/docs/spec/04-METHOD-OVERLOAD/) §3.7, §5, §6

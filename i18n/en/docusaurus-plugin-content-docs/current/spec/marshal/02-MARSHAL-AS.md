@@ -111,7 +111,7 @@ The “legal set” column lists values that may be annotated **besides `Default
 | **`TypedReference`** | (usually no annotation) | **Default is OpaqueValue** (bidirectional **only** this shape; [10-POINTER.md](/docs/spec/marshal/10-POINTER/). Explicit `[OpaqueValue]` legal and equivalent; `UserData` / `Table` etc. **illegal** |
 | **`decimal`** | `OpaqueValue` | v1 default by-val may still be unsupported; `OpaqueValue` (C#→Lua) legal |
 | **`ref struct`** (`Span<T>`, etc.) | `OpaqueValue` | Cannot use ordinary by-val default marshal; `OpaqueValue` (C#→Lua) legal |
-| **`params T[]` parameters** | `OpaqueValue` | Same default as szarray (§7); **no** dedicated `LuaMarshalType`; `OpaqueValue`: **C#→Lua only** |
+| **`params T[]` parameters** | `OpaqueValue` | Lua→C# see §7 (expand + optional whole `T[]` userdata); C#→Lua same as szarray; **no** dedicated `LuaMarshalType`; `OpaqueValue`: **C#→Lua only** |
 
 ### 3.1 Direction filter (stacked on the table above)
 
@@ -259,55 +259,62 @@ Foo({ X = 1 })                     -- missing Y → error
 
 ## 7. `params T[]` parameters
 
-**Scope:** Only one-dimensional array parameters with **`params`** on **ordinary C# methods / constructors**. `params` on **GetFunction-obtained delegate calls / delegate bridges** remains **unsupported** (see [09-FUNCTION.md](/docs/spec/marshal/09-FUNCTION/).
+**Scope:** Only one-dimensional array parameters with **`params`** on **ordinary C# methods / constructors**. `params` on **GetFunction-obtained delegate calls / delegate bridges** is **unsupported** (see [09-FUNCTION.md](/docs/spec/marshal/09-FUNCTION/).
 
-**Relation to szarray:** `params T[]` Marshal matches [01-OVERVIEW.md §4](/docs/spec/marshal/01-OVERVIEW/) szarray (C#→Lua **ByObjUserData**; Lua→C# **ByObjUserData** or **array-shaped table**). Differences are **Lua call shape** and **empty / null semantics**.
+**vs ordinary `T[]` formals:** Ordinary szarray Lua→C# still accepts **ByObjUserData / array-shaped table / nil→null** (see [01-OVERVIEW.md §4](/docs/spec/marshal/01-OVERVIEW/), [07-ARRAY.md](/docs/spec/marshal/07-ARRAY/). `params T[]` Lua→C# uses **expand-first** rules (aligned with C# `params`) and does **not** treat table / nil as the whole array.
 
-**No dedicated `LuaMarshalType`:** No “table-only” or “tail multi-slot collect” annotation; when a table is needed, scripts pass an array-shaped table (same as ordinary szarray).
+**No dedicated `LuaMarshalType`:** No “table-only” or “force single slot” annotation; `OpaqueValue` only affects **C#→Lua** Push.
 
 ### 7.1 Behavior (unannotated or `Default`; `OpaqueValue` only affects C#→Lua Push)
 
 | Direction | Rules |
 |-----------|-------|
 | **C# → Lua** | Same as szarray: Push **`T[]`** as **ByObjUserData** (do **not** unpack to multi slots; do **not** default Push table) |
-| **Lua → C#** | **`params` occupies a single stack slot**; Pop **ByObjUserData** or **array-shaped table**, construct / pass **`T[]`** |
+| **Lua → C#** | See §7.2: prefer **expanding** 0–N elements; or pass **one** matching `T[]` ByObjUserData whole |
 
-**No C#-style implicit expand:** Lua does **not** support auto-collecting **multiple contiguous args after** the `params` parameter into `T[]`. Must pass **exactly one** argument in the `params` position:
+### 7.2 Lua → C# argument shapes
+
+After any fixed prefix consumes stack slots normally, for the `params` position:
 
 | Passed | C# receives |
 |--------|-------------|
-| **ByObjUserData** (`T[]` instance) | That array reference |
-| **table `{}`** (empty array shape) | **`T[0]`** (zero-length) |
-| **table `{ … }`** (contiguous keys `1…n`) | **`T[n]`** built from elements |
-| **`nil`** | **`null`** (**not** empty array) |
+| **Omit** (no remaining slots) | **`T[0]`** (empty array, **not** `null`) |
+| **0–N** args matching element type `T` (expand) | Newly allocated **`T[n]`**, Pop per element |
+| **Exactly 1** arg that is **ByObjUserData** assignable to **`T[]`** | That array reference (like C# passing an existing array) |
+| **table** (as whole `T[]`) | **Unsupported** (do not Pop as ordinary szarray table) |
+| **Lone `nil` (as whole `null` `T[]`)** | **Unsupported**; `nil` may only be **one expanded element** (reference / `Nullable` → null element) |
+
+Each expanded element’s Pop / match rules are the same as an ordinary formal of type `T` (see [../04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) §3.3).
 
 **Examples:**
 
 ```csharp
 static void Sum(params int[] values) { /* … */ }
 static void Prefix(int head, params int[] tail) { /* … */ }
+static void CountNulls(params string[] values) { /* … */ }
 ```
 
 ```lua
--- ✅ Legal: explicit array userdata
+-- ✅ Expand
+CS.Demo.Sum(1, 2, 3)
+CS.Demo.Sum()                       -- → int[0]
+CS.Demo.Prefix(0, 1, 2)             -- head=0, tail={1,2}
+
+-- ✅ Whole: existing T[] userdata
 CS.Demo.Sum(arr)                    -- arr is int[] ByObjUserData
 
--- ✅ Legal: explicit table
-CS.Demo.Sum({ 1, 2, 3 })
-CS.Demo.Sum({})                     -- zero elements → T[0]
-CS.Demo.Prefix(0, { 1, 2 })         -- tail = {1,2}
+-- ✅ nil is an element, not a null array
+CS.Demo.CountNulls(nil)             -- → string[]{ null }
+CS.Demo.CountNulls("a", nil, "b")   -- length 3, middle null
 
--- ✅ nil → null (not empty array)
-CS.Demo.Sum(nil)
-
--- ❌ Illegal: multi-slot implicit collect (unsupported)
--- CS.Demo.Sum(1, 2, 3)
--- CS.Demo.Prefix(0, 1, 2)
+-- ❌ Unsupported: table / nil as whole T[]
+-- CS.Demo.Sum({ 1, 2, 3 })
+-- CS.Demo.Sum(nil)                 -- int elements reject nil → mismatch
 ```
 
-**With overload dispatch:** `params` still counts as **one** parameter slot (stack slots = 1); does **not** fold later slots into the `params` segment (see [../04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/).
+**With overload dispatch:** `params` makes acceptable Lua arg counts **`[minLuaArity, +∞)`** (implementations may cap arity buckets); matching / ranking includes expand vs fixed / whole-userdata penalties — see [../04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) §3.3, §3.6.3.
 
-**Vs struct `Table`:** `Table` / `UnpackedValues` assemble members of a **single** value-type parameter (§5); **not** for `params T[]`. The `params` table shape is the **szarray array segment** (integer keys `1…n`); see [07-ARRAY.md](/docs/spec/marshal/07-ARRAY/).
+**Vs struct `Table` / `UnpackedValues`:** Both assemble members of a **single** value-type parameter (§5); **not** for `params T[]`. To turn a Lua table into an array, first build / convert a **`T[]` userdata** (e.g. `zlua.new_szarray_*` / ordinary `T[]` table Pop), then pass it whole to `params`.
 
 ## 8. Resolution priority
 
@@ -338,7 +345,7 @@ If annotation is illegal or config is wrong during resolve: **Mono Attribute** a
 | C# calls Lua, by-val `int` + `OpaqueValue` | integer | **Illegal** (primitives are `Default` only); Mono fallback / Generate fails (§4) |
 | Lua calls C#, `string` parameter | Lua string | `UserData` → **ByObjUserData** |
 | Lua calls C#, `byte[]` parameter | ByObjUserData or table | `Bytes` → Lua string |
-| `params T[]` parameter | Same as szarray (single slot) | **No** dedicated override; may only annotate `OpaqueValue` (C#→Lua) |
+| `params T[]` parameter | Expand 0–N elements, or whole `T[]` userdata (§7) | **No** dedicated override; may only annotate `OpaqueValue` (C#→Lua) |
 
 ## 9. XML external config (precompiled / AOT assemblies)
 

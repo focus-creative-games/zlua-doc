@@ -111,7 +111,7 @@ public sealed class LuaMarshalAsAttribute : Attribute
 | **`TypedReference`** | （通常无需标注） | **默认即 OpaqueValue**（双向均 **仅** 此形态，见 [10-POINTER.md](/docs/spec/marshal/10-POINTER/)）。显式 `[OpaqueValue]` 合法且等价；`UserData` / `Table` 等 **非法** |
 | **`decimal`** | `OpaqueValue` | v1 默认 by-val 仍可不支持；`OpaqueValue`（C#→Lua）合法 |
 | **`ref struct`**（`Span<T>` 等） | `OpaqueValue` | 不能作为普通 by-val 默认 marshal；`OpaqueValue`（C#→Lua）合法 |
-| **`params T[]` 形参** | `OpaqueValue` | 默认同 szarray（§7）；**无** 专用 `LuaMarshalType`；`OpaqueValue`：**仅 C#→Lua** |
+| **`params T[]` 形参** | `OpaqueValue` | Lua→C# 见 §7（展开 + 可选整段 `T[]` userdata）；C#→Lua 同 szarray；**无** 专用 `LuaMarshalType`；`OpaqueValue`：**仅 C#→Lua** |
 
 ### 3.1 方向过滤（与上表叠加）
 
@@ -259,55 +259,62 @@ Foo({ X = 1 })                     -- 缺 Y → error
 
 ## 7. `params T[]` 形参
 
-**范围：** 仅 **普通 C# 方法 / 构造函数** 上带 **`params`** 修饰的一维数组形参。**GetFunction 取得的 delegate 调用 / delegate bridge** 上的 `params` 仍 **不支持**（见 [09-FUNCTION.md](/docs/spec/marshal/09-FUNCTION/)）。
+**范围：** 仅 **普通 C# 方法 / 构造函数** 上带 **`params`** 修饰的一维数组形参。**GetFunction 取得的 delegate 调用 / delegate bridge** 上的 `params` **不支持**（见 [09-FUNCTION.md](/docs/spec/marshal/09-FUNCTION/)）。
 
-**与 szarray 的关系：** `params T[]` 的 Marshal 规则与 [01-OVERVIEW.md §4](/docs/spec/marshal/01-OVERVIEW/) szarray **相同**（C#→Lua **ByObjUserData**；Lua→C# **ByObjUserData** 或 **数组形态 table**）。差异在于 **Lua 侧传参形态** 与 **空 / null 语义**。
+**与普通 `T[]` 形参的差异：** 普通 szarray 形参 Lua→C# 仍接受 **ByObjUserData / 数组形态 table / nil→null**（见 [01-OVERVIEW.md §4](/docs/spec/marshal/01-OVERVIEW/)、[07-ARRAY.md](/docs/spec/marshal/07-ARRAY/)）。`params T[]` 的 Lua→C# 走 **展开优先** 规则（对齐 C# `params`），**不** 把 table / nil 当作整个数组。
 
-**无专用 `LuaMarshalType`：** 不提供「仅 table」或「尾部多槽收集」的标注；需要 table 时脚本直接传数组形态 table（与普通 szarray 相同）。
+**无专用 `LuaMarshalType`：** 不提供「仅 table」或「强制单槽」等专用标注；`OpaqueValue` 仅影响 **C#→Lua** Push。
 
 ### 7.1 行为（未标注或 `Default`；`OpaqueValue` 仅影响 C#→Lua Push）
 
 | 方向 | 规则 |
 |------|------|
 | **C# → Lua** | 与 szarray 相同：Push **`T[]`** 为 **ByObjUserData**（**不** 解压为多栈槽、**不** 默认 Push table） |
-| **Lua → C#** | **`params` 位占单个栈槽**；Pop **ByObjUserData** 或 **数组形态 table**，构造 / 传入 **`T[]`** |
+| **Lua → C#** | 见 §7.2：优先 **展开** 0～N 个元素；或 **单个** 匹配的 `T[]` ByObjUserData 整段传入 |
 
-**禁止 C# 式隐式展开：** Lua **不支持** 将 `params` 形参之后的 **多个连续实参** 自动收集为 `T[]`。必须 **显式** 传入 **一个** 实参占据 `params` 位置：
+### 7.2 Lua → C# 传参形态
+
+定参前缀（若有）按普通规则消耗栈槽后，对 `params` 位：
 
 | 传入 | C# 收到 |
 |------|---------|
-| **ByObjUserData**（`T[]` 实例） | 该数组引用 |
-| **table `{}`**（空数组形态） | **`T[0]`**（零长度数组） |
-| **table `{ … }`**（`1…n` 连续键） | 按元素构造的 **`T[n]`** |
-| **`nil`** | **`null`**（**非** 空数组） |
+| **省略**（无剩余槽） | **`T[0]`**（空数组，**不是** `null`） |
+| **0～N 个** 可按元素类型 `T` 匹配的实参（展开） | 新分配的 **`T[n]`**，逐元素 Pop |
+| **恰好 1** 个实参，且为可赋值给 **`T[]`** 的 **ByObjUserData** | 该数组引用（对齐 C# 传已有数组） |
+| **table**（当作整个 `T[]`） | **不支持**（不按 szarray table 规则整段 Pop） |
+| **单独的 `nil`（当作整个 `null` 的 `T[]`）** | **不支持**；`nil` 仅可作为 **展开中的一个元素**（引用类型 / `Nullable` → null 元素） |
+
+展开时每个元素的 Pop / 匹配规则与「普通形参类型为 `T`」相同（见 [../04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) §3.3）。
 
 **示例：**
 
 ```csharp
 static void Sum(params int[] values) { /* … */ }
 static void Prefix(int head, params int[] tail) { /* … */ }
+static void CountNulls(params string[] values) { /* … */ }
 ```
 
 ```lua
--- ✅ 合法：显式数组 userdata
+-- ✅ 展开
+CS.Demo.Sum(1, 2, 3)
+CS.Demo.Sum()                       -- → int[0]
+CS.Demo.Prefix(0, 1, 2)             -- head=0, tail={1,2}
+
+-- ✅ 整段：已有 T[] userdata
 CS.Demo.Sum(arr)                    -- arr 为 int[] ByObjUserData
 
--- ✅ 合法：显式 table
-CS.Demo.Sum({ 1, 2, 3 })
-CS.Demo.Sum({})                     -- 零个元素 → T[0]
-CS.Demo.Prefix(0, { 1, 2 })         -- tail = {1,2}
+-- ✅ nil 是元素，不是 null 数组
+CS.Demo.CountNulls(nil)             -- → string[]{ null }
+CS.Demo.CountNulls("a", nil, "b")   -- length 3，中间为 null
 
--- ✅ nil → null（非空数组）
-CS.Demo.Sum(nil)
-
--- ❌ 非法：多槽隐式收集（不支持）
--- CS.Demo.Sum(1, 2, 3)
--- CS.Demo.Prefix(0, 1, 2)
+-- ❌ 不支持：table / nil 当整个 T[]
+-- CS.Demo.Sum({ 1, 2, 3 })
+-- CS.Demo.Sum(nil)                 -- int 元素不接受 nil → mismatch
 ```
 
-**与重载分派：** `params` 形参在 overload 匹配时仍计为 **单个** 形参位（栈槽数 = 1）；**不** 将后续栈槽并入 `params` 段（见 [../04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/)）。
+**与重载分派：** `params` 使该方法的可接受 Lua 实参个数为 **`[minLuaArity, +∞)`**（实现可对 arity 桶设上限）；匹配与选优含「展开 vs 定参 / 整段 userdata」惩罚，见 [../04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) §3.3、§3.6.3。
 
-**与 struct `Table`：** `Table` / `UnpackedValues` 用于 **单个** 值类型形参的成员组装（§5）；**不** 用于 `params T[]`。`params` 的 table 形态是 **szarray 数组段**（整数键 `1…n`），见 [07-ARRAY.md](/docs/spec/marshal/07-ARRAY/)。
+**与 struct `Table` / `UnpackedValues`：** 二者用于 **单个** 值类型形参的成员组装（§5）；**不** 用于 `params T[]`。需要把 Lua table 变成数组时，应先构造 / 转换出 **`T[]` userdata**（如 `zlua.new_szarray_*` / 普通 `T[]` 形参的 table Pop），再整段传入 `params`。
 
 ## 8. 解析优先级
 
@@ -338,7 +345,7 @@ Codegen / Mono 反射在 Pop / Push 时按 **由细到粗** 解析；**同一目
 | C# 调 Lua，by-val `int` + `OpaqueValue` | integer | **非法**（基元仅 `Default`）；Mono 回退 / Generate 失败（§4） |
 | Lua 调 C#，`string` 形参 | Lua string | `UserData` → **ByObjUserData** |
 | Lua 调 C#，`byte[]` 形参 | ByObjUserData 或 table | `Bytes` → Lua string |
-| `params T[]` 形参 | 同 szarray（单槽） | **无** 专用覆盖；仅可标 `OpaqueValue`（C#→Lua） |
+| `params T[]` 形参 | 展开 0～N 元素，或整段 `T[]` userdata（§7） | **无** 专用覆盖；仅可标 `OpaqueValue`（C#→Lua） |
 
 ---
 

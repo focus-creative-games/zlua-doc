@@ -127,20 +127,23 @@ CS.Demo.Process(nil)
 
 ## 7. `params T[]` 形参
 
-`params T[]` Marshal 规则与 §1.2 szarray **相同**（ByObjUserData 或 table）；差异在 Lua 传参形态与空/null 语义。详见 [`02-MARSHAL-AS.md`](/docs/spec/marshal/02-MARSHAL-AS/) §7。
+`params T[]` 的 **C#→Lua** Push 与 §1.2 szarray **相同**（ByObjUserData）。**Lua→C#** 与普通 `T[]` 形参不同：支持 C# 式 **展开**，且 **不** 接受 table / nil 当整个数组。详见 [`02-MARSHAL-AS.md`](/docs/spec/marshal/02-MARSHAL-AS/) §7。
 
 要点摘要：
 
 | 传入 | C# 收到 |
 |------|---------|
-| ByObjUserData | 该数组引用 |
-| table `{}` | **`T[0]`** |
-| table `{ … }` | 按元素构造的 **`T[n]`** |
-| **`nil`** | **`null`**（**非** 空数组） |
+| 省略 | **`T[0]`** |
+| 0～N 个可匹配元素 `T` 的实参（展开） | 新 **`T[n]`** |
+| 恰好 1 个可赋值给 `T[]` 的 ByObjUserData | 该数组引用 |
+| table 当整个 `T[]` | **不支持** |
+| `nil` 当整个 `null` 的 `T[]` | **不支持**（`nil` 仅为展开中的 null 元素） |
 
-Lua **不支持** C# 式多槽隐式收集（`Sum(1, 2, 3)` **非法**）；须 **单个** 实参占据 `params` 位。**无** 专用 `LuaMarshalType`（已移除历史 `ParamsTable`）。
+**无** 专用 `LuaMarshalType`（已移除历史 `ParamsTable`）。
 
 **GetFunction 取得的 delegate 调用 / delegate bridge** 上的 `params` **不支持**；见 [`09-FUNCTION.md`](/docs/spec/marshal/09-FUNCTION/)。
+
+重载选优（定参优先于 params 展开）见 [`../04-METHOD-OVERLOAD.md`](/docs/spec/04-METHOD-OVERLOAD/) §3.3、§3.6.3。
 
 ---
 

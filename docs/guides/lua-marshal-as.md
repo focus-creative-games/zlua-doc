@@ -143,9 +143,9 @@ public void HandleHuge(
 
 仍会产生 **Lua userdata** GC；并不常见，见 [0GC Marshal](/docs/guides/zero-gc-marshal/)。
 
-### params 陷阱
+### params
 
-默认 **不能** `Sum(1,2,3)` 多槽隐式收集；须传 **单个** table / 数组 userdata / `nil`。
+`params T[]` 支持 **展开**（如 `Sum(1,2,3)`）或整段 `T[]` userdata；**不**接受 table / 单独 `nil` 当整个数组。专篇见 [params 参数](/docs/guides/params/)。
 
 ## 优先级（口诀）
 
@@ -170,6 +170,7 @@ Settings **MarshalAs Xml Paths**；Mono 运行时解析；Il2Cpp 在 **Generate*
 
 ## 相关文档
 
+- [params 参数](/docs/guides/params/)
 - [返回值门面类型](/docs/guides/actual-type-userdata/)
 - [0GC Marshal](/docs/guides/zero-gc-marshal/)
 - [值类型](/docs/guides/value-types/)

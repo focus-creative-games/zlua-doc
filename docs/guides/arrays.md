@@ -6,7 +6,7 @@ description: 一维 / 多维数组的创建、索引、to_table 与 to_bytes。
 
 # 数组
 
-通过 `zlua` 创建 **szarray**（`T[]`）与 **mdarray**，在 Lua 中按 C# 语义索引。泛型集合（`List<T>` 等）见 [泛型](/docs/guides/generics/)。
+通过 `zlua` 创建 **szarray**（`T[]`）与 **mdarray**，在 Lua 中按 C# 语义索引。泛型集合（`List<T>` 等）见 [泛型](/docs/guides/generics/)。方法尾部 **`params T[]`** 见 [params 参数](/docs/guides/params/)。
 
 ## 一维数组 `T[]`
 

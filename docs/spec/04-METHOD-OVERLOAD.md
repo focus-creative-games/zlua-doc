@@ -86,7 +86,7 @@ flowchart LR
 | 基元 / `string` | **`object`** | 允许；`ImplicitBoxing` 或 `ImplicitReference` |
 | ByVal 值类型 | **`object` / 其实现的 interface** | 可隐式装箱时 `ImplicitBoxing` |
 | 基元 | **`class` / `interface`（非 `object`）** | **不匹配** |
-| 多参 + `params T[]` | `params` | **单栈槽**；与 szarray 相同（table / userdata / `nil`）；**不**多槽隐式收集 |
+| 多参 + `params T[]` | `params` | **可展开**：定参前缀之后的 **0～N** 个 Lua 槽逐个按元素类型 `T` 匹配并打包为 `T[]`；或 **单个** 匹配的 `T[]` ByObjUserData 整段传入。详见下文与 [marshal/02-MARSHAL-AS.md](/docs/spec/marshal/02-MARSHAL-AS/) §7 |
 | `UnpackedValues` 形参 | 连续 N 槽 | 该 CLR 形参占用 **N** 个 Lua 实参槽（`N = Members.Length`）；匹配时按栈槽累加，见 [marshal/02-MARSHAL-AS.md](/docs/spec/marshal/02-MARSHAL-AS/) §5.6 |
 
 **可选 / 默认参数（C# optional）：**
@@ -94,10 +94,10 @@ flowchart LR
 | 规则 | 说明 |
 |------|------|
 | 适用范围 | 方法与构造；形参带 CLR `HasDefault`（及可物化的默认值）的 **尾部连续** 可选段 |
-| 实参个数 | 允许 `minLuaArity ≤ argCount ≤ luaArity`（`minLuaArity` = 全参 Lua 槽数 − 可省略尾部槽数之和） |
+| 实参个数 | 允许 `minLuaArity ≤ argCount ≤ luaArity`（`minLuaArity` = 全参 Lua 槽数 − 可省略尾部槽数之和；含可省略的 `params` 位时一并计入） |
 | 匹配 | 栈上已有槽按 §3.3 / §3.6 正常打分；不足的尾部形参记为「使用默认」，不消耗 Lua 槽 |
 | 填充时机 | Bind 期物化并缓存默认值；**invoke** 时写入未提供的形参（热路径不解析 metadata） |
-| 选优 | 转换 kind / score 相同时，**`optionalUsed` 更小**的候选更优（少用默认），再同分 → Ambiguous / 声明顺序 |
+| 选优 | 转换 kind / score 相同时，**`optionalUsed` 更小**的候选更优（少用默认），再同分 → 见 §3.6.3（含 `params` 展开惩罚） |
 | 不支持 | 非尾部「跳过」必选形参；无 `HasDefault` 却依赖 C# 编译器其它糖 |
 
 ```csharp
@@ -113,7 +113,43 @@ void G(int x, int y = 5);
 | `G(1)` | 选 `G(int)`（`optionalUsed=0` ≻ 展开默认的 `G(int,int)`） |
 | `G(1, 4)` | 选 `G(int, int)` |
 
-**构造函数：** `Type(...)` / `SMT.__call` 使用与实例方法相同的分派逻辑（含默认参数）。
+**`params T[]`（C# 可变参数）：**
+
+对齐 C#：既可 **展开** 传入 0～N 个 `T`，也可传入 **已有 `T[]`**。Lua 侧规则如下（Marshal 细节见 [marshal/02-MARSHAL-AS.md](/docs/spec/marshal/02-MARSHAL-AS/) §7）。
+
+| 规则 | 说明 |
+|------|------|
+| 适用范围 | 方法与构造上带 CLR `ParamArrayAttribute` 的 **尾部** 一维 `T[]` 形参 |
+| 实参个数 | `minLuaArity ≤ argCount`（`params` 可省略 → 空数组 `T[0]`）；**无** 固定上界（实现可对 overload arity 桶设有限上限，超出走 params overflow 路径） |
+| 展开 | 定参前缀匹配后，**剩余全部** Lua 槽按元素类型 `T` 逐个匹配，打包为新 `T[]` |
+| 整段传入 | **仅** 当 `params` 位对应 **恰好 1** 个实参，且该实参为 **可赋值给 `T[]` 的 ByObjUserData**（已有托管数组）时，直接传入该引用（对齐 C# `Foo(existingArray)`） |
+| **禁止** | **table** 当作整个 `T[]`；**`nil` 当作整个 `null` 的 `T[]`** |
+| `nil` 语义 | 展开路径中，`nil` 按元素规则绑定（引用类型 / `Nullable` → **null 元素**；值类型非 Nullable → 不匹配）。省略 `params` 实参 → **`T[0]`**，**不是** `null` 数组 |
+| 选优 | 转换分数与 `optionalUsed` 相同后：**未展开**（整段 userdata）优于 **展开**；再相同则 **非 `params` 形参** 的候选优于带 `params` 的候选（对齐 C# 定参优先） |
+| 不支持 | **GetFunction / delegate bridge** 上的 `params`（见 [marshal/09-FUNCTION.md](/docs/spec/marshal/09-FUNCTION/)） |
+
+```csharp
+static int Sum(params int[] values);
+static string Pick(int x);
+static string Pick(params int[] values);
+static int Add(int a, int b);
+static int Add(params int[] values);
+static int CountNulls(params string[] values);
+```
+
+| Lua | 结果 |
+|-----|------|
+| `Sum(1, 2, 3)` | 展开 → `int[]{1,2,3}` |
+| `Sum()` | 空数组 `int[0]` |
+| `Sum(arr)`（`arr` 为 `int[]` userdata） | 整段传入该数组 |
+| `Sum({1,2,3})` | **不匹配**（table 不当整段 `T[]`；且 table 不是 `int`） |
+| `CountNulls(nil)` | 展开 → `string[]{ null }`（**不是** `null` 数组） |
+| `Pick(7)` | 选 `Pick(int)`（定参优先于 params 展开） |
+| `Pick(1, 2)` | 选 `Pick(params int[])` |
+| `Add(3, 4)` | 选 `Add(int,int)` |
+| `Add(1, 2, 3)` | 选 `Add(params int[])` |
+
+**构造函数：** `Type(...)` / `SMT.__call` 使用与实例方法相同的分派逻辑（含默认参数与 `params`）。
 
 ### 3.4 性能说明
 
@@ -164,7 +200,9 @@ Kind 优劣链：
 1. 逐形参计算 `GetConversionKind`；任一 `None` → 不适用。
 2. M 优于 N：存在形参 i 使 M 更优，且不存在 j 使 N 更优。
 3. 转换分数仍相同：比较本次匹配使用的 **默认参数个数**（`optionalUsed`），更少者更优（见 §3.3）。
-4. 仍无 strictly better → Ambiguous 或声明顺序 tie-break（实现以 Ambiguous 为准时须一致）。
+4. 仍相同：比较 **`paramsExpanded`**（本次是否对 `params` 做了多槽展开），**未展开**（0，含整段 `T[]` userdata 或省略为空数组）优于 **展开**（1）。
+5. 仍相同：比较 **`paramsKind`**（候选是否带 `params` 形参），**非 params**（0）优于 **params**（1）（定参重载优先）。
+6. 仍无 strictly better → Ambiguous 或声明顺序 tie-break（实现以 Ambiguous 为准时须一致）。
 
 **示例：**
 
@@ -172,6 +210,8 @@ Kind 优劣链：
 |----------|------|
 | `Run(10)`，`Run(int)` vs `Run(object)` | 选 `Run(int)`（Identity ≻ Boxing） |
 | `SetValue(10, 0)`，`SetValue(object,int)` vs `SetValue(object,long)` | 选 `(object,int)`（p1 Identity ≻ Numeric） |
+| `Pick(7)`，`Pick(int)` vs `Pick(params int[])` | 选 `Pick(int)`（定参；`paramsKind` / 未展开优先） |
+| `Add(3, 4)`，`Add(int,int)` vs `Add(params int[])` | 选 `Add(int,int)` |
 
 #### 3.6.4 invoke 期隐式 Box
 
