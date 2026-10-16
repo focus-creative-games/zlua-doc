@@ -82,6 +82,7 @@ git clone https://github.com/focus-creative-games/zlua-demo.git
 | **Enable** | 是否启用 ZLua |
 | **Lua Version Id** | 要使用的 Lua / LuaJIT 版本 id；**默认 `lua-5.5.0`**（空则按此默认） |
 | **MarshalAs Xml Paths** | 可选；MarshalAs XML 路径，见 [LuaMarshalAs](/docs/spec/marshal/02-MARSHAL-AS/) |
+| **Unity Optimizations** | 默认开。字段说明见 [Settings](/docs/guides/settings/)；当前效果见 [Unity 优化](/docs/getting-started/unity-optimizations/) |
 
 **`luaVersionId` 写法**（与 [多版本管理](/docs/spec/11-MULTI-VERSION/) 一致）：
 

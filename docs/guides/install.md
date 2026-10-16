@@ -45,6 +45,7 @@ description: UPM 引入 ZLua，用 Settings 选定 Lua 版本并完成本地 Ins
 | **MarshalAs Xml Paths** | 可选；**非热更新**预编译程序集的 MarshalAs XML（热更程序集只用 Attribute），见 [LuaMarshalAs](/docs/guides/lua-marshal-as/) |
 | **Lua Alias Xml Paths** | 可选；**非热更新**程序集的方法换名 XML（`ZLuaAlias`；热更只用 `[LuaAlias]`），见 [LuaAlias](/docs/guides/lua-alias/) |
 | **Lua Extension Xml Paths** | 可选；**非热更新**类型的 Extension 映射 XML（`ZLuaExtensions`；热更只用 `[LuaExtension]`），见 [Extension 方法](/docs/guides/extension-methods/) |
+| **Unity Optimizations** | 默认开。启用包内 Unity 优化（当前为 `GetComponent`）。见 [Settings](/docs/guides/settings/)、[Unity 优化](/docs/guides/unity-optimizations/) |
 
 **`luaVersionId` 写法：**
 

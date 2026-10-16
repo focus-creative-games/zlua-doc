@@ -102,6 +102,8 @@ Docs/
 │   ├── 11-MULTI-VERSION.md     Unity/Lua 多版本、Install、DLL、ZLuaConf
 │   ├── 12-MIGRATION-ADAPTORS.md xLua/toLua/SLua Lua→C# 类型路径适配
 │   ├── 13-EXTENSION-METHODS.md C# Extension → 被扩展类型 IMT
+│   ├── 14-SETTINGS.md          Project Settings / ZLua.asset
+│   ├── 15-UNITY-OPTIMIZATIONS.md Unity 优化总开关（当前：GetComponent）
 │   ├── build/                  官方 Lua / LuaJIT 构建；Mono gate；EmmyLua 调试器
 │   ├── metatable/              __index、三表、布局
 │   └── marshal/                Push/Pop、[LuaMarshalAs]
@@ -125,6 +127,8 @@ Docs/
 11. 第三方原生模块（socket / cjson 等） → [build/05-NATIVE-MODULES.md](/docs/spec/build/05-NATIVE-MODULES/)
 12. 从 xLua / toLua / SLua 迁移类型访问适配 → [12-MIGRATION-ADAPTORS.md](/docs/spec/12-MIGRATION-ADAPTORS/)
 13. C# Extension 方法 → [13-EXTENSION-METHODS.md](/docs/spec/13-EXTENSION-METHODS/)
+14. Project Settings → [14-SETTINGS.md](/docs/spec/14-SETTINGS/)
+15. Unity 优化（可选） → [15-UNITY-OPTIMIZATIONS.md](/docs/spec/15-UNITY-OPTIMIZATIONS/)
 
 **冲突裁决：** `spec/**` > Il2Cpp 源码 > `impl/**`。
 

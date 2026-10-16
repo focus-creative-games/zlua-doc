@@ -45,6 +45,7 @@ Open Project Settings → **ZLua** (writes `ProjectSettings/ZLua.asset`).
 | **MarshalAs Xml Paths** | Optional; MarshalAs XML for **non–hot-update** precompiled assemblies (hot-update assemblies use Attributes only) — see [LuaMarshalAs](/docs/guides/lua-marshal-as/) |
 | **Lua Alias Xml Paths** | Optional; method rename XML for **non–hot-update** assemblies (`ZLuaAlias`; hot-update uses `[LuaAlias]` only) — see [LuaAlias](/docs/guides/lua-alias/) |
 | **Lua Extension Xml Paths** | Optional; Extension mapping XML for **non–hot-update** types (`ZLuaExtensions`; hot-update uses `[LuaExtension]` only) — see [Extension methods](/docs/guides/extension-methods/) |
+| **Unity Optimizations** | On by default. Enables Unity optimizations shipped in the package (currently `GetComponent`). See [Settings](/docs/guides/settings/) and [Unity optimizations](/docs/guides/unity-optimizations/) |
 
 **`luaVersionId` formats:**
 

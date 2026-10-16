@@ -37,7 +37,7 @@ o:BaseOnly()     -- OK：门面 Base 上有
 | 场景 | 声明返回 | 实际常见 | 不标时的痛点 |
 |------|----------|----------|--------------|
 | 工厂 / 多态创建 | `Base` / 接口 | 具体 `Child` | 每次 `cast` 才能调派生成员 |
-| Unity `GetComponent` | `Component` | `Rigidbody` 等 | 只能当 `Component` 用，或脚本侧 cast |
+| Unity `GetComponent` | `Component` / 接口 | `Button` 等 | 只能当声明类型用，或脚本侧 `zlua.cast`。可改用总开关 [Unity 优化](/docs/guides/unity-optimizations/) |
 | 返回 `object` / 装箱宽类型 | `object` | 具体 class | 门面永远是 `System.Object` |
 
 **不需要** 的情况：声明类型已经覆盖你会调用的成员；或偶发才 downcast（用 `zlua.cast` 即可）。

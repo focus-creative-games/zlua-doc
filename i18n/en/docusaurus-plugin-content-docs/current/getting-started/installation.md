@@ -82,6 +82,7 @@ Menu **`ZLua/Settings...`** opens Project Settings → **ZLua** (asset at `Proje
 | **Enable** | Whether ZLua is enabled |
 | **Lua Version Id** | Lua / LuaJIT version id; **default `lua-5.5.0`** (empty → this default) |
 | **MarshalAs Xml Paths** | Optional; MarshalAs XML paths — see [LuaMarshalAs](/docs/spec/marshal/02-MARSHAL-AS/) |
+| **Unity Optimizations** | On by default. Field notes: [Settings](/docs/guides/settings/); current effect: [Unity optimizations](/docs/getting-started/unity-optimizations/) |
 
 **`luaVersionId` formats** (aligned with [Multi-version](/docs/spec/11-MULTI-VERSION/)):
 

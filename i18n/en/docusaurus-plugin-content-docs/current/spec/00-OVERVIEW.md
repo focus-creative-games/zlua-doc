@@ -102,6 +102,8 @@ Docs/
 │   ├── 11-MULTI-VERSION.md     Unity/Lua multi-version, Install, DLL, ZLuaConf
 │   ├── 12-MIGRATION-ADAPTORS.md xLua/toLua/SLua Lua→C# type-path adaptors
 │   ├── 13-EXTENSION-METHODS.md C# Extension → extended type IMT
+│   ├── 14-SETTINGS.md          Project Settings / ZLua.asset
+│   ├── 15-UNITY-OPTIMIZATIONS.md Unity optimizations master switch (currently: GetComponent)
 │   ├── build/                  Official Lua / LuaJIT build; Mono gate; EmmyLua debugger
 │   ├── metatable/              __index, three tables, layout
 │   └── marshal/                Push/Pop, [LuaMarshalAs]
@@ -125,6 +127,8 @@ Docs/
 11. Third-party native modules (socket / cjson, etc.) → [build/05-NATIVE-MODULES.md](/docs/spec/build/05-NATIVE-MODULES/)
 12. Migrating type-access adaptors from xLua / toLua / SLua → [12-MIGRATION-ADAPTORS.md](/docs/spec/12-MIGRATION-ADAPTORS/)
 13. C# Extension methods → [13-EXTENSION-METHODS.md](/docs/spec/13-EXTENSION-METHODS/)
+14. Project Settings → [14-SETTINGS.md](/docs/spec/14-SETTINGS/)
+15. Unity optimizations (optional) → [15-UNITY-OPTIMIZATIONS.md](/docs/spec/15-UNITY-OPTIMIZATIONS/)
 
 **Conflict resolution:** `spec/**` > Il2Cpp source > `impl/**`.
 

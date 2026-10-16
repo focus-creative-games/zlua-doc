@@ -37,7 +37,7 @@ Typical cases:
 | Scenario | Declared return | Often actual | Pain without the attribute |
 |------|----------|----------|--------------|
 | Factory / polymorphic create | `Base` / interface | Concrete `Child` | Must `cast` every time for derived members |
-| Unity `GetComponent` | `Component` | `Rigidbody`, etc. | Stuck on `Component`, or cast in script |
+| Unity `GetComponent` | `Component` / interface | `Button`, etc. | Stuck on the declared type, or script-side `zlua.cast`. Or use the master switch [Unity optimizations](/docs/guides/unity-optimizations/) |
 | Wide `object` / boxed return | `object` | Concrete class | View is always `System.Object` |
 
 **Not needed** when the declared type already exposes the members you call, or downcast is rare (`zlua.cast` is enough).
