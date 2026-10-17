@@ -13,9 +13,10 @@ description: byref 参数的默认 Opaque 行为与写回规则。
 | 方向 | 行为 |
 |------|------|
 | **C# → Lua**（`GetFunction` / delegate 桥） | `ref` / `out` / `in` 默认 Push **OpaqueValue** |
-| **Lua → C#** | 不按 `ref`/`out`/`in` 关键字区分 Pop；**能否写回**看实参形态 |
+| **Lua → C# · `ref` / `in`** | 仍占实参；**能否写回**看实参形态（见下表） |
+| **Lua → C# · `out`** | **不占**实参；Invoke 后以 **多返回值** 吐出（`return, out1, …`） |
 
-## 写回规则（直觉）
+## `ref` / `in` 写回规则（直觉）
 
 | Lua 实参形态 | 写回 C# byref |
 |--------------|---------------|
@@ -30,6 +31,18 @@ Demo.Increment(x)          -- 若形参为 ref int：裸 number 不写回，x �
 local p = Point2D(1, 2)
 Demo.Offset(p)             -- ref Point2D：字段可写回 p
 ```
+
+## `out`：多返回值
+
+```lua
+-- void GetPosition(out float x, out float y, out float z)
+local x, y, z = Demo.GetPosition()
+
+-- bool TryGet(out float x, out float y)
+local ok, x, y = Demo.TryGet()
+```
+
+需要写回同一 Lua 可观察槽时用 **`ref`**，不要用 number 占位 `out`。
 
 ## Opaque 读写
 

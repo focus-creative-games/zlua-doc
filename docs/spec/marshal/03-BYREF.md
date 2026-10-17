@@ -16,9 +16,14 @@ title: "`ref` / `in` / `out` Marshal"
 | **C# → Lua**（GetFunction 取得的 delegate、delegate bridge） | **支持**；默认 Push **OpaqueValue** |
 | **Lua → C#**（普通方法 / 构造、delegate `Invoke` / `__call`） | **支持**；规则见 §3 |
 
-**统一规则（Lua→C#）：** Lua 侧 **不区分** `ref` / `out` / `in`，均按同一 Pop 规则处理；C# 侧仍保留各自 CLR 语义（如 `in` 只读）。
+**Lua→C# 分流：**
 
-下文将 C# 形参写作 `ref A` / `in A` / `out A`，其中 **A** 为去 byref 后的元素类型。
+| CLR 形参 | Lua→C# |
+|----------|--------|
+| **`ref A` / `in A`** | 仍占 Lua **实参**；按 §3–§4 Pop 规则取地址（Opaque / ByVal / 临时槽） |
+| **`out A`** | **不占** Lua 实参；Invoke 后以 **多返回值** 吐出（§5） |
+
+C# 侧仍保留各自 CLR 语义（如 `in` 只读）。下文 **A** 为去 byref 后的元素类型。
 
 ---
 
@@ -32,9 +37,9 @@ title: "`ref` / `in` / `out` Marshal"
 
 ---
 
-## 3. Lua → C#：总原则
+## 3. Lua → C#：总原则（`ref` / `in`）
 
-对 `ref` / `in` / `out A`，绑定层最终向 C# 传入的是 **某个 `A*`（或等价托管 byref）地址**。
+对 **`ref A` / `in A`**，绑定层向 C# 传入 **某个 `A*`（或等价托管 byref）地址**。**`out A` 不走本节**，见 §5。
 
 | Lua 实参形态 | 行为概要 | C# 对 `*slot` 的修改能否反映到该 Lua 值 |
 |--------------|----------|----------------------------------------|
@@ -104,19 +109,28 @@ CS.Demo.Offset(p, 10, 20)        -- 传 payload 地址；Invoke 后 p 的字段�
 
 ---
 
-## 5. `out` 与缺省 / `nil`
+## 5. Lua → C#：`out A`（多返回值）
 
-| 情况 | 行为 |
+| 规则 | 说明 |
 |------|------|
-| 实参省略或 `nil`，且走 **临时槽** 路径 | 临时槽置 `default(A)`（引用类型为 `null`）；Invoke 后丢弃 |
-| 实参为 **ByValUserData**（类型 == A）或兼容 **OpaqueValue** | 绑定已有地址；`out` 写回该地址 |
+| **实参** | **`out` 不占用** Lua 栈槽；**不计入** 方法 Lua arity（见 [04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/)） |
+| **调用前** | 在调用帧分配 `A` 临时槽，置 `default(A)`，将地址传给 C# |
+| **调用后** | 按形参声明顺序，将各 `out` 槽按 **A** 的默认 Cs→Lua 规则 Push；若方法有非 `void` 返回值，顺序为 **`return, out1, out2, …`** |
+| **热路径** | 含任一 `out` 的方法走通用 invoker（允许略慢）；无 `out` 的 specialized / Emit 路径不变 |
+| **可观察写回** | 需要写回同一 Lua 侧可观察槽时用 **`ref`**（或 C#→Lua 的 Opaque 再传入 `ref`），**不要**用 number 占位 `out` |
 
-若脚本需要观察到 `out` / `ref` 写回结果，应传入：
+```lua
+-- void GetPosition(out float x, out float y, out float z)
+local x, y, z = CS.Foo.GetPosition()
 
-- 类型匹配的 **ByValUserData**（值类型），或
-- 仍在有效期内的兼容 **OpaqueValue**（常见于 C#→Lua 回调内再调回 C#）。
+-- bool TryGet(out float x, out float y)
+local ok, x, y = CS.Foo.TryGet()
+```
+
+全签名键仍含 `System.Single&` 等 CLR byref 拼写；仅 **调用 arity** 与 **返回值个数** 按上表变化。
 
 ---
+
 
 ## 6. 桥接流程（概念）
 

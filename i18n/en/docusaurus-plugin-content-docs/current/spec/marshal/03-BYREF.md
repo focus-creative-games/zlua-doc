@@ -16,9 +16,14 @@ title: "`ref` / `in` / `out` Marshal"
 | **C# → Lua** (GetFunction-obtained delegate, delegate bridge) | **Supported**; default Push **OpaqueValue** |
 | **Lua → C#** (ordinary method / ctor, delegate `Invoke` / `__call`) | **Supported**; rules in §3 |
 
-**Unified rule (Lua→C#):** Lua does **not** distinguish `ref` / `out` / `in`; all use the same Pop rules. C# still keeps CLR semantics (e.g. `in` is read-only).
+**Lua→C# split:**
 
-Below, C# parameters are written `ref A` / `in A` / `out A`, where **A** is the element type after stripping byref.
+| CLR formal | Lua→C# |
+|------------|--------|
+| **`ref A` / `in A`** | Still occupy Lua **args**; take address via §3–§4 Pop rules (Opaque / ByVal / temp slot) |
+| **`out A`** | **Do not** occupy Lua args; after Invoke, emit as **multiple returns** (§5) |
+
+C# still keeps CLR semantics (e.g. `in` is read-only). Below, **A** is the element type after stripping byref.
 
 ## 2. C# → Lua
 
@@ -28,9 +33,9 @@ When the parameter is `ref` / `in` / `out A`, the **default** Push is **OpaqueVa
 - This path does **not** Push ByValUserData / ClassUserData.
 - Full rules: [04-OPAQUE.md](/docs/spec/marshal/04-OPAQUE/).
 
-## 3. Lua → C#: general principles
+## 3. Lua → C#: general principles (`ref` / `in`)
 
-For `ref` / `in` / `out A`, the binding layer ultimately passes some **`A*`** (or equivalent managed byref) address into C#.
+For **`ref A` / `in A`**, the binding layer passes some **`A*`** (or equivalent managed byref) address into C#. **`out A` does not use this section**; see §5.
 
 | Lua argument shape | Behavior summary | Can C# writes to `*slot` reflect on that Lua value? |
 |--------------------|------------------|------------------------------------------------------|
@@ -96,17 +101,25 @@ Both non-Opaque paths use a **temp slot**: **C# reassigning `ref string` does no
 
 Likewise: **temp slot** ⇒ C# **`ref` rebinding** (`refParam = other`) does **not** reflect to Lua; **in-place mutable fields** remain visible via shared reference (see [06-CLASS.md](/docs/spec/marshal/06-CLASS/).
 
-## 5. `out` and omitted / `nil`
+## 5. Lua → C#: `out A` (multiple returns)
 
-| Case | Behavior |
-|------|----------|
-| Argument omitted or `nil`, and temp-slot path | Temp set to `default(A)` (reference types `null`); discarded after Invoke |
-| Argument is **ByValUserData** (type == A) or compatible **OpaqueValue** | Bind existing address; `out` writes back to that address |
+| Rule | Notes |
+|------|-------|
+| **Args** | **`out` does not occupy** Lua stack slots; **not counted** in method Lua arity (see [04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/)) |
+| **Before Invoke** | Allocate an `A` temp slot in the call frame, set `default(A)`, pass that address to C# |
+| **After Invoke** | Push each `out` slot in formal order using **A**'s default Cs→Lua rules; if the method has a non-`void` return, order is **`return, out1, out2, …`** |
+| **Hot path** | Methods with any `out` use the generic invoker (may be slightly slower); specialized / Emit paths without `out` are unchanged |
+| **Observable write-back** | To mutate the same observable Lua-side slot, use **`ref`** (or a C#→Lua Opaque passed again into `ref`); **do not** use a number placeholder for `out` |
 
-If a script needs to observe `out` / `ref` write-backs, pass:
+```lua
+-- void GetPosition(out float x, out float y, out float z)
+local x, y, z = CS.Foo.GetPosition()
 
-- type-matching **ByValUserData** (value types), or
-- a still-valid compatible **OpaqueValue** (common when calling back into C# from a C#→Lua callback).
+-- bool TryGet(out float x, out float y)
+local ok, x, y = CS.Foo.TryGet()
+```
+
+Full-signature keys still use CLR byref spellings such as `System.Single&`; only **call arity** and **return count** change per the table above.
 
 ## 6. Bridge flow (conceptual)
 

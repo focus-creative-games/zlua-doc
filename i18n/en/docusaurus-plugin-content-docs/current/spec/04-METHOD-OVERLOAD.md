@@ -88,6 +88,8 @@ When the **Lua stack slot count** is acceptable, walk CLR formals from the stack
 | primitive | **`class` / `interface` (not `object`)** | **No match** |
 | multi-arg + `params T[]` | `params` | **Expandable**: after fixed prefix, **0–N** Lua slots match element type `T` and pack into `T[]`; or **one** matching `T[]` ByObjUserData passed whole. Details below and [marshal/02-MARSHAL-AS.md](/docs/spec/marshal/02-MARSHAL-AS/) §7 |
 | `UnpackedValues` formal | consecutive N slots | That CLR formal occupies **N** Lua arg slots (`N = Members.Length`); matching accumulates stack slots; see [marshal/02-MARSHAL-AS.md](/docs/spec/marshal/02-MARSHAL-AS/) §5.6 |
+| **`out A`** | **0** slots | **Not counted** in `luaArity` / `minLuaArity`; skip this CLR formal when matching; after Invoke, Push as multiple returns per [marshal/03-BYREF.md](/docs/spec/marshal/03-BYREF/) §5 (`return, out1, …`) |
+| **`ref A` / `in A`** | slots per **A** by-val / Opaque rules | See [marshal/03-BYREF.md](/docs/spec/marshal/03-BYREF/) §3–§4 (still occupy args, unlike `out`) |
 
 **Optional / default parameters (C# optional):**
 

@@ -88,6 +88,8 @@ flowchart LR
 | 基元 | **`class` / `interface`（非 `object`）** | **不匹配** |
 | 多参 + `params T[]` | `params` | **可展开**：定参前缀之后的 **0～N** 个 Lua 槽逐个按元素类型 `T` 匹配并打包为 `T[]`；或 **单个** 匹配的 `T[]` ByObjUserData 整段传入。详见下文与 [marshal/02-MARSHAL-AS.md](/docs/spec/marshal/02-MARSHAL-AS/) §7 |
 | `UnpackedValues` 形参 | 连续 N 槽 | 该 CLR 形参占用 **N** 个 Lua 实参槽（`N = Members.Length`）；匹配时按栈槽累加，见 [marshal/02-MARSHAL-AS.md](/docs/spec/marshal/02-MARSHAL-AS/) §5.6 |
+| **`out A`** | **0** 槽 | **不计入** `luaArity` / `minLuaArity`；匹配时跳过该 CLR 形参；Invoke 后按 [marshal/03-BYREF.md](/docs/spec/marshal/03-BYREF/) §5 以多返回值 Push（`return, out1, …`） |
+| **`ref A` / `in A`** | 按 **A** 的 by-val / Opaque 规则占槽 | 见 [marshal/03-BYREF.md](/docs/spec/marshal/03-BYREF/) §3–§4（仍占实参，与 `out` 不同） |
 
 **可选 / 默认参数（C# optional）：**
 

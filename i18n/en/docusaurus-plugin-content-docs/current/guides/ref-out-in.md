@@ -13,9 +13,10 @@ Authoritative: [BYREF](/docs/spec/marshal/03-BYREF/), [OPAQUE](/docs/spec/marsha
 | Direction | Behavior |
 |------|------|
 | **C# → Lua** (`GetFunction` / delegate bridge) | `ref` / `out` / `in` default Push **OpaqueValue** |
-| **Lua → C#** | Pop is not split by `ref`/`out`/`in` keywords; **whether write-back happens** depends on argument shape |
+| **Lua → C# · `ref` / `in`** | Still occupy args; **whether write-back happens** depends on argument shape (table below) |
+| **Lua → C# · `out`** | **Do not** occupy args; after Invoke, emit as **multiple returns** (`return, out1, …`) |
 
-## Write-back rules (intuition)
+## `ref` / `in` write-back rules (intuition)
 
 | Lua argument shape | Write back to C# byref |
 |--------------|---------------|
@@ -25,18 +26,30 @@ Authoritative: [BYREF](/docs/spec/marshal/03-BYREF/), [OPAQUE](/docs/spec/marsha
 
 ```lua
 local x = 5
-Demo.Increment(x)          -- 若形参为 ref int：裸 number 不写回，x 仍为 5
+Demo.Increment(x)          -- if formal is ref int: bare number does not write back; x stays 5
 
 local p = Point2D(1, 2)
-Demo.Offset(p)             -- ref Point2D：字段可写回 p
+Demo.Offset(p)             -- ref Point2D: fields can write back to p
 ```
+
+## `out`: multiple returns
+
+```lua
+-- void GetPosition(out float x, out float y, out float z)
+local x, y, z = Demo.GetPosition()
+
+-- bool TryGet(out float x, out float y)
+local ok, x, y = Demo.TryGet()
+```
+
+To mutate the same observable Lua-side slot, use **`ref`**; do not use a number placeholder for `out`.
 
 ## Opaque read/write
 
 Byref slots obtained C#→Lua are usually Opaque:
 
 ```lua
--- 在同一次同步调用链内
+-- Within the same synchronous call chain
 local v = zlua.get_opaquevalue(slot)
 zlua.set_opaquevalue(slot, newValue)
 ```

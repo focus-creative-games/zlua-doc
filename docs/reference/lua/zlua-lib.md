@@ -6,9 +6,24 @@ description: 全局 zlua 表的 Lua API 参考。
 
 # zlua 标准库
 
-全局 **`zlua`** 在 `lua_State` 初始化时加载（`zlualib.lua`）。**类型访问**走 `CSharp`；**类型构造、泛型方法闭合、ref、数组、delegate 转换**走 `zlua`。重载分派与全签名键在 **元表** 上完成，Bind 后 **不提供** 运行时方法别名注册。
+全局 **`zlua`** 在 `lua_State` 初始化时加载（`zlualib.lua`）。**类型访问**走 `CSharp`；**类型构造、opaque、装箱、数组、delegate、泛型方法闭合**走 `zlua`。重载分派与全签名键在 **元表** 上完成；Bind 后 **不提供** `make_generic_method` / `register_method`。
 
-源码：[ZLua~/lualib/zlualib.lua](https://github.com/focus-creative-games/zlua/blob/main/ZLua~/lualib/zlualib.lua)
+权威契约：[05-LIB](/docs/spec/05-LIB/)。源码：[ZLua~/lualib/zlualib.lua](https://github.com/focus-creative-games/zlua/blob/main/ZLua~/lualib/zlualib.lua)
+
+---
+
+## 类型实参（typeArg）
+
+凡接受 typeArg 的 API，可用（[05-LIB §3](/docs/spec/05-LIB/)）：
+
+| 形式 | 示例 |
+|------|------|
+| `zlua.types.*` | `zlua.types.int32` |
+| `CSharp` / `make_*` 类型表 | `CSharp.mscorlib['System.Int32']` |
+| 类型名字符串 | 对标 `Type.GetType(string)` |
+| `System.Type` userdata | `zlua.typeof(typeTable)` 的返回值 |
+
+**GTAP 前缀**仅接受 **`System.Type`**，不接受类型表 / 字符串 / `zlua.types.*`。
 
 ---
 
@@ -16,25 +31,22 @@ description: 全局 zlua 表的 Lua API 参考。
 
 ### `zlua.typeof(typeTable) → System.Type`
 
-返回该类型的 **`System.Type` 反射对象**（Lua 侧为 `System.Type` class userdata），语义对应 C# 的 `typeof(T)`。
-
 | 参数 / 返回 | 说明 |
 |-------------|------|
-| `typeTable` | **任意** ZLua 类型表（`CSharp` 基础表、闭合泛型表、数组类型表等） |
-| 返回值 | `System.Type` 实例，如 `zlua.typeof(CSharp['mscorlib']['System.Int32'])` ≡ C# `typeof(int)` |
+| `typeTable` | 任意 ZLua 类型表 |
+| 返回值 | `System.Type` 反射对象（≡ C# `typeof`） |
 
 ```lua
-local intType = zlua.typeof(CSharp['mscorlib']['System.Int32'])  -- ≡ typeof(int)
-local t = zlua.typeof(CSharp.AC.Demo)                            -- ≡ typeof(Demo)
+local intType = zlua.typeof(CSharp['mscorlib']['System.Int32'])
 local ListInt = zlua.make_generic_type(
     CSharp.mscorlib['System.Collections.Generic.List`1'],
-    zlua.types.int32
-)
-local listType = zlua.typeof(ListInt)                            -- ≡ typeof(List<int>)
+    zlua.types.int32)
+local listType = zlua.typeof(ListInt)
 ```
+
 ### `zlua.get_type_from_name(typeFullName) → typeTable`
 
-对标 `System.Type.GetType(string name)`：按名称解析并返回类型表。支持 Assembly-qualified name、泛型、数组等。
+对标 `System.Type.GetType(string)`。支持 AQN、泛型、数组等；失败 → error（不静默 `nil`）。
 
 ```lua
 local Int32 = zlua.get_type_from_name("System.Int32")
@@ -43,37 +55,27 @@ local IntArr = zlua.get_type_from_name("System.Int32[]")
 
 ### `zlua.types.*`
 
-内置 corlib 类型名字符串，见 **[zlua.types 完整表](/docs/reference/lua/zlua-types/)**。
+内置 corlib 类型名，见 **[zlua.types 完整表](/docs/reference/lua/zlua-types/)**。
 
-### `zlua.signature(typeArg, ...) → signature`
+### 签名字符串
 
-构造 **参数类型** 括号串（如 `"(System.Int32)"`），供对照 / 拼接全签名键。**不包含**方法名。
+Native：`__zlua_create_signature(typeArg...)` → `"(System.Int32,System.String)"`（**尚未**在 `zlualib.lua` 封装；可本地包一层 `zlua.signature`）。
 
-| 参数 | 说明 |
-|------|------|
-| `typeArg...` | `zlua.types.*`、`zlua.typeof(T)` 或类型表 |
+全签名键在 `__index` miss 时懒解析并缓存；**禁止**把仅参数括号当元表键：
 
 ```lua
-local sig = zlua.signature(zlua.types.int32, zlua.types.string)
--- "(System.Int32,System.String)"
--- 全签名键 = 方法名 .. sig → "Run(System.Int32,System.String)"
+demo['Run(System.Int32)'](demo, 10)
 ```
 
-Bind **不会**预先为每个方法挂全签名键。访问元表时若 method 表未命中，且键为含 `(` 的签名字符串，则 **懒解析** 对应重载、生成 direct closure 并 **写入缓存**：
-
-```lua
-demo['Run(System.Int32)'](demo, 10)   -- 首次 miss 后该键为 direct
-```
-
-**禁止**把仅参数括号（无方法名）当作元表键。短名冒号调用靠 Bind 期 `[LuaAlias]` / XML，见 [重载规范](/docs/spec/04-METHOD-OVERLOAD/)。
+短名冒号靠 Bind 期 `[LuaAlias]` / XML。见 [重载规范](/docs/spec/04-METHOD-OVERLOAD/)。
 
 ---
 
-## 泛型
+## 泛型类型
 
 ### `zlua.make_generic_type(genericBaseType, typeArg...) → typeTable`
 
-闭合开放泛型定义，如 `List<int>`。
+闭合开放泛型定义；相同实参 intern。
 
 ```lua
 local ListInt = zlua.make_generic_type(
@@ -82,15 +84,13 @@ local ListInt = zlua.make_generic_type(
 local list = ListInt()
 ```
 
+---
+
+## 泛型方法
+
 ### `zlua.inflate(type, methodNameOrSignature, typeArg...) → closure`
 
-在 **已闭合** 声明类型上查找 **开放泛型方法**，用 typeArg 单态化后返回 **direct closure**（可与 GTAP 隐式闭合 **intern** 同一 registry closure）。
-
-| 参数 | 说明 |
-|------|------|
-| `type` | 声明该方法的类型，**须已闭合**（类型表或 §3 可解析为类型的 typeArg） |
-| `methodNameOrSignature` | 短方法名或全签名键（开放泛型形参用参数名，如 `"Describe(T)"`） |
-| `typeArg...` | §3 typeArg；个数 = 该方法泛型形参个数 |
+在 **已闭合** 声明类型上查找开放泛型方法并单态化。typeArg 为完整 §3；实例 closure 为 ByObj：`f(self, …)`。
 
 ```lua
 local GetRb = zlua.inflate(GameObject, "GetComponent",
@@ -98,40 +98,60 @@ local GetRb = zlua.inflate(GameObject, "GetComponent",
 local rb = GetRb(go)
 ```
 
-实例方法返回的 closure 为 **ByObj** 约定：`f(self, …)`。声明类型仍开放时须先 `make_generic_type`。完整规则：[05-LIB §9.1](/docs/spec/05-LIB/)。
+### GTAP
 
-**GTAP（开放泛型调用前缀）：** 对元表上的开放泛型短名调用时，可在普通实参前连续放置 **N** 个 **`System.Type`**（`zlua.typeof(...)`）隐式闭合；**不**接受类型表 / 字符串 / `zlua.types.*` 作前缀。与 `inflate` 共用 intern 键空间。详见 [05-LIB §9.2](/docs/spec/05-LIB/)、[重载规范 §3.8](/docs/spec/04-METHOD-OVERLOAD/)。
+对元表上的开放泛型短名，在普通实参前连续放 **N** 个 `zlua.typeof(...)` 隐式闭合。与 `inflate` 共用 intern。
 
 ```lua
-local rb = go:GetComponent(zlua.typeof(Rigidbody))   -- GTAP
+local rb = go:GetComponent(zlua.typeof(Rigidbody))
 ```
+
+详见 [05-LIB §9](/docs/spec/05-LIB/)、[重载规范 §3.8](/docs/spec/04-METHOD-OVERLOAD/)。
 
 ---
 
 ## Opaque / ref
 
-`ref` / `out` / `in` **无** 单独的 `zlua.new_ref`（已移除）。Lua→C# 写回依赖实参形态：同型 **ByValUserData**（如 `Point2D(...)`）或兼容 **Opaque**；裸 number/string 只进临时槽。见 [ref/out/in 指南](/docs/guides/ref-out-in/)、[03-BYREF](/docs/spec/marshal/03-BYREF/)。
+`ref` / `out` / `in` **无** `zlua.new_ref`。C#→Lua 默认 Push Opaque；Lua→C# 写回看实参形态。见 [ref/out/in](/docs/guides/ref-out-in/)、[03-BYREF](/docs/spec/marshal/03-BYREF/)。
+
+### `zlua.get_opaquevalue` / `zlua.set_opaquevalue`
+
+同步调用链内读写 Opaque handle（lightuserdata）。
 
 ### `zlua.to_user_data(opaque) → userdata`
 
-将 C#→Lua 推送的 **OpaqueValue**（lightuserdata）升级为 StructUserData / ClassUserData。须在 **同步调用链** 内使用。
+将 Opaque **拷贝** 为 StructUserData / ClassUserData（长生命周期）。契约见 [04-OPAQUE](/docs/spec/marshal/04-OPAQUE/)（未列入 [05-LIB §12](/docs/spec/05-LIB/) Native 一览时以 Opaque 规范为准）。
 
-另：`get_opaquevalue` / `set_opaquevalue` 见同规范 Opaque 节。
+---
+
+## 装箱 / 拆箱 / 门面
+
+### `zlua.box(typeArg, value) → byObjUserdata`
+
+`typeArg` 须为 **值类型**；引用类型 → error。
+
+### `zlua.unbox(boxedValue) → luaValue | byValUserdata`
+
+参数须为 ByObjUserData。基元 → boolean/number；enum → integer；struct → ByVal userdata。
+
+### `zlua.cast(obj, targetType) → userdata`
+
+同托管 identity，**IMT 门面 = targetType**。见 [06-CLASS](/docs/spec/marshal/06-CLASS/)。
 
 ---
 
 ## 数组
 
-| API | 参数 | 返回值 | 说明 |
-|-----|------|--------|------|
-| `make_szarray_type(elementType)` | 元素类型 | 数组类型表 | `T[]` |
-| `make_mdarray_type(elementType, rank)` | 元素类型、秩 | 多维类型表 | `T[,]` 等 |
-| `new_szarray_by_element_type(type, len)` | 元素类型、长度 | ArrayUserData | |
-| `new_szarray_by_szarray_type(arrType, len)` | 数组类型表、长度 | ArrayUserData | |
-| `new_mdarray_by_mdarray_type(mdType, low, sizes)` | 类型、下界、尺寸 | ArrayUserData | |
-| `new_mdarray_by_spec(elementType, low, sizes)` | 元素类型、下界、尺寸 | ArrayUserData | 便捷构造 |
-| `to_table(szarray)` | 一维数组 | Lua table | 1-based 索引 |
-| `to_bytes(szarray)` | 元素为 blittable（基元或无引用字段的 struct）的 szarray | string | 按数组内存字节拷贝 |
+| API | 说明 |
+|-----|------|
+| `make_szarray_type(elementType)` | `T[]` 类型表 |
+| `make_mdarray_type(elementType, rank)` | 多维类型表；`rank ∈ [1, 32]` |
+| `new_szarray_by_element_type(type, len)` | 按元素类型 + 长度 |
+| `new_szarray_by_szarray_type(arrType, len)` | 按数组类型表 + 长度 |
+| `new_mdarray_by_mdarray_type(mdType, low, sizes)` | `low`/`sizes` 为长度 = rank 的连续整数表 |
+| `new_mdarray_by_spec(elementType, low, sizes)` | 便捷构造 |
+| `to_table(szarray)` | → Lua table；`t[i]` ↔ `arr[i-1]` |
+| `to_bytes(szarray)` | CLR **blittable** 元素整段拷贝为 binary string；**不接受** `bool[]` / `char[]` 及含引用字段的元素 |
 
 ---
 
@@ -139,34 +159,36 @@ local rb = go:GetComponent(zlua.typeof(Rigidbody))   -- GTAP
 
 ### `zlua.to_delegate(func, delegateType) → delegateUserdata`
 
-将 Lua function 转为指定 **Delegate 类型** userdata（显式形态；方法形参通常可直传 function）。
+显式转换；方法形参通常可直传 Lua function。
 
 ```lua
-local handler = zlua.to_delegate(function(x) print(x) end, CSharp.AC['System.Action`1'])
+local handler = zlua.to_delegate(function(x) print(x) end, ActionIntType)
 ```
 
 ---
 
 ## Mono / Il2Cpp 实现状态
 
-双端 **Lua 可见语义一致**；下表均为已实现。
+双端 **Lua 可见语义一致**。
 
 | API | Mono | Il2Cpp |
 |-----|:----:|:------:|
-| typeof / types / signature | ✅ | ✅ |
-| make_generic_type / inflate | ✅ | ✅ |
-| get/set_opaquevalue / to_user_data | ✅ | ✅ |
-| make_szarray_* / new_szarray_* | ✅ | ✅ |
-| make_mdarray_* | ✅ | ✅ |
+| typeof / types / get_type_from_name | ✅ | ✅ |
+| `__zlua_create_signature` | ✅ | ✅ |
+| make_generic_type / inflate / GTAP | ✅ | ✅ |
+| get/set_opaquevalue | ✅ | ✅ |
+| box / unbox / cast | ✅ | ✅ |
+| make_*array_* / new_*array_* | ✅ | ✅ |
 | to_table / to_bytes | ✅ | ✅ |
 | to_delegate | ✅ | ✅ |
 
-完整语义：[zlua 库规范](/docs/spec/05-LIB/)
+完整语义：[05-LIB](/docs/spec/05-LIB/)
 
 ## 相关文档
 
 - [zlua.types 常量表](/docs/reference/lua/zlua-types/)
 - [API 概览](/docs/reference/overview/)
 - [方法重载](/docs/guides/overloads/)
-- [泛型与数组](/docs/guides/generics/)
+- [泛型](/docs/guides/generics/)
+- [函数调用](/docs/getting-started/method-calls/)
 - [ref / out / in](/docs/guides/ref-out-in/)

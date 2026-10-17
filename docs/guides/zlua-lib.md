@@ -9,36 +9,34 @@ description: 日常最常用的 zlua API；其余见规范。
 | 层 | 职责 |
 |----|------|
 | **`CSharp`** | 程序集 / 类型 / 成员 / 构造 |
-| **`zlua`** | 类型构造辅助、opaque、数组、delegate、泛型方法闭合（`inflate`） |
+| **`zlua`** | 类型构造辅助、opaque、装箱、数组、delegate、泛型方法闭合（`inflate`） |
 | **实例 userdata** | 成员经元表，不经 `zlua` |
 
-全文 API：[05-LIB](/docs/spec/05-LIB/)、[参考](/docs/reference/lua/zlua-lib/)。本篇只列最常用。
+全文 API：[05-LIB](/docs/spec/05-LIB/)、[参考](/docs/reference/lua/zlua-lib/)。本篇只列最常用。**不提供** `make_generic_method` / `register_method`（见规范 §9）。
 
-## 类型实参
+## 类型实参（typeArg）
+
+多数构造类 API 接受同一套 typeArg（[05-LIB §3](/docs/spec/05-LIB/)）：`zlua.types.*`、类型表、类型名字符串、`System.Type`（`zlua.typeof` 产物）。**例外：** GTAP 前缀 **仅** 接受 `System.Type`。
 
 | API | 用途 |
 |-----|------|
 | `zlua.types.int32` 等 | 预置类型实参 |
 | `zlua.typeof(typeTable)` | ≡ C# `typeof`，返回 `System.Type` |
-| `zlua.get_type_from_name(name)` | 对标 `Type.GetType` |
+| `zlua.get_type_from_name(name)` | 对标 `Type.GetType`（含 AQN、泛型、数组） |
 
 ## 重载
 
-同名多候选时，短名走 dispatch；精确点名某一重载用 **全签名键**（`__index` miss 时懒解析并缓存为 direct）。需要 **冒号 + 短名** 时在 C# 或 XML 配 **`[LuaAlias]`**（Bind 后元表冻结，**不提供**运行时挂短名）：
+同名多候选时，短名走 dispatch；精确点名用 **全签名键**（miss 时懒解析并缓存）。冒号短名靠 Bind 期 **`[LuaAlias]`** / XML：
 
 ```lua
 demo['Run(System.Int32)'](demo, 5)
-
--- 热路径：首次 miss 后键已缓存
 local run_i32 = demo['Run(System.Int32)']
 run_i32(demo, 20)
-
--- Bind 期别名：demo:run_i32(5)  （见 [LuaAlias](/docs/guides/lua-alias/)）
 ```
 
-`zlua.signature(...)` 只生成参数括号部分（如 `"(System.Int32)"`），用于对照/拼接；**不能**单独当元表键。见 [方法重载](/docs/guides/overloads/)。
+参数括号串可用 native `__zlua_create_signature(...)`（可本地封装为 `zlua.signature`）；**不能**单独当元表键。见 [方法重载](/docs/guides/overloads/)。
 
-## 泛型与数组
+## 泛型类型与数组
 
 ```lua
 local ListInt = zlua.make_generic_type(
@@ -47,19 +45,37 @@ local ListInt = zlua.make_generic_type(
 
 local arr = zlua.new_szarray_by_element_type(zlua.types.int32, 4)
 local t = zlua.to_table(arr)
-local bytes = zlua.to_bytes(float_arr)  -- blittable 元素
+local bytes = zlua.to_bytes(float_arr)  -- CLR blittable；不含 bool[] / char[]
 ```
 
-开放泛型 **方法** 用 `zlua.inflate` 或调用侧 **GTAP**（前缀 `zlua.typeof(...)`），见 [泛型](/docs/guides/generics/)。
+## 泛型方法
+
+开放泛型方法用 **`zlua.inflate`**（完整 typeArg，可缓存 closure）或 **GTAP**（前缀仅 `zlua.typeof(...)`）：
+
+```lua
+local GetRb = zlua.inflate(GameObject, "GetComponent", Rigidbody)
+local rb = GetRb(go)
+-- 或：go:GetComponent(zlua.typeof(Rigidbody))
+```
+
+见 [泛型](/docs/guides/generics/)、[函数调用](/docs/getting-started/method-calls/)。
 
 ## Opaque / ref
 
 | API | 用途 |
 |-----|------|
-| `get_opaquevalue` / `set_opaquevalue` | 同步链内读写 Opaque |
-| `to_user_data` | Opaque 升级为 userdata 门面（见规范） |
+| `get_opaquevalue` / `set_opaquevalue` | 同步链内读写 Opaque（`ref`/`in`/`out` 默认 Push） |
+| `to_user_data` | Opaque **拷贝** 为 Struct/Class userdata（长生命周期；见 [OPAQUE](/docs/spec/marshal/04-OPAQUE/)） |
 
 `ref` struct：传同型 `Type(...)` userdata 即可写回。见 [ref/out/in](/docs/guides/ref-out-in/)。
+
+## 装箱 / 门面
+
+| API | 用途 |
+|-----|------|
+| `zlua.box(typeArg, value)` | 值类型 → ByObj userdata |
+| `zlua.unbox(boxed)` | ByObj → 基元 / ByVal userdata |
+| `zlua.cast(obj, targetType)` | 同 identity，换 IMT 门面 |
 
 ## Delegate
 
@@ -71,7 +87,7 @@ local d = zlua.to_delegate(fn, ActionIntType)  -- 第二参须已闭合
 
 ## 其它（需要时再查规范）
 
-`box` / `unbox` / `cast`、`inflate` / GTAP、mdarray 系列、Native `__zlua_*` —— 见 [05-LIB](/docs/spec/05-LIB/) §9。
+mdarray 系列、Native `__zlua_*` 对照表 —— [05-LIB](/docs/spec/05-LIB/) §8、§12。
 
 ## 学习路径
 

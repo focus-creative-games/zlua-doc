@@ -6,36 +6,47 @@ description: Lua API reference for the global zlua table.
 
 # zlua Standard Library
 
-The global **`zlua`** table is loaded when `lua_State` initializes (`zlualib.lua`). **Type access** goes through `CSharp`; **type construction, generic method closing, ref, arrays, and delegate conversion** go through `zlua`. Overload dispatch and full-signature keys live on **metatables**; there is **no** runtime method-alias registration after Bind.
+The global **`zlua`** table is loaded when `lua_State` initializes (`zlualib.lua`). **Type access** goes through `CSharp`; **type construction, opaque, boxing, arrays, delegates, and generic method closing** go through `zlua`. Overload dispatch and full-signature keys live on **metatables**; **`make_generic_method` / `register_method` are not provided** after Bind.
 
-Source: [ZLua~/lualib/zlualib.lua](https://github.com/focus-creative-games/zlua/blob/main/ZLua~/lualib/zlualib.lua)
+Authoritative contract: [05-LIB](/docs/spec/05-LIB/). Source: [ZLua~/lualib/zlualib.lua](https://github.com/focus-creative-games/zlua/blob/main/ZLua~/lualib/zlualib.lua)
 
 ---
 
-## Types and Signatures
+## Type arguments (typeArg)
+
+APIs that take typeArg accept ([05-LIB §3](/docs/spec/05-LIB/)):
+
+| Form | Example |
+|------|------|
+| `zlua.types.*` | `zlua.types.int32` |
+| `CSharp` / `make_*` type tables | `CSharp.mscorlib['System.Int32']` |
+| Type-name string | Same as `Type.GetType(string)` |
+| `System.Type` userdata | Return value of `zlua.typeof(typeTable)` |
+
+**GTAP prefixes** accept **`System.Type` only**, not type tables / strings / `zlua.types.*`.
+
+---
+
+## Types and signatures
 
 ### `zlua.typeof(typeTable) → System.Type`
 
-Returns the type's **`System.Type` reflection object** (Lua-side `System.Type` class userdata), corresponding to C# `typeof(T)`.
-
-| Parameter / return | Description |
-|--------------------|-------------|
-| `typeTable` | **Any** ZLua type table (`CSharp` base table, closed generic table, array type table, etc.) |
-| Return | `System.Type` instance, e.g. `zlua.typeof(CSharp['mscorlib']['System.Int32'])` ≡ C# `typeof(int)` |
+| Parameter / return | Notes |
+|-------------|------|
+| `typeTable` | Any ZLua type table |
+| Return | `System.Type` reflection object (≡ C# `typeof`) |
 
 ```lua
-local intType = zlua.typeof(CSharp['mscorlib']['System.Int32'])  -- ≡ typeof(int)
-local t = zlua.typeof(CSharp.AC.Demo)                            -- ≡ typeof(Demo)
+local intType = zlua.typeof(CSharp['mscorlib']['System.Int32'])
 local ListInt = zlua.make_generic_type(
     CSharp.mscorlib['System.Collections.Generic.List`1'],
-    zlua.types.int32
-)
-local listType = zlua.typeof(ListInt)                            -- ≡ typeof(List<int>)
+    zlua.types.int32)
+local listType = zlua.typeof(ListInt)
 ```
 
 ### `zlua.get_type_from_name(typeFullName) → typeTable`
 
-Analogous to `System.Type.GetType(string name)`: resolve by name and return a type table. Supports Assembly-qualified names, generics, arrays, etc.
+Analogous to `System.Type.GetType(string)`. Supports AQN, generics, arrays, etc.; failure → error (not silent `nil`).
 
 ```lua
 local Int32 = zlua.get_type_from_name("System.Int32")
@@ -44,37 +55,27 @@ local IntArr = zlua.get_type_from_name("System.Int32[]")
 
 ### `zlua.types.*`
 
-Built-in corlib type-name strings; see **[zlua.types full table](/docs/reference/lua/zlua-types/)**.
+Built-in corlib type names; see **[zlua.types full table](/docs/reference/lua/zlua-types/)**.
 
-### `zlua.signature(typeArg, ...) → signature`
+### Signature strings
 
-Builds a **parameter-type** parenthesized string (e.g. `"(System.Int32)"`) for matching / concatenating full-signature keys. Method name is **not** included.
+Native: `__zlua_create_signature(typeArg...)` → `"(System.Int32,System.String)"` (**not** yet wrapped in `zlualib.lua`; you may wrap as `zlua.signature`).
 
-| Parameter | Description |
-|-----------|-------------|
-| `typeArg...` | `zlua.types.*`, `zlua.typeof(T)`, or a type table |
+Full-signature keys resolve lazily on `__index` miss and cache; **do not** use parentheses-only strings as metatable keys:
 
 ```lua
-local sig = zlua.signature(zlua.types.int32, zlua.types.string)
--- "(System.Int32,System.String)"
--- Full-signature key = method name .. sig → "Run(System.Int32,System.String)"
+demo['Run(System.Int32)'](demo, 10)
 ```
 
-Bind does **not** pre-register every full-signature key. On metatable access, if the method table misses and the key is a parenthesized signature string, the matching overload is **lazily resolved**, a direct closure is created, **cached**, and returned:
-
-```lua
-demo['Run(System.Int32)'](demo, 10)   -- after first miss this key is direct
-```
-
-**Do not** use parameter-only parentheses (no method name) as a metatable key. Colon + short name relies on Bind-time `[LuaAlias]` / XML; see [overload spec](/docs/spec/04-METHOD-OVERLOAD/).
+Colon short names need Bind-time `[LuaAlias]` / XML. See [Overload Spec](/docs/spec/04-METHOD-OVERLOAD/).
 
 ---
 
-## Generics
+## Generic types
 
 ### `zlua.make_generic_type(genericBaseType, typeArg...) → typeTable`
 
-Closes an open generic definition, e.g. `List<int>`.
+Closes an open generic definition; same args are interned.
 
 ```lua
 local ListInt = zlua.make_generic_type(
@@ -83,15 +84,13 @@ local ListInt = zlua.make_generic_type(
 local list = ListInt()
 ```
 
+---
+
+## Generic methods
+
 ### `zlua.inflate(type, methodNameOrSignature, typeArg...) → closure`
 
-On a **closed** declaring type, finds an **open generic method**, monomorphizes with typeArgs, and returns a **direct closure** (**intern**s with GTAP implicit close).
-
-| Parameter | Description |
-|-----------|-------------|
-| `type` | Type that declares the method; **must be closed** (type table or §3 typeArg) |
-| `methodNameOrSignature` | Short name or full-signature key (open generic formals use parameter names, e.g. `"Describe(T)"`) |
-| `typeArg...` | §3 typeArgs; count = number of method generic formals |
+Find an open generic method on a **closed** declaring type and specialize it. typeArg is full §3; instance closures are ByObj: `f(self, …)`.
 
 ```lua
 local GetRb = zlua.inflate(GameObject, "GetComponent",
@@ -99,40 +98,60 @@ local GetRb = zlua.inflate(GameObject, "GetComponent",
 local rb = GetRb(go)
 ```
 
-Instance-method closures use **ByObj** calling convention: `f(self, …)`. If the declaring type is still open, call `make_generic_type` first. Full rules: [05-LIB §9.1](/docs/spec/05-LIB/).
+### GTAP
 
-**GTAP (generic type argument prefix):** When calling an open generic by short name on a metatable, place **N** **`System.Type`** values (`zlua.typeof(...)`) before ordinary args to close implicitly; **not** type tables / strings / `zlua.types.*`. Shares intern key space with `inflate`. See [05-LIB §9.2](/docs/spec/05-LIB/), [overload spec §3.8](/docs/spec/04-METHOD-OVERLOAD/).
+On open-generic short names, place **N** consecutive `zlua.typeof(...)` values before ordinary args. Shares intern with `inflate`.
 
 ```lua
-local rb = go:GetComponent(zlua.typeof(Rigidbody))   -- GTAP
+local rb = go:GetComponent(zlua.typeof(Rigidbody))
 ```
+
+Details: [05-LIB §9](/docs/spec/05-LIB/), [Overload Spec §3.8](/docs/spec/04-METHOD-OVERLOAD/).
 
 ---
 
 ## Opaque / ref
 
-There is **no** separate `zlua.new_ref` for `ref` / `out` / `in` (removed). Lua→C# write-back depends on argument shape: same-type **ByValUserData** (e.g. `Point2D(...)`) or compatible **Opaque**; bare number/string only enters a temp slot. See [ref/out/in guide](/docs/guides/ref-out-in/), [03-BYREF](/docs/spec/marshal/03-BYREF/).
+No `zlua.new_ref` for `ref` / `out` / `in`. C#→Lua defaults to Opaque; Lua→C# write-back depends on argument shape. See [ref/out/in](/docs/guides/ref-out-in/), [03-BYREF](/docs/spec/marshal/03-BYREF/).
+
+### `zlua.get_opaquevalue` / `zlua.set_opaquevalue`
+
+Read/write Opaque handles (lightuserdata) within a sync call chain.
 
 ### `zlua.to_user_data(opaque) → userdata`
 
-Upgrades a C#→Lua **OpaqueValue** (lightuserdata) to StructUserData / ClassUserData. Must be used within the **synchronous call chain**.
+**Copy** Opaque into StructUserData / ClassUserData (long-lived). Contract: [04-OPAQUE](/docs/spec/marshal/04-OPAQUE/) (if not listed in [05-LIB §12](/docs/spec/05-LIB/) Native table, Opaque Spec wins).
 
-Also: `get_opaquevalue` / `set_opaquevalue` — see the Opaque section of the same spec.
+---
+
+## Boxing / unboxing / view
+
+### `zlua.box(typeArg, value) → byObjUserdata`
+
+`typeArg` must be a **value type**; reference types → error.
+
+### `zlua.unbox(boxedValue) → luaValue | byValUserdata`
+
+Argument must be ByObjUserData. Primitives → boolean/number; enum → integer; struct → ByVal userdata.
+
+### `zlua.cast(obj, targetType) → userdata`
+
+Same managed identity; **IMT view = targetType**. See [06-CLASS](/docs/spec/marshal/06-CLASS/).
 
 ---
 
 ## Arrays
 
-| API | Parameters | Return | Description |
-|-----|------------|--------|-------------|
-| `make_szarray_type(elementType)` | Element type | Array type table | `T[]` |
-| `make_mdarray_type(elementType, rank)` | Element type, rank | Multidim type table | `T[,]`, etc. |
-| `new_szarray_by_element_type(type, len)` | Element type, length | ArrayUserData | |
-| `new_szarray_by_szarray_type(arrType, len)` | Array type table, length | ArrayUserData | |
-| `new_mdarray_by_mdarray_type(mdType, low, sizes)` | Type, lower bounds, sizes | ArrayUserData | |
-| `new_mdarray_by_spec(elementType, low, sizes)` | Element type, lower bounds, sizes | ArrayUserData | Convenience ctor |
-| `to_table(szarray)` | 1D array | Lua table | 1-based index |
-| `to_bytes(szarray)` | szarray of blittable elements (primitives or structs with no ref fields) | string | Byte copy of array memory |
+| API | Notes |
+|-----|------|
+| `make_szarray_type(elementType)` | `T[]` type table |
+| `make_mdarray_type(elementType, rank)` | Multidim type table; `rank ∈ [1, 32]` |
+| `new_szarray_by_element_type(type, len)` | By element type + length |
+| `new_szarray_by_szarray_type(arrType, len)` | By array type table + length |
+| `new_mdarray_by_mdarray_type(mdType, low, sizes)` | `low`/`sizes` are contiguous integer tables of length = rank |
+| `new_mdarray_by_spec(elementType, low, sizes)` | Convenience constructor |
+| `to_table(szarray)` | → Lua table; `t[i]` ↔ `arr[i-1]` |
+| `to_bytes(szarray)` | Whole-buffer copy of CLR **blittable** elements to a binary string; **rejects** `bool[]` / `char[]` and element types with reference fields |
 
 ---
 
@@ -140,34 +159,36 @@ Also: `get_opaquevalue` / `set_opaquevalue` — see the Opaque section of the sa
 
 ### `zlua.to_delegate(func, delegateType) → delegateUserdata`
 
-Converts a Lua function to the specified **Delegate type** userdata (explicit form; method parameters can usually take a function directly).
+Explicit conversion; method parameters can usually take a Lua function directly.
 
 ```lua
-local handler = zlua.to_delegate(function(x) print(x) end, CSharp.AC['System.Action`1'])
+local handler = zlua.to_delegate(function(x) print(x) end, ActionIntType)
 ```
 
 ---
 
-## Mono / Il2Cpp Implementation Status
+## Mono / Il2Cpp status
 
-Lua-visible semantics are **consistent** on both ends; all rows below are implemented.
+Lua-visible semantics match on both ends.
 
 | API | Mono | Il2Cpp |
 |-----|:----:|:------:|
-| typeof / types / signature | ✅ | ✅ |
-| make_generic_type / inflate | ✅ | ✅ |
-| get/set_opaquevalue / to_user_data | ✅ | ✅ |
-| make_szarray_* / new_szarray_* | ✅ | ✅ |
-| make_mdarray_* | ✅ | ✅ |
+| typeof / types / get_type_from_name | ✅ | ✅ |
+| `__zlua_create_signature` | ✅ | ✅ |
+| make_generic_type / inflate / GTAP | ✅ | ✅ |
+| get/set_opaquevalue | ✅ | ✅ |
+| box / unbox / cast | ✅ | ✅ |
+| make_*array_* / new_*array_* | ✅ | ✅ |
 | to_table / to_bytes | ✅ | ✅ |
 | to_delegate | ✅ | ✅ |
 
-Full semantics: [zlua library spec](/docs/spec/05-LIB/)
+Full semantics: [05-LIB](/docs/spec/05-LIB/)
 
 ## Related
 
 - [zlua.types constants](/docs/reference/lua/zlua-types/)
 - [API overview](/docs/reference/overview/)
 - [Method overloads](/docs/guides/overloads/)
-- [Generics and arrays](/docs/guides/generics/)
+- [Generics](/docs/guides/generics/)
+- [Method calls](/docs/getting-started/method-calls/)
 - [ref / out / in](/docs/guides/ref-out-in/)
