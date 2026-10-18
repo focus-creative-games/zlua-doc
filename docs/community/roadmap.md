@@ -44,7 +44,7 @@ description: ZLua 版本计划与功能清单。
 
 ## 后续版本方向
 
-- [Luau](https://luau.org/)：已在官方仓库 [`luau` 分支](https://github.com/focus-creative-games/zlua/tree/luau) 落地（Il2Cpp Windows x64）；合入 `main` 前使用该分支
+- [Luau](https://luau.org/)：已在官方仓库 [`luau` 分支](https://github.com/focus-creative-games/zlua/tree/luau) 落地（Editor 仅 Windows，Il2Cpp 当前 Windows x64）；合入 `main` 前使用该分支
 - 更多平台工具链与设备实测
 - 迁移指南与案例（[migration](/docs/guides/migration/)）
 

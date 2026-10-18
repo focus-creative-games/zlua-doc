@@ -24,7 +24,7 @@ Il2Cpp Player 可用于完整语义验证与发布；接受 **libil2cpp 集成**
 
 ### 支持哪些 Unity / Lua 版本？
 
-见 [兼容性](/docs/getting-started/compatibility/)。PUC-Rio **5.1–5.5** 已支持；**LuaJIT** 已支持，但 **Il2Cpp Player 仅 Android / iOS**（细则见 [LuaJIT 构建](/docs/spec/build/02-LUAJIT/)）。**[Luau](https://luau.org/)** 在官方仓库 [`luau` 分支](https://github.com/focus-creative-games/zlua/tree/luau)，Settings 用 `luau-M.N`，Il2Cpp 当前为 Windows x64。
+见 [兼容性](/docs/getting-started/compatibility/)。PUC-Rio **5.1–5.5** 已支持；**LuaJIT** 已支持，但 **Il2Cpp Player 仅 Android / iOS**（细则见 [LuaJIT 构建](/docs/spec/build/02-LUAJIT/)）。**[Luau](https://luau.org/)** 在官方仓库 [`luau` 分支](https://github.com/focus-creative-games/zlua/tree/luau)，Settings 用 `luau-M.N`。Editor 仅 Windows，Il2Cpp 当前为 Windows x64。
 
 ---
 

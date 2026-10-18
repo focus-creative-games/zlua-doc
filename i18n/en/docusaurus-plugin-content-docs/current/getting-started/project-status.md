@@ -80,7 +80,7 @@ Full matrix: [Compatibility](/docs/getting-started/compatibility/).
 
 ### Later
 
-- [Luau](https://luau.org/) is on the official [`luau` branch](https://github.com/focus-creative-games/zlua/tree/luau) (Il2Cpp Windows x64). Merging to `main`, plus the Editor DLL and other Player targets, is still later work
+- [Luau](https://luau.org/) is on the official [`luau` branch](https://github.com/focus-creative-games/zlua/tree/luau) (Editor is Windows only; Il2Cpp is Windows x64 for now). Merging to `main` and other Player targets is still later work
 - More platform and device measurements
 - Richer migration Guides (see [Migration](/docs/guides/migration/))
 

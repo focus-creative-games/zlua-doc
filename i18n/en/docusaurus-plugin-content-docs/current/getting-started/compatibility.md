@@ -16,7 +16,7 @@ description: Unity, Lua versions, platforms, and feature matrix supported by ZLu
 | Lua **5.4.x** | ✅ | ✅ | Optional in Settings |
 | Lua **5.5.x** | ✅ | ✅ | Optional in Settings |
 | LuaJIT | ✅ | ⚠️ | Available in Editor (Mono); **Il2Cpp Player only Android / iOS** (bring your own static libs — see [LuaJIT build](/docs/spec/build/02-LUAJIT/)) |
-| [Luau](https://luau.org/) | ⚠️ | ✅ | Official repo [`luau` branch](https://github.com/focus-creative-games/zlua/tree/luau); Il2Cpp is **Windows x64** for now. See below |
+| [Luau](https://luau.org/) | ✅ | ✅ | Official repo [`luau` branch](https://github.com/focus-creative-games/zlua/tree/luau). **Editor is Windows only**; Il2Cpp is **Windows x64** for now. See below |
 
 PUC-Rio patch versions use Settings `luaVersionId` (`lua-X.Y.Z`); LuaJIT uses `luajit-M.N`; Luau uses `luau-M.N` (for example `luau-0.743`). Install loads them into the local tree. See [Installation](/docs/getting-started/installation/), [Multi-version](/docs/spec/11-MULTI-VERSION/).
 
@@ -28,7 +28,7 @@ Install shallow-clones that tag into `Library/ZLua/LuaSrcCache/luau-M.N/`, copie
 
 Luau's `luaL_openlibs` does not provide `package` / `require` / `loadstring`. ZLua adds `package`, `require`, `load`, and `loadstring` after opening the standard libraries.
 
-Editor (Mono) gets the scripting define `ZLUA_USE_LUAU`, but `LuaDllName` on this branch still picks the Editor DLL from the PUC series (default `lua55`). There is no separate `luau` plugin DLL. Other Il2Cpp targets are outside this Win64 static-library build.
+**Editor (Mono) works, and only on Windows.** The Editor on other desktops is outside the current support surface. Il2Cpp currently links Win64 static libraries only, so other Player targets are outside this build as well.
 
 ## Unity
 
@@ -60,7 +60,7 @@ Lua-visible semantics match on both ends; Indexer / bridge implementations diffe
 |------|-------------------|
 | **PUC-Rio (Lua 5.1–5.5)** | Designed for common Il2Cpp targets (Windows, macOS, iOS, Android, WebGL, WeChat mini games, HarmonyOS / vehicle, etc.) |
 | **LuaJIT** | **Android and iOS only**; Win / macOS / Linux / WebGL etc. **unsupported**. Build static `.a` into Plugins yourself — see [LuaJIT build](/docs/spec/build/02-LUAJIT/) |
-| **[Luau](https://luau.org/)** | On the [`luau` branch](https://github.com/focus-creative-games/zlua/tree/luau): **Windows x64** Il2Cpp (Install builds and links the static libraries) |
+| **[Luau](https://luau.org/)** | On the [`luau` branch](https://github.com/focus-creative-games/zlua/tree/luau): **Editor is Windows only**; Il2Cpp is **Windows x64** for now (Install builds and links the static libraries) |
 
 For other platform issues, please file an Issue.
 

@@ -53,7 +53,7 @@ description: UPM 引入 ZLua，用 Settings 选定 Lua 版本并完成本地 Ins
 |------|------|------|
 | PUC-Rio | `lua-X.Y.Z` | `lua-5.1.5`、`lua-5.2.4`、`lua-5.3.6`、`lua-5.4.8`、`lua-5.5.0` |
 | LuaJIT | `luajit-M.N` | `luajit-2.1`（源码须自行 clone；**Il2Cpp 仅 Android / iOS**） |
-| [Luau](https://luau.org/) | `luau-M.N` | `luau-0.743`（官方仓库 [`luau` 分支](https://github.com/focus-creative-games/zlua/tree/luau)；Il2Cpp 当前 Windows x64，见 [兼容性](/docs/getting-started/compatibility/)） |
+| [Luau](https://luau.org/) | `luau-M.N` | `luau-0.743`（官方仓库 [`luau` 分支](https://github.com/focus-creative-games/zlua/tree/luau)；Editor 仅 Windows，Il2Cpp 当前 Windows x64，见 [兼容性](/docs/getting-started/compatibility/)） |
 
 改版本后须重新 **Install**；若 Editor DLL / scripting define 随系列变化，按 Console 提示 **重启 Editor**。平台与版本矩阵见 [兼容性](/docs/getting-started/compatibility/)；多版本细则见 [多版本管理](/docs/spec/11-MULTI-VERSION/)。第三方 C 模块（socket / cjson 等）须按 **同一系列** 重编，见 [第三方原生插件](/docs/guides/native-modules/)。
 
@@ -102,6 +102,7 @@ PUC-Rio 缓存一般在 `Library/ZLua/LuaSrcCache/`（如 `lua-5.5.0/`）。
 
 - [HybridCLR 集成](/docs/guides/hybridclr/) — 双包集成与 Installer 顺序
 - [入门 · 安装与集成](/docs/getting-started/installation/) — UPM、Bootstrap 模板、完整目录树
+- [AI Skills](/docs/guides/skills/) — 把 `ZLua~/skills` 接到编程助手
 - [兼容性](/docs/getting-started/compatibility/)
 - [LuaJIT 构建](/docs/spec/build/02-LUAJIT/)
 - [多版本管理](/docs/spec/11-MULTI-VERSION/)

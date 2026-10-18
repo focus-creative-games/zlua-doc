@@ -22,7 +22,7 @@ Compared with xLua / toLua / SLua, ZLua’s core claims are:
 | **Faster** | Four-way Il2Cpp benchmarks: Lua→C# ≈ **2.57× / 3.52× / 7.68×** for xLua / toLua / SLua vs ZLua; see [Performance](/docs/compare/PERFORMANCE/) |
 | **Less GC** | Reference types and structs default to **0 GC**; flexible strategies such as OpaqueValue |
 | **Tiny bridge** | Same-signature merged C++ stubs; footprint can be an order of magnitude smaller; down to **0 bridge functions** |
-| **Broader versions** | Lua 5.1–5.5 / LuaJIT (Il2Cpp JIT only Android / iOS) / [Luau](https://luau.org/) (official [`luau` branch](https://github.com/focus-creative-games/zlua/tree/luau); Il2Cpp is Windows x64 for now); Unity **2021.3 / 2022.3 / Unity 6 (6000.0 / 6000.3 / 6000.5)**; Tuanjie Engine |
+| **Broader versions** | Lua 5.1–5.5 / LuaJIT (Il2Cpp JIT only Android / iOS) / [Luau](https://luau.org/) (official [`luau` branch](https://github.com/focus-creative-games/zlua/tree/luau); Editor is Windows only, Il2Cpp is Windows x64 for now); Unity **2021.3 / 2022.3 / Unity 6 (6000.0 / 6000.3 / 6000.5)**; Tuanjie Engine |
 | **Native HybridCLR support** | Works with HybridCLR **v9.0.0+** out of the box; seamless interop with hot-update code |
 | **More active maintenance** | Full-time professional team |
 

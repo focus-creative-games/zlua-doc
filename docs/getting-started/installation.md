@@ -90,7 +90,7 @@ git clone https://github.com/focus-creative-games/zlua-demo.git
 |------|------|------|
 | PUC-Rio | `lua-X.Y.Z` | `lua-5.1.5`、`lua-5.2.4`、`lua-5.3.6`、`lua-5.4.8`、`lua-5.5.0` |
 | LuaJIT | `luajit-M.N` | `luajit-2.1`（源码须自行 clone 到缓存目录；**Il2Cpp 仅 Android / iOS**，见 [LuaJIT 构建](/docs/spec/build/02-LUAJIT/)） |
-| [Luau](https://luau.org/) | `luau-M.N` | `luau-0.743`（仅官方仓库 [`luau` 分支](https://github.com/focus-creative-games/zlua/tree/luau)；Install 按 tag 浅克隆 [luau-lang/luau](https://github.com/luau-lang/luau)，并编译 **Windows x64** 静态库。见 [兼容性](/docs/getting-started/compatibility/)） |
+| [Luau](https://luau.org/) | `luau-M.N` | `luau-0.743`（仅官方仓库 [`luau` 分支](https://github.com/focus-creative-games/zlua/tree/luau)；Editor 仅 Windows。Install 按 tag 浅克隆 [luau-lang/luau](https://github.com/luau-lang/luau)，并编译 **Windows x64** 静态库。见 [兼容性](/docs/getting-started/compatibility/)） |
 
 改版本后须重新执行 **Install**；若 Editor 原生 DLL / scripting define 随系列变化，按 Console 提示 **重启 Editor**。
 
@@ -220,6 +220,7 @@ public class Bootstrap : MonoBehaviour
 ## 下一步
 
 - [5 分钟快速开始](/docs/getting-started/quick-start/)
+- [AI Skills](/docs/getting-started/skills/) — 把包内技能接到编程助手
 - [使用指南 · 安装与 Lua 版本](/docs/guides/install/)（循序渐进主线）
 - [初始化与最小互调](/docs/guides/hello-interop/)
 - [多版本管理](/docs/spec/11-MULTI-VERSION/)
