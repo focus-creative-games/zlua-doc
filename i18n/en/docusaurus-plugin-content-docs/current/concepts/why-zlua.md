@@ -21,7 +21,7 @@ Detailed matrix: **[Comparison](/docs/compare/)**; migration: **[migration](/doc
 | **Faster** | **98.2%** of aligned cases faster than xLua; Lua→C# avg ~**2.62×**; common fields/properties/calls ~**4×** |
 | **Less & faster GC** | Reference types and structs (including structs with ref fields) default to **0 GC**; plus OpaqueValue and other strategies |
 | **Tiny bridge** | Same-signature merge + efficient C++ codegen; footprint can be an order of magnitude smaller; **0 bridge functions** still stays fast |
-| **Broader versions** | Lua **5.1–5.5**, **LuaJIT** (Il2Cpp JIT **Android / iOS only**); Unity **2021.3 / 2022.3 / Unity 6 (6000.0 / 6000.3 / 6000.5)**, **Tuanjie Engine** |
+| **Broader versions** | Lua **5.1–5.5**, **LuaJIT** (Il2Cpp JIT **Android / iOS only**), **[Luau](https://luau.org/)** (official [`luau` branch](https://github.com/focus-creative-games/zlua/tree/luau); Il2Cpp is Windows x64 for now); Unity **2021.3 / 2022.3 / Unity 6 (6000.0 / 6000.3 / 6000.5)**, **Tuanjie Engine** |
 | **More active maintenance** | Full-time professional team; faster bug response and feature iteration |
 
 ---

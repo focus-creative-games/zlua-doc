@@ -79,7 +79,7 @@ Mono (Editor) may use reflection / Emit slow paths, but **Lua-visible semantics 
 
 **Il2Cpp source layout (Unity build):**
 
-- `libil2cpp/lua` — Install overlays the selected engine: **PUC-Rio** is a compileable source tree (patched; see [build/01-OFFICIAL-LUA.md](/docs/spec/build/01-OFFICIAL-LUA/)); **LuaJIT** is public headers only (static libs placed by the developer under Plugins; see [build/02-LUAJIT.md](/docs/spec/build/02-LUAJIT/))
+- `libil2cpp/lua` — Install overlays the selected engine: **PUC-Rio** is a compileable source tree (patched; see [build/01-OFFICIAL-LUA.md](/docs/spec/build/01-OFFICIAL-LUA/)); **LuaJIT** is public headers only (static libs placed by the developer under Plugins; see [build/02-LUAJIT.md](/docs/spec/build/02-LUAJIT/)); **Luau** ([`luau` branch](https://github.com/focus-creative-games/zlua/tree/luau)) is public headers plus Win64 static libraries — see [Multi-version](/docs/spec/11-MULTI-VERSION/) §5
 - `libil2cpp/zlua` — ZLua native implementation (from package `ZLua~/zlua-runtime`)
 
 Editable development reference: `build-win64/Il2CppOutputProject/IL2CPP/libil2cpp/zlua`.

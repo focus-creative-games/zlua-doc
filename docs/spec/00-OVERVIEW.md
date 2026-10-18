@@ -79,7 +79,7 @@ Mono（Editor）允许反射 / Emit 慢路径，但 **Lua 可见语义必须与 
 
 **Il2Cpp 源码布局（Unity 构建）：**
 
-- `libil2cpp/lua` — Install 按选定引擎叠加：**PUC-Rio** 为可编译源码树（经 patch，见 [build/01-OFFICIAL-LUA.md](/docs/spec/build/01-OFFICIAL-LUA/)）；**LuaJIT** 为公共头文件（静态库由开发者放入 Plugins，见 [build/02-LUAJIT.md](/docs/spec/build/02-LUAJIT/)）
+- `libil2cpp/lua` — Install 按选定引擎叠加：**PUC-Rio** 为可编译源码树（经 patch，见 [build/01-OFFICIAL-LUA.md](/docs/spec/build/01-OFFICIAL-LUA/)）；**LuaJIT** 为公共头文件（静态库由开发者放入 Plugins，见 [build/02-LUAJIT.md](/docs/spec/build/02-LUAJIT/)）；**Luau**（[`luau` 分支](https://github.com/focus-creative-games/zlua/tree/luau)）为公共头 + Win64 静态库，见 [多版本管理](/docs/spec/11-MULTI-VERSION/) §5
 - `libil2cpp/zlua` — ZLua native 实现（来自包内 `ZLua~/zlua-runtime`）
 
 开发期可编辑参考：`build-win64/Il2CppOutputProject/IL2CPP/libil2cpp/zlua`。

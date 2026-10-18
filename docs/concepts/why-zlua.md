@@ -21,7 +21,7 @@ xLua、toLua、SLua 已经证明「在 Unity 里用 Lua」可行。ZLua 要解�
 | **更高效** | **98.2%** 对齐用例快于 xLua；Lua→C# 平均约 **2.62×**；常见字段/属性/调用约 **4×** |
 | **更少更快的 GC** | 引用类型与 struct（含含引用字段的 struct）默认 **0 GC**；另有 OpaqueValue 等策略 |
 | **极小的桥接** | 同签名合并 + 直接生成高效 C++；体积可小一个数量级；支持 **0 桥接函数** 仍保持高性能 |
-| **版本更广** | Lua **5.1–5.5**、**LuaJIT**（Il2Cpp 上 JIT **仅 Android / iOS**）；Unity **2021.3 / 2022.3 / Unity 6（6000.0 / 6000.3 / 6000.5）**、**团结引擎** |
+| **版本更广** | Lua **5.1–5.5**、**LuaJIT**（Il2Cpp 上 JIT **仅 Android / iOS**）、**[Luau](https://luau.org/)**（官方仓库 [`luau` 分支](https://github.com/focus-creative-games/zlua/tree/luau)，Il2Cpp 当前 Windows x64）；Unity **2021.3 / 2022.3 / Unity 6（6000.0 / 6000.3 / 6000.5）**、**团结引擎** |
 | **维护更积极** | 全职专业团队；Bug 响应与特性迭代更快 |
 
 ---

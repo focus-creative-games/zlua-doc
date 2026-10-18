@@ -93,6 +93,8 @@ Cache directory name `LuaSrcCache` is fine; a hierarchical `Library/ZLua/cache/l
 | PUC-Rio cache dir | Same as id | `LuaSrcCache/lua-5.5.0/` |
 | Settings / LuaJIT id | `luajit-{major}.{minor}` | `luajit-2.1` |
 | LuaJIT cache dir | `luajit-{major}-{minor}` (developer clone) | `LuaSrcCache/luajit-2-1/` |
+| Settings / Luau id | `luau-{major}.{minor}` (official [`luau` branch](https://github.com/focus-creative-games/zlua/tree/luau)) | `luau-0.743` |
+| Luau cache dir | Same as id; Install shallow-clones the matching tag from [luau-lang/luau](https://github.com/luau-lang/luau) | `LuaSrcCache/luau-0.743/` |
 | Lua patch dir | `patches/lua/lua-{major}.{minor}/` | `patches/lua/lua-5.4/` |
 | Lua patch file | Only `{major}.{minor}.{patch}.patch` (**no** `default.patch`); shared ranges keep only the minimum version filename | `5.4.0.patch` / `5.4.4.patch` / `5.4.7.patch` |
 | Unity patch dir | `patches/libil2cpp/{major}.{minor}/`; Unity 6 may also fall back to `patches/libil2cpp/{major}/` | `2022.3/`, `6000/` |
@@ -121,11 +123,11 @@ Install output root: `Library/ZLua/LocalIl2CppData-{platform}/` (paths per `Comm
 ### 3.1 Order (required)
 
 1. Resolve Settings `luaVersionId` (empty → default `lua-5.5.0`; see §6.2)
-2. **Ensure Lua sources in `Library/ZLua/LuaSrcCache`**: reuse if cached; PUC-Rio missing → download from lua.org; LuaJIT missing → fail and prompt for manual clone
+2. **Ensure Lua sources in `Library/ZLua/LuaSrcCache`**: reuse if cached; PUC-Rio missing → download from lua.org; LuaJIT missing → fail and prompt for manual clone; Luau ([`luau` branch](https://github.com/focus-creative-games/zlua/tree/luau)) missing → shallow-clone the matching tag
 3. Copy official Editor `il2cpp` (including **stock** `libil2cpp`) into the Local directory
 4. Resolve and apply **libil2cpp patches** (§4)
 5. **Copy/overwrite** `ZLua~/zlua-runtime` onto `Local.../libil2cpp/zlua`
-6. Install the chosen Lua from cache into `Local.../libil2cpp/lua`: **PUC-Rio** copy (and patch per §5) into a buildable `src/`; **LuaJIT** installs public headers only (see [build/02-LUAJIT.md](/docs/spec/build/02-LUAJIT/)); ensure `ZLUA_FAST_METATABLE` matches §5.4 / §12.5
+6. Install the chosen Lua from cache into `Local.../libil2cpp/lua`: **PUC-Rio** copy (and patch per §5) into a buildable `src/`; **LuaJIT** installs public headers only (see [build/02-LUAJIT.md](/docs/spec/build/02-LUAJIT/)); **Luau** installs public headers and links Win64 static libraries (§5.2); ensure `ZLUA_FAST_METATABLE` matches §5.4 / §12.5
 7. Write project **Scripting Define Symbols** (§7)
 8. Write **`ZLuaConf.inc`** (§12; authoritative output under Local `libil2cpp/zlua/generated/`)
 9. If the package lacks the matching series Editor plugin DLL, **warn** (do not block Install); developers replace DLLs themselves (§8)
@@ -195,6 +197,7 @@ If `zlua-runtime` depends on internal APIs that vary with Unity / Lua, solve it 
 |--------|----------|
 | **PUC-Rio** | Reuse if `LuaSrcCache/{id}` already has a complete `src/`; else download `https://www.lua.org/ftp/{id}.tar.gz` and extract there |
 | **LuaJIT** | Does **not** auto-download; developers clone sources into `LuaSrcCache/` (directory name per implementation, e.g. `luajit-2.1`). Il2Cpp does **not** copy the whole tree into `libil2cpp/lua`; see [build/02-LUAJIT.md](/docs/spec/build/02-LUAJIT/) |
+| **Luau** ([`luau` branch](https://github.com/focus-creative-games/zlua/tree/luau)) | If the cache is missing, `git clone --depth 1 --branch {M.N}` from [luau-lang/luau](https://github.com/luau-lang/luau). Requires `git` on the machine |
 
 For **series that support VM patches** (§5.2), ZLua’s VM changes live in-package under **`patches/lua`**; Install applies them to a clean tree in the cache.
 
@@ -206,6 +209,7 @@ For **series that support VM patches** (§5.2), ZLua’s VM changes live in-pack
 | **PUC-Rio 5.2.x** | **Yes** (§5.3 floor; dir `patches/lua/lua-5.2/`) | Full buildable `src/` (entry files removed) | Actual `{X.Y.Z}.patch` filename chosen |
 | **PUC-Rio 5.3+** (including `lua-5.3.0` …) | **Yes** (§5.3 floor) | Full buildable `src/` (entry files removed) | Actual `{X.Y.Z}.patch` filename chosen |
 | **LuaJIT** | **No** | **Public headers only**; static libs from developer Plugins ([build docs](/docs/spec/build/02-LUAJIT/)) | `none` |
+| **Luau** ([`luau` branch](https://github.com/focus-creative-games/zlua/tree/luau)) | **No** | **Public headers only** (`lua.h` / `luaconf.h` / `lualib.h` / `luacode.h`). Install builds Win64 static libraries with CMake + Visual Studio 2022 and links them via `generated/LuauLink.inc`. `ZLUA_FAST_METATABLE` is 0. Scripting define: `ZLUA_USE_LUAU` | `none` |
 
 Notes:
 

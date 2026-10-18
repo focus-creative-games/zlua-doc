@@ -16,9 +16,19 @@ description: ZLua 支持的 Unity、Lua 版本、平台与功能矩阵。
 | Lua **5.4.x** | ✅ | ✅ | Settings 可选 |
 | Lua **5.5.x** | ✅ | ✅ | Settings 可选 |
 | LuaJIT | ✅ | ⚠️ | Editor（Mono）可用；**Il2Cpp Player 仅 Android / iOS**（须自备静态库，见 [LuaJIT 构建](/docs/spec/build/02-LUAJIT/)） |
-| [Luau](https://luau.org/) | 🔜 | 🔜 | 规划中 |
+| [Luau](https://luau.org/) | ⚠️ | ✅ | 官方仓库 [`luau` 分支](https://github.com/focus-creative-games/zlua/tree/luau)；Il2Cpp 当前为 **Windows x64**。见下方 |
 
-PUC-Rio 小版本用 Settings 的 `luaVersionId`（`lua-X.Y.Z`）指定；LuaJIT 用 `luajit-M.N`（源码须自行 clone）。Install 时装入本地树。详见 [安装](/docs/getting-started/installation/)、[多版本管理](/docs/spec/11-MULTI-VERSION/)。
+PUC-Rio 小版本用 Settings 的 `luaVersionId`（`lua-X.Y.Z`）指定；LuaJIT 用 `luajit-M.N`；Luau 用 `luau-M.N`（如 `luau-0.743`）。Install 时装入本地树。详见 [安装](/docs/getting-started/installation/)、[多版本管理](/docs/spec/11-MULTI-VERSION/)。
+
+### Luau
+
+实现在官方仓库 **[`luau` 分支](https://github.com/focus-creative-games/zlua/tree/luau)**（尚未合入 `main`）。UPM 依赖写成 `https://github.com/focus-creative-games/zlua.git#luau`，Settings **`luaVersionId`** 设为 `luau-M.N`（例如 `luau-0.743`，对应 [luau-lang/luau](https://github.com/luau-lang/luau) 的同名 tag）。
+
+Install 会浅克隆该 tag 到 `Library/ZLua/LuaSrcCache/luau-M.N/`，只把公共头（`lua.h`、`luaconf.h`、`lualib.h`、`luacode.h`）装入 `libil2cpp/lua`，并用 **CMake + Visual Studio 2022（x64）** 编译 Win64 静态库，经 `generated/LuauLink.inc` 链进 Il2Cpp。本机需要 `git`、CMake 和 Visual Studio 2022。不应用 `patches/lua`，且 **`ZLUA_FAST_METATABLE` 为 0**。
+
+Luau 的 `luaL_openlibs` 不带 `package` / `require` / `loadstring`。ZLua 在开库后补上 `package`、`require`、`load` 与 `loadstring`。
+
+Editor（Mono）会写入 scripting define `ZLUA_USE_LUAU`，但该分支的 `LuaDllName` 仍按 PUC 系列选 Editor DLL（默认 `lua55`），没有单独的 `luau` 插件 DLL。其它 Il2Cpp 目标平台不在这次 Win64 静态库构建范围内。
 
 ## Unity
 
@@ -50,6 +60,7 @@ Lua 可见语义两端一致；Indexer / 桥接实现不同。详见 [项目状�
 |------|-------------------|
 | **PUC-Rio（Lua 5.1–5.5）** | 设计覆盖 Il2Cpp 常见目标（Windows、macOS、iOS、Android、WebGL、微信小游戏、鸿蒙/车机等） |
 | **LuaJIT** | **仅 Android、iOS**；Win / macOS / Linux / WebGL 等 **不支持**。须自行编译静态 `.a` 放入 Plugins，见 [LuaJIT 构建](/docs/spec/build/02-LUAJIT/) |
+| **[Luau](https://luau.org/)** | 当前 [`luau` 分支](https://github.com/focus-creative-games/zlua/tree/luau) 为 **Windows x64** Il2Cpp（Install 编译并链接静态库） |
 
 其它平台问题请提交 Issue。
 

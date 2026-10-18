@@ -12,7 +12,7 @@
     "description": "Homepage demo CTA"
   },
   "homepage.heroMeta": {
-    "message": "Unity 2021+ · 团结引擎 · Lua 5.1–5.5 / LuaJIT（Il2Cpp：Android·iOS）",
+    "message": "Unity 2021+ · 团结引擎 · Lua 5.1–5.5 / LuaJIT / Luau（luau 分支）",
     "description": "Homepage hero meta line"
   },
   "homepage.codePreview.title": {

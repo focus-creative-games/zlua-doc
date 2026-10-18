@@ -41,7 +41,7 @@ description: UPM 引入 ZLua，用 Settings 选定 Lua 版本并完成本地 Ins
 | 字段 | 说明 |
 |------|------|
 | **Enable** | 是否启用 ZLua |
-| **Lua Version Id** | Lua / LuaJIT 版本 id；空则默认 **`lua-5.5.0`** |
+| **Lua Version Id** | Lua / LuaJIT / Luau 版本 id；空则默认 **`lua-5.5.0`** |
 | **MarshalAs Xml Paths** | 可选；**非热更新**预编译程序集的 MarshalAs XML（热更程序集只用 Attribute），见 [LuaMarshalAs](/docs/guides/lua-marshal-as/) |
 | **Lua Alias Xml Paths** | 可选；**非热更新**程序集的方法换名 XML（`ZLuaAlias`；热更只用 `[LuaAlias]`），见 [LuaAlias](/docs/guides/lua-alias/) |
 | **Lua Extension Xml Paths** | 可选；**非热更新**类型的 Extension 映射 XML（`ZLuaExtensions`；热更只用 `[LuaExtension]`），见 [Extension 方法](/docs/guides/extension-methods/) |
@@ -53,6 +53,7 @@ description: UPM 引入 ZLua，用 Settings 选定 Lua 版本并完成本地 Ins
 |------|------|------|
 | PUC-Rio | `lua-X.Y.Z` | `lua-5.1.5`、`lua-5.2.4`、`lua-5.3.6`、`lua-5.4.8`、`lua-5.5.0` |
 | LuaJIT | `luajit-M.N` | `luajit-2.1`（源码须自行 clone；**Il2Cpp 仅 Android / iOS**） |
+| [Luau](https://luau.org/) | `luau-M.N` | `luau-0.743`（官方仓库 [`luau` 分支](https://github.com/focus-creative-games/zlua/tree/luau)；Il2Cpp 当前 Windows x64，见 [兼容性](/docs/getting-started/compatibility/)） |
 
 改版本后须重新 **Install**；若 Editor DLL / scripting define 随系列变化，按 Console 提示 **重启 Editor**。平台与版本矩阵见 [兼容性](/docs/getting-started/compatibility/)；多版本细则见 [多版本管理](/docs/spec/11-MULTI-VERSION/)。第三方 C 模块（socket / cjson 等）须按 **同一系列** 重编，见 [第三方原生插件](/docs/guides/native-modules/)。
 

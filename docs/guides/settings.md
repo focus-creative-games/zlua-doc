@@ -13,7 +13,7 @@ description: Project Settings → ZLua 的字段、存在哪、改完要不要�
 | 界面 | 做什么 |
 |------|--------|
 | **Enable** | 关掉后当前构建目标不启用 ZLua |
-| **Lua Version Id** | `lua-5.5.0` 或 `luajit-2.1` 这类 id。改完要重新 **Install**，见 [安装与 Lua 版本](/docs/guides/install/) |
+| **Lua Version Id** | `lua-5.5.0`、`luajit-2.1` 或 `luau-0.743` 这类 id。Luau 在官方仓库 [`luau` 分支](https://github.com/focus-creative-games/zlua/tree/luau)。改完要重新 **Install**，见 [安装与 Lua 版本](/docs/guides/install/) |
 | **MarshalAs Xml Paths** | 不能改源码的程序集上的 Marshal 规则。见 [LuaMarshalAs](/docs/guides/lua-marshal-as/) |
 | **Lua Alias Xml Paths** | 同上，方法换名。见 [LuaAlias](/docs/guides/lua-alias/) |
 | **Lua Extension Xml Paths** | 同上，扩展方法挂到目标类型。见 [Extension 方法](/docs/guides/extension-methods/) |

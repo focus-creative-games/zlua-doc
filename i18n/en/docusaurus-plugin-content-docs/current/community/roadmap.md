@@ -44,7 +44,7 @@ Authoritative notes: [Project status](/docs/getting-started/project-status/), [M
 
 ## Later version directions
 
-- Luau
+- [Luau](https://luau.org/): available on the official [`luau` branch](https://github.com/focus-creative-games/zlua/tree/luau) (Il2Cpp Windows x64). Use that branch until it merges to `main`
 - More platform toolchains and device measurements
 - Migration Guides and case studies ([migration](/docs/guides/migration/))
 

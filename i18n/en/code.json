@@ -9,7 +9,7 @@
     "message": "View Demo"
   },
   "homepage.heroMeta": {
-    "message": "Unity 2021+ · Tuanjie · Lua 5.1–5.5 / LuaJIT (Il2Cpp: Android · iOS)"
+    "message": "Unity 2021+ · Tuanjie · Lua 5.1–5.5 / LuaJIT / Luau (luau branch)"
   },
   "homepage.codePreview.title": {
     "message": "Bidirectional calls at a glance"

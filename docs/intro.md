@@ -22,7 +22,7 @@ description: ZLua 是什么、核心特性与适用场景。
 | **更高效** | Il2Cpp 四方实测：Lua→C# 上 xLua / toLua / SLua 约 **2.57× / 3.52× / 7.68×**（相对 ZLua）；详见 [性能对比](/docs/compare/PERFORMANCE/) |
 | **更少 GC** | 引用类型与 struct 默认 **0 GC**；OpaqueValue 等灵活策略 |
 | **极小桥接** | 同签名合并的 C++ stub；体积可小一个数量级；可至 **0 桥接函数** |
-| **版本更广** | Lua 5.1–5.5 / LuaJIT（Il2Cpp 上 JIT 仅 Android / iOS）；Unity **2021.3 / 2022.3 / Unity 6（6000.0 / 6000.3 / 6000.5）**；团结引擎 |
+| **版本更广** | Lua 5.1–5.5 / LuaJIT（Il2Cpp 上 JIT 仅 Android / iOS）/ [Luau](https://luau.org/)（官方仓库 [`luau` 分支](https://github.com/focus-creative-games/zlua/tree/luau)，Il2Cpp 当前 Windows x64）；Unity **2021.3 / 2022.3 / Unity 6（6000.0 / 6000.3 / 6000.5）**；团结引擎 |
 | **无缝兼容HybridCLR**| 与 HybridCLR v9.0.0+版本原生兼容，支持与热更新代码无缝交互 |
 | **维护更积极** | 全职专业团队 |
 

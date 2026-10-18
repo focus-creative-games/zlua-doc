@@ -80,7 +80,7 @@ git clone https://github.com/focus-creative-games/zlua-demo.git
 | 字段 | 说明 |
 |------|------|
 | **Enable** | 是否启用 ZLua |
-| **Lua Version Id** | 要使用的 Lua / LuaJIT 版本 id；**默认 `lua-5.5.0`**（空则按此默认） |
+| **Lua Version Id** | 要使用的 Lua / LuaJIT / Luau 版本 id；**默认 `lua-5.5.0`**（空则按此默认） |
 | **MarshalAs Xml Paths** | 可选；MarshalAs XML 路径，见 [LuaMarshalAs](/docs/spec/marshal/02-MARSHAL-AS/) |
 | **Unity Optimizations** | 默认开。字段说明见 [Settings](/docs/guides/settings/)；当前效果见 [Unity 优化](/docs/getting-started/unity-optimizations/) |
 
@@ -90,6 +90,7 @@ git clone https://github.com/focus-creative-games/zlua-demo.git
 |------|------|------|
 | PUC-Rio | `lua-X.Y.Z` | `lua-5.1.5`、`lua-5.2.4`、`lua-5.3.6`、`lua-5.4.8`、`lua-5.5.0` |
 | LuaJIT | `luajit-M.N` | `luajit-2.1`（源码须自行 clone 到缓存目录；**Il2Cpp 仅 Android / iOS**，见 [LuaJIT 构建](/docs/spec/build/02-LUAJIT/)） |
+| [Luau](https://luau.org/) | `luau-M.N` | `luau-0.743`（仅官方仓库 [`luau` 分支](https://github.com/focus-creative-games/zlua/tree/luau)；Install 按 tag 浅克隆 [luau-lang/luau](https://github.com/luau-lang/luau)，并编译 **Windows x64** 静态库。见 [兼容性](/docs/getting-started/compatibility/)） |
 
 改版本后须重新执行 **Install**；若 Editor 原生 DLL / scripting define 随系列变化，按 Console 提示 **重启 Editor**。
 

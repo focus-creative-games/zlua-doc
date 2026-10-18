@@ -11,7 +11,7 @@ title: "Glossary"
 
 | Term | Meaning | Where implemented |
 |------|------|----------|
-| **ZLua** | C# ↔ Lua (PUC-Rio **5.1–5.5**, etc.) interop framework for Unity; Editor uses Mono, Player uses Il2Cpp | `Packages/com.code-philosophy.zlua` |
+| **ZLua** | C# ↔ Lua (PUC-Rio **5.1–5.5**, LuaJIT, [Luau](https://luau.org/), etc.) interop framework for Unity; Editor uses Mono, Player uses Il2Cpp | `Packages/com.code-philosophy.zlua` |
 | **Lua-visible semantics** | Observable script-side behavior contract; Mono and Il2Cpp **must match** | `spec/**` |
 | **Dual runtime** | `ZLua.Mono` (Editor) + `ZLua.Il2Cpp` (Player); facade `LuaAppDomain` | [spec/00-OVERVIEW.md](/docs/spec/00-OVERVIEW/) |
 | **libil2cpp/zlua** | Root of Player-side native implementation | `build-win64/.../libil2cpp/zlua` |

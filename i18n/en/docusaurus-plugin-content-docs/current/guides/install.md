@@ -41,7 +41,7 @@ Open Project Settings → **ZLua** (writes `ProjectSettings/ZLua.asset`).
 | Field | Notes |
 |------|------|
 | **Enable** | Whether ZLua is enabled |
-| **Lua Version Id** | Lua / LuaJIT version id; empty defaults to **`lua-5.5.0`** |
+| **Lua Version Id** | Lua / LuaJIT / Luau version id; empty defaults to **`lua-5.5.0`** |
 | **MarshalAs Xml Paths** | Optional; MarshalAs XML for **non–hot-update** precompiled assemblies (hot-update assemblies use Attributes only) — see [LuaMarshalAs](/docs/guides/lua-marshal-as/) |
 | **Lua Alias Xml Paths** | Optional; method rename XML for **non–hot-update** assemblies (`ZLuaAlias`; hot-update uses `[LuaAlias]` only) — see [LuaAlias](/docs/guides/lua-alias/) |
 | **Lua Extension Xml Paths** | Optional; Extension mapping XML for **non–hot-update** types (`ZLuaExtensions`; hot-update uses `[LuaExtension]` only) — see [Extension methods](/docs/guides/extension-methods/) |
@@ -53,6 +53,7 @@ Open Project Settings → **ZLua** (writes `ProjectSettings/ZLua.asset`).
 |------|------|------|
 | PUC-Rio | `lua-X.Y.Z` | `lua-5.1.5`, `lua-5.2.4`, `lua-5.3.6`, `lua-5.4.8`, `lua-5.5.0` |
 | LuaJIT | `luajit-M.N` | `luajit-2.1` (clone sources yourself; **Il2Cpp is Android / iOS only**) |
+| [Luau](https://luau.org/) | `luau-M.N` | `luau-0.743` (official [`luau` branch](https://github.com/focus-creative-games/zlua/tree/luau); Il2Cpp is Windows x64 for now — see [Compatibility](/docs/getting-started/compatibility/)) |
 
 After changing versions you must **Install** again; if Editor DLLs / scripting defines change with the series, **restart the Editor** per Console prompts. Platform/version matrix: [Compatibility](/docs/getting-started/compatibility/); multi-version details: [Multi-version management](/docs/spec/11-MULTI-VERSION/). Third-party C modules (socket / cjson, etc.) must be rebuilt for the **same series** — see [Third-party native modules](/docs/guides/native-modules/).
 

@@ -24,7 +24,7 @@ Il2Cpp Player can be used for full semantic validation and shipping if you accep
 
 ### Which Unity / Lua versions are supported?
 
-See [Compatibility](/docs/getting-started/compatibility/). PUC-Rio **5.1–5.5** supported; **LuaJIT** supported, but **Il2Cpp Player is Android / iOS only** (details: [LuaJIT build](/docs/spec/build/02-LUAJIT/)).
+See [Compatibility](/docs/getting-started/compatibility/). PUC-Rio **5.1–5.5** supported; **LuaJIT** supported, but **Il2Cpp Player is Android / iOS only** (details: [LuaJIT build](/docs/spec/build/02-LUAJIT/)). **[Luau](https://luau.org/)** is on the official [`luau` branch](https://github.com/focus-creative-games/zlua/tree/luau): Settings `luau-M.N`, Il2Cpp Windows x64 for now.
 
 ---
 

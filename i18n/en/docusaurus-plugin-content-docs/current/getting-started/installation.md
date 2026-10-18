@@ -80,7 +80,7 @@ Menu **`ZLua/Settings...`** opens Project Settings → **ZLua** (asset at `Proje
 | Field | Notes |
 |------|------|
 | **Enable** | Whether ZLua is enabled |
-| **Lua Version Id** | Lua / LuaJIT version id; **default `lua-5.5.0`** (empty → this default) |
+| **Lua Version Id** | Lua / LuaJIT / Luau version id; **default `lua-5.5.0`** (empty → this default) |
 | **MarshalAs Xml Paths** | Optional; MarshalAs XML paths — see [LuaMarshalAs](/docs/spec/marshal/02-MARSHAL-AS/) |
 | **Unity Optimizations** | On by default. Field notes: [Settings](/docs/guides/settings/); current effect: [Unity optimizations](/docs/getting-started/unity-optimizations/) |
 
@@ -90,6 +90,7 @@ Menu **`ZLua/Settings...`** opens Project Settings → **ZLua** (asset at `Proje
 |------|------|------|
 | PUC-Rio | `lua-X.Y.Z` | `lua-5.1.5`, `lua-5.2.4`, `lua-5.3.6`, `lua-5.4.8`, `lua-5.5.0` |
 | LuaJIT | `luajit-M.N` | `luajit-2.1` (clone sources into the cache yourself; **Il2Cpp only Android / iOS** — see [LuaJIT build](/docs/spec/build/02-LUAJIT/)) |
+| [Luau](https://luau.org/) | `luau-M.N` | `luau-0.743` (official [`luau` branch](https://github.com/focus-creative-games/zlua/tree/luau) only; Install shallow-clones that tag from [luau-lang/luau](https://github.com/luau-lang/luau) and builds **Windows x64** static libraries. See [Compatibility](/docs/getting-started/compatibility/)) |
 
 After changing version, run **Install** again; if Editor native DLLs / scripting defines change with the series, **restart the Editor** as Console prompts.
 

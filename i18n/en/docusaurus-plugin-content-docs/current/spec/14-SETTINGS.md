@@ -26,7 +26,7 @@ title: "Settings"
 | Field | Type | Default | Meaning |
 |------|------|------|------|
 | `enable` | `bool` | `true` | Whether ZLua is enabled. Whether the current build target is enabled: `Settings.EnableForCurrentBuildTarget` |
-| `luaVersionId` | `string` | `lua-5.5.0` | PUC-Rio: `lua-X.Y.Z`; LuaJIT: `luajit-M.N`. Empty string means **`lua-5.5.0`**. Details: [11-MULTI-VERSION.md](/docs/spec/11-MULTI-VERSION/) |
+| `luaVersionId` | `string` | `lua-5.5.0` | PUC-Rio: `lua-X.Y.Z`; LuaJIT: `luajit-M.N`; Luau ([`luau` branch](https://github.com/focus-creative-games/zlua/tree/luau)): `luau-M.N` (e.g. `luau-0.743`). Empty string means **`lua-5.5.0`**. Details: [11-MULTI-VERSION.md](/docs/spec/11-MULTI-VERSION/) |
 | `marshalAsXmlPaths` | `string[]` | empty | MarshalAs XML files or directories (relative to the project root or absolute). Root element `ZLuaMarshalAs`. See [marshal/02-MARSHAL-AS.md](/docs/spec/marshal/02-MARSHAL-AS/) |
 | `luaAliasXmlPaths` | `string[]` | empty | LuaAlias XML files or directories. Root element `ZLuaAlias`. See [04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) §5.4 |
 | `luaExtensionXmlPaths` | `string[]` | empty | LuaExtension XML files or directories. Root element `ZLuaExtensions`. See [13-EXTENSION-METHODS.md](/docs/spec/13-EXTENSION-METHODS/) |

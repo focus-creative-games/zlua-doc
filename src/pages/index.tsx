@@ -43,7 +43,7 @@ function HomepageHeader() {
         </div>
         <p className={styles.heroMeta}>
           <Translate id="homepage.heroMeta">
-            Unity 2021+ · Tuanjie · Lua 5.1–5.5 / LuaJIT (Il2Cpp: Android · iOS)
+            Unity 2021+ · Tuanjie · Lua 5.1–5.5 / LuaJIT / Luau (luau branch)
           </Translate>
         </p>
       </div>

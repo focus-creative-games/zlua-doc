@@ -16,9 +16,19 @@ description: Unity, Lua versions, platforms, and feature matrix supported by ZLu
 | Lua **5.4.x** | ✅ | ✅ | Optional in Settings |
 | Lua **5.5.x** | ✅ | ✅ | Optional in Settings |
 | LuaJIT | ✅ | ⚠️ | Available in Editor (Mono); **Il2Cpp Player only Android / iOS** (bring your own static libs — see [LuaJIT build](/docs/spec/build/02-LUAJIT/)) |
-| [Luau](https://luau.org/) | 🔜 | 🔜 | Planned |
+| [Luau](https://luau.org/) | ⚠️ | ✅ | Official repo [`luau` branch](https://github.com/focus-creative-games/zlua/tree/luau); Il2Cpp is **Windows x64** for now. See below |
 
-PUC-Rio patch versions use Settings `luaVersionId` (`lua-X.Y.Z`); LuaJIT uses `luajit-M.N` (you must clone sources). Install loads them into the local tree. See [Installation](/docs/getting-started/installation/), [Multi-version](/docs/spec/11-MULTI-VERSION/).
+PUC-Rio patch versions use Settings `luaVersionId` (`lua-X.Y.Z`); LuaJIT uses `luajit-M.N`; Luau uses `luau-M.N` (for example `luau-0.743`). Install loads them into the local tree. See [Installation](/docs/getting-started/installation/), [Multi-version](/docs/spec/11-MULTI-VERSION/).
+
+### Luau
+
+The implementation lives on the official **[`luau` branch](https://github.com/focus-creative-games/zlua/tree/luau)** (not merged to `main`). Point the UPM dependency at `https://github.com/focus-creative-games/zlua.git#luau`, and set Settings **`luaVersionId`** to `luau-M.N` (for example `luau-0.743`, the matching tag on [luau-lang/luau](https://github.com/luau-lang/luau)).
+
+Install shallow-clones that tag into `Library/ZLua/LuaSrcCache/luau-M.N/`, copies only the public headers (`lua.h`, `luaconf.h`, `lualib.h`, `luacode.h`) into `libil2cpp/lua`, and builds Win64 static libraries with **CMake + Visual Studio 2022 (x64)**, linked through `generated/LuauLink.inc`. The machine needs `git`, CMake, and Visual Studio 2022. `patches/lua` is not applied, and **`ZLUA_FAST_METATABLE` is 0**.
+
+Luau's `luaL_openlibs` does not provide `package` / `require` / `loadstring`. ZLua adds `package`, `require`, `load`, and `loadstring` after opening the standard libraries.
+
+Editor (Mono) gets the scripting define `ZLUA_USE_LUAU`, but `LuaDllName` on this branch still picks the Editor DLL from the PUC series (default `lua55`). There is no separate `luau` plugin DLL. Other Il2Cpp targets are outside this Win64 static-library build.
 
 ## Unity
 
@@ -50,6 +60,7 @@ Lua-visible semantics match on both ends; Indexer / bridge implementations diffe
 |------|-------------------|
 | **PUC-Rio (Lua 5.1–5.5)** | Designed for common Il2Cpp targets (Windows, macOS, iOS, Android, WebGL, WeChat mini games, HarmonyOS / vehicle, etc.) |
 | **LuaJIT** | **Android and iOS only**; Win / macOS / Linux / WebGL etc. **unsupported**. Build static `.a` into Plugins yourself — see [LuaJIT build](/docs/spec/build/02-LUAJIT/) |
+| **[Luau](https://luau.org/)** | On the [`luau` branch](https://github.com/focus-creative-games/zlua/tree/luau): **Windows x64** Il2Cpp (Install builds and links the static libraries) |
 
 For other platform issues, please file an Issue.
 

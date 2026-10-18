@@ -93,6 +93,8 @@ Library/ZLua/LuaSrcCache/
 | PUC-Rio 缓存目录 | 与 id 相同 | `LuaSrcCache/lua-5.5.0/` |
 | Settings / LuaJIT id | `luajit-{major}.{minor}` | `luajit-2.1` |
 | LuaJIT 缓存目录 | `luajit-{major}-{minor}`（开发者 clone） | `LuaSrcCache/luajit-2-1/` |
+| Settings / Luau id | `luau-{major}.{minor}`（官方仓库 [`luau` 分支](https://github.com/focus-creative-games/zlua/tree/luau)） | `luau-0.743` |
+| Luau 缓存目录 | 与 id 相同；Install 浅克隆 [luau-lang/luau](https://github.com/luau-lang/luau) 的同名 tag | `LuaSrcCache/luau-0.743/` |
 | Lua patch 目录 | `patches/lua/lua-{major}.{minor}/` | `patches/lua/lua-5.4/` |
 | Lua patch 文件 | 仅 `{major}.{minor}.{patch}.patch`（**无** `default.patch`）；共用区间只保留区间最小版本文件名 | `5.4.0.patch` / `5.4.4.patch` / `5.4.7.patch` |
 | Unity patch 目录 | `patches/libil2cpp/{major}.{minor}/`，Unity 6 另可回退到 `patches/libil2cpp/{major}/` | `2022.3/`、`6000/` |
@@ -132,11 +134,11 @@ Library/ZLua/LuaSrcCache/
 ### 3.1 顺序（必须，纯 ZLua / 非 HybridCLR 路径参考）
 
 1. 解析 Settings `luaVersionId`（空则默认 `lua-5.5.0`，见 §6.2）
-2. **确保 Lua 源码在 `Library/ZLua/LuaSrcCache`**：已缓存则复用；PUC-Rio 缺失则从 lua.org 下载；LuaJIT 缺失则失败并提示手动 clone
+2. **确保 Lua 源码在 `Library/ZLua/LuaSrcCache`**：已缓存则复用；PUC-Rio 缺失则从 lua.org 下载；LuaJIT 缺失则失败并提示手动 clone；Luau（[`luau` 分支](https://github.com/focus-creative-games/zlua/tree/luau)）缺失则浅克隆对应 tag
 3. 从当前 Editor 复制官方 `il2cpp`（含 **stock** `libil2cpp`）到 Local 目录
 4. 解析并应用 **libil2cpp patches**（§4）
 5. 将 `ZLua~/zlua-runtime` **复制/覆盖** 到 `Local.../libil2cpp/zlua`
-6. 将缓存中的选定 Lua 安装到 `Local.../libil2cpp/lua`：**PUC-Rio** 拷贝（并按 §5 patch）可编译 `src/`；**LuaJIT** 仅安装公共头文件（见 [build/02-LUAJIT.md](/docs/spec/build/02-LUAJIT/)）；并保证 `ZLUA_FAST_METATABLE` 符合 §5.4 / §12.5
+6. 将缓存中的选定 Lua 安装到 `Local.../libil2cpp/lua`：**PUC-Rio** 拷贝（并按 §5 patch）可编译 `src/`；**LuaJIT** 仅安装公共头文件（见 [build/02-LUAJIT.md](/docs/spec/build/02-LUAJIT/)）；**Luau** 仅安装公共头并链接 Win64 静态库（§5.2）；并保证 `ZLUA_FAST_METATABLE` 符合 §5.4 / §12.5
 7. 写入工程 **Scripting Define Symbols**（§7）
 8. 写入 **`ZLuaConf.inc`**（§12；权威输出在 Local `libil2cpp/zlua/generated/`）
 9. 若包内缺少对应系列 Editor 插件 DLL，**警告**（不阻断 Install）；DLL 由开发者自行替换（§8）
@@ -206,6 +208,7 @@ Library/ZLua/LuaSrcCache/
 |------|------|
 | **PUC-Rio** | 若 `LuaSrcCache/{id}` 已含完整 `src/` 则复用；否则下载 `https://www.lua.org/ftp/{id}.tar.gz` 并解压到该目录 |
 | **LuaJIT** | **不**自动下载；开发者将源码 clone 到 `LuaSrcCache/`（目录名以实现为准，如 `luajit-2.1`）。Il2Cpp **不**整树拷贝进 `libil2cpp/lua`，见 [build/02-LUAJIT.md](/docs/spec/build/02-LUAJIT/) |
+| **Luau**（[`luau` 分支](https://github.com/focus-creative-games/zlua/tree/luau)） | 缓存缺失时 `git clone --depth 1 --branch {M.N}` [luau-lang/luau](https://github.com/luau-lang/luau)。需要本机 `git` |
 
 对 **支持 VM patch 的系列**（见 §5.2），ZLua 对 VM 的修改以包内 **`patches/lua`** 表达；Install 时对缓存中的干净树 apply。
 
@@ -217,6 +220,7 @@ Library/ZLua/LuaSrcCache/
 | **PUC-Rio 5.2.x** | **是**（§5.3 floor；目录 `patches/lua/lua-5.2/`） | 完整可编译 `src/`（去入口文件） | 实际选用的 `{X.Y.Z}.patch` 文件名 |
 | **PUC-Rio 5.3+**（含 `lua-5.3.0` …） | **是**（§5.3 floor） | 完整可编译 `src/`（去入口文件） | 实际选用的 `{X.Y.Z}.patch` 文件名 |
 | **LuaJIT** | **否** | **仅公共头文件**；静态库由开发者放 Plugins（[build 文档](/docs/spec/build/02-LUAJIT/)） | `none` |
+| **Luau**（[`luau` 分支](https://github.com/focus-creative-games/zlua/tree/luau)） | **否** | **仅公共头**（`lua.h` / `luaconf.h` / `lualib.h` / `luacode.h`）。Win64 静态库由 Install 用 CMake + Visual Studio 2022 编译，经 `generated/LuauLink.inc` 链接。`ZLUA_FAST_METATABLE` 为 0。Scripting define：`ZLUA_USE_LUAU` | `none` |
 
 说明：
 
