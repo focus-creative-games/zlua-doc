@@ -22,6 +22,7 @@ description: ZLua C# 特性与 Lua API 索引。
 | 类型 | 说明 | 文档 |
 |------|------|------|
 | `LuaAppDomain` | **公开**初始化入口 | [LuaAppDomain](/docs/reference/csharp/lua-app-domain/) |
+| `InteropMetadata` | 首次绑定前注册运行时 XML | [InteropMetadata](/docs/reference/csharp/interop-metadata/) |
 | `LuaEnv` | 底层 `lua_State`（后端内部，一般不直接使用） | — |
 
 ## Lua API
@@ -43,7 +44,7 @@ description: ZLua C# 特性与 Lua API 索引。
 
 | 主题 | 文档 |
 |------|------|
-| 安装 / 互调 / 构建 / 调试 | [install](/docs/guides/install/) · [hello-interop](/docs/guides/hello-interop/) · [build](/docs/guides/build/) · [debugger](/docs/guides/debugger/) |
+| 安装 / 互调 / 构建 / 调试 | [install](/docs/getting-started/installation/) · [hello-interop](/docs/getting-started/quick-start/) · [build](/docs/getting-started/build/) · [debugger](/docs/guides/debugger/) |
 | Lua → C# | [lua-calling-csharp](/docs/guides/lua-calling-csharp/) |
 | C# → Lua | [csharp-calling-lua](/docs/guides/csharp-calling-lua/) |
 | 值类型 | [value-types](/docs/guides/value-types/) |

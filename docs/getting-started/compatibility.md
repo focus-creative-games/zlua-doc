@@ -1,10 +1,13 @@
 ---
-sidebar_position: 5
 title: 支持的版本与平台
 description: ZLua 支持的 Unity、Lua 版本、平台与功能矩阵。
 ---
 
 # 支持的版本与平台
+
+## 如何理解支持范围
+
+支持策略不代表所有引擎 / Unity / 操作系统组合都已实测。Luau 有分支限制，PUC-Rio 平台列表描述设计覆盖；公开性能报告仅对应 **Win64 Il2Cpp / Unity 2022.3.62f3**。发布前仍须在目标平台运行正确性测试与构建冒烟。补充平台验证记录时，应附包版本、Unity / Lua 版本、设备与测试报告。
 
 ## Lua 引擎
 
@@ -32,13 +35,13 @@ Luau 的 `luaL_openlibs` 不带 `package` / `require` / `loadstring`。ZLua 在�
 
 ## Unity
 
+最低支持 Unity 2022.3 LTS；后续仅支持 LTS 系列，以及基于 Unity 2022.3.x 的团结引擎。Unity 2021 及更早版本、非 LTS 的 Update/Tech Stream 不在支持范围。
+
 | 版本 | 状态 |
 |------|------|
-| Unity **6000.0.x** | ✅ 支持 |
-| Unity **6000.3.x** | ✅ 支持 |
-| Unity **6000.5.x** | ✅ 支持 |
+| Unity 6.0 LTS **6000.0.x** | ✅ 支持 |
+| Unity 6.3 LTS **6000.3.x** | ✅ 支持 |
 | Unity 2022.3 LTS | ✅ 支持 |
-| Unity 2021.3 LTS | ✅ 支持 |
 | 团结引擎 LTS | ✅ 支持 |
 
 libil2cpp patch 解析：优先 `patches/libil2cpp/6000.{minor}/`，再回退 `6000/`（见 [多版本管理](/docs/spec/11-MULTI-VERSION/)）。

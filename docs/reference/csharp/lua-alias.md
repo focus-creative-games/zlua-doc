@@ -58,7 +58,7 @@ public void Run(string value) { }  // 默认名仍进 "Run" 组
 
 ## XML 配置（不可改源码时）
 
-> **仅**用于 **非热更新**（预编译 / AOT）程序集。热更新程序集（含 HybridCLR）须用代码中的 `[LuaAlias]`，**不支持** XML。
+> Settings XML 用于构建期已知的预编译 / AOT 程序集。热更程序集可用 Attribute，或在 Il2Cpp Player 加载程序集后、首次类型绑定前调用对应的 [InteropMetadata.Register*Xml](/docs/reference/csharp/interop-metadata/)；Editor Mono 的注册方法为空实现。
 
 与 `[LuaMarshalAs]` **分开配置**：Settings 使用独立字段 **`luaAliasXmlPaths`**，根元素 **`ZLuaAlias`**。
 

@@ -24,12 +24,12 @@
     "description": "The generated-index page title for Guides"
   },
   "sidebar.docsSidebar.category.sidebar-guides.link.generated-index.description": {
-    "message": "Progressive path: install → interop → build → daily usage → advanced Marshal → migration.",
+    "message": "Task guides for interop, Marshal, configuration, debugging, and migration.",
     "description": "The generated-index page description for Guides"
   },
   "sidebar.docsSidebar.category.guides-migration": {
     "message": "Migration",
-    "description": "The label for guides migration category"
+    "description": "Task group in the guides sidebar"
   },
   "sidebar.docsSidebar.category.guides-migration.link.generated-index.description": {
     "message": "Migrate from xLua / toLua / SLua to ZLua.",
@@ -170,5 +170,21 @@
   "sidebar.architectureSidebar.category.Codegen.link.generated-index.description": {
     "message": "Emit / Stubs (Lua→C#).",
     "description": "generated-index description for Codegen"
+  },
+  "sidebar.docsSidebar.category.guides-interop": {
+    "message": "C# and Lua interop",
+    "description": "Task group in the guides sidebar"
+  },
+  "sidebar.docsSidebar.category.guides-marshal": {
+    "message": "Marshal and performance",
+    "description": "Task group in the guides sidebar"
+  },
+  "sidebar.docsSidebar.category.guides-config": {
+    "message": "Configuration and extensions",
+    "description": "Task group in the guides sidebar"
+  },
+  "sidebar.docsSidebar.category.guides-debug": {
+    "message": "Debugging and troubleshooting",
+    "description": "Task group in the guides sidebar"
   }
 }

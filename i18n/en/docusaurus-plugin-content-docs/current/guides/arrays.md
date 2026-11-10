@@ -1,5 +1,4 @@
 ---
-sidebar_position: 8
 title: Arrays
 description: Create, index, to_table, and to_bytes for one-dimensional and multidimensional arrays.
 ---
@@ -60,13 +59,6 @@ local matrix = zlua.new_mdarray_by_mdarray_type(
 | Array out of range | Use `0 .. Length-1` |
 | `#` does not work on mdarray | Use `GetLength(dimension)` |
 | `to_bytes` fails | Elements are not blittable |
-
-## Learning path
-
-| | |
-|---|---|
-| **Previous** | [Function & Delegate](/docs/guides/functions/) |
-| **Next** | [Generics](/docs/guides/generics/) |
 
 ## Related
 

@@ -1,31 +1,32 @@
 ---
-sidebar_position: 1.4
 title: AI Skills
-description: Point a coding agent at the package Agent Skills, and see which guide each skill follows.
+description: Skill notes shipped for AI coding agents, and how to point the agent you use at them.
 ---
 
 # AI Skills
 
-[ZLua~/skills](https://github.com/focus-creative-games/zlua/tree/main/ZLua~/skills) in the package is a set of notes for AI coding agents. It is **not** a runtime API. Unity skips the folder because the name ends with `~`. Do not move the files into an `Assets/` or `Packages/` folder that has no `~`.
+ZLua ships a set of **Agent Skills** inside the package. They are Markdown for an AI coding agent. They are **not** a Lua or C# runtime API, and they do not change Play or Player behavior.
 
-After install:
+Sources: [ZLua~/skills](https://github.com/focus-creative-games/zlua/tree/main/ZLua~/skills). After the package is in the project:
 
 ```text
 Packages/com.code-philosophy.zlua/ZLua~/skills/<skill-name>/SKILL.md
 ```
 
-Each skill is one directory. The `description` at the top of `SKILL.md` decides when the agent reads the body. The agent then writes code in that style. For people, this guide set and the [spec](/docs/spec/00-OVERVIEW/) stay the contract.
+The `~` in the folder name keeps Unity from importing this Markdown as assets. Do not move the files into a normal `Assets/` or `Packages/.../` folder that has no `~`, or Unity will import them.
+
+Each skill is a directory with one `SKILL.md`. The opening `description` tells the agent **when to read it**. The agent picks a skill from the task: a failed Install lands on `zlua-setup`; `ref` / `out` lands on `zlua-in-ref-out`.
 
 ## How to use them
 
-Agents do not scan `ZLua~/skills` inside the package. Use that agent's docs to find its skills root, or a search path it lets you add. Each skill is a directory plus `SKILL.md`.
+Agents do **not** scan `ZLua~/skills` on their own. Read that agent's docs for the directory it loads skills from (some keep it in the project, some under the user home, some accept an extra search path). Each skill is a directory plus `SKILL.md`.
 
 Either of these is enough:
 
-1. **Add a search path.** Point the agent at `Packages/com.code-philosophy.zlua/ZLua~/skills`. That folder already has one subdirectory per skill.
-2. **Copy or link.** Place `<skills-root>/<skill-name>/SKILL.md` where the agent reads skills.
+1. **Add a search path.** If the agent lets you configure a skills root, add `Packages/com.code-philosophy.zlua/ZLua~/skills`. That folder already has one subdirectory per skill.
+2. **Copy or link.** Put each skill directory under the agent's skills root so `<skills-root>/<skill-name>/SKILL.md` is visible.
 
-When the package path is stable (`Packages/com.code-philosophy.zlua`, or a `file:` local package), set `SKILLS` to the agent's skills root and link from the project root. Upgrades keep pointing at the package files:
+When the package path is stable (`Packages/com.code-philosophy.zlua`, or a `file:` local package), a directory link stays valid across upgrades. From the **project root**, set `SKILLS` to the agent's skills root, then run:
 
 ```bat
 set "SKILLS=path to the agent's skills root"
@@ -42,38 +43,34 @@ for d in Packages/com.code-philosophy.zlua/ZLua~/skills/*/; do
 done
 ```
 
-A Git URL install stores the package in `Library/PackageCache/com.code-philosophy.zlua@<version>/`. That cache folder name changes, so **copy** the skill directories into the agent's skills root and copy them again after a ZLua upgrade. Do not link into PackageCache.
+A Git URL install puts the package under `Library/PackageCache/com.code-philosophy.zlua@<version>/`. That folder name changes on upgrade. **Copy** the skill directories into the agent's skills root and copy them again after upgrading ZLua. Do not link into PackageCache.
 
-Open a new chat afterwards. Ask in plain language, or name a skill, for example "change this call using zlua-params".
+Start a new agent chat after the folders are in place. Ask a normal ZLua question about install, interop, or Marshal, or name a skill, for example "check Install using zlua-setup".
 
-## Skills and guides
+The map from skills to the written guides is on [Guides · AI Skills](/docs/guides/skills/).
 
-| Skill | The agent uses it for | Guide |
-|-------|------------------------|-------|
-| `zlua-setup` | UPM, `luaVersionId`, Install, Generate, script paths, HybridCLR order | [Install and Lua versions](/docs/guides/install/), [Editor vs Player](/docs/guides/editor-vs-player/) |
-| `zlua-lua-call-csharp` | `CSharp` root, construction, members, events | [Lua calling C#](/docs/guides/lua-calling-csharp/) |
-| `zlua-csharp-call-lua` | `Initialize`, `GetFunction`, `Reset` | [C# calling Lua](/docs/guides/csharp-calling-lua/) |
-| `zlua-method-overload` | Short-name dispatch, full-signature keys, when to alias | [Method overloads](/docs/guides/overloads/) |
-| `zlua-default-arguments` | Trailing optional parameters and defaults | [Method calls](/docs/getting-started/method-calls/) |
-| `zlua-generic-method` | Closing generic types and generic methods | [Generics](/docs/guides/generics/) |
-| `zlua-params` | Expanding `params T[]` or passing one array | [params](/docs/guides/params/) |
-| `zlua-array` | One-dimensional and multidimensional arrays, `to_table`, `to_bytes` | [Arrays](/docs/guides/arrays/) |
-| `zlua-delegate` | `Action` / `Func`, `to_delegate`, event subscription | [Function](/docs/guides/functions/) |
-| `zlua-in-ref-out` | `ref` / `in` write-back, `out` as extra results | [ref / in / out](/docs/guides/ref-out-in/) |
-| `zlua-marshal` | Default value shapes | [Value types](/docs/guides/value-types/), [0GC Marshal](/docs/guides/zero-gc-marshal/) |
-| `zlua-marshal-as` | `[LuaMarshalAs]` and XML | [LuaMarshalAs](/docs/guides/lua-marshal-as/) |
-| `zlua-alias` | `[LuaAlias]` and XML | [LuaAlias](/docs/guides/lua-alias/) |
-| `zlua-extension` | `[LuaExtension]` and XML | [Extension methods](/docs/guides/extension-methods/) |
-| `zlua-lib` | `typeof`, `inflate`, `box` / `unbox` / `cast`, opaque, array factories | [Common zlua library](/docs/guides/zlua-lib/) |
+## Skill list
 
-## Learning path
+| Skill | Use when |
+|-------|----------|
+| `zlua-setup` | Adding the package, changing `luaVersionId`, Install / Generate, Editor vs Player script paths |
+| `zlua-lua-call-csharp` | Lua reaches types, constructors, fields, methods, and events through `CSharp` |
+| `zlua-csharp-call-lua` | `Initialize`, `GetFunction`, `Reset` |
+| `zlua-method-overload` | Same-name overloads, full-signature keys |
+| `zlua-default-arguments` | Omitting C# optional parameters |
+| `zlua-generic-method` | `make_generic_type`, `inflate`, GTAP |
+| `zlua-params` | `params T[]` |
+| `zlua-array` | `T[]`, multidimensional arrays, `to_table` / `to_bytes` |
+| `zlua-delegate` | `Action` / `Func`, `to_delegate`, `add_` / `remove_` |
+| `zlua-in-ref-out` | `ref` / `in` / `out` |
+| `zlua-marshal` | Default marshal (primitives, string, enum, struct, class) |
+| `zlua-marshal-as` | `[LuaMarshalAs]` and MarshalAs XML |
+| `zlua-alias` | `[LuaAlias]` |
+| `zlua-extension` | `[LuaExtension]` |
+| `zlua-lib` | The global `zlua` table |
 
-| | |
-|---|---|
-| **Previous** | [Settings](/docs/guides/settings/) |
-| **Next** | [Hello interop](/docs/guides/hello-interop/) |
+## Next steps
 
-## Related
-
-- [Getting started · AI Skills](/docs/getting-started/skills/)
-- [Install and Lua versions](/docs/guides/install/)
+- [Guides · AI Skills](/docs/guides/skills/)
+- [Installation](/docs/getting-started/installation/)
+- [Quick start](/docs/getting-started/quick-start/)

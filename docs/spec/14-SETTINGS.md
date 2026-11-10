@@ -35,7 +35,7 @@ title: "Settings"
 | `debuggerPort` | `int` | `9966` | EmmyLua `tcpListen` 端口 |
 | `debuggerWaitIDE` | `bool` | `false` | `true` 时 `dbg.waitIDE()` 阻塞 Unity 主线程直到 IDE Attach |
 
-XML 三类路径 **只** 用于非热更新程序集。热更新程序集用对应 Attribute，不写进这些 XML。
+Settings XML 用于构建期已知的预编译 / AOT 程序集。热更程序集可用 Attribute，或在 Il2Cpp Player 加载程序集后、首次类型绑定前调用对应的 [InteropMetadata.Register*Xml](/docs/reference/csharp/interop-metadata/)；Editor Mono 的注册方法为空实现。
 
 ---
 

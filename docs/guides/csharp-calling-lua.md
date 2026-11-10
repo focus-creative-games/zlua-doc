@@ -1,5 +1,4 @@
 ---
-sidebar_position: 5
 title: C# 调用 Lua
 description: GetFunction、模块 return 约定、Editor/Player 加载路径。
 ---
@@ -65,7 +64,7 @@ private static string LoadLuaModule(string module)
 
 - 模块须 **`return { key = fn }`**；键名 = GetFunction 的 method
 - 子路径：`module.Replace('.', '/')`（如 `battle.ai`）
-- Player 构建前 Sync，见 [构建流程](/docs/guides/build/)
+- Player 构建前 Sync，见 [构建流程](/docs/getting-started/build/)
 - 热更 / 清空脚本世界用 `LuaAppDomain.Reset(loader)`（EndOfFrame 生效；旧 `GetFunction` 委托作废，须重新绑定）；**不**再支持对已初始化域「只换 loader」。Android 上 StreamingAssets 只读需注意
 
 ### 多模块
@@ -91,16 +90,9 @@ var battleTick = LuaAppDomain.GetFunction<Action<float>>("battle", "tick");
 | GetFunction 结果无效 / 调用无效果 | 未 Initialize；return 表键名不一致 |
 | 旧脚本仍在跑 | Player 未重新 Sync |
 
-## 学习路径
-
-| | |
-|---|---|
-| **上一篇** | [Lua 调用 C#](/docs/guides/lua-calling-csharp/) |
-| **下一篇** | [值类型](/docs/guides/value-types/) |
-
 ## 相关文档
 
 - [宿主 API](/docs/spec/01-HOST-API/)
 - [LuaAppDomain 参考](/docs/reference/csharp/lua-app-domain/)
 - [Function 与 Delegate](/docs/guides/functions/)
-- [构建流程](/docs/guides/build/)
+- [构建流程](/docs/getting-started/build/)

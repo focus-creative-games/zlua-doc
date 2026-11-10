@@ -8,7 +8,7 @@ title: "Performance comparison"
 Formal conclusions cite **Il2Cpp Player** only (Mono Editor does not represent ship performance).
 
 **Benchmark project:** [focus-creative-games/zlua-benchmark](https://github.com/focus-creative-games/zlua-benchmark) (ZLua / xLua / toLua / SLua four-way alignment).
-**Latest report:** [comparison_20260728_121554.md](https://github.com/focus-creative-games/zlua-benchmark/blob/main/reports/comparison_20260728_121554.md)
+**Report version (2026-07-28):** [comparison_20260728_121554.md](https://github.com/focus-creative-games/zlua-benchmark/blob/main/reports/comparison_20260728_121554.md)
 
 | Item | Value |
 |----|-----|

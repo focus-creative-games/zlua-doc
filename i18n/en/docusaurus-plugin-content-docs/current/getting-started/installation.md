@@ -1,5 +1,4 @@
 ---
-sidebar_position: 2
 title: Installation
 description: Install ZLua via UPM, configure the Lua version, and finish local Install.
 ---
@@ -7,6 +6,10 @@ description: Install ZLua via UPM, configure the Lua version, and finish local I
 # Installation
 
 This page uses the official sample project [zlua-demo](https://github.com/focus-creative-games/zlua-demo) as the canonical reference; paths point at its `main` branch.
+
+:::info Scope
+This page describes the unified integration package in the specification. Older standalone packages and other branches need their matching version instructions. Do not mix Installer workflows. See [Multi-version specification](/docs/spec/11-MULTI-VERSION/).
+:::
 
 ## Overview
 
@@ -26,7 +29,7 @@ ZLua ships as a Unity Package (UPM). **After adding the package you must still c
 
 | Item | Requirement |
 |----|------|
-| Unity | See [Compatibility](/docs/getting-started/compatibility/) (2021.3 / 2022.3 / Unity 6 including 6000.5 / Tuanjie, etc.) |
+| Unity | See the maintained LTS versions in [Compatibility](/docs/getting-started/compatibility/). |
 | Scripting Backend | Editor: **Mono**; Player: **Il2Cpp** |
 | Lua | Chosen in **Settings** (default **`lua-5.5.0`**); downloaded / installed into the local tree at Install |
 | Network | Needed on first Install to download PUC-Rio sources; LuaJIT must be cloned yourself, and Il2Cpp shipping is Android / iOS only (see [Multi-version](/docs/spec/11-MULTI-VERSION/), [LuaJIT build](/docs/spec/build/02-LUAJIT/)) |
@@ -82,7 +85,7 @@ Menu **`ZLua/Settings...`** opens Project Settings → **ZLua** (asset at `Proje
 | **Enable** | Whether ZLua is enabled |
 | **Lua Version Id** | Lua / LuaJIT / Luau version id; **default `lua-5.5.0`** (empty → this default) |
 | **MarshalAs Xml Paths** | Optional; MarshalAs XML paths — see [LuaMarshalAs](/docs/spec/marshal/02-MARSHAL-AS/) |
-| **Unity Optimizations** | On by default. Field notes: [Settings](/docs/guides/settings/); current effect: [Unity optimizations](/docs/getting-started/unity-optimizations/) |
+| **Unity Optimizations** | On by default. Field notes: [Settings](/docs/guides/settings/); current effect: [Unity optimizations](/docs/guides/unity-optimizations/) |
 
 **`luaVersionId` formats** (aligned with [Multi-version](/docs/spec/11-MULTI-VERSION/)):
 
@@ -94,95 +97,34 @@ Menu **`ZLua/Settings...`** opens Project Settings → **ZLua** (asset at `Proje
 
 After changing version, run **Install** again; if Editor native DLLs / scripting defines change with the series, **restart the Editor** as Console prompts.
 
-### 3. Local install (`ZLua/Install...`)
+### 3. Local Install (`ZLua/Install...`)
 
-Menu **`ZLua/Install...`** runs `LocalInstaller` and builds a compilable Il2Cpp + Lua + ZLua tree in the project. **Main steps:**
+The unified Installer creates the HybridCLR base (`il2cpp_plus` + `hybridclr/`), applies ZLua patches, copies `ZLua~/zlua-runtime`, and installs the selected Lua engine. It writes defines and `ZLuaConf.inc`, validates the result, and owns `UNITY_IL2CPP_PATH`. **Do not add the standalone `com.code-philosophy.hybridclr` UPM package.**
 
-1. **Copy `libil2cpp` (and related Il2Cpp data) from the Editor install into the project**, and apply in-package `libil2cpp` patches
-2. **Download (or reuse cache) the selected Lua sources** into local **`libil2cpp/lua`**
-3. **Copy package `ZLua~/zlua-runtime` to local `libil2cpp/zlua`**
-4. Write scripting defines, `ZLuaConf.inc`, etc., and run integrity checks
+`ZLua/Generate/All` runs StripAOT once, then HybridCLR MethodBridge and ZLua CodeGenerator in sequence. For hot-update XML, load the assembly and register metadata before first type binding; see [InteropMetadata](/docs/reference/csharp/interop-metadata/).
 
-PUC-Rio source cache is typically under `Library/ZLua/LuaSrcCache/` (e.g. `lua-5.5.0/`). Path conventions: [Multi-version](/docs/spec/11-MULTI-VERSION/).
+PUC-Rio sources are cached in `Library/ZLua/LuaSrcCache/`. See the [Install specification](/docs/spec/11-MULTI-VERSION/).
 
-:::warning Install is required
-Without Install, builds fail (prompting `ZLua/Install...`). **`ZLua/Generate/All` also requires the local tree to exist.**
-:::
+### 4. Script layout
 
-### 4. Layout (Lua scripts)
-
-Recommended layout (same as Demo):
-
-```
+```text
 YourProject/
 ├── Assets/
-│   ├── Bootstrap.cs              # Init entry
-│   └── Editor/
-│       └── SyncLuaScriptsToStreamingAssets.cs   # Sync scripts before Player build
-├── LuaScripts/                   # Editor Lua sources (*.lua)
-│   └── app.lua
-├── Packages/
-│   └── manifest.json
-├── ProjectSettings/
-│   └── ZLua.asset                # Settings (includes luaVersionId)
-└── StreamingAssets/              # Generated at build
-    └── LuaScripts/
-        └── app.lua.txt           # Loaded by Player
+│   ├── Bootstrap.cs
+│   ├── Editor/SyncLuaScriptsToStreamingAssets.cs
+│   └── StreamingAssets/LuaScripts/app.lua.txt   # Generated before build
+├── LuaScripts/app.lua                          # Editor source
+├── Packages/manifest.json
+└── ProjectSettings/ZLua.asset
 ```
 
-**Why two script paths?**
+### 5. Player script loading
 
-- **Editor**: Demo loads from project-root `LuaScripts/*.lua` for easy edit/debug (see [Bootstrap.cs](https://github.com/focus-creative-games/zlua-demo/blob/main/Assets/Bootstrap.cs)).
-- **Player**: Loads from `StreamingAssets/LuaScripts/*.lua.txt`; the `.txt` suffix avoids Unity TextAsset import conflicts.
+Follow [First Player build](/docs/getting-started/build/) for script synchronization and the Player loader. The Editor reads project-root `LuaScripts`; Player loading depends on the target platform and project resource system.
 
-### 5. Sync Lua to StreamingAssets (required for Player)
+### 6. Verify installation
 
-Copy Demo’s [SyncLuaScriptsToStreamingAssets.cs](https://github.com/focus-creative-games/zlua-demo/blob/main/Assets/Editor/SyncLuaScriptsToStreamingAssets.cs) into `Assets/Editor/`.
-
-- Runs automatically via `IPreprocessBuildWithReport` before Player builds
-- Menu **Tools → Sync LuaScripts To StreamingAssets** for manual sync
-
-### 6. Bootstrap init
-
-Minimal entry (from [Bootstrap.cs](https://github.com/focus-creative-games/zlua-demo/blob/main/Assets/Bootstrap.cs)):
-
-```csharp
-using System.IO;
-using System.Text;
-using UnityEngine;
-using ZLua;
-
-public class Bootstrap : MonoBehaviour
-{
-    private static string LoadLuaModule(string module)
-    {
-#if UNITY_EDITOR
-        string path = Path.Combine(Application.dataPath, "..", "LuaScripts", module + ".lua");
-#else
-        string path = Path.Combine(
-            Application.streamingAssetsPath, "LuaScripts", module + ".lua.txt");
-#endif
-        return File.Exists(path) ? File.ReadAllText(path, Encoding.UTF8) : null;
-    }
-
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-    private static void InitZLuaOnStartup()
-    {
-        LuaAppDomain.Initialize(LoadLuaModule);
-    }
-}
-```
-
-`LoadLuaModule` signature: `Func<string, object>`; argument is the **module name** (no path or extension); return Lua source string, or `null` if missing.
-
-### 7. Verify install
-
-1. Confirm **Settings** (correct version) and **Install** (Console shows Install succeeded)
-2. Create [Demo.cs](https://github.com/focus-creative-games/zlua-demo/blob/main/Assets/Demo.cs) and [app.lua](https://github.com/focus-creative-games/zlua-demo/blob/main/LuaScripts/app.lua)
-3. In Bootstrap, call `app.main` via `GetFunction` and Play (`GetFunction` must be after `Initialize`, e.g. in `Awake`)
-4. Console should print `lua main start` and follow-up test logs
-
----
+Once Install succeeds and the project compiles, follow [Quick start](/docs/getting-started/quick-start/) for complete minimal files and expected Console output.
 
 ## Assembly Definition notes
 
@@ -215,9 +157,8 @@ public class Bootstrap : MonoBehaviour
 
 ## Next steps
 
-- [5-minute Quick start](/docs/getting-started/quick-start/)
-- [AI Skills](/docs/getting-started/skills/) — point a coding agent at the package skills
-- [Guides · Install & Lua versions](/docs/guides/install/) (progressive main path)
-- [Hello interop](/docs/guides/hello-interop/)
+- [Quick start](/docs/getting-started/quick-start/)
+- [AI Skills](/docs/guides/skills/) — point a coding agent at the package skills
+- [Hello interop](/docs/getting-started/quick-start/)
 - [Multi-version](/docs/spec/11-MULTI-VERSION/)
 - [Supported versions & platforms](/docs/getting-started/compatibility/)

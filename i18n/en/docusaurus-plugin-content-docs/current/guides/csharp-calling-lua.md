@@ -1,5 +1,4 @@
 ---
-sidebar_position: 5
 title: C# calling Lua
 description: GetFunction, module return conventions, and Editor/Player load paths.
 ---
@@ -65,7 +64,7 @@ Key points:
 
 - Modules must **`return { key = fn }`**; the key name = GetFunction’s method
 - Nested paths: `module.Replace('.', '/')` (e.g. `battle.ai`)
-- Sync before Player builds; see [Build workflow](/docs/guides/build/)
+- Sync before Player builds; see [Build workflow](/docs/getting-started/build/)
 - For hot reload / clearing the script world use `LuaAppDomain.Reset(loader)` (takes effect at EndOfFrame; old `GetFunction` delegates are invalid and must be rebound); **no** longer supports “swap loader only” on an already-initialized domain. Note StreamingAssets is read-only on Android
 
 ### Multiple modules
@@ -91,16 +90,9 @@ var battleTick = LuaAppDomain.GetFunction<Action<float>>("battle", "tick");
 | GetFunction result invalid / call has no effect | Not Initialize’d; return-table key mismatch |
 | Old scripts still running | Player not re-Synced |
 
-## Learning path
-
-| | |
-|---|---|
-| **Previous** | [Lua calling C#](/docs/guides/lua-calling-csharp/) |
-| **Next** | [Value types](/docs/guides/value-types/) |
-
 ## Related
 
 - [Host API](/docs/spec/01-HOST-API/)
 - [LuaAppDomain reference](/docs/reference/csharp/lua-app-domain/)
 - [Function and Delegate](/docs/guides/functions/)
-- [Build workflow](/docs/guides/build/)
+- [Build workflow](/docs/getting-started/build/)

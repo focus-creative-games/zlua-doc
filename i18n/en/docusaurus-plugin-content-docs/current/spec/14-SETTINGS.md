@@ -35,7 +35,7 @@ title: "Settings"
 | `debuggerPort` | `int` | `9966` | EmmyLua `tcpListen` port |
 | `debuggerWaitIDE` | `bool` | `false` | When `true`, `dbg.waitIDE()` blocks the Unity main thread until the IDE attaches |
 
-The three XML path lists are **only** for non–hot-update assemblies. Hot-update assemblies use the matching Attribute and are not written into these XML files.
+Settings XML configures precompiled / AOT assemblies known at build time. For hot-update assemblies, use Attributes or call the corresponding [InteropMetadata.Register*Xml](/docs/reference/csharp/interop-metadata/) in Il2Cpp Player after loading the assembly and before first type binding. Editor Mono registration is a no-op.
 
 ---
 

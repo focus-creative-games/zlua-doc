@@ -1,5 +1,4 @@
 ---
-sidebar_position: 6
 title: 项目状态与路线图
 description: ZLua 当前进度与版本计划。
 ---
@@ -9,7 +8,7 @@ description: ZLua 当前进度与版本计划。
 ## 当前状态
 
 :::info 双运行时
-[兼容性矩阵](/docs/getting-started/compatibility/) 所列 Unity / Lua 组合均已覆盖；Mono 与 Il2Cpp 双运行时已完成。
+Mono 与 Il2Cpp 双运行时已完成；支持策略、分支限制与验证范围见 [兼容性矩阵](/docs/getting-started/compatibility/)。
 
 | 运行时 | 环境 | 状态 |
 |--------|------|------|

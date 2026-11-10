@@ -1,5 +1,4 @@
 ---
-sidebar_position: 12.3
 title: params parameters
 description: Expanding C# params T[] from Lua, whole-array userdata, and common pitfalls.
 ---
@@ -83,13 +82,6 @@ See [09-FUNCTION](/docs/spec/marshal/09-FUNCTION/).
 | `Sum(nil)` (`params int[]`) | `int` elements reject nil; omit args: `Sum()` → `int[0]` |
 | Expected multi-slot collect but a fixed overload won | Fixed arity wins; use a full-signature key or remove the clash |
 | params on GetFunction / callbacks | Unsupported; use an explicit `T[]` formal |
-
-## Learning path
-
-| | |
-|---|---|
-| **Previous** | [Method overloads](/docs/guides/overloads/) |
-| **Next** | [LuaAlias](/docs/guides/lua-alias/) |
 
 ## Related
 

@@ -72,11 +72,7 @@ Authoritative reference: [README.md](/docs/intro/) dual-end consistency table.
 
 ### 3.3 Lua tests
 
-| Allowed | Forbidden |
-|------|------|
-| `Tests/Lua/**` | Manually editing `Assets/StreamingAssets/Tests/**` |
-
-`SyncTestsLuaToStreamingAssets` syncs automatically at build time.
+Follow the [test editing workflow](/docs/community/testing/): edit the directory for the current Mono / exported Il2Cpp runtime, then synchronize changed Lua files by relative path while preserving unrelated changes and compatibility branches. C# tests belong in `Assets/Tests`.
 
 ---
 

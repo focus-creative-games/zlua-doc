@@ -6,7 +6,7 @@ title: "MethodOverloadResolver 实现"
 # MethodOverloadResolver 实现
 
 > **Il2Cpp：** `marshal/MethodOverloadResolver.cpp`
-> **Mono：** Phase 3 `Emit/` + 计划中的 managed resolver（语义对齐）
+> **Mono：** 运行时路径见 [Mono 实现](/docs/impl/MONO/)；本页仅描述 Il2Cpp resolver
 > **规范权威：** [../../spec/04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) — 本文只描述 runtime 数据结构与 C++ 落点
 
 ---

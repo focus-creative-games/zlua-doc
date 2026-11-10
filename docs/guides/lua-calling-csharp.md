@@ -1,5 +1,4 @@
 ---
-sidebar_position: 4
 title: Lua 调用 C#
 description: 访问类型、静态/实例成员、构造与 Event（add_/remove_）。
 ---
@@ -168,13 +167,6 @@ end
 | `static member not found` / 误访静态 | 勿用实例访问静态；用类型表 |
 | `member not writable` | 只读 Property |
 | Event `.get` 为 nil | 改用 `add_` / `remove_` |
-
-## 学习路径
-
-| | |
-|---|---|
-| **上一篇** | [EmmyLua 调试器](/docs/guides/debugger/) |
-| **下一篇** | [C# 调用 Lua](/docs/guides/csharp-calling-lua/) |
 
 ## 相关文档
 

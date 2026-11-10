@@ -1,5 +1,4 @@
 ---
-sidebar_position: 9
 title: 泛型
 description: 闭合泛型类型与泛型方法在 Lua 侧的构造与调用。
 ---
@@ -68,13 +67,6 @@ local rb2 = go:GetComponent(zlua.typeof(Rigidbody))
 | `List` 找不到 | 使用 `System.Collections.Generic.List`1`` 全名 + 括号键 |
 | 对非开放泛型方法用 `inflate` | 仅方法自身带泛型形参时需要 |
 | GTAP 传类型表 | 须 `zlua.typeof(typeTable)`，或改用 `inflate` |
-
-## 学习路径
-
-| | |
-|---|---|
-| **上一篇** | [数组](/docs/guides/arrays/) |
-| **下一篇** | [ref / in / out](/docs/guides/ref-out-in/) |
 
 ## 相关文档
 

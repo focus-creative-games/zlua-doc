@@ -82,6 +82,26 @@ See [10-LIFETIME.md](/docs/spec/10-LIFETIME/) §7.
 
 ---
 
+### 1.6 `InteropMetadata` {#interop-metadata}
+
+In Editor Mono, `RegisterAliasXml` / `RegisterMarshalAsXml` / `RegisterExtensionXml` are no-ops.
+
+Il2Cpp ordering:
+
+1. Load the hot-update assembly with `Assembly.Load`.
+2. Call `InteropMetadata.Register*Xml` for its Alias / MarshalAs / Extension XML.
+3. Execute code that triggers `EnsureBinding`.
+
+Registration does not update types that already have a `MetaBinding`. There is no Reload API; Reset preserves process-level XML tables.
+
+```csharp
+ZLua.InteropMetadata.RegisterAliasXml(paths, projectRoot);
+ZLua.InteropMetadata.RegisterMarshalAsXml(paths, projectRoot);
+ZLua.InteropMetadata.RegisterExtensionXml(paths, projectRoot);
+```
+
+---
+
 ## 2. `GetFunction` — C# calling Lua
 
 The **only formal entry** for C#→Lua: obtain a bound **Delegate** by module and method name, then the caller `Invoke`s (or calls it directly).

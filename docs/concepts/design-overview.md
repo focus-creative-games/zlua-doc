@@ -7,7 +7,7 @@ description: ZLua 的核心设计目标与 GetFunction 模型。
 # 设计概览
 
 :::tip 谁该读本文
-**选型者、新接入开发者、需要理解「为什么这样设计」的读者。** 日常 API 用法请直接看 [使用指南](/docs/guides/install/)；实现细节见 [规范文档](/docs/spec/00-OVERVIEW/)。
+**选型者、新接入开发者、需要理解「为什么这样设计」的读者。** 日常 API 用法请直接看 [使用指南](/docs/getting-started/installation/)；实现细节见 [规范文档](/docs/spec/00-OVERVIEW/)。
 :::
 
 ZLua 把 Lua 当作另一种 **Native**：类比 P/Invoke，用声明式 API 统一双向互操作；Il2Cpp 侧生成 **C++ stub**（`ZLua/Generate/All`），**不是** xLua 式 C# Wrap。

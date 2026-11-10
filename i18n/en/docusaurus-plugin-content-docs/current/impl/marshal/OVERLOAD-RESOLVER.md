@@ -6,7 +6,7 @@ title: "MethodOverloadResolver Implementation"
 # MethodOverloadResolver Implementation
 
 > **Il2Cpp:** `marshal/MethodOverloadResolver.cpp`
-> **Mono:** Phase 3 `Emit/` + planned managed resolver (semantics aligned)
+> **Mono:** See [Mono implementation](/docs/impl/MONO/); this page describes the Il2Cpp resolver
 > **Normative authority:** [../../spec/04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) — this doc only covers runtime data structures and C++ landing points
 
 ## 1. Call chain

@@ -1,5 +1,4 @@
 ---
-sidebar_position: 9
 title: Generics
 description: Construct and call closed generic types and generic methods from Lua.
 ---
@@ -68,13 +67,6 @@ After close, the return view follows the **declared type**; for a runtime-actual
 | `List` not found | Use full name `System.Collections.Generic.List`1` with bracket keys |
 | Using `inflate` on a non-open-generic method | Only when the method itself has generic formals |
 | Passing a type table to GTAP | Use `zlua.typeof(typeTable)`, or use `inflate` |
-
-## Learning path
-
-| | |
-|---|---|
-| **Previous** | [Arrays](/docs/guides/arrays/) |
-| **Next** | [ref / in / out](/docs/guides/ref-out-in/) |
 
 ## Related
 

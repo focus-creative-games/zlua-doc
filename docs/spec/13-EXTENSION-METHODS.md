@@ -31,9 +31,10 @@ title: "C# Extension 方法"
 | 全局扫描所有 `ExtensionAttribute` | **不做** |
 | 把 `[LuaExtension]` 标在扩展类上再反查被扩展类型 | **不做**（为发现而扫全程序集） |
 | 仅在扩展类 SMT 上当静态方法调用当作「已支持 extension」 | **不足**；必须 IMT + 冒号 |
-| Il2Cpp Player 运行时读 XML | **不做**（与 LuaAlias / MarshalAs 一致） |
-| 为热更新程序集配置 Extension XML | **不做**（热更程序集仅支持代码中 `[LuaExtension]`） |
+| Player 自动读取 Settings XML | **不做**；后加载程序集使用显式注册 API |
 | 开放泛型扩展方法（未闭合） | **不支持** |
+
+热更新程序集支持 Attribute 或首次绑定前显式注册 XML，见 [InteropMetadata](/docs/reference/csharp/interop-metadata/)。
 
 ### 1.3 锁定决策摘要
 
@@ -73,7 +74,7 @@ public class MyClass { }
 
 ### 2.2 XML（`luaExtensionXmlPaths` / `ZLuaExtensions`）
 
-> **适用范围：** XML **仅**用于 **非热更新** 程序集上的被扩展类型（预编译 / AOT DLL，如引擎 / 第三方包）。**热更新程序集**（含 HybridCLR 热更 DLL）内的类型 **只支持**在代码中配置 `[LuaExtension]`，**不支持**用 XML 为其配置扩展类列表。
+> Settings XML 用于构建期已知的预编译 / AOT 程序集。热更程序集可用 Attribute，或在 Il2Cpp Player 加载程序集后、首次类型绑定前调用对应的 [InteropMetadata.Register*Xml](/docs/reference/csharp/interop-metadata/)；Editor Mono 的注册方法为空实现。
 
 与 LuaAlias **分文件、分 Settings 字段**：
 
@@ -109,7 +110,7 @@ public class MyClass { }
 |----|------|
 | 同一被扩展类型 | Attribute 列表 ∪ XML 列表（**并集**；与 Alias「单方法换名覆盖」不同） |
 | Mono | `Initialize` 加载 `luaExtensionXmlPaths`；Bind 时解析 |
-| Il2Cpp | **Generate** 写入静态表（仿 AliasCodegen）；**Player 不读 XML**；改 XML 后须重新 Generate |
+| Il2Cpp | **Generate** 写入静态表（仿 AliasCodegen）；**构建期 XML 已烘焙到 Player**；改 XML 后须重新 Generate |
 | 扩展类无法解析 | Generate **硬失败**；Mono Initialize/Bind **报错**（**不**静默丢） |
 
 ---

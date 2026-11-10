@@ -4,7 +4,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 
 const config: Config = {
   title: 'ZLua Docs',
-  tagline: 'Zero-config · Full C# interop · ~2.62× faster than xLua on Il2Cpp',
+  tagline: 'Native Lua · C# interop · Optimized for Unity Il2Cpp',
 
   favicon: 'img/logo.jpg',
 
@@ -41,6 +41,7 @@ const config: Config = {
   themes: ['@docusaurus/theme-mermaid'],
 
   plugins: [
+    require.resolve('./plugins/doc-redirects.cjs'),
     [
       require.resolve('@easyops-cn/docusaurus-search-local'),
       {
@@ -119,7 +120,7 @@ const config: Config = {
             {label: 'Comparison', to: '/docs/category/compare/'},
             {label: 'Spec', to: '/docs/category/spec/'},
             {label: 'Quick start', to: '/docs/getting-started/quick-start/'},
-            {label: 'Guides', to: '/docs/guides/install/'},
+            {label: 'Guides', to: '/docs/category/guides/'},
             {label: 'API reference', to: '/docs/reference/overview/'},
           ],
         },

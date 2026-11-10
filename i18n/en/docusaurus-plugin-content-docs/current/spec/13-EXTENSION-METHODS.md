@@ -31,9 +31,10 @@ title: "C# extension methods"
 | Globally scanning all `ExtensionAttribute` | **No** |
 | Putting `[LuaExtension]` on the extension class then reverse-looking up the extended type | **No** (would require scanning whole assemblies for discovery) |
 | Calling only as static methods on the extension class SMT as “extensions supported” | **Insufficient**; must be IMT + colon |
-| Il2Cpp Player reading XML at runtime | **No** (same as LuaAlias / MarshalAs) |
-| Extension XML for hot-update assemblies | **No** (hot-update assemblies support only in-code `[LuaExtension]`) |
+| Automatic Settings XML loading in Player | **No**; use explicit registration for assemblies loaded later |
 | Open generic extension methods (unclosed) | **Unsupported** |
+
+Hot-update assemblies support Attributes or explicit XML registration before first binding; see [InteropMetadata](/docs/reference/csharp/interop-metadata/).
 
 ### 1.3 Locked decisions summary
 
@@ -73,7 +74,7 @@ public class MyClass { }
 
 ### 2.2 XML (`luaExtensionXmlPaths` / `ZLuaExtensions`)
 
-> **Scope:** XML is **only** for extended types in **non–hot-update** assemblies (precompiled / AOT DLLs, e.g. engine / third-party packages). Types in **hot-update assemblies** (including HybridCLR hot-update DLLs) support **only** in-code `[LuaExtension]`; configuring their extension-class lists via XML is **not** supported.
+> Settings XML configures precompiled / AOT assemblies known at build time. For hot-update assemblies, use Attributes or call the corresponding [InteropMetadata.Register*Xml](/docs/reference/csharp/interop-metadata/) in Il2Cpp Player after loading the assembly and before first type binding. Editor Mono registration is a no-op.
 
 Separate files and Settings fields from LuaAlias:
 
@@ -109,7 +110,7 @@ This file **only** allows the structure above; do not write `Method` / `MarshalA
 |------|------------|
 | Same extended type | Attribute list ∪ XML list (**union**; unlike Alias’s “single-method rename override”) |
 | Mono | `Initialize` loads `luaExtensionXmlPaths`; resolve at Bind |
-| Il2Cpp | **Generate** writes a static table (like AliasCodegen); **Player does not read XML**; re-Generate after XML changes |
+| Il2Cpp | **Generate** writes a static table (like AliasCodegen); **build-time XML is baked into Player**; re-Generate after XML changes |
 | Extension class unresolvable | Generate **hard-fails**; Mono Initialize/Bind **errors** (**no** silent drop) |
 
 ---

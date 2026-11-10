@@ -1,5 +1,4 @@
 ---
-sidebar_position: 12.3
 title: params 参数
 description: C# params T[] 在 Lua 侧的展开传参、整段数组与常见陷阱。
 ---
@@ -83,13 +82,6 @@ Demo.Sum(arr)
 | `Sum(nil)`（`params int[]`） | `int` 元素不接受 nil；省略写 `Sum()` → `int[0]` |
 | 期望多槽隐式收集却走了定参重载 | 定参优先；用全签名键或改掉冲突重载 |
 | GetFunction / 回调上的 params | 不支持；改成显式 `T[]` 形参 |
-
-## 学习路径
-
-| | |
-|---|---|
-| **上一篇** | [方法重载](/docs/guides/overloads/) |
-| **下一篇** | [LuaAlias](/docs/guides/lua-alias/) |
 
 ## 相关文档
 

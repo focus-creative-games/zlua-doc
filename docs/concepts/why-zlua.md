@@ -18,10 +18,10 @@ xLua、toLua、SLua 已经证明「在 Unity 里用 Lua」可行。ZLua 要解�
 |--|--------|
 | **更易用** | 设计更现代；极度简单；**零配置**（无需 per-type C# Wrap 白名单） |
 | **更完备** | 标准、完备的 C#↔Lua 交互，几乎覆盖全部常用 C# 特性 |
-| **更高效** | **98.2%** 对齐用例快于 xLua；Lua→C# 平均约 **2.62×**；常见字段/属性/调用约 **4×** |
-| **更少更快的 GC** | 引用类型与 struct（含含引用字段的 struct）默认 **0 GC**；另有 OpaqueValue 等策略 |
-| **极小的桥接** | 同签名合并 + 直接生成高效 C++；体积可小一个数量级；支持 **0 桥接函数** 仍保持高性能 |
-| **版本更广** | Lua **5.1–5.5**、**LuaJIT**（Il2Cpp 上 JIT **仅 Android / iOS**）、**[Luau](https://luau.org/)**（官方仓库 [`luau` 分支](https://github.com/focus-creative-games/zlua/tree/luau)；Editor 仅 Windows，Il2Cpp 当前 Windows x64）；Unity **2021.3 / 2022.3 / Unity 6（6000.0 / 6000.3 / 6000.5）**、**团结引擎** |
+| **更高效** | 已公开四方 Il2Cpp 实测；报告、环境与统计数据统一见 [性能对比](/docs/compare/PERFORMANCE/)。 |
+| **更少 GC** | 提供低分配 Marshal 路径；须区分托管 / Lua 分配、首次绑定 / 稳态。见 [GC 边界](/docs/compare/GC/)。 |
+| **共享桥接** | C++ stub 按约简签名复用；包体收益需要实测，见 [桥接分析](/docs/compare/BRIDGE/)。 |
+| **版本更广** | 多种 Lua 引擎与维护中的 Unity LTS 系列；版本、平台与分支限制统一见 [兼容性矩阵](/docs/getting-started/compatibility/)。 |
 | **维护更积极** | 全职专业团队；Bug 响应与特性迭代更快 |
 
 ---
@@ -55,7 +55,7 @@ print(CSharp.AC.Demo.Add(3, 5))
 
 **零配置**指：不需要 per-type C# Wrap 白名单与成员级 Wrap 工程。Editor 开箱即用；发 Il2Cpp Player 时执行一次 **`ZLua/Generate/All`**（生成 **C++ stub**，不是 xLua 式 C# Wrap）。
 
-→ [快速开始](/docs/getting-started/quick-start/) · [使用指南](/docs/guides/install/)
+→ [快速开始](/docs/getting-started/quick-start/) · [使用指南](/docs/getting-started/installation/)
 
 ---
 
@@ -80,14 +80,7 @@ print(CSharp.AC.Demo.Add(3, 5))
 
 在 **Il2Cpp Win64 Release** 上四方对齐基准（公开仓库 [zlua-benchmark](https://github.com/focus-creative-games/zlua-benchmark)；说明见 [PERFORMANCE](/docs/compare/PERFORMANCE/)）：
 
-| 指标 | 结果（相对 zlua 的平均 ratio，>1 更慢） |
-|------|------|
-| Lua→C#（231 cases） | xLua ≈ **2.57×**；toLua ≈ **3.52×**；SLua ≈ **7.68×** |
-| C#→Lua（54 cases） | xLua ≈ **1.59×**；toLua ≈ **3.27×**；SLua ≈ **14.9×** |
-| 相对 xLua 领先比例 | 约 **98.6%** 用例（281/285） |
-| 常见字段 / 属性 | 约 **3.5–4×**（相对 xLua） |
-
-完整报告：[comparison_20260728_121554.md](https://github.com/focus-creative-games/zlua-benchmark/blob/main/reports/comparison_20260728_121554.md)。
+报告、Unity 版本、用例数量、比值与测试边界统一见 [性能对比](/docs/compare/PERFORMANCE/)。
 
 根因很直接：去掉 **libxlua 折返 + 海量 C# Wrap**，在 C++ 里一次完成 marshal 与 `methodPointer` 调用。
 
@@ -106,7 +99,7 @@ print(CSharp.AC.Demo.Add(3, 5))
 | 策略 | 含义 |
 |------|------|
 | **引用类型** | 默认走对象表 / userdata，避免无意义装箱与临时 `object[]` |
-| **struct** | 无论字段中是否含引用类型，默认可走 **0 GC** Marshal 路径（ByVal / ByObj 等，见规范） |
+| **struct** | 表示方式与分配取决于字段、方向和 Marshal 策略，应在目标 Player 测量。 |
 | **OpaqueValue** | lightuserdata 临时句柄：同步调用链内更灵活的低分配策略 |
 | **enum** | 默认 integer，不强制 boxed userdata |
 
@@ -116,7 +109,7 @@ print(CSharp.AC.Demo.Add(3, 5))
 
 ---
 
-## 5. 极小的 wrapper / 桥接：可小一个数量级，可至 0
+## 5. 按签名复用的 C++ 桥接
 
 | 方案 | 典型体积模型 |
 |------|----------------|
@@ -125,8 +118,8 @@ print(CSharp.AC.Demo.Add(3, 5))
 
 因此在「仍能访问几乎全部 C# 类型、字段、属性、方法」的前提下：
 
-- 桥接代码体积通常比传统方案 **小一个数量级以上**
-- 支持 **0 桥接函数** 配置；即便如此，交互性能仍可高于「生成大量 Wrap」的传统路径
+- 签名复用减少重复桥接代码；二进制体积倍数尚未实测。
+- 生成源码、独立 stub 数量与最终 Player 体积须分别统计，不能从模型直接推出固定倍数或性能结论。
 
 Editor（Mono）用 Expression Emit，**不进 Player 包**；Player 体积由 C++ stub 决定。
 
@@ -135,12 +128,6 @@ Editor（Mono）用 Expression Emit，**不进 Player 包**；Player 体积由 C
 ---
 
 ## 6. 支持的 Unity 与 Lua 更多
-
-| 维度 | ZLua |
-|------|------|
-| Lua | **5.1 – 5.5**、**LuaJIT**（Settings 默认 **`lua-5.5.0`**；LuaJIT 的 Il2Cpp 发布 **仅 Android / iOS**） |
-| Unity | **2021.3**、**2022.3**、**Unity 6（6000.0 / 6000.3 / 6000.5）** |
-| 引擎 | **团结引擎** |
 
 多版本意味着更少「卡在某个 Lua/Unity 组合」的选型风险。完整矩阵见 [兼容性](/docs/getting-started/compatibility/)。
 
@@ -174,7 +161,7 @@ ZLua 由 **全职专业团队** 维护：
 
 ## 下一步
 
-1. [5 分钟快速开始](/docs/getting-started/quick-start/) + [zlua-demo](https://github.com/focus-creative-games/zlua-demo)
+1. [快速开始](/docs/getting-started/quick-start/) + [zlua-demo](https://github.com/focus-creative-games/zlua-demo)
 2. [性能对比](/docs/compare/PERFORMANCE/) · [GC](/docs/compare/GC/) · [BRIDGE](/docs/compare/BRIDGE/)
 3. [特性对比](/docs/compare/FEATURES/)
 4. [规范总览](/docs/spec/00-OVERVIEW/)

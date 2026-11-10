@@ -1,5 +1,4 @@
 ---
-sidebar_position: 11.2
 title: 返回值门面类型
 description: 返回值 ByObj 门面改为运行时实际类型（ActualTypeUserData）；与 zlua.cast、泛型方法的关系。
 ---
@@ -69,7 +68,7 @@ local a = ObjectFactory.CreateChildActual()   -- 返回时门面已是 Child
 |------|------|
 | Attribute | `[return: LuaMarshalAs(LuaMarshalType.ActualTypeUserData)]` |
 | XML | `Return`=`ActualTypeUserData`（挂在**声明类型**；继承可用） |
-| 热更新程序集 | **只**能 Attribute，**不支持** XML |
+| 热更新程序集 | Attribute 或首次绑定前显式注册 XML；见 [InteropMetadata](/docs/reference/csharp/interop-metadata/) |
 
 **仅返回值**。标在参数 / 字段 / 属性 / 类型级 → 非法（Mono Attribute：回退 `Default` + 日志；Il2Cpp Generate / XML：可失败）。
 
@@ -97,13 +96,6 @@ local a = ObjectFactory.CreateChildActual()   -- 返回时门面已是 Child
 | 会把 `string` 变成 Lua string | 否；实际为 `string` 时仍为 ByObj（门面 `System.String`） |
 | 改变虚派发语义 | 否；按 **view** 找槽，再对真实 `this` 虚调 |
 | 等于 Opaque / Table | 否；形态仍是 ByObj UserData |
-
-## 学习路径
-
-| | |
-|---|---|
-| **上一篇** | [LuaMarshalAs](/docs/guides/lua-marshal-as/) |
-| **下一篇** | [0GC Marshal](/docs/guides/zero-gc-marshal/) |
 
 ## 相关文档
 

@@ -1,0 +1,74 @@
+{
+  "gettingStarted": [
+    "getting-started/installation",
+    "getting-started/quick-start",
+    "getting-started/build",
+    "getting-started/method-calls",
+    "getting-started/compatibility",
+    "getting-started/project-status"
+  ],
+  "guides": [
+    {
+      "label": "C# 与 Lua 互调",
+      "labelEn": "C# and Lua interop",
+      "key": "guides-interop",
+      "items": [
+        "guides/lua-calling-csharp",
+        "guides/csharp-calling-lua",
+        "guides/functions",
+        "guides/overloads",
+        "guides/generics",
+        "guides/params",
+        "guides/ref-out-in",
+        "guides/arrays",
+        "guides/value-types"
+      ]
+    },
+    {
+      "label": "Marshal 与性能",
+      "labelEn": "Marshal and performance",
+      "key": "guides-marshal",
+      "items": [
+        "guides/lua-marshal-as",
+        "guides/actual-type-userdata",
+        "guides/zero-gc-marshal",
+        "guides/unity-optimizations"
+      ]
+    },
+    {
+      "label": "配置与扩展",
+      "labelEn": "Configuration and extensions",
+      "key": "guides-config",
+      "items": [
+        "guides/settings",
+        "guides/lua-alias",
+        "guides/extension-methods",
+        "guides/zlua-lib",
+        "guides/native-modules",
+        "guides/hybridclr",
+        "guides/skills"
+      ]
+    },
+    {
+      "label": "调试与排错",
+      "labelEn": "Debugging and troubleshooting",
+      "key": "guides-debug",
+      "items": [
+        "guides/debugger",
+        "guides/editor-vs-player",
+        "guides/troubleshooting"
+      ]
+    },
+    {
+      "label": "迁移",
+      "labelEn": "Migration",
+      "key": "guides-migration",
+      "items": [
+        "guides/migration/index",
+        "guides/migration/from-xlua",
+        "guides/migration/from-tolua",
+        "guides/migration/from-slua"
+      ]
+    }
+  ]
+}

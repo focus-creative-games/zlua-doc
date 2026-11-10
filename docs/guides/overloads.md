@@ -1,5 +1,4 @@
 ---
-sidebar_position: 12
 title: 方法重载
 description: 默认分派、全签名键懒解析与缓存、[LuaAlias] 短名。
 ---
@@ -119,13 +118,6 @@ demo:Run("hi")      -- 未换名的 Run(string) → dispatch
 | 想用 `demo['(System.Int32)']` | **禁止**；必须带方法名：`Run(System.Int32)` |
 | 全签名键 `member not found` | 核对 CLR 方法名与 `Type.FullName` 是否与元数据一致；构造不能用全签名键 |
 | 想要运行时挂短名 | 不支持；用 Bind 期 `[LuaAlias]` / XML，或括号键 + 本地缓存 |
-
-## 学习路径
-
-| | |
-|---|---|
-| **上一篇** | [0GC Marshal](/docs/guides/zero-gc-marshal/) |
-| **下一篇** | [LuaAlias](/docs/guides/lua-alias/) |
 
 ## 相关文档
 

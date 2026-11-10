@@ -13,11 +13,12 @@
     "write-translations": "docusaurus write-translations",
     "write-heading-ids": "docusaurus write-heading-ids",
     "fix-spec-links": "node scripts/fix-stale-links.mjs",
-    "inject-guide-nav": "node scripts/inject-guide-nav.mjs",
-    "sync-i18n-en": "node scripts/sync-i18n-en-docs.mjs",
+    "sync-i18n-en": "node scripts/translation-status.mjs",
     "write-translations:en": "docusaurus write-translations --locale en",
-    "prebuild": "node scripts/inject-guide-nav.mjs",
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "check:docs": "node scripts/check-docs.mjs",
+    "check:i18n": "node scripts/translation-status.mjs",
+    "i18n:accept": "node scripts/translation-status.mjs --accept"
   },
   "dependencies": {
     "@docusaurus/core": "3.10.1",

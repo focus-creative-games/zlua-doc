@@ -1,12 +1,11 @@
 ---
-sidebar_position: 91
 title: Editor 与 Player
 description: Mono Editor 与 Il2Cpp Player 双运行时的差异（附录）。
 ---
 
 # Editor 与 Player
 
-附录。发布清单亦可参阅 [构建流程](/docs/guides/build/)。ZLua 双后端：**Lua 可见语义必须一致**；实现路径不同。
+附录。发布清单亦可参阅 [构建流程](/docs/getting-started/build/)。ZLua 双后端：**Lua 可见语义必须一致**；实现路径不同。
 
 | | Editor (Mono) | Player (Il2Cpp) |
 |---|---------------|-----------------|
@@ -29,16 +28,9 @@ Event、Marshal、类型访问等以 [规范](/docs/spec/00-OVERVIEW/) 为准；
 - [ ] 脚本行为符合 [规范](/docs/spec/00-OVERVIEW/)（勿依赖已废弃的 Event `.get` / `.set`）
 - [ ] 对照 [兼容性矩阵](/docs/getting-started/compatibility/) 做冒烟
 
-## 学习路径
-
-| | |
-|---|---|
-| **上一篇** | [排错指南](/docs/guides/troubleshooting/) |
-| **下一篇** | — |
-
 ## 相关文档
 
-- [构建流程](/docs/guides/build/)
+- [构建流程](/docs/getting-started/build/)
 - [第三方原生插件](/docs/guides/native-modules/) — Editor 动态 / Player 静态差异亦适用于 C 模块
 - [双运行时](/docs/concepts/dual-runtime/)
 - [选型对比](/docs/compare/)

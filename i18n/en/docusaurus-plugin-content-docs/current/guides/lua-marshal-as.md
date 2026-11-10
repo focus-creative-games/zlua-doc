@@ -1,5 +1,4 @@
 ---
-sidebar_position: 11
 title: LuaMarshalAs
 description: Override default Marshal; Bytes / Opaque / UnpackedValues / Table / UserData and XML.
 ---
@@ -14,8 +13,8 @@ When default Marshal (see [cheatsheet](/docs/reference/marshal-cheatsheet/)) is 
 - Assemble a struct from **multiple stack slots** or a **single table** (`UnpackedValues` / `Table`)
 - Force **Opaque** for C#→Lua (`ref`/`out`/`in` **already default to this**)
 - Huge `string` you do not want copied into a Lua string (`UserData` → ByObj)
-- Precompiled / AOT DLL you cannot edit → attach XML in Settings (**non–hot-update** assemblies only)
-- **Hot-update assemblies** (including HybridCLR) → **only** in-code `[LuaMarshalAs]`; XML is **not** supported
+
+Settings XML configures precompiled / AOT assemblies known at build time. For hot-update assemblies, use Attributes or call the corresponding [InteropMetadata.Register*Xml](/docs/reference/csharp/interop-metadata/) in Il2Cpp Player after loading the assembly and before first type binding. Editor Mono registration is a no-op.
 
 You may annotate: **parameters / return values / fields / properties / types (class, struct)**.
 **Not** on methods; **not** on slots that still contain unbound generic type parameters.
@@ -108,7 +107,7 @@ host:TryPlace({ X = 1, Y = 2 })
 host:TryPlace(nil)                      -- Nullable 无值
 ```
 
-XML equivalent (**only** precompiled / AOT, non–hot-update assemblies; use Attributes on hot-update assemblies):
+Settings XML configures precompiled / AOT assemblies known at build time. For hot-update assemblies, use Attributes or call the corresponding [InteropMetadata.Register*Xml](/docs/reference/csharp/interop-metadata/) in Il2Cpp Player after loading the assembly and before first type binding. Editor Mono registration is a no-op.
 
 ```xml
 <Type fullName="UnityEngine.Vector3">
@@ -155,18 +154,11 @@ Illegal type/direction → fall back to `Default` + Editor log; missing `Members
 
 ## Simple XML rules
 
-Settings **MarshalAs Xml Paths**; Mono parses at runtime; Il2Cpp writes tables at **Generate**; **Player does not read XML**.
+Settings **MarshalAs Xml Paths**; Mono parses at runtime; Il2Cpp writes tables at **Generate**; **build-time XML is baked into Player**.
 
-**XML does not apply to hot-update assemblies:** types / members in HybridCLR (and similar) hot-update DLLs **must** use in-code `[LuaMarshalAs]`.
+Settings XML configures precompiled / AOT assemblies known at build time. For hot-update assemblies, use Attributes or call the corresponding [InteropMetadata.Register*Xml](/docs/reference/csharp/interop-metadata/) in Il2Cpp Player after loading the assembly and before first type binding. Editor Mono registration is a no-op.
 
 Key points: `Param` uses **`index` (0-based, excluding this)**; `type` uses **`OpaqueValue`** (not deprecated names); aliases use the separate `luaAliasXmlPaths`. Full schema: [Spec §9](/docs/spec/marshal/02-MARSHAL-AS/).
-
-## Learning path
-
-| | |
-|---|---|
-| **Previous** | [ref / in / out](/docs/guides/ref-out-in/) |
-| **Next** | [0GC Marshal](/docs/guides/zero-gc-marshal/) |
 
 ## Related
 

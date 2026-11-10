@@ -1,5 +1,4 @@
 ---
-sidebar_position: 4
 title: Lua calling C#
 description: Access types, static/instance members, construction, and Event (add_/remove_).
 ---
@@ -168,13 +167,6 @@ end
 | `static member not found` / mistaken static access | Do not access statics via instances; use the type table |
 | `member not writable` | Read-only Property |
 | Event `.get` is nil | Use `add_` / `remove_` |
-
-## Learning path
-
-| | |
-|---|---|
-| **Previous** | [EmmyLua debugger](/docs/guides/debugger/) |
-| **Next** | [C# calling Lua](/docs/guides/csharp-calling-lua/) |
 
 ## Related
 

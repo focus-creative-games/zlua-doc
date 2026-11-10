@@ -1,5 +1,4 @@
 ---
-sidebar_position: 12.5
 title: LuaAlias
 description: "[LuaAlias] 换名与 XML（luaAliasXmlPaths / ZLuaAlias）。"
 ---
@@ -16,7 +15,7 @@ description: "[LuaAlias] 换名与 XML（luaAliasXmlPaths / ZLuaAlias）。"
 |------|------|
 | 能改 C#，热路径要短名 + 冒号 | **`[LuaAlias]`** |
 | 不能改源码（预编译 / AOT、**非热更新** DLL） | Settings **`luaAliasXmlPaths`** + `ZLuaAlias` XML |
-| **热更新程序集**（含 HybridCLR） | **只**能代码中 `[LuaAlias]`；**不支持** XML |
+| 热更新程序集 | Attribute 或首次绑定前显式注册 XML；见 [InteropMetadata](/docs/reference/csharp/interop-metadata/) |
 | 只想精确点名、不在乎写法 | 全签名键 `demo['Run(System.Int32)'](demo, 5)`（可本地缓存 direct） |
 
 ## `[LuaAlias]` 属性
@@ -73,7 +72,7 @@ d:print(1)      -- 组内选 LogA(int)
 
 ## XML 配置
 
-> **仅**用于非热更新程序集。热更新程序集请用 `[LuaAlias]`，不要写进 `ZLuaAlias` XML。
+> Settings XML 用于构建期已知的预编译 / AOT 程序集。热更程序集可用 Attribute，或在 Il2Cpp Player 加载程序集后、首次类型绑定前调用对应的 [InteropMetadata.Register*Xml](/docs/reference/csharp/interop-metadata/)；Editor Mono 的注册方法为空实现。
 
 与 `[LuaMarshalAs]` **分开**：
 
@@ -111,7 +110,7 @@ d:print(1)      -- 组内选 LogA(int)
 
 - 同一方法：**Attribute > XML**（有 Attribute 则忽略该槽位 XML）
 - **Mono**：运行时读 `luaAliasXmlPaths`
-- **Il2Cpp**：Generate 写入静态表，**Player 不读 XML**（改 XML 后须重新 Generate）
+- **Il2Cpp**：Generate 写入静态表，**构建期 XML 已烘焙到 Player**（改 XML 后须重新 Generate）
 - 同一 `(assembly, type, method, signature)` 多条 `@alias` → **失败**
 
 在 Project Settings → **ZLua** 里把 XML 路径填入 **`luaAliasXmlPaths`**（与 MarshalAs 路径列表并列）。
@@ -131,15 +130,8 @@ d:print(1)      -- 组内选 LogA(int)
 | `demo:Run(10)` 调不到已标 alias 的重载 | 已换名，应使用别名或其它未换名的重载 |
 | `demo:Bar` → member not found | `Bar` 被 `[LuaAlias("Foo")]` 换走（读未知键现为 error，非 nil） |
 | XML 不生效（Player） | 未重新 **Generate**；或路径写在了 `marshalAsXmlPaths` |
-| 热更程序集上的 XML 无效 / 不被支持 | 热更新程序集须用 `[LuaAlias]`，不能靠 XML |
+| 热更 XML 未生效 | 检查注册方法、Player 环境与首次绑定顺序；见 [InteropMetadata](/docs/reference/csharp/interop-metadata/) |
 | 与 MarshalAs 写在同一根元素 | 须独立 `ZLuaAlias` 文件 |
-
-## 学习路径
-
-| | |
-|---|---|
-| **上一篇** | [方法重载](/docs/guides/overloads/) |
-| **下一篇** | [Extension 方法](/docs/guides/extension-methods/) |
 
 ## 相关文档
 

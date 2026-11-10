@@ -1,5 +1,4 @@
 ---
-sidebar_position: 13.5
 title: Third-party native modules
 description: Dual-track integration for third-party Lua C modules such as socket / cjson — Editor (cpath) and Player (static RequireF).
 ---
@@ -144,13 +143,6 @@ sequenceDiagram
 | Missing symbols on Player | Not statically linked or package not rebuilt |
 | `require` fails but dll is present | Module name mismatches `luaopen_*` (e.g. `socket.core` ↔ `luaopen_socket_core`) |
 | Plugin also linked its own Lua | Dual `lua_State` / dual runtime |
-
-## Learning path
-
-| | |
-|---|---|
-| **Previous** | [Common zlua APIs](/docs/guides/zlua-lib/) |
-| **Next** | [Migration](/docs/guides/migration/) |
 
 ## Related
 

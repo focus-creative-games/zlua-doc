@@ -1,5 +1,4 @@
 ---
-sidebar_position: 7
 title: Function and Delegate
 description: Three paths for Lua function ↔ C# Delegate and important caveats.
 ---
@@ -89,13 +88,6 @@ The second argument to `to_delegate` must be a **closed** type (e.g. `Action<int
 | Callback never runs | C# never Invoke’d; or GetFunction result discarded without caching |
 | Wrong `to_delegate` type | Second arg is not a closed delegate type |
 | remove has no effect | Not the same function reference |
-
-## Learning path
-
-| | |
-|---|---|
-| **Previous** | [Value types](/docs/guides/value-types/) |
-| **Next** | [Arrays](/docs/guides/arrays/) |
 
 ## Related
 

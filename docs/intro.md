@@ -19,11 +19,11 @@ description: ZLua 是什么、核心特性与适用场景。
 |--|--|
 | **更易用** | 现代、简单、**零配置**（无 per-type C# Wrap 白名单） |
 | **更完备** | 几乎覆盖全部常用 C#↔Lua 特性（泛型、重载、ref/out、数组、delegate…） |
-| **更高效** | Il2Cpp 四方实测：Lua→C# 上 xLua / toLua / SLua 约 **2.57× / 3.52× / 7.68×**（相对 ZLua）；详见 [性能对比](/docs/compare/PERFORMANCE/) |
-| **更少 GC** | 引用类型与 struct 默认 **0 GC**；OpaqueValue 等灵活策略 |
-| **极小桥接** | 同签名合并的 C++ stub；体积可小一个数量级；可至 **0 桥接函数** |
-| **版本更广** | Lua 5.1–5.5 / LuaJIT（Il2Cpp 上 JIT 仅 Android / iOS）/ [Luau](https://luau.org/)（官方仓库 [`luau` 分支](https://github.com/focus-creative-games/zlua/tree/luau)；Editor 仅 Windows，Il2Cpp 当前 Windows x64）；Unity **2021.3 / 2022.3 / Unity 6（6000.0 / 6000.3 / 6000.5）**；团结引擎 |
-| **无缝兼容HybridCLR**| 与 HybridCLR v9.0.0+版本原生兼容，支持与热更新代码无缝交互 |
+| **更高效** | 已公开四方 Il2Cpp 实测；报告、环境与统计数据统一见 [性能对比](/docs/compare/PERFORMANCE/)。 |
+| **更少 GC** | 提供低分配 Marshal 路径；须区分托管 / Lua 分配、首次绑定 / 稳态。见 [GC 边界](/docs/compare/GC/)。 |
+| **共享桥接** | C++ stub 按约简签名复用；包体收益需要实测，见 [桥接分析](/docs/compare/BRIDGE/)。 |
+| **版本更广** | 多种 Lua 引擎与维护中的 Unity LTS 系列；版本、平台与分支限制统一见 [兼容性矩阵](/docs/getting-started/compatibility/)。 |
+| **HybridCLR 热更** | 统一安装与运行时元数据注册；步骤见 [HybridCLR 集成](/docs/guides/hybridclr/)。 |
 | **维护更积极** | 全职专业团队 |
 
 完整论述见 **[为什么选择 ZLua](/docs/concepts/why-zlua/)**；四方对照见 **[选型对比](/docs/compare/)**。
@@ -45,10 +45,10 @@ description: ZLua 是什么、核心特性与适用场景。
 
 ## 下一步
 
-- [5 分钟快速开始](/docs/getting-started/quick-start/) — 跑通最小示例
+- [快速开始](/docs/getting-started/quick-start/) — 跑通最小示例
 - [为什么选择 ZLua](/docs/concepts/why-zlua/) — 选型理由
 - [安装与集成](/docs/getting-started/installation/) — UPM 安装与工程结构
-- [使用指南](/docs/guides/install/) — 循序渐进教程（安装 → 互调 → 构建 → …）
+- [使用指南](/docs/getting-started/installation/) — 循序渐进教程（安装 → 互调 → 构建 → …）
 - [HybridCLR 集成](/docs/guides/hybridclr/) — 双包安装顺序与热更约束
 - [选型对比](/docs/compare/) — 相对 xLua / toLua / SLua
 - [性能基准](https://github.com/focus-creative-games/zlua-benchmark) — 可复现 Il2Cpp 对比与[最新报告](https://github.com/focus-creative-games/zlua-benchmark/blob/main/reports/comparison_20260728_121554.md)

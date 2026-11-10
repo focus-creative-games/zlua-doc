@@ -1,5 +1,4 @@
 ---
-sidebar_position: 10
 title: ref / in / out
 description: Default Opaque behavior for byref parameters and write-back rules.
 ---
@@ -63,13 +62,6 @@ Opaque must **not** be persisted across `pcall` / frames as a long-lived handle.
 ## Relation to the Value types chapter
 
 By-val structs are **copies**; to “mutate fields and reflect into C#” pass same-type userdata to a `ref` parameter, or use Opaque. See [Value types](/docs/guides/value-types/).
-
-## Learning path
-
-| | |
-|---|---|
-| **Previous** | [Generics](/docs/guides/generics/) |
-| **Next** | [LuaMarshalAs](/docs/guides/lua-marshal-as/) |
 
 ## Related
 

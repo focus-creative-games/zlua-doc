@@ -23,7 +23,7 @@ function HomepageHeader() {
         </Heading>
         <p className="hero__subtitle">
           <Translate id="homepage.tagline">
-            Zero-config · Full C# interop · ~2.62× faster than xLua on Il2Cpp
+            Native Lua · C# interop · Optimized for Unity Il2Cpp
           </Translate>
         </p>
         <div className={styles.runtimeRow}>
@@ -33,7 +33,7 @@ function HomepageHeader() {
           <Link
             className="button button--secondary button--lg"
             to="/docs/getting-started/quick-start">
-            <Translate id="homepage.cta.quickStart">5-minute quick start</Translate>
+            <Translate id="homepage.cta.quickStart">Quick start</Translate>
           </Link>
           <Link
             className="button button--outline button--secondary button--lg"
@@ -42,9 +42,11 @@ function HomepageHeader() {
           </Link>
         </div>
         <p className={styles.heroMeta}>
-          <Translate id="homepage.heroMeta">
-            Unity 2021+ · Tuanjie · Lua 5.1–5.5 / LuaJIT / Luau (luau branch)
-          </Translate>
+          <Link to="/docs/getting-started/compatibility/">
+            <Translate id="homepage.heroMeta">
+              Unity LTS · Tuanjie · Multiple Lua engines; see compatibility
+            </Translate>
+          </Link>
         </p>
       </div>
     </header>

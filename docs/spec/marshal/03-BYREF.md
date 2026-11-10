@@ -1,4 +1,4 @@
-﻿---
+---
 sidebar_position: 9
 title: "`ref` / `in` / `out` Marshal"
 ---
@@ -130,7 +130,6 @@ local ok, x, y = CS.Foo.TryGet()
 全签名键仍含 `System.Single&` 等 CLR byref 拼写；仅 **调用 arity** 与 **返回值个数** 按上表变化。
 
 ---
-
 
 ## 6. 桥接流程（概念）
 

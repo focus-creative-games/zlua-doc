@@ -1,214 +1,96 @@
 ---
-sidebar_position: 1
 title: 快速开始
-description: 基于 zlua-demo 从零跑通 C# ↔ Lua 互操作。
+description: 用完整的最小示例验证 Editor 中的双向调用。
 ---
-
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
 
 # 快速开始
 
-本教程基于官方示例 [zlua-demo](https://github.com/focus-creative-games/zlua-demo)，逐步完成 **C# 调用 Lua** 与 **Lua 访问 C#**。建议先 clone Demo 工程对照操作。
+先完成 [安装与集成](/docs/getting-started/installation/) 中的 **Settings → Install**。克隆 Demo 后也需要完成本地 Install。本文在 Editor 中验证双向调用；Player 另见 [首次构建](/docs/getting-started/build/)。
 
-<span className="runtimeBadge"><span className="runtimeBadgeMono">Mono · 已完成</span><span className="runtimeBadgeIl2cpp">Il2Cpp · 已完成</span></span> — 本页示例在 **Editor** 与 **Player** 均可用；Player 构建须 **Generate**，见 [兼容性](/docs/getting-started/compatibility/)。
+## 1. 创建 C# 入口
 
-:::tip 示例源码
-
-| 组件 | 链接 |
-|------|------|
-| C# 入口 | [Assets/Bootstrap.cs](https://github.com/focus-creative-games/zlua-demo/blob/main/Assets/Bootstrap.cs) |
-| C# 类型 | [Assets/Demo.cs](https://github.com/focus-creative-games/zlua-demo/blob/main/Assets/Demo.cs) |
-| Lua 模块 | [LuaScripts/app.lua](https://github.com/focus-creative-games/zlua-demo/blob/main/LuaScripts/app.lua) |
-
-:::
-
-## 前置条件
-
-- 已完成 [安装与集成](/docs/getting-started/installation/)（含 Settings + Install），或已 clone zlua-demo
-- 任意 [兼容性](/docs/getting-started/compatibility/) 所列 Unity 版本，Editor 下 Play 即可
-
-## 第 1 步：初始化 ZLua
-
-`Bootstrap` 在场景加载前注册 Lua 加载器并初始化域：
+将以下完整文件保存为 `Assets/Bootstrap.cs`。无需挂到场景对象；初始化方法会自动执行。
 
 ```csharp
-[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-private static void InitZLuaOnStartup()
+using System;
+using System.IO;
+using System.Text;
+using UnityEngine;
+using ZLua;
+
+public static class Bootstrap
 {
-    LuaAppDomain.Initialize(LoadLuaModule);
+    private static string LoadLuaModule(string module)
+    {
+        string relativePath = module.Replace('.', '/') + ".lua";
+        string path = Path.Combine(Application.dataPath, "..", "LuaScripts", relativePath);
+        if (!File.Exists(path))
+        {
+            throw new FileNotFoundException($"Lua module '{module}' not found", path);
+        }
+        return File.ReadAllText(path, Encoding.UTF8);
+    }
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    private static void Initialize()
+    {
+        LuaAppDomain.Initialize(LoadLuaModule);
+        Action main = LuaAppDomain.GetFunction<Action>("app", "main");
+        Func<int, int, int> add = LuaAppDomain.GetFunction<Func<int, int, int>>("app", "add");
+        main();
+        Debug.Log($"Lua add: {add(10, 20)}");
+    }
 }
 ```
 
-`LoadLuaModule("app")` 在 Editor 下读取 `LuaScripts/app.lua`（见 [Bootstrap.cs](https://github.com/focus-creative-games/zlua-demo/blob/main/Assets/Bootstrap.cs)）。
-
-**不需要**手动创建 `LuaState`、执行 `require` 或注册 wrap——ZLua 启动时完成全局 CLR 与 Lua 环境集成。
-
-## 第 2 步：C# 调用 Lua
-
-用 `LuaAppDomain.GetFunction<T>` 取得 Lua 函数对应的 Delegate；Lua 模块 `return` 表导出同名函数。
-
-<Tabs groupId="quickstart-c2l">
-<TabItem value="csharp" label="C#" default>
+创建 `Assets/Demo.cs`：
 
 ```csharp
-Action AppMain;
-Func<int, int, int> AppAdd;
-
-void Awake()
+public class Demo
 {
-    // 须在 InitZLuaOnStartup（Initialize）之后；勿用 static 字段初始化器
-    AppMain = LuaAppDomain.GetFunction<Action>("app", "main");
-    AppAdd = LuaAppDomain.GetFunction<Func<int, int, int>>("app", "add");
-}
+    public int x;
 
-void Start()
-{
-    AppMain();
-    int value = AppAdd(10, 20);
-    Debug.Log($"AppAdd(10,20)={value}");  // 30
+    public static int Add(int a, int b) => a + b;
 }
 ```
 
-</TabItem>
-<TabItem value="lua" label="Lua">
+## 2. 创建 Lua 模块
+
+在项目根创建 `LuaScripts/app.lua`（与 `Assets` 同级的 `LuaScripts` 目录）：
 
 ```lua
+local Demo = CSharp['Assembly-CSharp'].Demo
+
 local function main()
-    print("lua main start")
-    -- ...
+    local instance = Demo()
+    instance.x = 10
+    print("C# Add: " .. Demo.Add(3, 5))
+    print("C# field: " .. instance.x)
 end
 
 local function add(a, b)
     return a + b
 end
 
-return {
-    main = main,
-    add = add,
-}
+return { main = main, add = add }
 ```
 
-</TabItem>
-</Tabs>
+`GetFunction` 加载模块的返回表，按键找到函数并返回委托。Lua 通过 `CSharp[程序集名]` 找到 C# 类型，静态方法使用点号，实例方法使用冒号。
 
-完整逻辑见 [LuaScripts/app.lua](https://github.com/focus-creative-games/zlua-demo/blob/main/LuaScripts/app.lua)。
+## 3. 验证
 
-### 预期 Console 输出（Editor Play）
+打开任意场景并 Play，Console 应依次包含：
 
-```
-lua main start
-[test_call_static_method] start
-Demo.Add: 8
-...
-AppAdd(10,20)=30
+```text
+C# Add: 8
+C# field: 10
+Lua add: 30
 ```
 
-## 第 3 步：Lua 访问 C# 类型
-
-### 程序集别名
-
-Lua 中通过 `CSharp` 根表懒加载程序集与类型：
-
-```lua
-CSharp['AC'] = CSharp['Assembly-CSharp']   -- 短别名，Demo 惯例
-```
-
-### 静态方法
-
-```lua
-print(CSharp.AC.Demo.Add(3, 5))       -- 8
-print(CSharp.AC.Demo.Multi(3, 5))     -- 15
-```
-
-### 构造与实例方法
-
-```lua
-local demo = CSharp.AC.Demo()
-print(demo:GetX())                    -- 0
-demo:SetX(10)
-```
-
-### 字段与属性
-
-字段与无参 Property 写法相同：
-
-```lua
-demo.x = 20
-print(demo:GetX())                    -- 20
-```
-
-### 静态成员
-
-```lua
-CSharp.AC.Demo.s_x = 10
-print(CSharp.AC.Demo.GetSX())         -- 10
-```
-
-以上测试函数在 [app.lua](https://github.com/focus-creative-games/zlua-demo/blob/main/LuaScripts/app.lua) 的 `test_*` 系列中。
-
-## 访问规则速记
-
-| 操作 | Lua 写法 |
-|------|----------|
-| 构造实例 | `CSharp.AC.Demo()` |
-| 实例字段/属性 | `demo.x` / `demo:SetX(10)` |
-| 实例方法 | `demo:Run(10)` |
-| 静态字段 | `CSharp.AC.Demo.s_x` |
-| 静态方法 | `CSharp.AC.Demo.Add(3, 5)` |
-| 含 namespace 的类型 | `CSharp.AC['MyGame.UI.Panel']` |
-
-## 第 4 步（可选）：方法重载
-
-`Demo.Run` 有 `int` 与 `string` 两个重载。可用全签名键精确点名，或 Bind 期 `[LuaAlias]` 短名冒号调用：
-
-```lua
-demo['Run(System.Int32)'](demo, 10)
-
--- 也可本地缓存全签名键（无运行时挂短名 API）
-local run_i32 = demo['Run(System.Int32)']
-run_i32(demo, 10)
-```
-
-详见 [函数调用（入门）](/docs/getting-started/method-calls/)（重载 / 泛型方法 / `params`）、[方法重载（指南）](/docs/guides/overloads/)。
-
-## 构建 Il2Cpp Player
-
-1. 执行 **`ZLua/Generate/All`**（生成 C++ stub）
-2. 确保已配置 [SyncLuaScriptsToStreamingAssets](https://github.com/focus-creative-games/zlua-demo/blob/main/Assets/Editor/SyncLuaScriptsToStreamingAssets.cs)
-3. Build Settings → Il2Cpp → Build
-
-详见 [项目状态](/docs/getting-started/project-status/)、[Editor 与 Player](/docs/guides/editor-vs-player/)。
-
-## Mono / Il2Cpp 支持
-
-| 本页示例 | Mono (Editor) | Il2Cpp (Player) |
-|----------|:-------------:|:---------------:|
-| Initialize + GetFunction | ✅ | ✅ |
-| 静态/实例方法、字段 | ✅ | ✅ |
-| Property / 重载 | ✅ | ✅（语义以规范为准） |
-
-## 常见错误
-
-| 错误 | 排查 |
-|------|------|
-| `module 'app' not found` | 检查 `LuaScripts/app.lua` 是否存在；`LoadLuaModule` 路径 |
-| 类型 `Demo` 为 nil | 程序集名错误；应为 `CSharp.AC.Demo` |
-| `AppAdd` 返回 0 | Lua 模块未 `return { add = add }`；或函数名与 `GetFunction` 的 method 参数不一致 |
-| Player 无 Lua 输出 | 未同步 `StreamingAssets/LuaScripts/app.lua.txt` |
+找不到模块时检查文件位置；找不到 `Demo` 时检查程序集名（使用 asmdef 的项目应改为实际程序集名）。同一进程已有 Lua 域时不要再次 `Initialize`；生命周期见 [LuaAppDomain](/docs/reference/csharp/lua-app-domain/)。
 
 ## 下一步
 
-循序渐进请走使用指南主线：
+继续 [首次构建 Il2Cpp Player](/docs/getting-started/build/)，为 loader 增加 Player 脚本路径与资源加载。本文 loader 专用于 Editor；Android / WebGL 等平台应先用项目资源系统取得脚本，再交给同步 loader。
 
-1. [安装与 Lua 版本](/docs/guides/install/)
-2. [初始化与最小互调](/docs/guides/hello-interop/)
-3. [构建流程](/docs/guides/build/)
-4. [Lua 调用 C#](/docs/guides/lua-calling-csharp/) → [C# 调用 Lua](/docs/guides/csharp-calling-lua/) → …
-
-## 学习路径
-
-| | |
-|---|---|
-| **上一篇** | [安装与集成](/docs/getting-started/installation/) |
-| **下一篇** | [安装与 Lua 版本](/docs/guides/install/) |
+日常用法见 [Lua 调用 C#](/docs/guides/lua-calling-csharp/)、[C# 调用 Lua](/docs/guides/csharp-calling-lua/)。官方完整工程为 [zlua-demo](https://github.com/focus-creative-games/zlua-demo)。

@@ -1,0 +1,531 @@
+{
+  "version": 1,
+  "note": "Baseline records detect future drift; they do not certify translation accuracy. Reviewed pages were checked during the documentation refactor.",
+  "pages": {
+    "community/contact.md": {
+      "sourceHash": "607f8fc2455ff65a071d864cfbd5dbbf043404bc3588d111890a49362708244d",
+      "translationHash": "9684ef172625d218eeca20156a73fbb17ad9bf9745688de6440f0b831bead410",
+      "status": "baseline"
+    },
+    "community/contributing.md": {
+      "sourceHash": "f8a9f95c601195eaf6b06d0a56bb7c90425b29e414999c53d913893b09df281c",
+      "translationHash": "b4814a7dfce8eeebbf3749ce27522109f4b2927d9e26cb34094fc2d3bc05d9c9",
+      "status": "baseline"
+    },
+    "community/faq.md": {
+      "sourceHash": "fbe8611803d98741a2a836cf2b78a1cabc2e79c1ca1c4cb0c530992e0f6b2ca1",
+      "translationHash": "7caad94f344f7db8ca4b1f26142b1372a72cffc074d16e3c2fd812002f74d5fd",
+      "status": "baseline"
+    },
+    "community/roadmap.md": {
+      "sourceHash": "5cff07cf22e17d3dc4f58da5bcf952cc000c6a78ff637376abe2fea8ab644581",
+      "translationHash": "2a0453748b2237d6de6b6c563d811916c5a4e0d82655e27078adfe0543905001",
+      "status": "baseline"
+    },
+    "community/testing.md": {
+      "sourceHash": "7326d592633bd955177ac0dd2c1f0fe7bef61405289b68a6f1afd94a26466424",
+      "translationHash": "401629db346bf7538fc75490f94987af0f384bfe0974305e0ac3cfb9bfcfa9d2",
+      "status": "baseline"
+    },
+    "compare/BRIDGE.md": {
+      "sourceHash": "9bfd3756c6aaecce319e080c31ca67b3c861c2323de3833ff1acc8642f24af35",
+      "translationHash": "b8fbbd1c3734a4b39c03e6abb494985bb3422d2d6c0e1c3ca54602d954a5831c",
+      "status": "baseline"
+    },
+    "compare/FEATURES.md": {
+      "sourceHash": "cca57fa0a7de5df553f24e73c940a4aeb6686d9da01cb37554eeb3a60cf38a29",
+      "translationHash": "2082c37120ca87a8b09eb5737c2b0dd9b4afe61de1d0eb970a89b5e641953e86",
+      "status": "baseline"
+    },
+    "compare/GC.md": {
+      "sourceHash": "b33418ddf969ae589b73fd6220c73885334373a8a21349acb077ebb2619f4ce0",
+      "translationHash": "2316146e0a75c1fc498ea50b43653f652ced0914d0a4dbcad01dc2e898e3f88d",
+      "status": "baseline"
+    },
+    "compare/index.md": {
+      "sourceHash": "28518f112ab33464b7faa850a8d5ca8618b1469726555619921e76ec1f6fdfbf",
+      "translationHash": "8cd78c32e2616de1358484064ddbeef2dd3e4620c1011d7cba00f84a39c4f40a",
+      "status": "baseline"
+    },
+    "compare/PERFORMANCE.md": {
+      "sourceHash": "23ae9a54db7f89825499defa45c025712d8e8f98ed1472a59dfef0a32b684dce",
+      "translationHash": "a2042834b29d74ae858f25a7c6f95eb6fb87efa498a301539018606b027cf77c",
+      "status": "baseline"
+    },
+    "concepts/design-overview.md": {
+      "sourceHash": "daf583781c00fc6796a68253ee97e6c59802614fb26d35feeb207cd9ab38bcde",
+      "translationHash": "6cb48decb6bce25e0756ad38bcc9b13a2bd4390be3f754b61c65f7556c4747f5",
+      "status": "baseline"
+    },
+    "concepts/dual-runtime.md": {
+      "sourceHash": "5dbc8ff50a3c034b48527852ed7bf8e50a33c6a50ae089bbc7593c1c914d1da2",
+      "translationHash": "646dd7301e429e191a077056b1bc8cedc5c0898459e5bba0f172ac22aecbd6bd",
+      "status": "baseline"
+    },
+    "concepts/glossary.md": {
+      "sourceHash": "dd2271b8ccc580d4cd306c28e9e36cfd2af102aae94619dbc4df28e6746b746c",
+      "translationHash": "7e56314f3fb810d44a9b7c782ccd336a53daa6e095e3898b1ea0490676cbd490",
+      "status": "baseline"
+    },
+    "concepts/marshal-overview.md": {
+      "sourceHash": "a28286d218d6cfa2aeef89b0309f9f675a4c5248cc9798645d60ec6052f9e440",
+      "translationHash": "72388679909dc16b06e7cd5b8399c0908215ef9c8787925d1552b387223c51c4",
+      "status": "baseline"
+    },
+    "concepts/metatable-model.md": {
+      "sourceHash": "b86112e5cf2d49b3542e51ef6ac1f0a3965c33b457e1b39bc9ba79ef2cf67a30",
+      "translationHash": "5121e6064f6a7e931f91b6fefeee54efa215fef6af629f02ae443b80c0da2202",
+      "status": "baseline"
+    },
+    "concepts/type-system-overview.md": {
+      "sourceHash": "a976c6aaa0a5f28e987c0e11ef3718565440434a2898f6cd0cc8a77e12df4324",
+      "translationHash": "27ced090969cd9a96d7217f9c4006369a940bccf2dd35d1a3e8c9c8111bbf76d",
+      "status": "baseline"
+    },
+    "concepts/why-zlua.md": {
+      "sourceHash": "1dd6b48e14c73ffac5400af65f59592c3e03c6e82dd498c0f48816f495ec226b",
+      "translationHash": "a086085fa437da2e54f69ee6079e5fc9aa9a6a711b5801dceaed6c29988ddff6",
+      "status": "baseline"
+    },
+    "getting-started/build.md": {
+      "sourceHash": "dc4a3c5dd21bd6471be775d381fa938a3dd528b0fad953b97f2f66563884da98",
+      "translationHash": "f0b1c8a81f74cb59e65a1c789c0d6dfd2b67e8150c9a4c682ee394e017a814c0",
+      "status": "reviewed"
+    },
+    "getting-started/compatibility.md": {
+      "sourceHash": "0adc7e741132372863a244d5bd85c29fbafa22cfb53ab274ad406beeb80fb0e2",
+      "translationHash": "a4cd2e20bdfc29f485fb1d84679ffc598d162fd4039b845da2e4196b001a67f6",
+      "status": "reviewed"
+    },
+    "getting-started/installation.md": {
+      "sourceHash": "bd2d40b30dd067d05ec98bef10addf38fd4d94c4c634d9bffa6d782446ef51df",
+      "translationHash": "1102b4f3d12aab75cb7925a84be7a405ccb25a85c0780465f2257255f61132aa",
+      "status": "reviewed"
+    },
+    "getting-started/method-calls.md": {
+      "sourceHash": "80ddbfff3630e7711f9b622d585bdab97b04446caa4cdae7966dfd8cd0b7df5d",
+      "translationHash": "9ccdaf141ab89cecf5d62d5270e61919baa598ce11df6728636203a41ed68027",
+      "status": "baseline"
+    },
+    "getting-started/project-status.md": {
+      "sourceHash": "f754041ab481c176460412172dca91ca2ee2e3854aee8a2dc88293f1d8cae654",
+      "translationHash": "2035fee008abcd905d70ef2e79bfcc69ce9a8dc5e1a6c64f43bd54afb0285656",
+      "status": "baseline"
+    },
+    "getting-started/quick-start.mdx": {
+      "sourceHash": "9e6c5a0e2d0c889481093b0ba295cf763440b77692a67cc9a64f46c80eb141ae",
+      "translationHash": "8be7648315b1c5571f1b8b1a8b69ed866bbd965dde265d04fa5ba21870d436b8",
+      "status": "reviewed"
+    },
+    "guides/actual-type-userdata.md": {
+      "sourceHash": "9bc382e85d58a91037fa32fa38dae0192b29b396861c6589247c82db2536a3b8",
+      "translationHash": "068e06755d57a5b60803c54e74773f5599b127902ca8d320ea78295410e57ad1",
+      "status": "baseline"
+    },
+    "guides/arrays.md": {
+      "sourceHash": "7816655de6a4189933b16f96259c684e9ed31009d0a6cbc2bba71e1d90ccbe60",
+      "translationHash": "9d584098e17f3c8fedd22d63e845f36f4d51be5bd614b51edc417d397e7863aa",
+      "status": "baseline"
+    },
+    "guides/csharp-calling-lua.md": {
+      "sourceHash": "0a41f55b721b327c72631bf45df1c1f1b36754c4891344003298529752cee00c",
+      "translationHash": "650448106e1b5be9d681805f444b8f6bfc91d94a80d96ad5b228249c85fdf9ae",
+      "status": "baseline"
+    },
+    "guides/debugger.md": {
+      "sourceHash": "e61f73c175e37da65c09b3e4e2945314899cee26cd6ce099dbfbabdcc8aef3d7",
+      "translationHash": "07fd57cb0734c039fb57bbb36536a190dded5a9b8a2b71d37af046381717358d",
+      "status": "baseline"
+    },
+    "guides/editor-vs-player.md": {
+      "sourceHash": "75fb70f9f5c351fc42418e789f08c2f9aa97fbfc6b9b3b0f8d9048d6acf0c48b",
+      "translationHash": "abea5ea7916bd18ff0dc5f3f786f62bcd7f16ed0017a928b41a7556296e38e34",
+      "status": "baseline"
+    },
+    "guides/extension-methods.md": {
+      "sourceHash": "716b5fc208d0cfeae74f83ada7266cdb9d82439aab08e714340cc35ad43a9b20",
+      "translationHash": "c5e67760675498e39ff26eedecd66d2cee48a15ea6f05ed2c64302990d67e2c3",
+      "status": "baseline"
+    },
+    "guides/functions.md": {
+      "sourceHash": "3a8d389c81f897f52f225c012479b7ce6c0881317607c8055e213cb473167141",
+      "translationHash": "cb5ca4c8eb8198feca6a8c7a1afd29b5588baf3ba06e423261654926898a43da",
+      "status": "baseline"
+    },
+    "guides/generics.md": {
+      "sourceHash": "8995ff3278790b96778386e2f48844a95f3e17ce1eaa83f511aa579e917c6f71",
+      "translationHash": "e5bf948196d01b2f9a4048655e0d4de09e52a00f70edcfa2d3c8a2e3d30284f1",
+      "status": "baseline"
+    },
+    "guides/hybridclr.md": {
+      "sourceHash": "f80d3e491be4486ccf0e5bbd707bb7504c1b1385f1310bd7bda7bd69be692ea5",
+      "translationHash": "8f551addcef8a6cf9dd47fc10d54b5134edea26dd61d3214f1a4fb3e06eeea2e",
+      "status": "reviewed"
+    },
+    "guides/lua-alias.md": {
+      "sourceHash": "441029c19c2ae777b618797b43d9cabbab1c3e6b9a1ac05ff58cec42fa277476",
+      "translationHash": "5e7fe80422b2908a07aecfe7ed596823f9d319683f91fa42fdd8746577ec1eeb",
+      "status": "baseline"
+    },
+    "guides/lua-calling-csharp.md": {
+      "sourceHash": "44e492c9e3ab4faeef05e3bf8a21dfca3ffca422e407de47994855b62fb5063b",
+      "translationHash": "5ba3fc297407714d4ab4ce9008d64927e9b87aa131f035013459f8605d4dac84",
+      "status": "baseline"
+    },
+    "guides/lua-marshal-as.md": {
+      "sourceHash": "8ee6e533fc21578a3720c7029b426d6b4f5fa71326bfdc2d7ea8203580c685eb",
+      "translationHash": "d5ad55f872dddc8bea2e31c95fb13e3aef337122204aad5fb585cb7b92e27252",
+      "status": "baseline"
+    },
+    "guides/migration/from-slua.md": {
+      "sourceHash": "7cf3259415f2681932c77d2735dd5260024f3d50a2cd46257080933a9c0a70dc",
+      "translationHash": "05c8a0ac03d62f505075a4b31602e328c1787dc9f75a42592d4c31d5f03f2593",
+      "status": "baseline"
+    },
+    "guides/migration/from-tolua.md": {
+      "sourceHash": "6c251461291581480853433183f72472b71524d42ac2cd0177e228f272c12fe6",
+      "translationHash": "00173c0cc277db7ff9e40e424389b472d99f784ec173b41fdcd95a0a663cbc3d",
+      "status": "baseline"
+    },
+    "guides/migration/from-xlua.md": {
+      "sourceHash": "4abe9a05ff9b34da91ed53d829f201b237f9e82ec2a5abfd0f442f0fd5c84ed0",
+      "translationHash": "668c02ffd26ac1fa79ac8928181a5b8c9cd97e14141b92a3f5d59c9a705bc6fb",
+      "status": "baseline"
+    },
+    "guides/migration/index.md": {
+      "sourceHash": "a3532550d1369f67a4e4e642dd2d303abf72c5cbf827c6664d67607b518436df",
+      "translationHash": "e6028b1d1a191d8dcd848ff4ccf1ee64472c3f82535b33c031b734430ff80ccd",
+      "status": "baseline"
+    },
+    "guides/native-modules.md": {
+      "sourceHash": "06964493d62324af3e378f9327aa43b9669671e1613db064a3e9807a11daf579",
+      "translationHash": "d8f64914766895fa0ade6e8dcd055fc6803f6e64382971f8e7751551cc7ac070",
+      "status": "baseline"
+    },
+    "guides/overloads.md": {
+      "sourceHash": "0310b8afed545fc536eaa6777e83e55d35b14a274d78a1d4d9803f43e62545a3",
+      "translationHash": "0a40a3e38d8db01eabd1ab76fb2e3606fddb3f5455294fb7a79baf2d873fb2bd",
+      "status": "baseline"
+    },
+    "guides/params.md": {
+      "sourceHash": "3eecf6472deea69c608b4bf506aaac2d6d58fc6b4b6e1fe83387c9747a6cf951",
+      "translationHash": "2c87ae3578a64a84f0b65e17dc617ffcf7496980507e756d7f511ed771dc6dda",
+      "status": "baseline"
+    },
+    "guides/ref-out-in.md": {
+      "sourceHash": "52aa105c39d1ad263374b92d6d2dadc4787ccdf7f8ced097891b16593c521ee6",
+      "translationHash": "16dba8b86d7d9e58cc3b807a045a7b65fcb729a3dae5111cd5f431f313862f85",
+      "status": "baseline"
+    },
+    "guides/settings.md": {
+      "sourceHash": "f07d9483848e7911920fb229b18d9bcfdb659a4c07bfcb23d52685871b44bf35",
+      "translationHash": "731256a1803fc4fabab0384cbb43da88c9b6eda425a6eac40398336b99e06651",
+      "status": "baseline"
+    },
+    "guides/skills.md": {
+      "sourceHash": "6c2de88668f1f81e698f606bcdb32d352aae3ab21079177d240a4f767986fe18",
+      "translationHash": "12e85c12fead3dcbc6599373cb34b9f987ecb55492db730b896465d7ba10f885",
+      "status": "baseline"
+    },
+    "guides/troubleshooting.md": {
+      "sourceHash": "5c8da75cf9d86e74bf4e91db38a4951eced6bee0fb7e4ecb880570c84137f01e",
+      "translationHash": "52e5f937caffea648ee743e2eb72561f39f3dd79d0e68370107d2d6f8f377ff9",
+      "status": "baseline"
+    },
+    "guides/unity-optimizations.md": {
+      "sourceHash": "ee04868f9b1428dbb8aea6910636d4150204a903920d045c6df49e6d751e3d42",
+      "translationHash": "dbce9dd8da37fa97e83bdc5e910468eec423a54d02193755bf6a64f29924daf9",
+      "status": "baseline"
+    },
+    "guides/value-types.md": {
+      "sourceHash": "52612829521d11e19451f075e0ac79651407b812bda0b9a846b6b3919e41b3bf",
+      "translationHash": "db64269550f71d370477bac9e15c326654ef5c3565559a42188300bed400d106",
+      "status": "baseline"
+    },
+    "guides/zero-gc-marshal.md": {
+      "sourceHash": "a119e4fbab3b38fb1dcd92576ca56e9be3843811c56dbb6d9e29bfcc64d64716",
+      "translationHash": "748fd7c479b7000a28dcbb5d37fd9ddf33410169c20a61762cdde601830c6133",
+      "status": "baseline"
+    },
+    "guides/zlua-lib.md": {
+      "sourceHash": "863294fc1b21cb0346241a02a8cc98d2fdde6db0f99cf73f12a12901c9c02241",
+      "translationHash": "9351d4387fcebdb183ea88bc7c89f57c0aa495e5174cf6ab5c286b37b82ba18a",
+      "status": "baseline"
+    },
+    "impl/codegen/EMIT-MONO.md": {
+      "sourceHash": "c56c0d2fdc16e9da1f2fcfdfa3d97ca52c178e366e436583a7dbd0e9c2ff6512",
+      "translationHash": "d843854c324d6c334a401cab2bdc0d959a2971ca4d11c1a07fb5a9a9b1045ef1",
+      "status": "baseline"
+    },
+    "impl/codegen/index.md": {
+      "sourceHash": "fd2cbd1c3e3791b6c0ba801708eaa4e5b7b47091979d74d7c9eef5e0fff32f29",
+      "translationHash": "4db1274d0f688bdd4803c57684454e4ff103cc4527f221c458457f84a829e86a",
+      "status": "baseline"
+    },
+    "impl/codegen/STUBS-IL2CPP.md": {
+      "sourceHash": "04689824d9af41e1016fec458c100400682aefaf4b51d16774558dba4f743124",
+      "translationHash": "f85bb017eacaf2758032c794e824fc557e242385fa18a7eb297ea7faf253ae42",
+      "status": "baseline"
+    },
+    "impl/IL2CPP.md": {
+      "sourceHash": "e62e1d7a39c87288c0c49c4e3e8f5d89943aed22247f5561595aa693e08ed04f",
+      "translationHash": "b5a883c50b1285e692d0f2c9c6ef0dfb60ce60892e18f574cfa24a265414c47f",
+      "status": "baseline"
+    },
+    "impl/marshal/index.md": {
+      "sourceHash": "ebc380524754bc5388c166f45b14b247b5a524e1dadb8bb032e9b93cf848ef94",
+      "translationHash": "1955f214f6c6714f7013f4c4edb7695b3706f65f33c800beb4bf68034ffd4804",
+      "status": "baseline"
+    },
+    "impl/marshal/MARSHAL-META.md": {
+      "sourceHash": "0fed0c9d92ab4dc0c6c0ba304f1508f76dfb6113ef97ff90486e708daf807db2",
+      "translationHash": "de602af014289f4661edb8110be83195ddfe5530bbb9ef9afd4590c6392f37de",
+      "status": "baseline"
+    },
+    "impl/marshal/OVERLOAD-RESOLVER.md": {
+      "sourceHash": "ed4fc1b1c98602badb3a414e55b485d422d87d264fdb34bcb2650e5aa81de2f0",
+      "translationHash": "d87bcdf9b046bb7417eb90e32425f50012144398a675a463782398ded26b7f14",
+      "status": "baseline"
+    },
+    "impl/marshal/REGISTRIES.md": {
+      "sourceHash": "8e9a1773d6d270875fb1504159066a91841ca2f6348b7a3abc998c24852febee",
+      "translationHash": "2da6ac4a054d1d7fc90ded49a25c6f781f1a8b54804297fc04a5d8788d024895",
+      "status": "baseline"
+    },
+    "impl/metatable/index.md": {
+      "sourceHash": "5fe2e2c22074629d9c75adda9accbbf8ab185f2a91e5861bd62483a255ff35dc",
+      "translationHash": "d1b3c47e96f51d37d577d22e954c68d7f1308fb95e4a7051035398608dfb4383",
+      "status": "baseline"
+    },
+    "impl/metatable/INDEXER-IL2CPP.md": {
+      "sourceHash": "172a3fe4d590008b01a3647cbb1fcba2cccca3629b3019085c0d5bcaa6df690f",
+      "translationHash": "7f5a62d2aa52984906510390a1e935e2f81453be3a9579539fcc8caa376c63a5",
+      "status": "baseline"
+    },
+    "impl/metatable/INDEXER-MONO.md": {
+      "sourceHash": "5b7f75ad518e73b3f754374bbd80fe3c7a7dd00ab5f67a2ca6b09e6ff9d4e740",
+      "translationHash": "489b093a26c8828aab703c9ac2f10205554cc1a5c137c9d81219aad57dd79a16",
+      "status": "baseline"
+    },
+    "impl/MONO.md": {
+      "sourceHash": "1d71eb533ee28909a6df5a26bbdb61c02baf334a39f820868646532bdcc18482",
+      "translationHash": "b035241f0e06faa05b36f554d3c22e69a5b6fea27f378c7d62be2f6ae1045246",
+      "status": "baseline"
+    },
+    "intro.md": {
+      "sourceHash": "fb55f15660e8f2488475c8aa2be11bd77d7c04c354b2ec103584f2a431ad76a7",
+      "translationHash": "19a3a2aa3544a50677382bf0a584728bc9659b0f792d55fab5f5cba8dcb02ead",
+      "status": "baseline"
+    },
+    "reference/csharp/interop-metadata.md": {
+      "sourceHash": "5527fc1fade7e283002f5bb0579eaf6a013988e760952472a46b8f6e7a4b764a",
+      "translationHash": "bea37ebe8409e03a98b400a58acb6bec908afe056b64792dfe15e55c45e50587",
+      "status": "reviewed"
+    },
+    "reference/csharp/lua-alias.md": {
+      "sourceHash": "a63724c73c00596d55837514455d277b5b9ed7bf51253a59b40b5b0ce16d34a2",
+      "translationHash": "801fe78c1d2c79916d1389237f6c0c634ae61ce589044ce7e153f2d740c4205a",
+      "status": "baseline"
+    },
+    "reference/csharp/lua-app-domain.md": {
+      "sourceHash": "b13cfa77be2f75ff5d4ba98d5b293a49b10a24e49609bb20d413782244a32a5a",
+      "translationHash": "9615dac70611648ee7b5d20c91502f1b8272653321c99eefc6d5d8d295fdddbb",
+      "status": "baseline"
+    },
+    "reference/csharp/lua-callback.md": {
+      "sourceHash": "3e03e8c6679616ffe7efff64faf0c642703cc6fd135dc9198605b09ad00033aa",
+      "translationHash": "0d9f2f9c3f63d21e97bff03b0fc327d9af1dfd79ae571bd09b66f9ae82a7d9b0",
+      "status": "baseline"
+    },
+    "reference/csharp/lua-marshal-as.md": {
+      "sourceHash": "b2aaab64b4af2e0d09585e9863a1eb6441a852ca87c29331c1efdcc04a06faa5",
+      "translationHash": "a424a5c82552406e18a47dc4c3ec021c4da3a1139616a783eaedf5501988b908",
+      "status": "baseline"
+    },
+    "reference/lua/csharp-root.md": {
+      "sourceHash": "02450a71e17247d539368fa0e0b4dc9f655b2b6a0c9ead144f1c424da70a3ad8",
+      "translationHash": "bf7d42345a75d980a1fd59af615092e08d5b0efa0c7995981588cc748f8871bb",
+      "status": "baseline"
+    },
+    "reference/lua/zlua-lib.md": {
+      "sourceHash": "ad10f2dc693223f899b46310d14f43799794719045b2d6b399364961bb05e56a",
+      "translationHash": "175b07ee277fa178e3827d180f6f9004bfac135a0f785976e52e45b9967215bd",
+      "status": "baseline"
+    },
+    "reference/lua/zlua-types.md": {
+      "sourceHash": "7050475cc835fe7b67e3e46a7c4478fb678cb62d7fd5473372312ef882c01c9d",
+      "translationHash": "7cf442b68b4bab7e5938682aa9422e58dfe14b63af71b983bd2faed4ba8c35f1",
+      "status": "baseline"
+    },
+    "reference/marshal-cheatsheet.md": {
+      "sourceHash": "556724cccf14acfcda14649789799bc7a9e47959a3dbe914c532f698313d5eb0",
+      "translationHash": "ac69d43a5bac69e59b9942855b94142e6d9e349bc4dcdcfdd425cef6c949899f",
+      "status": "baseline"
+    },
+    "reference/overview.md": {
+      "sourceHash": "9733204db11e5cfa3a081bbe1f0abfad535ddce3de12903f7be4aea03542016e",
+      "translationHash": "a2e416edb528fcec7866f285225618b8990d68691dccd7bda4758c411de61019",
+      "status": "baseline"
+    },
+    "spec/00-OVERVIEW.md": {
+      "sourceHash": "6530439352e63b02158025e231af3da464dc5997d44d6aff7197cf20e263266e",
+      "translationHash": "a7e54e171c0da0a9a021bf5b2dd5dd44908f90e2adc356d4055abbb9cf018304",
+      "status": "baseline"
+    },
+    "spec/01-HOST-API.md": {
+      "sourceHash": "49ca551cc319c0a4392df54f565031acd782cf3b176ec8b5814413dfaf159aa7",
+      "translationHash": "60f298fc9c8cf75b78f86b700bfc675d447cd75797a043c0f5f666f4520d00c4",
+      "status": "baseline"
+    },
+    "spec/02-TYPE-SYSTEM.md": {
+      "sourceHash": "49704dbf4410c7b6eaeaa3619a4d498ec7afa009e6b645d7fb55b4ab13e9f61c",
+      "translationHash": "30474bc3df3fe8a438bbc8bab3d6a81d8d19f7b82f50724d15134075387ab96a",
+      "status": "baseline"
+    },
+    "spec/04-METHOD-OVERLOAD.md": {
+      "sourceHash": "1de6108e3b434278670a850a510f17124f57425cfbb6a4788b79dc00785092fd",
+      "translationHash": "a139119815e44be697c74ff6f0c7a920122efe685176d29d08eaba455f46719c",
+      "status": "baseline"
+    },
+    "spec/05-LIB.md": {
+      "sourceHash": "f752ad7d6289cdfb66397ad3d33677521ae2d3e28e68b9942d298bfa5dc067bb",
+      "translationHash": "361915a1024c26c690369ec3a8c8813d15b1bc1a9c06f7147096c71c1271fcfa",
+      "status": "baseline"
+    },
+    "spec/10-LIFETIME.md": {
+      "sourceHash": "5a3354b3d981b8ae8d7938a6ef6d869248e41db4f5e815a1688161c51b47e9be",
+      "translationHash": "f0e1a957b4461615eb708fd42d7d54ad402db376c126345bf0a964c5f864fbb2",
+      "status": "baseline"
+    },
+    "spec/11-MULTI-VERSION.md": {
+      "sourceHash": "d369fbe1f65664dc7b4b0a9ee4703321e7adf102145cfb35e7134bee1a82a007",
+      "translationHash": "2952e80051c06c7129e4af958cdc93007adf39dd8889c18a67fc681e07dad6be",
+      "status": "baseline"
+    },
+    "spec/12-MIGRATION-ADAPTORS.md": {
+      "sourceHash": "0cd8fbbcbd231be18bf022d99edb335c05b1836306dd6f6e6a3347963e41bea8",
+      "translationHash": "e95ed2d5f61391af060b5ede17da518f4657f1cdaabe79f17ae376764b73ccbe",
+      "status": "baseline"
+    },
+    "spec/13-EXTENSION-METHODS.md": {
+      "sourceHash": "a17381d8dc53a012cb0d54f7cc1d65a6aea18325347666a1857909d4fd7ba43b",
+      "translationHash": "6f4982ad0ebb92b14c495d8c9e6013b388f217509526dc701fb1ddc26bb616a6",
+      "status": "baseline"
+    },
+    "spec/14-SETTINGS.md": {
+      "sourceHash": "091a6011d664a3a4fe47d45be960fac1b0485ad5f439e8795c30241ad6bbb673",
+      "translationHash": "6b4a1f9d92e4da89945f8da33cfea91b601aa9578f21ffb57d57f470b230f667",
+      "status": "baseline"
+    },
+    "spec/15-UNITY-OPTIMIZATIONS.md": {
+      "sourceHash": "ab3b29e25bee159b4cd7c46d89007309c18be2fd23726f4a2660ff38bc4b7884",
+      "translationHash": "e0beb309e3be219375913ec0b27a3a5723eaee5e064381e17e11a0e79d5d9d0b",
+      "status": "baseline"
+    },
+    "spec/build/01-OFFICIAL-LUA.md": {
+      "sourceHash": "5a233dc21a385228153607176d190884d48155264057feeb84ef43a5aeccfe20",
+      "translationHash": "d0705f1300f16e93e705d4c740885baa2a53221369a97fb1c7ef4e45a529a1c9",
+      "status": "baseline"
+    },
+    "spec/build/02-LUAJIT.md": {
+      "sourceHash": "e0bf5663c66a4058b98663f1e6c3e38e7c83766196ba8452623663db0c1e7e09",
+      "translationHash": "f4170efe651e0487f9be5bbf6e6918d5a218d4a2b990ef3c748fe72d58d83cbf",
+      "status": "baseline"
+    },
+    "spec/build/03-MONO-LUAJIT-CALLBACK-GATE.md": {
+      "sourceHash": "9a8b090e72c8546b9205be6f4c007d425b89be9dd198624b1eb3d4e34f78695d",
+      "translationHash": "eb972534d5f287d0e0ee2b009ac0aa1c8d94a97d02d982a4fa71a0552fd65754",
+      "status": "baseline"
+    },
+    "spec/build/04-EMMYLUA-DEBUGGER.md": {
+      "sourceHash": "a32701f5e1f065542060f70e5934eb35e7b1659868c9f235a2b82ef287d44aea",
+      "translationHash": "380c9addc75c6a72a6db8c62d653f7929ff715d8aa2a4bcc2f08d84fd74875a6",
+      "status": "baseline"
+    },
+    "spec/build/05-NATIVE-MODULES.md": {
+      "sourceHash": "69b4214087f09e3d756ad0535b8b5e4349b5fedb19076500ed752f8992eeb7da",
+      "translationHash": "c58f4f2f82c22bc8f04b2edf2702d73c5087219cef62b945d8bfc8e4ff8ee410",
+      "status": "baseline"
+    },
+    "spec/marshal/01-OVERVIEW.md": {
+      "sourceHash": "dc57fbaf27208f1d8c6b83aef6af1b6f86fc075104ad14ff43e3dfb68bc26854",
+      "translationHash": "a32c43baa074fd84d0396e39b20e712a08e23b81713bc7c5fda72c1d8a01ea5a",
+      "status": "baseline"
+    },
+    "spec/marshal/02-MARSHAL-AS.md": {
+      "sourceHash": "903cc550c0806e6507a4862e5508585f10a3b6d64385182733ebae7ae7e3904b",
+      "translationHash": "98f5f898ae16a0f2c97575f48494f02454bacf098368b46b64e9934b9cc77f1c",
+      "status": "baseline"
+    },
+    "spec/marshal/03-BYREF.md": {
+      "sourceHash": "2c2b62abce0ea61cf3a335ef77eb4d777529a310c5cbdbf4246560ca6283f2d6",
+      "translationHash": "137c776bc6d5eeca98f2c08abe0ac47f8f7a4ddb63e8c60e95f560094c690ca4",
+      "status": "baseline"
+    },
+    "spec/marshal/04-OPAQUE.md": {
+      "sourceHash": "74e648b9fdde37353a2f35c5f31bee8d91cf4ec757d6d99173c5eb91fd66c819",
+      "translationHash": "d67b1528c159eec2f274b61103ca5788135a5bff0949cadfcb98f675a51887fb",
+      "status": "baseline"
+    },
+    "spec/marshal/05-STRUCT.md": {
+      "sourceHash": "99a3f2cdfb8425177edf51f2b018bb6be6b1801eaee9e58b6b588e3b10241859",
+      "translationHash": "eb5846026f9aa7e2d74bf5f41606957b92166e958628ded7d59b70022c4e464d",
+      "status": "baseline"
+    },
+    "spec/marshal/06-CLASS.md": {
+      "sourceHash": "2b69c6e17f454363491ddd6625242664602dacfd015395f0c4ea13df1178f854",
+      "translationHash": "c4db64bbebfa80c193e1ba1dcf7fc647d532d17edb760db3a4e531e788a24ea7",
+      "status": "baseline"
+    },
+    "spec/marshal/07-ARRAY.md": {
+      "sourceHash": "03d301dada4d500a901833a5b060f1d6b7868c096efeccdea2878d1fb6aabf9c",
+      "translationHash": "cd74e07caab7d1fd75e62f54c8d1e8af92e9fbadb2a9f021c00b623b13f59ec7",
+      "status": "baseline"
+    },
+    "spec/marshal/08-ENUM.md": {
+      "sourceHash": "8b45cdb209c56752ea6b83aa5c0e2d737c7059aa354ad6666dea6bd23325c807",
+      "translationHash": "6678371e1969be7d91b0ba69557ea7015cf544802c51d2f4976c4e3b38ef0245",
+      "status": "baseline"
+    },
+    "spec/marshal/09-FUNCTION.md": {
+      "sourceHash": "3d62763e1ce29045c1d5685a77302d469ff197dd8d89d3fb61746246d205f2be",
+      "translationHash": "a2ee1138a91acab4e842af068d507dd77387f9f5e6b2282dba72f844c8df8d67",
+      "status": "baseline"
+    },
+    "spec/marshal/10-POINTER.md": {
+      "sourceHash": "eba1dc67aadfe08bb867156577a71c46a4457c90b24d54c06ac5893c79669c20",
+      "translationHash": "9f8c72f0a80a496f135bb03727e3f74f6bde0f1b1ee81cd9a461418882b9a2ad",
+      "status": "baseline"
+    },
+    "spec/marshal/index.md": {
+      "sourceHash": "bd87a3c9994eccbebbe33cb85a307444dd23e60fc97565f95840bdb0724dbbc5",
+      "translationHash": "b9ba456e063301c6fbb9c5bda8261eef732fbcb50c31f12cd722f2bda99b9c0a",
+      "status": "baseline"
+    },
+    "spec/metatable/01-LAYOUT.md": {
+      "sourceHash": "fb8d5e33091ef96ae4ab1d6c3d37f7d56583494947b48ac32bfeaf973bc4eccf",
+      "translationHash": "6611e677ff16cd6ae8180970001e476c382eae4de09fe6069ebf29099927e796",
+      "status": "baseline"
+    },
+    "spec/metatable/02-INDEX.md": {
+      "sourceHash": "d1146edcd6b29016a429e43e201d84f3b55f304f64917cdcda66c4d17eb9f3b5",
+      "translationHash": "d693c0de59e39596d21383c215d78a1f42ffe80fd23bd0b9c3fc5d05db6e1e91",
+      "status": "baseline"
+    },
+    "spec/metatable/03-BINDING.md": {
+      "sourceHash": "5d0b88a98dcbd8357414837301ce5c4bbf6df8698a4fd6f136bda269be0eae75",
+      "translationHash": "64ca9035394b0a587cd5d4a2d7cf022bcaa12d5ab6195cea7d13db6cc0798b1b",
+      "status": "baseline"
+    },
+    "spec/metatable/04-SPECIAL-TYPES.md": {
+      "sourceHash": "cdde18ecb48ee7ff93457a60cc6774c9849028a8b80b4bb3a22fcaedc018b322",
+      "translationHash": "bfaeefeeeae450bf8ce593af63d67763bbc9429b14db186bb3139ddb20cb0a3f",
+      "status": "baseline"
+    },
+    "spec/metatable/index.md": {
+      "sourceHash": "bef3642c72884101b5f74cda65df42f2d7c2910045ad983ea0e648ac17e06667",
+      "translationHash": "b7ffc5bb41628cbaa1542d271e398800e066bedd970e462c7441ef557c94aa29",
+      "status": "baseline"
+    }
+  }
+}

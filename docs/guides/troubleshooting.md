@@ -1,12 +1,11 @@
 ---
-sidebar_position: 90
 title: 排错指南
 description: ZLua 常见问题诊断与解决方案（附录）。
 ---
 
 # 排错指南
 
-附录。开发期可在 **Editor（Mono）** 快速迭代；Player 问题先确认 **`ZLua/Generate/All`** 与 [兼容性](/docs/getting-started/compatibility/)。主线学习请从 [安装](/docs/guides/install/) 起。
+附录。开发期可在 **Editor（Mono）** 快速迭代；Player 问题先确认 **`ZLua/Generate/All`** 与 [兼容性](/docs/getting-started/compatibility/)。主线学习请从 [安装](/docs/getting-started/installation/) 起。
 
 Canonical 工程：[zlua-demo](https://github.com/focus-creative-games/zlua-demo)
 
@@ -78,16 +77,9 @@ Canonical 工程：[zlua-demo](https://github.com/focus-creative-games/zlua-demo
 | Generate | Il2Cpp 必须 Generate C++ stub |
 | StreamingAssets | Lua 是否 Sync |
 | 废弃 API | 勿用 Event `.get` |
-| HybridCLR 集成 | 是否先 `HybridCLR/Installer` 再 `ZLua/Install`；热更类型是否已 `Assembly.Load`。见 [HybridCLR 集成](/docs/guides/hybridclr/) |
+| HybridCLR 集成 | 是否统一 `ZLua/Install...`，不要混用独立 Installer；热更类型是否已 `Assembly.Load`。见 [HybridCLR 集成](/docs/guides/hybridclr/) |
 
 ---
-
-## 学习路径
-
-| | |
-|---|---|
-| **上一篇** | [迁移指南](/docs/guides/migration/) |
-| **下一篇** | [Editor 与 Player](/docs/guides/editor-vs-player/) |
 
 ## 相关文档
 

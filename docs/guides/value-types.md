@@ -1,5 +1,4 @@
 ---
-sidebar_position: 6
 title: 值类型
 description: enum、struct、Nullable 的默认跨边界形态与常见用法。
 ---
@@ -99,13 +98,6 @@ print(Vec2.Dot(Vec2(1, 0), Vec2(0, 1)))
 | `{X=,Y=}` 传入未标注的 struct | 标 `Table`（见 [LuaMarshalAs](/docs/guides/lua-marshal-as/)），或先 `Type(...)` |
 | `foo(x,y)` 传入未标注的 struct | 标 `UnpackedValues`（见 [0GC Marshal](/docs/guides/zero-gc-marshal/)） |
 | `ref struct` 作 by-val | 不支持 |
-
-## 学习路径
-
-| | |
-|---|---|
-| **上一篇** | [C# 调用 Lua](/docs/guides/csharp-calling-lua/) |
-| **下一篇** | [Function 与 Delegate](/docs/guides/functions/) |
 
 ## 相关文档
 

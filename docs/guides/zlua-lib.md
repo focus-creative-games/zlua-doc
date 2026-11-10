@@ -1,5 +1,4 @@
 ---
-sidebar_position: 13
 title: 常用 zlua 库
 description: 日常最常用的 zlua API；其余见规范。
 ---
@@ -88,13 +87,6 @@ local d = zlua.to_delegate(fn, ActionIntType)  -- 第二参须已闭合
 ## 其它（需要时再查规范）
 
 mdarray 系列、Native `__zlua_*` 对照表 —— [05-LIB](/docs/spec/05-LIB/) §8、§12。
-
-## 学习路径
-
-| | |
-|---|---|
-| **上一篇** | [Extension 方法](/docs/guides/extension-methods/) |
-| **下一篇** | [第三方原生插件](/docs/guides/native-modules/) |
 
 ## 相关文档
 

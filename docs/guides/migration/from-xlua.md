@@ -1,5 +1,4 @@
 ---
-sidebar_position: 3
 title: "从 xLua 迁移"
 ---
 

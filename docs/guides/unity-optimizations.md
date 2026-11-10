@@ -1,5 +1,4 @@
 ---
-sidebar_position: 11.3
 title: Unity 优化
 description: 打开 Unity Optimizations 后，GetComponent 拆成三个名字并按运行时类型返回。
 ---

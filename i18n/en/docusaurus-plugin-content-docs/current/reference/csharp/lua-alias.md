@@ -58,7 +58,7 @@ public void Run(string value) { }  // default name still joins the "Run" group
 
 ## XML Config (When Source Cannot Change)
 
-> **Only** for **non–hot-update** (precompiled / AOT) assemblies. Hot-update assemblies (including HybridCLR) must use in-code `[LuaAlias]`; XML is **not** supported for them.
+> Settings XML configures precompiled / AOT assemblies known at build time. For hot-update assemblies, use Attributes or call the corresponding [InteropMetadata.Register*Xml](/docs/reference/csharp/interop-metadata/) in Il2Cpp Player after loading the assembly and before first type binding. Editor Mono registration is a no-op.
 
 Configured **separately** from `[LuaMarshalAs]`: Settings use the independent field **`luaAliasXmlPaths`**, root element **`ZLuaAlias`**.
 

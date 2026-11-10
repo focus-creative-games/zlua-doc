@@ -1,19 +1,19 @@
 {
   "homepage.tagline": {
-    "message": "零配置 · 完备 C# 互操作 · Il2Cpp 上约 2.62× 于 xLua",
-    "description": "Homepage tagline"
+    "message": "原生 Lua · 完备 C# 互操作 · 针对 Unity Il2Cpp 优化",
+    "description": "Documentation entry point"
   },
   "homepage.cta.quickStart": {
-    "message": "5 分钟快速开始",
-    "description": "Homepage primary CTA"
+    "message": "快速开始",
+    "description": "Documentation entry point"
   },
   "homepage.cta.demo": {
     "message": "查看 Demo",
     "description": "Homepage demo CTA"
   },
   "homepage.heroMeta": {
-    "message": "Unity 2021+ · 团结引擎 · Lua 5.1–5.5 / LuaJIT / Luau（luau 分支）",
-    "description": "Homepage hero meta line"
+    "message": "Unity LTS · 团结引擎 · 多种 Lua 引擎，查看兼容性",
+    "description": "Documentation entry point"
   },
   "homepage.codePreview.title": {
     "message": "双向调用一览",
@@ -36,23 +36,27 @@
     "description": "Feature 1 description"
   },
   "homepage.feature.fast.title": {
-    "message": "更快 · 约 2.62×",
-    "description": "Feature 2 title"
+    "message": "原生 C++ 互调",
+    "description": "Documentation entry point"
   },
   "homepage.feature.fast.desc": {
-    "message": "Il2Cpp 实测：约 98% 对齐用例快于 xLua；Lua→C# 平均约 2.62×；常见字段 / 属性与调用约 4×。",
-    "description": "Feature 2 description"
+    "message": "Il2Cpp 使用原生 C++ 桥；实测结果、测试环境与适用边界见性能报告。",
+    "description": "Documentation entry point"
   },
   "homepage.feature.small.title": {
     "message": "更小桥接 · 更少 GC",
     "description": "Feature 3 title"
   },
   "homepage.feature.small.desc": {
-    "message": "同签名合并的 C++ stub，体积可小一个数量级；引用类型与 struct 默认 0 GC，并提供 OpaqueValue 等策略。",
-    "description": "Feature 3 description"
+    "message": "C++ stub 按签名复用，减少重复桥接代码；低分配效果取决于数据类型、调用方向和预热状态。",
+    "description": "Documentation entry point"
   },
   "theme.blog.post.downloadPdfButtonLabel": {
     "message": "Download PDF",
     "description": "Unused placeholder for theme"
+  },
+  "docs.redirect.continue": {
+    "message": "打开更新后的文档",
+    "description": "Documentation entry point"
   }
 }

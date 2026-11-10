@@ -1,5 +1,4 @@
 ---
-sidebar_position: 7
 title: Function 与 Delegate
 description: Lua function ↔ C# Delegate 的三条路径与注意事项。
 ---
@@ -89,13 +88,6 @@ handler(42)
 | 回调未执行 | C# 未 Invoke；或 GetFunction 结果未缓存就丢弃 |
 | `to_delegate` 类型不对 | 第二参不是闭合委托类型 |
 | remove 无效 | 不是同一 function 引用 |
-
-## 学习路径
-
-| | |
-|---|---|
-| **上一篇** | [值类型](/docs/guides/value-types/) |
-| **下一篇** | [数组](/docs/guides/arrays/) |
 
 ## 相关文档
 

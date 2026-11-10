@@ -1,5 +1,4 @@
 ---
-sidebar_position: 8
 title: 数组
 description: 一维 / 多维数组的创建、索引、to_table 与 to_bytes。
 ---
@@ -60,13 +59,6 @@ local matrix = zlua.new_mdarray_by_mdarray_type(
 | 数组越界 | 使用 `0 .. Length-1` |
 | `#` 对 mdarray 无效 | `GetLength(dimension)` |
 | `to_bytes` 失败 | 元素非 blittable |
-
-## 学习路径
-
-| | |
-|---|---|
-| **上一篇** | [Function 与 Delegate](/docs/guides/functions/) |
-| **下一篇** | [泛型](/docs/guides/generics/) |
 
 ## 相关文档
 

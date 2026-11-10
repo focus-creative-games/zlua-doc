@@ -1,15 +1,18 @@
 {
   "homepage.tagline": {
-    "message": "Zero-config · Full C# interop · ~2.62× faster than xLua on Il2Cpp"
+    "message": "Native Lua · C# interop · Optimized for Unity Il2Cpp",
+    "description": "Documentation entry point"
   },
   "homepage.cta.quickStart": {
-    "message": "5-minute quick start"
+    "message": "Quick start",
+    "description": "Documentation entry point"
   },
   "homepage.cta.demo": {
     "message": "View Demo"
   },
   "homepage.heroMeta": {
-    "message": "Unity 2021+ · Tuanjie · Lua 5.1–5.5 / LuaJIT / Luau (luau branch)"
+    "message": "Unity LTS · Tuanjie · Multiple Lua engines; see compatibility",
+    "description": "Documentation entry point"
   },
   "homepage.codePreview.title": {
     "message": "Bidirectional calls at a glance"
@@ -381,5 +384,21 @@
   "theme.tags.tagsPageTitle": {
     "message": "Tags",
     "description": "The title of the tag list page"
+  },
+  "homepage.feature.fast.title": {
+    "message": "Native C++ interop",
+    "description": "Documentation entry point"
+  },
+  "homepage.feature.fast.desc": {
+    "message": "Il2Cpp uses native C++ bridges. See the performance report for measured results, test environment, and workload limits.",
+    "description": "Documentation entry point"
+  },
+  "homepage.feature.small.desc": {
+    "message": "Signature-shared C++ stubs reduce duplicated bridge code. Low-allocation Marshal paths depend on data types, call direction, and warm-up.",
+    "description": "Documentation entry point"
+  },
+  "docs.redirect.continue": {
+    "message": "Continue to the updated document",
+    "description": "Documentation entry point"
   }
 }

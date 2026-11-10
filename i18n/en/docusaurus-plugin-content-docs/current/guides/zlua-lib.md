@@ -1,5 +1,4 @@
 ---
-sidebar_position: 13
 title: Common zlua library
 description: The most-used zlua APIs day to day; the rest are in the Spec.
 ---
@@ -88,13 +87,6 @@ Usually **unnecessary** when the parameter is already a concrete `Action`/`Func`
 ## Other (look up Spec when needed)
 
 mdarray family, Native `__zlua_*` table — [05-LIB](/docs/spec/05-LIB/) §8, §12.
-
-## Learning path
-
-| | |
-|---|---|
-| **Previous** | [Extension methods](/docs/guides/extension-methods/) |
-| **Next** | [Third-party native modules](/docs/guides/native-modules/) |
 
 ## Related
 

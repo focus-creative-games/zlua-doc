@@ -1,5 +1,4 @@
 ---
-sidebar_position: 11.5
 title: 0GC Marshal
 description: OpaqueValue、UnpackedValues、string UserData 等少分配 Marshal 套路。
 ---
@@ -95,13 +94,6 @@ ByObjUserData **仍会**在 Lua 侧分配 **userdata**，参与 Lua GC。只是�
 | **UnpackedValues** | Lua↔C# 的 struct 字段展开 | 无（只用栈上 number 等） |
 | **Table** | struct / `Nullable<struct>` 键值 | **有** table |
 | **UserData** on `string` | 巨大 string 避免 Lua string 拷贝 | **有** ByObj userdata |
-
-## 学习路径
-
-| | |
-|---|---|
-| **上一篇** | [LuaMarshalAs](/docs/guides/lua-marshal-as/) |
-| **下一篇** | [方法重载](/docs/guides/overloads/) |
 
 ## 相关文档
 

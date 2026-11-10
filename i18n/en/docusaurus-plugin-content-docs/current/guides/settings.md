@@ -1,5 +1,4 @@
 ---
-sidebar_position: 1.2
 title: Settings
 description: Project Settings → ZLua fields, where they live, and when to re-run Generate.
 ---
@@ -13,7 +12,7 @@ description: Project Settings → ZLua fields, where they live, and when to re-r
 | UI | What it does |
 |------|--------|
 | **Enable** | When off, ZLua is not enabled for the current build target |
-| **Lua Version Id** | An id such as `lua-5.5.0`, `luajit-2.1`, or `luau-0.743`. Luau is on the official [`luau` branch](https://github.com/focus-creative-games/zlua/tree/luau). Changing it requires a new **Install** — see [Install and Lua versions](/docs/guides/install/) |
+| **Lua Version Id** | An id such as `lua-5.5.0`, `luajit-2.1`, or `luau-0.743`. Luau is on the official [`luau` branch](https://github.com/focus-creative-games/zlua/tree/luau). Changing it requires a new **Install** — see [Install and Lua versions](/docs/getting-started/installation/) |
 | **MarshalAs Xml Paths** | Marshal rules for assemblies you cannot edit. See [LuaMarshalAs](/docs/guides/lua-marshal-as/) |
 | **Lua Alias Xml Paths** | Same idea, for method renames. See [LuaAlias](/docs/guides/lua-alias/) |
 | **Lua Extension Xml Paths** | Same idea, for attaching extension methods to a target type. See [Extension methods](/docs/guides/extension-methods/) |
@@ -22,6 +21,6 @@ description: Project Settings → ZLua fields, where they live, and when to re-r
 | **Debugger Port** | Default `9966` |
 | **Debugger Wait IDE** | When checked, blocks the main thread until the IDE attaches |
 
-Do **not** use the three XML path lists for hot-update assemblies; use Attributes there.
+Settings XML configures precompiled / AOT assemblies known at build time. For hot-update assemblies, use Attributes or call the corresponding [InteropMetadata.Register*Xml](/docs/reference/csharp/interop-metadata/) in Il2Cpp Player after loading the assembly and before first type binding. Editor Mono registration is a no-op.
 
 After changing MarshalAs / Alias / Extension paths, or toggling **Unity Optimizations**, the next Editor initialize loads the new lists. Before an Il2Cpp build, run **`ZLua/Generate/All`** again.

@@ -1,5 +1,4 @@
 ---
-sidebar_position: 6
 title: Value types
 description: Default cross-boundary shapes and common usage for enum, struct, and Nullable.
 ---
@@ -99,13 +98,6 @@ print(Vec2.Dot(Vec2(1, 0), Vec2(0, 1)))
 | `{X=,Y=}` into unmarked struct | Annotate `Table` (see [LuaMarshalAs](/docs/guides/lua-marshal-as/)), or `Type(...)` first |
 | `foo(x,y)` into unmarked struct | Annotate `UnpackedValues` (see [0GC Marshal](/docs/guides/zero-gc-marshal/)) |
 | `ref struct` as by-val | Not supported |
-
-## Learning path
-
-| | |
-|---|---|
-| **Previous** | [C# calling Lua](/docs/guides/csharp-calling-lua/) |
-| **Next** | [Function & Delegate](/docs/guides/functions/) |
 
 ## Related
 

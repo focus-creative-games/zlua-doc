@@ -1,5 +1,4 @@
 ---
-sidebar_position: 12.5
 title: LuaAlias
 description: "[LuaAlias] renaming and XML (luaAliasXmlPaths / ZLuaAlias)."
 ---
@@ -16,7 +15,7 @@ Authoritative: [Overload Spec §5](/docs/spec/04-METHOD-OVERLOAD/). Compare with
 |------|------|
 | You can edit C#; hot path wants a short name + colon | **`[LuaAlias]`** |
 | Cannot change source (precompiled / AOT, **non–hot-update** DLL) | Settings **`luaAliasXmlPaths`** + `ZLuaAlias` XML |
-| **Hot-update assemblies** (including HybridCLR) | **Only** in-code `[LuaAlias]`; XML is **not** supported |
+| Hot-update assemblies | Attributes or explicit XML registration before first binding; see [InteropMetadata](/docs/reference/csharp/interop-metadata/) |
 | Exact pick; syntax does not matter | Full-signature key `demo['Run(System.Int32)'](demo, 5)` (may cache the direct locally) |
 
 ## `[LuaAlias]` attribute
@@ -73,7 +72,7 @@ Static methods live on the type table: `Demo.add_i32(...)`; instance methods use
 
 ## XML configuration
 
-> **Only** for non–hot-update assemblies. For hot-update assemblies use `[LuaAlias]`; do not put them in `ZLuaAlias` XML.
+> Settings XML configures precompiled / AOT assemblies known at build time. For hot-update assemblies, use Attributes or call the corresponding [InteropMetadata.Register*Xml](/docs/reference/csharp/interop-metadata/) in Il2Cpp Player after loading the assembly and before first type binding. Editor Mono registration is a no-op.
 
 Separate from `[LuaMarshalAs]`:
 
@@ -111,7 +110,7 @@ This file **only** allows `Assembly` → `Type` → `Method` with `@alias`. Do n
 
 - Same method: **Attribute > XML** (Attribute present → ignore XML for that slot)
 - **Mono**: reads `luaAliasXmlPaths` at runtime
-- **Il2Cpp**: Generate writes static tables; **Player does not read XML** (re-Generate after XML changes)
+- **Il2Cpp**: Generate writes static tables; **build-time XML is baked into Player** (re-Generate after XML changes)
 - Multiple `@alias` for the same `(assembly, type, method, signature)` → **fail**
 
 In Project Settings → **ZLua**, put XML paths in **`luaAliasXmlPaths`** (alongside the MarshalAs path list).
@@ -131,15 +130,8 @@ In Project Settings → **ZLua**, put XML paths in **`luaAliasXmlPaths`** (along
 | `demo:Run(10)` misses an aliased overload | Already renamed; use the alias or another un-renamed overload |
 | `demo:Bar` → member not found | `Bar` was renamed by `[LuaAlias("Foo")]` (reading an unknown key is now error, not nil) |
 | XML ignored (Player) | Did not re-**Generate**; or path was put under `marshalAsXmlPaths` |
-| XML on hot-update assemblies ignored / unsupported | Hot-update assemblies must use `[LuaAlias]`, not XML |
+| Hot-update XML ignored | Check the registration method, Player runtime, and first-binding order; see [InteropMetadata](/docs/reference/csharp/interop-metadata/) |
 | Same root element as MarshalAs | Needs a separate `ZLuaAlias` file |
-
-## Learning path
-
-| | |
-|---|---|
-| **Previous** | [Method overloads](/docs/guides/overloads/) |
-| **Next** | [Extension methods](/docs/guides/extension-methods/) |
 
 ## Related
 

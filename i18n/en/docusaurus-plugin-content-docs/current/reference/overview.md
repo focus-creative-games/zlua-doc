@@ -22,6 +22,7 @@ Programmer lookup entry: C# attributes, runtime APIs, Lua `CSharp` / `zlua` stan
 | Type | Description | Docs |
 |------|-------------|------|
 | `LuaAppDomain` | **Public** initialization entry | [LuaAppDomain](/docs/reference/csharp/lua-app-domain/) |
+| `InteropMetadata` | Register runtime XML before first binding | [InteropMetadata](/docs/reference/csharp/interop-metadata/) |
 | `LuaEnv` | Underlying `lua_State` (backend-internal; usually not used directly) | — |
 
 ## Lua API
@@ -43,7 +44,7 @@ Programmer lookup entry: C# attributes, runtime APIs, Lua `CSharp` / `zlua` stan
 
 | Topic | Docs |
 |-------|------|
-| Install / interop / build / debug | [install](/docs/guides/install/) · [hello-interop](/docs/guides/hello-interop/) · [build](/docs/guides/build/) · [debugger](/docs/guides/debugger/) |
+| Install / interop / build / debug | [install](/docs/getting-started/installation/) · [hello-interop](/docs/getting-started/quick-start/) · [build](/docs/getting-started/build/) · [debugger](/docs/guides/debugger/) |
 | Lua → C# | [lua-calling-csharp](/docs/guides/lua-calling-csharp/) |
 | C# → Lua | [csharp-calling-lua](/docs/guides/csharp-calling-lua/) |
 | Value types | [value-types](/docs/guides/value-types/) |

@@ -7,7 +7,7 @@ title: "Unity optimizations"
 
 > Switch: `Settings.enableUnityOptimizations` (Project Settings label **Unity Optimizations**).
 > Default **on**. Off = the same Lua-visible semantics as before this document existed.
-> Usage: [Unity optimizations (guide)](/docs/guides/unity-optimizations/), [getting started](/docs/getting-started/unity-optimizations/).
+> Usage: [Unity optimizations (guide)](/docs/guides/unity-optimizations/), [getting started](/docs/guides/unity-optimizations/).
 
 This switch is a **bundle of Unity engine API optimizations**, not a switch for one method. Today it only includes `GetComponent`. Later Unity optimizations take effect when this switch is on, and are appended to this document.
 

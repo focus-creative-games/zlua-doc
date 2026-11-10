@@ -1,5 +1,4 @@
 ---
-sidebar_position: 2
 title: "从 toLua 迁移"
 ---
 

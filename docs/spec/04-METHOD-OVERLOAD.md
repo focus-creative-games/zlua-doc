@@ -1,4 +1,4 @@
-﻿---
+---
 sidebar_position: 4
 title: "方法重载"
 ---
@@ -401,7 +401,7 @@ public void Run(int value) { ... }
 
 `[LuaAlias]` 与 `[LuaMarshalAs]` **目标不同**（最终 Lua 名 vs 形参/返回值/成员 Marshal），绝大多数场景无交集。XML 可 **共享类似的 `Assembly` / `Type` / `Method` 定位风格**，但必须：
 
-> **适用范围：** XML **仅**用于 **非热更新** 程序集（预编译 / AOT DLL）。**热更新程序集**（含 HybridCLR 热更 DLL）**只支持**在代码中配置 `[LuaAlias]`，**不支持**用 XML 为其配置别名规则。
+> Settings XML 用于构建期已知的预编译 / AOT 程序集。热更程序集可用 Attribute，或在 Il2Cpp Player 加载程序集后、首次类型绑定前调用对应的 [InteropMetadata.Register*Xml](/docs/reference/csharp/interop-metadata/)；Editor Mono 的注册方法为空实现。
 
 | 约束 | 说明 |
 |------|------|
@@ -436,7 +436,7 @@ public void Run(int value) { ... }
 |----------|------|
 | 换名 | 有 `@alias` 时 **不**再以 `MethodInfo.Name` 注册该方法 |
 | 与 Attribute | 同一方法若有 Attribute，以 Attribute 为准（§5.3）；XML 该条可记录为未使用（可选诊断） |
-| 平台 | Mono 运行时按 `luaAliasXmlPaths` 解析；Il2Cpp **Generate** 成静态 alias 表，Player **不**读 XML（加载/Generate 模式对齐 [marshal/02-MARSHAL-AS.md](/docs/spec/marshal/02-MARSHAL-AS/) §9.6–§9.7，但是 **独立** registry / 生成物） |
+| 平台 | Mono 运行时按 `luaAliasXmlPaths` 解析；Il2Cpp **Generate** 成静态 alias 表，构建期 XML **已**烘焙到 Player（加载/Generate 模式对齐 [marshal/02-MARSHAL-AS.md](/docs/spec/marshal/02-MARSHAL-AS/) §9.6–§9.7，但是 **独立** registry / 生成物） |
 | 重复 | 合并全部 alias XML 后，同一 `(assembly, type, methodName, signature)` 出现多条 `@alias` → **失败**（不得后文件覆盖）。不同方法撞同一最终名 **允许**（并入 overload 组，§5.1） |
 ### 5.5 静态 / 实例
 

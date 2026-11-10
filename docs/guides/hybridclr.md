@@ -1,160 +1,58 @@
 ---
-sidebar_position: 95
 title: HybridCLR 集成
-description: 双包安装顺序、加载热更程序集，以及热更侧 Alias / MarshalAs / Extension 的配置约束。
+description: 统一安装、加载热更程序集与首次绑定前注册 XML。
 ---
 
 # HybridCLR 集成
 
-ZLua 与 [HybridCLR](https://github.com/focus-creative-games/hybridclr) **v9.0.0+** 原生兼容：Il2Cpp Player 上可同时使用 HybridCLR 热更新与 ZLua 的 Lua↔C# 互操作。本篇约定 **双 Package** 集成时的安装顺序、运行时加载与配置边界。
+本文面向 [安装规范](/docs/spec/11-MULTI-VERSION/) 中的统一集成包。由 ZLua 的 Installer 安装 HybridCLR 底座并叠加 ZLua；旧版双包流程不适用于本页。
 
-未使用 HybridCLR 时，请走 [安装与 Lua 版本](/docs/guides/install/) 的常规路径即可。
+## 安装与生成
 
-## 你要完成的事
+1. 按 [安装与集成](/docs/getting-started/installation/) 引入 ZLua，配置 Settings 并执行 `ZLua/Install...`。
+2. 不要另装 `com.code-philosophy.hybridclr` 或运行另一个 Installer 覆盖本地 Il2Cpp 树。
+3. 发布前运行 `ZLua/Generate/All`：StripAOT 只执行一次，然后串行生成 HybridCLR MethodBridge 与 ZLua 桥。
+4. 换 Unity / Lua 或升级包后重跑 Install → Generate。具体兼容版本见 [兼容性](/docs/getting-started/compatibility/)。
 
-1. 同时引入 HybridCLR 与 ZLua 两个 UPM 包（版本下限见下）
-2. **先** `HybridCLR/Installer`，**再** `ZLua/Install`（顺序强制）
-3. 在 Lua 访问热更类型 **之前** `Assembly.Load`（或 HybridCLR 等价加载）热更程序集
-4. 热更程序集上的 `[LuaAlias]` / `[LuaMarshalAs]` / `[LuaExtension]` **只**用代码 Attribute；XML **无效**
+## 加载热更程序集与 XML
 
-## 1. 安装 Package
+在 Lua 首次访问热更类型之前完成以下顺序：
 
-在 `Packages/manifest.json` 中同时依赖：
-
-| Package | 最低版本 | 说明 |
-|---------|----------|------|
-| `com.code-philosophy.hybridclr` | **v9.0.0+** | HybridCLR 热更新运行时与 Editor 工具 |
-| `com.code-philosophy.zlua` | **1.0.0+** | ZLua（含对本地 `libil2cpp` 的 patch / overlay） |
-
-示例（版本号按你实际选用的标签或 Git 引用替换）：
-
-```json
-{
-  "dependencies": {
-    "com.code-philosophy.hybridclr": "9.0.0",
-    "com.code-philosophy.zlua": "1.0.0"
-  }
-}
-```
-
-也可使用各自仓库的 Git URL / 版本标签。HybridCLR 安装与热更工程约定以 [HybridCLR 官方文档](https://www.hybridclr.cn/) 为准；ZLua 通用步骤见 [安装与 Lua 版本](/docs/guides/install/)。
-
-:::tip 版本要求
-低于 HybridCLR **v9.0.0** 或 ZLua **1.0.0** 的组合 **不在** 本集成文档保证范围内。升级任一包后建议重新按 §2 跑一遍 Installer。
-:::
-
-## 2. Installer 顺序（必须）
-
-本地 Il2Cpp 树由两步叠加而成，**顺序不可颠倒**：
-
-```mermaid
-flowchart LR
-  A["HybridCLR/Installer"] --> B["本地 libil2cpp<br/>含 hybridclr/"]
-  B --> C["ZLua/Install"]
-  C --> D["patch + zlua / lua 叠加"]
-```
-
-| 步骤 | 菜单 | 作用 |
-|------|------|------|
-| 1 | **`HybridCLR/Installer`** | 将 HybridCLR 的 C++ runtime（`il2cpp_plus` + `hybridclr/` 等）安装到工程本地 `libil2cpp` |
-| 2 | **`ZLua/Install`**（或 `ZLua/Install...`） | 在 **已存在** 的本地树上打 ZLua patch，并叠加 `zlua` / 选定 Lua 源码等 |
-
-**原因：** ZLua Install 会 **patch 本地 `libil2cpp` 代码**。该本地树须先由 HybridCLR Installer 落盘；若先跑 ZLua、或根本没有 HybridCLR 本地树，patch 目标不存在或版本不匹配，集成会失败。
-
-:::danger 顺序错误
-先 `ZLua/Install` 再 `HybridCLR/Installer`，或只装其中一个，都可能导致 Player 构建失败、热更与 Lua 桥接行为异常。换 Unity 版本 / 重装本地 Il2Cpp 后，仍须按 **HybridCLR → ZLua** 重跑。
-:::
-
-### 建议检查
-
-1. HybridCLR Installer 日志成功，本地存在含 `hybridclr/` 的 `libil2cpp`
-2. 再执行 `ZLua/Install`，日志成功；Settings 中 Lua 版本正确
-3. 发布前按 [构建流程](/docs/guides/build/) 执行 **`ZLua/Generate/All`**（以及 HybridCLR 侧所需的 Generate / 补充元数据步骤）
-
-## 3. 代码中使用：先加载热更程序集
-
-Lua 通过 `CSharp[...]` / 类型表访问的类型，必须已存在于当前 AppDomain。对 HybridCLR 热更 DLL，须在 **首次从 Lua（或会触发 `EnsureBinding` 的 C#）触达这些类型之前** 完成加载：
+1. 按项目需要加载补充 AOT 元数据。
+2. 使用 `Assembly.Load` 加载热更程序集。
+3. 如果使用 XML，调用 `InteropMetadata.Register*Xml`。
+4. 执行 Lua / C# 代码，触发类型首次绑定。
 
 ```csharp
-using System.Reflection;
-
-// 按项目约定读取 dll 字节（StreamingAssets / 热更目录等）
-byte[] dllBytes = LoadHotUpdateDllBytes("HotUpdate.dll");
-Assembly.Load(dllBytes);
-
-// 此后方可：
-// - Lua: local T = CSharp['HotUpdate']['MyGame.HotType']
-// - 或 C# 侧触发对该程序集类型的绑定
+// dllBytes 由项目资源系统提供；paths / projectRoot 是项目配置。
+System.Reflection.Assembly.Load(dllBytes);
+ZLua.InteropMetadata.RegisterAliasXml(aliasPaths, projectRoot);
+ZLua.InteropMetadata.RegisterMarshalAsXml(marshalPaths, projectRoot);
+ZLua.InteropMetadata.RegisterExtensionXml(extensionPaths, projectRoot);
+// 此后才能首次访问热更类型。
 ```
 
-也可使用 HybridCLR 提供的加载封装（若工程已统一走 `RuntimeApi.LoadMetadataForAOTAssembly` / 自定义 `Assembly.Load` 包装）；**语义相同**：程序集未 Load 完成前，不要从 Lua 访问其中的类型。
+`LuaAppDomain.Initialize` 可以更早执行，但 Lua 代码访问热更类型必须在加载和注册之后。无需 XML 的项目可省略注册步骤，继续使用 `[LuaAlias]` / `[LuaMarshalAs]` / `[LuaExtension]`。
 
-典型启动顺序：
+## 三种配置路径
 
-1. HybridCLR 补充 AOT 元数据（若项目需要）
-2. `Assembly.Load` 热更程序集
-3. `LuaAppDomain.Initialize`（若尚未初始化；也可 Initialize 在前，但 **访问热更类型必须在 Load 之后**）
-4. 再执行会碰到热更类型的 Lua / `GetFunction` 逻辑
+| 配置 | 适用范围 | 生效时机 |
+|------|----------|----------|
+| C# Attribute | 可改源码的类型，包括热更类型 | 类型绑定时读取 |
+| Settings XML | 构建期已知的预编译 / AOT 程序集 | Editor 初始化；Il2Cpp Generate 烘焙 |
+| `InteropMetadata.Register*Xml` | Il2Cpp Player 后加载程序集 | 加载程序集后、首次类型绑定前显式注册 |
 
-## 4. 注意事项：热更程序集上的 Alias / MarshalAs / Extension
+Settings 的路径列表不会自动为后加载 DLL 注册运行时元数据。Editor Mono 的 `Register*Xml` 是空实现；热更类型的验证须在 Il2Cpp Player 中执行。
 
-| 机制 | 热更新程序集 | 非热更新（AOT / 预编译）程序集 |
-|------|--------------|--------------------------------|
-| `[LuaAlias]` | ✅ 仅代码 Attribute | Attribute 或 Alias XML |
-| `[LuaMarshalAs]` | ✅ 仅代码 Attribute | Attribute 或 MarshalAs XML |
-| `[LuaExtension]` | ✅ 仅代码 Attribute | Attribute 或 Extension XML |
+已创建 `MetaBinding` 的类型不会被后续注册更新。没有 Reload API；`LuaAppDomain.Reset` 也不清空进程级 XML 表，不能用于修改已绑定类型的元数据。完整契约与参数见 [InteropMetadata](/docs/reference/csharp/interop-metadata/)。
 
-对 **热更新程序集**：
+## 验证与排错
 
-- **只支持**在 C# 源码中添加对应 CustomAttribute
-- Settings 里的 `luaAliasXmlPaths` / `marshalAsXmlPaths` / `luaExtensionXmlPaths` **不要**指望覆盖热更 DLL
-- 即便配置了指向热更类型的 XML，**也不会生效**
-
-```csharp
-using ZLua;
-
-// 热更程序集内：必须用 Attribute
-public class HotService
-{
-    [LuaAlias("tick_i32")]
-    public void Tick(int frame) { }
-
-    public void Send(
-        [LuaMarshalAs(LuaMarshalType.Bytes)] byte[] payload) { }
-}
-
-[LuaExtension(typeof(HotTransformExt))]
-public class HotView { }
-```
-
-细则：
-
-- [LuaAlias](/docs/guides/lua-alias/)
-- [LuaMarshalAs](/docs/guides/lua-marshal-as/)
-- [Extension 方法](/docs/guides/extension-methods/)
-
-## 5. 常见问题
-
-| 现象 | 处理 |
+| 现象 | 检查 |
 |------|------|
-| ZLua Install 找不到 / 无法 patch 本地 `libil2cpp` | 是否已先跑 **`HybridCLR/Installer`** |
-| Player 能热更，Lua 访问热更类型失败 | 是否在访问前 **`Assembly.Load`**；程序集名 / 类型全名是否与 `CSharp[...]` 一致 |
-| 热更类型上的 XML 别名 / Marshal 不生效 | 预期行为；改为代码中的 `[LuaAlias]` / `[LuaMarshalAs]` / `[LuaExtension]` |
-| 换 Unity 或重装本地 Il2Cpp 后异常 | 按 §2 **重新** HybridCLR Installer → ZLua Install → Generate |
+| Install / patch 失败 | 是否混用了旧独立包与统一包；重跑当前包的 Install |
+| 热更类型不可见 | 是否已加载 DLL；程序集名和类型全名是否正确 |
+| XML 不生效 | 是否在 Player 调用正确的 Register 方法；是否已过首次绑定 |
+| 换版本后构建异常 | Install → Generate → 重新构建 |
 
-## 学习路径
-
-| | |
-|---|---|
-| **上一篇** | [安装与 Lua 版本](/docs/guides/install/) |
-| **下一篇** | [初始化与最小互调](/docs/guides/hello-interop/) |
-
-## 相关文档
-
-- [安装与 Lua 版本](/docs/guides/install/)
-- [构建流程](/docs/guides/build/)
-- [LuaAlias](/docs/guides/lua-alias/)
-- [LuaMarshalAs](/docs/guides/lua-marshal-as/)
-- [Extension 方法](/docs/guides/extension-methods/)
-- [多版本管理 · HybridCLR 底座](/docs/spec/11-MULTI-VERSION/)
-- [介绍](/docs/intro/) — HybridCLR 兼容性说明
+继续 [首次构建](/docs/getting-started/build/)，并在 Player 中运行热更类型访问与 Alias / MarshalAs / Extension 冒烟测试。

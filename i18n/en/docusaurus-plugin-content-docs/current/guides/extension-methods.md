@@ -1,5 +1,4 @@
 ---
-sidebar_position: 12.6
 title: Extension methods
 description: "[LuaExtension] and XML attach C# extensions to the extended type's instance method table."
 ---
@@ -16,7 +15,7 @@ There is **no** global scan for `ExtensionAttribute`. The model is **extended ty
 |------|------|
 | You can edit the extended type’s source (including hot-update assemblies) | Put **`[LuaExtension(typeof(FooExt), …)]` on the extended type** |
 | Third-party / precompiled, **non–hot-update** types | Settings **`luaExtensionXmlPaths`** + root element **`ZLuaExtensions`** |
-| Types in **hot-update assemblies** (including HybridCLR) | **Only** in-code `[LuaExtension]`; XML is **not** supported |
+| Hot-update assemblies | Attributes or explicit XML registration before first binding; see [InteropMetadata](/docs/reference/csharp/interop-metadata/) |
 
 **Do not** put `[LuaExtension]` on the extension class (that would require scanning every assembly to discover extensions).
 
@@ -39,7 +38,7 @@ For third-party / uneditable types, use XML (`this` parameter type must match `T
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Non–hot-update extended types only; use [LuaExtension] on hot-update assemblies -->
+<!-- Hot-update XML requires explicit registration before binding. -->
 <ZLuaExtensions version="1">
   <Assembly name="UnityEngine.CoreModule">
     <Type fullName="UnityEngine.Transform">
@@ -51,7 +50,7 @@ For third-party / uneditable types, use XML (`this` parameter type must match `T
 
 For the same extended type, Attribute and XML extension-class lists are **unioned**. Binding **T** also collects `[LuaExtension]` from **base types**.
 
-Il2Cpp: XML is written into static tables at **Generate** time; the Player does **not** read XML (re-Generate after changes). **XML does not apply to hot-update assemblies.**
+Settings XML configures precompiled / AOT assemblies known at build time. For hot-update assemblies, use Attributes or call the corresponding [InteropMetadata.Register*Xml](/docs/reference/csharp/interop-metadata/) in Il2Cpp Player after loading the assembly and before first type binding. Editor Mono registration is a no-op.
 
 ## Lua usage
 
@@ -74,14 +73,7 @@ Extensions and real instance methods **compete in the same overload group**; the
 | Only `Ext.Foo(obj)` works | Not wired as static-as-instance / not in IMT (implementation must follow Spec §4) |
 | Wrong overload called | Merged competition; use full-signature keys or Alias |
 | Attribute on the extension class has no effect | Discovery only scans `[LuaExtension]` on the extended type |
-| XML on hot-update types ignored / unsupported | Hot-update assemblies must use `[LuaExtension]`, not XML |
-
-## Learning path
-
-| | |
-|---|---|
-| **Previous** | [LuaAlias](/docs/guides/lua-alias/) |
-| **Next** | [Common zlua APIs](/docs/guides/zlua-lib/) |
+| Hot-update assemblies | Attributes or explicit XML registration before first binding; see [InteropMetadata](/docs/reference/csharp/interop-metadata/) |
 
 ## Related
 

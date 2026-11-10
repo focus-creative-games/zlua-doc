@@ -1,5 +1,4 @@
 ---
-sidebar_position: 10
 title: ref / in / out
 description: byref 参数的默认 Opaque 行为与写回规则。
 ---
@@ -63,13 +62,6 @@ Opaque **不可**跨 `pcall` / 跨帧持久化当长期句柄用。需要 userda
 ## 与值类型章的关系
 
 by-val struct 是 **拷贝**；要「改字段并反映到 C#」须对 `ref` 形参传入同型 userdata，或走 Opaque。见 [值类型](/docs/guides/value-types/)。
-
-## 学习路径
-
-| | |
-|---|---|
-| **上一篇** | [泛型](/docs/guides/generics/) |
-| **下一篇** | [LuaMarshalAs](/docs/guides/lua-marshal-as/) |
 
 ## 相关文档
 

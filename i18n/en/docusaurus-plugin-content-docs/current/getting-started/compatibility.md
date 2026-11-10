@@ -1,10 +1,13 @@
 ---
-sidebar_position: 5
 title: Supported versions & platforms
 description: Unity, Lua versions, platforms, and feature matrix supported by ZLua.
 ---
 
 # Supported versions & platforms
+
+## Reading this matrix
+
+Support policy is not a claim that every engine / Unity / OS combination has been tested. Luau is branch-specific; PUC-Rio's platform list describes design coverage. The published performance report verifies **Win64 Il2Cpp / Unity 2022.3.62f3** only. Before shipping, run the project's correctness tests and a build smoke test on each target. Additional platform results should include the package revision, Unity / Lua versions, device, and test report.
 
 ## Lua engines
 
@@ -32,16 +35,16 @@ Luau's `luaL_openlibs` does not provide `package` / `require` / `loadstring`. ZL
 
 ## Unity
 
-| Version | Status |
-|------|------|
-| Unity **6000.0.x** | ✅ Supported |
-| Unity **6000.3.x** | ✅ Supported |
-| Unity **6000.5.x** | ✅ Supported |
-| Unity 2022.3 LTS | ✅ Supported |
-| Unity 2021.3 LTS | ✅ Supported |
-| Tuanjie Engine LTS | ✅ Supported |
+Minimum supported version: Unity 2022.3 LTS. Only LTS series and Tuanjie based on Unity 2022.3.x are supported. Unity 2021 and earlier, and non-LTS Update / Tech Stream releases are outside the support policy.
 
-libil2cpp patch resolution: prefer `patches/libil2cpp/6000.{minor}/`, then fall back to `6000/` (see [Multi-version](/docs/spec/11-MULTI-VERSION/)).
+| Version | Status |
+|---------|--------|
+| Unity 6.0 LTS **6000.0.x** | Supported |
+| Unity 6.3 LTS **6000.3.x** | Supported |
+| Unity 2022.3 LTS | Supported |
+| Tuanjie LTS based on 2022.3.x | Supported |
+
+libil2cpp patch resolution prefers `patches/libil2cpp/6000.{minor}/`, then falls back to `6000/`. See [Multi-version](/docs/spec/11-MULTI-VERSION/).
 
 ## Scripting Backend
 

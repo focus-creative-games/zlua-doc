@@ -1,5 +1,4 @@
 ---
-sidebar_position: 12
 title: Method overloads
 description: Default dispatch, lazy full-signature keys and caching, and LuaAlias short names.
 ---
@@ -119,13 +118,6 @@ An alias is a **rename** (replaces the default Lua key), not an append. XML (`lu
 | Want `demo['(System.Int32)']` | **Forbidden**; must include the method name: `Run(System.Int32)` |
 | Full-signature key `member not found` | Check CLR method name and `Type.FullName` against metadata; constructors are not full-signature keys |
 | Want runtime short-name registration | Not supported; use Bind-time `[LuaAlias]` / XML, or bracket keys + local cache |
-
-## Learning path
-
-| | |
-|---|---|
-| **Previous** | [0GC Marshal](/docs/guides/zero-gc-marshal/) |
-| **Next** | [LuaAlias](/docs/guides/lua-alias/) |
 
 ## Related
 

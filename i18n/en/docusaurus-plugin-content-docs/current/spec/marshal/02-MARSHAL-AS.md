@@ -350,7 +350,7 @@ If annotation is illegal or config is wrong during resolve: **Mono Attribute** a
 ## 9. XML external config (precompiled / AOT assemblies)
 
 > **Motive:** Many assemblies are precompiled DLLs and cannot add `[LuaMarshalAs]`. XML provides **equivalent** external Marshal rules.
-> **Scope:** XML is **only** for **non–hot-update** assemblies (precompiled / AOT DLLs). **Hot-update assemblies** (including HybridCLR hot-update DLLs) support **only** in-code `[LuaMarshalAs]`; configuring Marshal rules for them via XML is **not** supported.
+> Settings XML configures precompiled / AOT assemblies known at build time. For hot-update assemblies, use Attributes or call the corresponding [InteropMetadata.Register*Xml](/docs/reference/csharp/interop-metadata/) in Il2Cpp Player after loading the assembly and before first type binding. Editor Mono registration is a no-op.
 > **Separate from `[LuaAlias]`:** Method aliases use an **independent** Settings path and root element (see [../04-METHOD-OVERLOAD.md](/docs/spec/04-METHOD-OVERLOAD/) §5.4); **do not** mix with this file.
 > **Platform:** Mono (Editor) **loads and parses XML at runtime**; Il2Cpp (Player) **forbids** runtime XML parse—build time (`ZLua/Generate/All`, etc.) **generates C++ tables/data** from XML; runtime only looks up tables.
 > **Semantics:** Mono and Il2Cpp Lua-visible results must match.

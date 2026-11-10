@@ -1,5 +1,4 @@
 ---
-sidebar_position: 3
 title: Method calls
 description: Shortest path for method overloads, generic methods, and params from Lua.
 ---

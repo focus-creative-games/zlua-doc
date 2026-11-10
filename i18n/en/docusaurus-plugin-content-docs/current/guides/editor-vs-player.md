@@ -1,12 +1,11 @@
 ---
-sidebar_position: 91
 title: Editor vs Player
 description: Differences between Mono Editor and Il2Cpp Player dual runtimes (appendix).
 ---
 
 # Editor vs Player
 
-Appendix. For the release checklist, see also [Build workflow](/docs/guides/build/). ZLua has two backends: **Lua-visible semantics must match**; implementation paths differ.
+Appendix. For the release checklist, see also [Build workflow](/docs/getting-started/build/). ZLua has two backends: **Lua-visible semantics must match**; implementation paths differ.
 
 | | Editor (Mono) | Player (Il2Cpp) |
 |---|---------------|-----------------|
@@ -29,16 +28,9 @@ Event, Marshal, type access, etc. follow the [Spec](/docs/spec/00-OVERVIEW/); ne
 - [ ] Script behavior matches the [Spec](/docs/spec/00-OVERVIEW/) (do not rely on deprecated Event `.get` / `.set`)
 - [ ] Smoke-test against the [compatibility matrix](/docs/getting-started/compatibility/)
 
-## Learning path
-
-| | |
-|---|---|
-| **Previous** | [Troubleshooting](/docs/guides/troubleshooting/) |
-| **Next** | — |
-
 ## Related
 
-- [Build workflow](/docs/guides/build/)
+- [Build workflow](/docs/getting-started/build/)
 - [Third-party native modules](/docs/guides/native-modules/) — Editor dynamic / Player static differences also apply to C modules
 - [Dual runtime](/docs/concepts/dual-runtime/)
 - [Comparison](/docs/compare/)

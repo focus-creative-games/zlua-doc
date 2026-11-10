@@ -1,5 +1,4 @@
 ---
-sidebar_position: 3
 title: 函数调用
 description: 方法重载、泛型方法与 params 在 Lua 侧的最短用法。
 ---

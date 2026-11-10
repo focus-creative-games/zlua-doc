@@ -1,5 +1,4 @@
 ---
-sidebar_position: 2
 title: 安装与集成
 description: 通过 UPM 安装 ZLua，配置 Lua 版本并完成本地 Install。
 ---
@@ -7,6 +6,10 @@ description: 通过 UPM 安装 ZLua，配置 Lua 版本并完成本地 Install�
 # 安装与集成
 
 本文以官方示例工程 [zlua-demo](https://github.com/focus-creative-games/zlua-demo) 为 canonical 参考，路径均指向其 `main` 分支。
+
+:::info 适用范围
+本页描述规范中的统一集成包。旧独立包或其它分支须使用其对应版本说明，不要混用两套 Installer。安装行为以 [多版本规范](/docs/spec/11-MULTI-VERSION/) 为准。
+:::
 
 ## 概述
 
@@ -26,7 +29,7 @@ ZLua 以 Unity Package（UPM）形式分发。**安装 Package 后还须完成�
 
 | 项 | 要求 |
 |----|------|
-| Unity | 见 [兼容性](/docs/getting-started/compatibility/)（2021.3 / 2022.3 / Unity 6 含 6000.5 / 团结等） |
+| Unity | 见 [兼容性](/docs/getting-started/compatibility/)（2022.3 / Unity 6 / 团结等） |
 | Scripting Backend | Editor：**Mono**；Player：**Il2Cpp** |
 | Lua | 由 **Settings** 指定（默认 **`lua-5.5.0`**）；Install 时下载 / 装入本地树 |
 | 网络 | 首次 Install 下载 PUC-Rio 源码时需要；LuaJIT 须自行 clone，且 Il2Cpp 发布仅 Android / iOS（见 [多版本管理](/docs/spec/11-MULTI-VERSION/)、[LuaJIT 构建](/docs/spec/build/02-LUAJIT/)） |
@@ -82,7 +85,7 @@ git clone https://github.com/focus-creative-games/zlua-demo.git
 | **Enable** | 是否启用 ZLua |
 | **Lua Version Id** | 要使用的 Lua / LuaJIT / Luau 版本 id；**默认 `lua-5.5.0`**（空则按此默认） |
 | **MarshalAs Xml Paths** | 可选；MarshalAs XML 路径，见 [LuaMarshalAs](/docs/spec/marshal/02-MARSHAL-AS/) |
-| **Unity Optimizations** | 默认开。字段说明见 [Settings](/docs/guides/settings/)；当前效果见 [Unity 优化](/docs/getting-started/unity-optimizations/) |
+| **Unity Optimizations** | 默认开。字段说明见 [Settings](/docs/guides/settings/)；当前效果见 [Unity 优化](/docs/guides/unity-optimizations/) |
 
 **`luaVersionId` 写法**（与 [多版本管理](/docs/spec/11-MULTI-VERSION/) 一致）：
 
@@ -120,73 +123,21 @@ PUC-Rio 源码缓存目录一般为 `Library/ZLua/LuaSrcCache/`（如 `lua-5.5.0
 ```
 YourProject/
 ├── Assets/
-│   ├── Bootstrap.cs              # 初始化入口
-│   └── Editor/
-│       └── SyncLuaScriptsToStreamingAssets.cs   # Player 构建前同步脚本
-├── LuaScripts/                   # Editor 下 Lua 源文件（*.lua）
-│   └── app.lua
-├── Packages/
-│   └── manifest.json
-├── ProjectSettings/
-│   └── ZLua.asset                # Settings（含 luaVersionId）
-└── StreamingAssets/              # 构建时自动生成
-    └── LuaScripts/
-        └── app.lua.txt           # Player 读取
+│   ├── Bootstrap.cs
+│   ├── Editor/SyncLuaScriptsToStreamingAssets.cs
+│   └── StreamingAssets/LuaScripts/app.lua.txt   # 构建前同步生成
+├── LuaScripts/app.lua                          # Editor 源文件
+├── Packages/manifest.json
+└── ProjectSettings/ZLua.asset
 ```
-
-**为何两种脚本路径？**
-
-- **Editor**：Demo 直接从项目根目录 `LuaScripts/*.lua` 加载，便于编辑调试（见 [Bootstrap.cs](https://github.com/focus-creative-games/zlua-demo/blob/main/Assets/Bootstrap.cs)）。
-- **Player**：从 `StreamingAssets/LuaScripts/*.lua.txt` 加载；`.txt` 后缀避免 Unity 误当作 TextAsset 导入规则冲突。
 
 ### 5. 同步 Lua 到 StreamingAssets（Player 必需）
 
-复制 Demo 中的 [SyncLuaScriptsToStreamingAssets.cs](https://github.com/focus-creative-games/zlua-demo/blob/main/Assets/Editor/SyncLuaScriptsToStreamingAssets.cs) 到 `Assets/Editor/`。
+按 [首次构建](/docs/getting-started/build/) 配置构建前同步与 Player loader。Editor 从项目根 `LuaScripts` 读取，Player 的具体加载方式取决于目标平台及项目资源系统。
 
-- 构建 Player 前自动执行 `IPreprocessBuildWithReport`
-- 菜单 **Tools → Sync LuaScripts To StreamingAssets** 可手动同步
+### 6. 验证安装
 
-### 6. Bootstrap 初始化
-
-最小入口（摘自 [Bootstrap.cs](https://github.com/focus-creative-games/zlua-demo/blob/main/Assets/Bootstrap.cs)）：
-
-```csharp
-using System.IO;
-using System.Text;
-using UnityEngine;
-using ZLua;
-
-public class Bootstrap : MonoBehaviour
-{
-    private static string LoadLuaModule(string module)
-    {
-#if UNITY_EDITOR
-        string path = Path.Combine(Application.dataPath, "..", "LuaScripts", module + ".lua");
-#else
-        string path = Path.Combine(
-            Application.streamingAssetsPath, "LuaScripts", module + ".lua.txt");
-#endif
-        return File.Exists(path) ? File.ReadAllText(path, Encoding.UTF8) : null;
-    }
-
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-    private static void InitZLuaOnStartup()
-    {
-        LuaAppDomain.Initialize(LoadLuaModule);
-    }
-}
-```
-
-`LoadLuaModule` 签名：`Func<string, object>`，参数为**模块名**（不含路径与扩展名），返回 Lua 源码字符串；找不到模块返回 `null`。
-
-### 7. 验证安装
-
-1. 确认已执行 **Settings**（版本正确）与 **Install**（Console 有 Install succeeded）
-2. 创建 [Demo.cs](https://github.com/focus-creative-games/zlua-demo/blob/main/Assets/Demo.cs) 与 [app.lua](https://github.com/focus-creative-games/zlua-demo/blob/main/LuaScripts/app.lua)
-3. 在 Bootstrap 中用 `GetFunction` 调用 `app.main` 并 Play（`GetFunction` 须在 `Initialize` 之后，例如 `Awake`）
-4. Console 应输出 `lua main start` 及后续测试日志
-
----
+Install 日志成功、工程能编译后，继续 [快速开始](/docs/getting-started/quick-start/) 创建完整最小示例并验证 Console 输出。
 
 ## Assembly Definition 说明
 
@@ -219,9 +170,7 @@ public class Bootstrap : MonoBehaviour
 
 ## 下一步
 
-- [5 分钟快速开始](/docs/getting-started/quick-start/)
-- [AI Skills](/docs/getting-started/skills/) — 把包内技能接到编程助手
-- [使用指南 · 安装与 Lua 版本](/docs/guides/install/)（循序渐进主线）
-- [初始化与最小互调](/docs/guides/hello-interop/)
+- [快速开始](/docs/getting-started/quick-start/)
+- [AI Skills](/docs/guides/skills/) — 把包内技能接到编程助手
 - [多版本管理](/docs/spec/11-MULTI-VERSION/)
 - [支持的版本与平台](/docs/getting-started/compatibility/)

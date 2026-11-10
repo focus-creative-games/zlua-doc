@@ -1,5 +1,4 @@
 ---
-sidebar_position: 11.3
 title: Unity optimizations
 description: With Unity Optimizations on, GetComponent splits into three names and returns the runtime type.
 ---

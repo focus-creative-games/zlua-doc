@@ -1,18 +1,34 @@
 ---
-sidebar_position: 3
-title: 构建流程
+title: 首次构建 Il2Cpp Player
 description: Il2Cpp Player 的 Generate、Lua Sync 与发布检查清单。
 ---
 
-# 构建流程
+# 首次构建 Il2Cpp Player
 
 Editor（Mono）Play 不需要 per-type C# Wrap；发布 **Il2Cpp Player** 前必须完成 Generate 与 Lua 同步。语义以 [Editor 与 Player](/docs/guides/editor-vs-player/) 为准。
+
+## 调整快速开始的 loader
+
+完成 [快速开始](/docs/getting-started/quick-start/) 后，桌面 Player 可将 `LoadLuaModule` 内的路径构造替换为下面的代码，保留文件检查与 `ReadAllText`：
+
+```csharp
+string relativePath = module.Replace('.', '/') + ".lua";
+#if UNITY_EDITOR
+string path = Path.Combine(Application.dataPath, "..", "LuaScripts", relativePath);
+#else
+string path = Path.Combine(Application.streamingAssetsPath, "LuaScripts", relativePath + ".txt");
+#endif
+```
+
+构建前将文件同步到 **`Assets/StreamingAssets/LuaScripts`**。此文件系统 loader 适用于桌面文件路径。Android / WebGL 应先通过平台资源加载接口取得文本或字节并缓存，再由同步 loader 返回；不能假定 `File.ReadAllText` 可以读取所有 StreamingAssets URL。
+
+构建后启动 Player，验证与快速开始相同的 `C# Add: 8`、`C# field: 10`、`Lua add: 30` 输出。构建成功本身不能代替互调验证。
 
 ## 发布前清单
 
 | 步骤 | 做什么 |
 |------|--------|
-| 1 | 已 [Install](/docs/guides/install/)（本地 `libil2cpp` / Lua / zlua 树存在） |
+| 1 | 已 [Install](/docs/getting-started/installation/)（本地 `libil2cpp` / Lua / zlua 树存在） |
 | 2 | 菜单 **`ZLua/Generate/All`**（生成 C++ stub，**不是** C# Wrap） |
 | 3 | 将 `LuaScripts` 同步到 `StreamingAssets/LuaScripts/*.lua.txt` |
 | 4 | Build Settings → **Il2Cpp** → 目标平台 |
@@ -50,17 +66,10 @@ Player 侧 loader 读的是 `StreamingAssets`，不是工程根 `LuaScripts`。
 
 | 现象 | 处理 |
 |------|------|
-| 提示未 Install | 先 [Install](/docs/guides/install/) |
+| 提示未 Install | 先 [Install](/docs/getting-started/installation/) |
 | Player 无 Lua 输出 / module not found | 未 Sync 或路径/扩展名错误 |
 | Editor 正常 Player 崩 | 未 Generate；或使用了已废弃 Event 糖语法 |
 | 换 Unity / 换 Lua 版本后异常 | 重跑 Install → Generate |
-
-## 学习路径
-
-| | |
-|---|---|
-| **上一篇** | [初始化与最小互调](/docs/guides/hello-interop/) |
-| **下一篇** | [EmmyLua 调试器](/docs/guides/debugger/) |
 
 ## 相关文档
 

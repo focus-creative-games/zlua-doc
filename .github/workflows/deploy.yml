@@ -31,6 +31,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Validate documentation
+        run: |
+          npm run typecheck
+          npm run check:docs
+          npm run check:i18n
+
       - name: Build site
         run: npm run build
 

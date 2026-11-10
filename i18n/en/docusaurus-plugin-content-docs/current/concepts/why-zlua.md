@@ -18,10 +18,10 @@ Detailed matrix: **[Comparison](/docs/compare/)**; migration: **[migration](/doc
 |--|--------|
 | **Easier** | More modern design; extremely simple; **zero config** (no per-type C# Wrap whitelist) |
 | **More complete** | Standard, complete C#↔Lua interop covering nearly all common C# features |
-| **Faster** | **98.2%** of aligned cases faster than xLua; Lua→C# avg ~**2.62×**; common fields/properties/calls ~**4×** |
-| **Less & faster GC** | Reference types and structs (including structs with ref fields) default to **0 GC**; plus OpaqueValue and other strategies |
-| **Tiny bridge** | Same-signature merge + efficient C++ codegen; footprint can be an order of magnitude smaller; **0 bridge functions** still stays fast |
-| **Broader versions** | Lua **5.1–5.5**, **LuaJIT** (Il2Cpp JIT **Android / iOS only**), **[Luau](https://luau.org/)** (official [`luau` branch](https://github.com/focus-creative-games/zlua/tree/luau); Editor is Windows only, Il2Cpp is Windows x64 for now); Unity **2021.3 / 2022.3 / Unity 6 (6000.0 / 6000.3 / 6000.5)**, **Tuanjie Engine** |
+| **Faster** | Four-way Il2Cpp measurements; see [Performance](/docs/compare/PERFORMANCE/) for the report, environment, and ratios. |
+| **Less GC** | Low-allocation Marshal paths; distinguish managed and Lua allocation, warm-up and steady state. See [GC boundaries](/docs/compare/GC/). |
+| **Shared bridge** | C++ stubs share reduced signatures. Binary-size savings need measurement; see [Bridge analysis](/docs/compare/BRIDGE/). |
+| **Broader versions** | Multiple Lua engines and maintained Unity LTS series; see the [compatibility matrix](/docs/getting-started/compatibility/) for versions, platforms, and branch limits. |
 | **More active maintenance** | Full-time professional team; faster bug response and feature iteration |
 
 ---
@@ -55,7 +55,7 @@ print(CSharp.AC.Demo.Add(3, 5))
 
 **Zero config** means: no per-type C# Wrap whitelist or member-level Wrap project. Editor works out of the box; for Il2Cpp Player run **`ZLua/Generate/All`** once (generates **C++ stubs**, not xLua-style C# Wrap).
 
-→ [Quick start](/docs/getting-started/quick-start/) · [Guides](/docs/guides/install/)
+→ [Quick start](/docs/getting-started/quick-start/) · [Guides](/docs/getting-started/installation/)
 
 ---
 
@@ -80,14 +80,7 @@ Semantics are contracted by the [Spec](/docs/spec/00-OVERVIEW/); both ends (Mono
 
 On **Il2Cpp Win64 Release**, four-way aligned benchmarks (public repo [zlua-benchmark](https://github.com/focus-creative-games/zlua-benchmark); notes in [PERFORMANCE](/docs/compare/PERFORMANCE/)):
 
-| Metric | Result (avg ratio vs zlua; >1 = slower) |
-|------|------|
-| Lua→C# (231 cases) | xLua ≈ **2.57×**; toLua ≈ **3.52×**; SLua ≈ **7.68×** |
-| C#→Lua (54 cases) | xLua ≈ **1.59×**; toLua ≈ **3.27×**; SLua ≈ **14.9×** |
-| Lead vs xLua | ~**98.6%** of cases (281/285) |
-| Common fields / properties | ~**3.5–4×** (vs xLua) |
-
-Full report: [comparison_20260728_121554.md](https://github.com/focus-creative-games/zlua-benchmark/blob/main/reports/comparison_20260728_121554.md).
+See [Performance](/docs/compare/PERFORMANCE/) for the report, Unity version, sample count, ratios, and measured limits.
 
 Root cause is direct: drop **libxlua round-trips + huge C# Wrap**, and finish marshal + `methodPointer` call once in C++.
 
@@ -106,7 +99,7 @@ Default strategy targets hot paths:
 | Strategy | Meaning |
 |------|------|
 | **Reference types** | Default object table / userdata — avoid pointless boxing and temporary `object[]` |
-| **struct** | Whether or not fields include references, default **0 GC** Marshal paths (ByVal / ByObj etc. — see Spec) |
+| **struct** | Representation and allocation depend on fields, direction, and Marshal strategy; measure the target Player. |
 | **OpaqueValue** | lightuserdata temporary handles: more flexible low-allocation strategy within a sync call chain |
 | **enum** | Default integer; no forced boxed userdata |
 
@@ -116,7 +109,7 @@ For write-back use Opaque / ByVal userdata; bare numbers **do not write back** (
 
 ---
 
-## 5. Tiny wrapper / bridge: an order of magnitude smaller, down to 0
+## 5. Signature-shared C++ bridges
 
 | Solution | Typical size model |
 |------|----------------|
@@ -125,8 +118,8 @@ For write-back use Opaque / ByVal userdata; bare numbers **do not write back** (
 
 So while still accessing almost all C# types, fields, properties, and methods:
 
-- Bridge code size is typically **an order of magnitude+ smaller** than traditional schemes
-- Supports **0 bridge functions**; even then, interop can beat “generate huge Wrap” paths
+- Signature reuse reduces duplicated bridge code; binary-size ratios are not yet measured.
+- Compare generated source, distinct stubs, and final Player size separately; no universal size or speed claim follows from the model.
 
 Editor (Mono) uses Expression Emit, **not shipped in the Player package**; Player size is driven by C++ stubs.
 
@@ -135,12 +128,6 @@ Editor (Mono) uses Expression Emit, **not shipped in the Player package**; Playe
 ---
 
 ## 6. More Unity and Lua versions
-
-| Dimension | ZLua |
-|------|------|
-| Lua | **5.1 – 5.5**, **LuaJIT** (Settings default **`lua-5.5.0`**; LuaJIT Il2Cpp shipping **Android / iOS only**) |
-| Unity | **2021.3**, **2022.3**, **Unity 6 (6000.0 / 6000.3 / 6000.5)** |
-| Engine | **Tuanjie Engine** |
 
 More versions means less risk of being stuck on one Lua/Unity combo. Full matrix: [Compatibility](/docs/getting-started/compatibility/).
 
@@ -174,7 +161,7 @@ Honest boundaries matter too:
 
 ## Next steps
 
-1. [5-minute Quick start](/docs/getting-started/quick-start/) + [zlua-demo](https://github.com/focus-creative-games/zlua-demo)
+1. [Quick start](/docs/getting-started/quick-start/) + [zlua-demo](https://github.com/focus-creative-games/zlua-demo)
 2. [Performance](/docs/compare/PERFORMANCE/) · [GC](/docs/compare/GC/) · [BRIDGE](/docs/compare/BRIDGE/)
 3. [Features](/docs/compare/FEATURES/)
 4. [Spec overview](/docs/spec/00-OVERVIEW/)

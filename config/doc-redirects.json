@@ -1,0 +1,8 @@
+{
+  "guides/install": "getting-started/installation",
+  "guides/hello-interop": "getting-started/quick-start",
+  "guides/build": "getting-started/build",
+  "getting-started/skills": "guides/skills",
+  "getting-started/unity-optimizations": "guides/unity-optimizations",
+  "community/migration": "guides/migration"
+}

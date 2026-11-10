@@ -22,7 +22,7 @@ title: "测试框架"
 
 C# 测试基础设施对齐 LeanCLR 测试 Common 中的 `Assert`、`UnitTestAttribute`、`TestRunner` 模式。
 
-**平台原则：** 同一套用例在 **Editor** 与 **Player** 下各运行一次；框架 **不区分** 具体实现，无 `skip` / `xfail` / `mono_only` 等运行时分支——**任一后端失败即失败**。
+**平台原则：** 同一套用例在 **Editor** 与 **Player** 下各运行一次；框架 **不区分** 具体实现，仅在规范明确限制某运行时或 Lua 版本时保留兼容分支；支持范围内**任一后端失败即失败**。
 
 ---
 
@@ -30,7 +30,7 @@ C# 测试基础设施对齐 LeanCLR 测试 Common 中的 `Assert`、`UnitTestAtt
 
 ```
 ZLuaTest/                          # Unity 工程根
-├── Tests/                            # Lua 用例（非 Assets）★ 只在此编辑 Lua
+├── Tests/                            # Lua 用例（非 Assets）★ Mono 编辑入口
 │   └── Lua/
 │       ├── luatest/                  # Lua 测试框架
 │       ├── bootstrap.lua
@@ -53,17 +53,13 @@ Packages/com.code-philosophy.zlua/
 
 | 位置 | 内容 |
 |------|------|
-| `Tests/Lua/` | **唯一** Lua 测试编辑入口 |
+| `Tests/Lua/` | Mono Lua 测试编辑入口 |
 | `Assets/Tests/` | 全部 C# 测试（`ZLua.Tests`） |
 | `Assets/StreamingAssets/Tests/` | **构建产物**；`SyncTestsLuaToStreamingAssets` 自动生成 |
 
-### ⚠️ Lua 脚本编辑规则
+### Lua 测试编辑规则
 
-- **只改** `Tests/Lua/**`。
-- **不要** 手动复制、同步或编辑 `Assets/StreamingAssets/Tests/**` 或 `build-win64/**/StreamingAssets/Tests/**`。
-- 构建 / 预处理时 Editor 脚本会将 `Tests/Lua` 同步到 StreamingAssets；Player 从 `.lua.txt` 加载。
-
-Fixture 类型与 Runner 同处 `ZLua.Tests`；Lua 侧通过 `CSharp['ZLua.Tests']` 访问 Fixture。
+Mono 修改 `Tests/Lua/**`；调试已导出的 Il2Cpp 工程时，修改 `build-win64/build/bin/ZLuaDemo_Data/StreamingAssets/Tests/Lua/**`。每次修改 `.lua` 后按相对路径同步到另一端，保留两端其它改动与运行时 / Lua 版本兼容逻辑。C# 测试统一在 `Assets/Tests`。全新导出仍可使用构建同步；增量调试导出 Player 时遵守上述双目录规则。
 
 ---
 

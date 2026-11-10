@@ -1,4 +1,4 @@
-﻿---
+---
 sidebar_position: 4
 title: "Method overloads"
 ---
@@ -401,7 +401,7 @@ public void Run(int value) { ... }
 
 `[LuaAlias]` and `[LuaMarshalAs]` have **different goals** (final Lua name vs parameter/return/member Marshal); they rarely intersect. XML may **share similar `Assembly` / `Type` / `Method` locating style**, but must:
 
-> **Scope:** XML is **only** for **non–hot-update** assemblies (precompiled / AOT DLLs). **Hot-update assemblies** (including HybridCLR hot-update DLLs) support **only** in-code `[LuaAlias]`; configuring alias rules for them via XML is **not** supported.
+> Settings XML configures precompiled / AOT assemblies known at build time. For hot-update assemblies, use Attributes or call the corresponding [InteropMetadata.Register*Xml](/docs/reference/csharp/interop-metadata/) in Il2Cpp Player after loading the assembly and before first type binding. Editor Mono registration is a no-op.
 
 | Constraint | Notes |
 |------------|-------|
@@ -436,7 +436,7 @@ public void Run(int value) { ... }
 |-------------------|-------|
 | Rename | With `@alias`, do **not** also register under `MethodInfo.Name` |
 | vs Attribute | If the same method has Attribute, Attribute wins (§5.3); that XML entry may be recorded unused (optional diagnostics) |
-| Platforms | Mono parses `luaAliasXmlPaths` at runtime; Il2Cpp **Generate**s a static alias table; Player does **not** read XML (load/Generate modes align with [marshal/02-MARSHAL-AS.md](/docs/spec/marshal/02-MARSHAL-AS/) §9.6–§9.7, but **separate** registry / artifacts) |
+| Platforms | Mono parses `luaAliasXmlPaths` at runtime; Il2Cpp **Generate**s a static alias table; build-time XML is baked into Player; later-loaded assemblies use InteropMetadata (load/Generate modes align with [marshal/02-MARSHAL-AS.md](/docs/spec/marshal/02-MARSHAL-AS/) §9.6–§9.7, but **separate** registry / artifacts) |
 | Duplicates | After merging all alias XML, multiple `@alias` for the same `(assembly, type, methodName, signature)` → **fail** (later files must not override). Different methods colliding on the same final name are **allowed** (merge into overload group, §5.1) |
 
 ### 5.5 Static / instance

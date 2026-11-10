@@ -7,7 +7,7 @@ description: ZLua’s core design goals and the GetFunction model.
 # Design overview
 
 :::tip Who should read this
-**Evaluators, new adopters, and readers who need to understand “why it’s designed this way.”** For day-to-day APIs see [Guides](/docs/guides/install/); implementation details are in the [Spec](/docs/spec/00-OVERVIEW/).
+**Evaluators, new adopters, and readers who need to understand “why it’s designed this way.”** For day-to-day APIs see [Guides](/docs/getting-started/installation/); implementation details are in the [Spec](/docs/spec/00-OVERVIEW/).
 :::
 
 ZLua treats Lua as another form of **Native**: like P/Invoke, declarative APIs unify bidirectional interop; on Il2Cpp it generates **C++ stubs** (`ZLua/Generate/All`), **not** xLua-style C# Wrap.

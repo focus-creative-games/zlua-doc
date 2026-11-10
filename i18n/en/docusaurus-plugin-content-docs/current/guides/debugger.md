@@ -1,5 +1,4 @@
 ---
-sidebar_position: 3.5
 title: EmmyLua debugger
 description: Breakpoint-debug running Lua with EmmyLua under Editor Mono (common setup).
 ---
@@ -82,17 +81,10 @@ Optional `.emmyrc.json` only affects completion/diagnostics; it does **not** rep
 | Editor freezes after Play | Turn off `debuggerWaitIDE`, or F5 before Play |
 | Extension has no `emmylua_new` | Install/enable EmmyLua and reload the window |
 
-## Learning path
-
-| | |
-|---|---|
-| **Previous** | [Build pipeline](/docs/guides/build/) |
-| **Next** | [Lua calling C#](/docs/guides/lua-calling-csharp/) |
-
 ## Related
 
 - [Spec · EmmyLua debugger](/docs/spec/build/04-EMMYLUA-DEBUGGER/) — ABI directories, custom builds, `waitIDE`, acceptance checklist
 - [Third-party native modules](/docs/guides/native-modules/) — same `cpath` + `require` pattern for socket/cjson, etc.
-- [Install and Lua versions](/docs/guides/install/)
-- [Initialize and minimal interop](/docs/guides/hello-interop/)
+- [Install and Lua versions](/docs/getting-started/installation/)
+- [Initialize and minimal interop](/docs/getting-started/quick-start/)
 - [Upstream EmmyLuaDebugger](https://github.com/EmmyLua/EmmyLuaDebugger)

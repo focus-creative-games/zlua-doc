@@ -1,5 +1,4 @@
 ---
-sidebar_position: 11.2
 title: Return view type
 description: ByObj return view uses the runtime actual type (ActualTypeUserData); relation to zlua.cast and generic methods.
 ---
@@ -69,7 +68,7 @@ local a = ObjectFactory.CreateChildActual()   -- view already Child on return
 |------|------|
 | Attribute | `[return: LuaMarshalAs(LuaMarshalType.ActualTypeUserData)]` |
 | XML | `Return`=`ActualTypeUserData` (on the **declaring type**; inheritance works) |
-| Hot-update assemblies | Attribute **only**; XML is **not** supported |
+| Hot-update assemblies | Attributes or explicit XML registration before first binding; see [InteropMetadata](/docs/reference/csharp/interop-metadata/) |
 
 **Return values only.** On parameters / fields / properties / type-level → illegal (Mono Attribute: fall back to `Default` + log; Il2Cpp Generate / XML: may fail).
 
@@ -97,13 +96,6 @@ For `GetComponent`, after close the declared return may be `Component`; annotate
 | Turns `string` into a Lua string | No; actual `string` stays ByObj (view `System.String`) |
 | Changes virtual dispatch rules | No; look up on **view**, then virtual-call on real `this` |
 | Same as Opaque / Table | No; shape remains ByObj UserData |
-
-## Learning path
-
-| | |
-|---|---|
-| **Previous** | [LuaMarshalAs](/docs/guides/lua-marshal-as/) |
-| **Next** | [0GC Marshal](/docs/guides/zero-gc-marshal/) |
 
 ## Related
 

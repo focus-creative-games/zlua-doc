@@ -1,160 +1,58 @@
 ---
-sidebar_position: 95
 title: HybridCLR integration
-description: Dual-package install order, loading hot-update assemblies, and Attribute-only Alias / MarshalAs / Extension on hot-update code.
+description: Unified installation, hot-update assembly loading, and XML registration before first binding.
 ---
 
 # HybridCLR integration
 
-ZLua is natively compatible with [HybridCLR](https://github.com/focus-creative-games/hybridclr) **v9.0.0+**: on the Il2Cpp Player you can use HybridCLR hot update together with ZLua’s Lua↔C# interop. This guide covers the **dual-package** workflow—install order, runtime loading, and configuration limits.
+This guide targets the unified integration package in the [Install specification](/docs/spec/11-MULTI-VERSION/). ZLua's Installer installs the HybridCLR base and ZLua overlay. The older two-package workflow does not apply here.
 
-If you are not using HybridCLR, follow the normal [Install & Lua version](/docs/guides/install/) path.
+## Install and generate
 
-## What you need to do
+1. Follow [Installation](/docs/getting-started/installation/) to add ZLua, configure Settings, and run `ZLua/Install...`.
+2. Do not add the standalone `com.code-philosophy.hybridclr` package or overwrite the local Il2Cpp tree with another Installer.
+3. Run `ZLua/Generate/All` before release: StripAOT runs once, followed by HybridCLR MethodBridge and ZLua bridge generation.
+4. After changing Unity / Lua or upgrading the package, run Install → Generate again. See [Compatibility](/docs/getting-started/compatibility/).
 
-1. Add both the HybridCLR and ZLua UPM packages (minimum versions below)
-2. Run **`HybridCLR/Installer` first**, then **`ZLua/Install`** (order is mandatory)
-3. `Assembly.Load` (or the HybridCLR equivalent) hot-update assemblies **before** Lua touches those types
-4. On hot-update assemblies, configure `[LuaAlias]` / `[LuaMarshalAs]` / `[LuaExtension]` **only** via code Attributes; XML has **no effect**
+## Load hot-update assemblies and XML
 
-## 1. Install packages
+Before the first access to a hot-update type:
 
-Add both dependencies in `Packages/manifest.json`:
-
-| Package | Minimum version | Notes |
-|---------|-----------------|-------|
-| `com.code-philosophy.hybridclr` | **v9.0.0+** | HybridCLR hot-update runtime and Editor tools |
-| `com.code-philosophy.zlua` | **1.0.0+** | ZLua (including patches / overlays on local `libil2cpp`) |
-
-Example (replace versions with the tags or Git refs you actually use):
-
-```json
-{
-  "dependencies": {
-    "com.code-philosophy.hybridclr": "9.0.0",
-    "com.code-philosophy.zlua": "1.0.0"
-  }
-}
-```
-
-Git URLs / version tags for each repo also work. HybridCLR project setup follows the [HybridCLR documentation](https://www.hybridclr.cn/); general ZLua steps are in [Install & Lua version](/docs/guides/install/).
-
-:::tip Version requirements
-Combinations below HybridCLR **v9.0.0** or ZLua **1.0.0** are **outside** the scope of this guide. After upgrading either package, re-run the Installers in §2.
-:::
-
-## 2. Installer order (mandatory)
-
-The local Il2Cpp tree is built in two stacked steps; **do not reverse the order**:
-
-```mermaid
-flowchart LR
-  A["HybridCLR/Installer"] --> B["Local libil2cpp<br/>with hybridclr/"]
-  B --> C["ZLua/Install"]
-  C --> D["patch + zlua / lua overlay"]
-```
-
-| Step | Menu | Role |
-|------|------|------|
-| 1 | **`HybridCLR/Installer`** | Install HybridCLR’s C++ runtime (`il2cpp_plus` + `hybridclr/`, etc.) into the project’s local `libil2cpp` |
-| 2 | **`ZLua/Install`** (or `ZLua/Install...`) | Patch the **already present** local tree and overlay `zlua` / the selected Lua sources |
-
-**Why:** ZLua Install **patches local `libil2cpp` sources**. That tree must already exist from HybridCLR Installer. Running ZLua first, or with no HybridCLR local tree, leaves nothing valid to patch and the combo fails.
-
-:::danger Wrong order
-Running `ZLua/Install` before `HybridCLR/Installer`, or installing only one of them, can break Player builds and hot-update / Lua bridging. After changing Unity versions or reinstalling local Il2Cpp, still re-run **HybridCLR → ZLua**.
-:::
-
-### Suggested checks
-
-1. HybridCLR Installer succeeds; local `libil2cpp` contains `hybridclr/`
-2. Then run `ZLua/Install` successfully; Lua version in Settings is correct
-3. Before shipping, run **`ZLua/Generate/All`** per [Build pipeline](/docs/guides/build/) (plus any HybridCLR Generate / AOT metadata steps your project needs)
-
-## 3. In code: load hot-update assemblies first
-
-Types Lua reaches via `CSharp[...]` / type tables must already be loaded in the AppDomain. For HybridCLR hot-update DLLs, finish loading **before** the first Lua (or C# path that triggers `EnsureBinding`) touch:
+1. Load supplemental AOT metadata if required by the project.
+2. Load the assembly with `Assembly.Load`.
+3. If using XML, call `InteropMetadata.Register*Xml`.
+4. Execute Lua / C# code that binds the type for the first time.
 
 ```csharp
-using System.Reflection;
-
-// Load dll bytes per your project (StreamingAssets / hot-update folder, etc.)
-byte[] dllBytes = LoadHotUpdateDllBytes("HotUpdate.dll");
-Assembly.Load(dllBytes);
-
-// Only afterwards:
-// - Lua: local T = CSharp['HotUpdate']['MyGame.HotType']
-// - or C# that binds types from that assembly
+// dllBytes comes from your resource system; paths / projectRoot are project configuration.
+System.Reflection.Assembly.Load(dllBytes);
+ZLua.InteropMetadata.RegisterAliasXml(aliasPaths, projectRoot);
+ZLua.InteropMetadata.RegisterMarshalAsXml(marshalPaths, projectRoot);
+ZLua.InteropMetadata.RegisterExtensionXml(extensionPaths, projectRoot);
+// First access to hot-update types may now proceed.
 ```
 
-HybridCLR’s own load helpers are fine if your project standardizes on them (e.g. `RuntimeApi.LoadMetadataForAOTAssembly` / a custom `Assembly.Load` wrapper); the rule is the same: **do not** access types from Lua before the assembly is loaded.
+`LuaAppDomain.Initialize` may run earlier, but code accessing hot-update types must wait for loading and registration. If XML is unnecessary, omit registration and use `[LuaAlias]` / `[LuaMarshalAs]` / `[LuaExtension]`.
 
-Typical startup order:
+## Three configuration paths
 
-1. HybridCLR AOT metadata supplement (if required)
-2. `Assembly.Load` hot-update assemblies
-3. `LuaAppDomain.Initialize` (may run earlier, but **hot-update types must be accessed only after Load**)
-4. Then Lua / `GetFunction` paths that touch hot-update types
+| Configuration | Scope | Applied when |
+|---------------|-------|--------------|
+| C# Attribute | Editable source, including hot-update types | Type binding |
+| Settings XML | Precompiled / AOT assemblies known at build time | Editor initialization; Il2Cpp Generate |
+| `InteropMetadata.Register*Xml` | Assemblies loaded later in Il2Cpp Player | Explicit registration after assembly loading, before first type binding |
 
-## 4. Caveat: Alias / MarshalAs / Extension on hot-update assemblies
+Settings paths do not automatically register runtime metadata for DLLs loaded later. `Register*Xml` is a no-op in Editor Mono; validate hot-update behavior in Il2Cpp Player.
 
-| Mechanism | Hot-update assemblies | Non–hot-update (AOT / precompiled) assemblies |
-|-----------|----------------------|-----------------------------------------------|
-| `[LuaAlias]` | ✅ Code Attribute only | Attribute or Alias XML |
-| `[LuaMarshalAs]` | ✅ Code Attribute only | Attribute or MarshalAs XML |
-| `[LuaExtension]` | ✅ Code Attribute only | Attribute or Extension XML |
+Registration does not update a type that already has a `MetaBinding`. There is no Reload API. `LuaAppDomain.Reset` preserves process-level XML tables and is not a way to change metadata for an already bound type. See [InteropMetadata](/docs/reference/csharp/interop-metadata/) for the contract and parameters.
 
-For **hot-update assemblies**:
+## Verify and troubleshoot
 
-- Configure **only** via CustomAttributes in C# source
-- Do **not** expect Settings `luaAliasXmlPaths` / `marshalAsXmlPaths` / `luaExtensionXmlPaths` to cover hot-update DLLs
-- Even if XML points at hot-update types, it **will not take effect**
+| Symptom | Check |
+|---------|-------|
+| Install / patch fails | Mixed standalone and unified packages; rerun the current package's Installer |
+| Hot-update type missing | Assembly loaded; assembly name and full type name correct |
+| XML ignored | Correct Register method called in Player; registration before first binding |
+| Build fails after version change | Install → Generate → rebuild |
 
-```csharp
-using ZLua;
-
-// Inside a hot-update assembly: Attributes only
-public class HotService
-{
-    [LuaAlias("tick_i32")]
-    public void Tick(int frame) { }
-
-    public void Send(
-        [LuaMarshalAs(LuaMarshalType.Bytes)] byte[] payload) { }
-}
-
-[LuaExtension(typeof(HotTransformExt))]
-public class HotView { }
-```
-
-Details:
-
-- [LuaAlias](/docs/guides/lua-alias/)
-- [LuaMarshalAs](/docs/guides/lua-marshal-as/)
-- [Extension methods](/docs/guides/extension-methods/)
-
-## 5. Common issues
-
-| Symptom | Fix |
-|---------|-----|
-| ZLua Install cannot find / patch local `libil2cpp` | Did you run **`HybridCLR/Installer` first**? |
-| Hot update works, but Lua cannot see hot-update types | **`Assembly.Load` before access**; assembly / type names match `CSharp[...]` |
-| XML alias / Marshal on hot-update types has no effect | Expected; use in-code `[LuaAlias]` / `[LuaMarshalAs]` / `[LuaExtension]` |
-| Broken after Unity upgrade or local Il2Cpp reinstall | Re-run §2: HybridCLR Installer → ZLua Install → Generate |
-
-## Learning path
-
-| | |
-|---|---|
-| **Previous** | [Install & Lua version](/docs/guides/install/) |
-| **Next** | [Init & minimal interop](/docs/guides/hello-interop/) |
-
-## Related
-
-- [Install & Lua version](/docs/guides/install/)
-- [Build pipeline](/docs/guides/build/)
-- [LuaAlias](/docs/guides/lua-alias/)
-- [LuaMarshalAs](/docs/guides/lua-marshal-as/)
-- [Extension methods](/docs/guides/extension-methods/)
-- [Multi-version · HybridCLR base](/docs/spec/11-MULTI-VERSION/)
-- [Introduction](/docs/intro/) — HybridCLR compatibility
+Continue with [First Player build](/docs/getting-started/build/) and smoke-test hot-update type access, Alias, MarshalAs, and Extension in Player.

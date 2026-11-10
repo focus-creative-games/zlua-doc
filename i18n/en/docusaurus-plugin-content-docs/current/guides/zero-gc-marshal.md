@@ -1,5 +1,4 @@
 ---
-sidebar_position: 11.5
 title: 0GC Marshal
 description: Low-allocation Marshal patterns such as OpaqueValue, UnpackedValues, and string UserData.
 ---
@@ -95,13 +94,6 @@ For `byte[]` octet semantics use `Bytes` (↔ Lua string), which is a different 
 | **UnpackedValues** | Expand struct fields Lua↔C# | None (stack numbers, etc.) |
 | **Table** | struct / `Nullable<struct>` key/value | **Has** table |
 | **UserData** on `string` | Huge string without Lua string copy | **Has** ByObj userdata |
-
-## Learning path
-
-| | |
-|---|---|
-| **Previous** | [LuaMarshalAs](/docs/guides/lua-marshal-as/) |
-| **Next** | [Method overloads](/docs/guides/overloads/) |
 
 ## Related
 

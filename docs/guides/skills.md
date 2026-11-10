@@ -1,31 +1,32 @@
 ---
-sidebar_position: 1.4
 title: AI Skills
-description: 把包内 Agent Skills 接到编程助手，并对照到本指南各篇。
+description: 包内给 AI 编程助手用的技能说明，以及如何接到所用助手上。
 ---
 
 # AI Skills
 
-包内的 [ZLua~/skills](https://github.com/focus-creative-games/zlua/tree/main/ZLua~/skills) 是给 AI 编程助手用的技能说明，**不是**运行时 API。Unity 因为目录名以 `~` 结尾而不会导入这些 Markdown。不要把它们挪进没有 `~` 的 `Assets/` 或 `Packages/` 子目录。
+ZLua 在包内附带一组 **Agent Skills**。它们是给 AI 编程助手读的 Markdown，**不是** Lua / C# 运行时 API，也不会改变 Play 或 Player 的行为。
 
-装进工程后的路径：
+源码目录：[ZLua~/skills](https://github.com/focus-creative-games/zlua/tree/main/ZLua~/skills)。装进工程后的路径是：
 
 ```text
 Packages/com.code-philosophy.zlua/ZLua~/skills/<技能名>/SKILL.md
 ```
 
-每份技能一个目录。`SKILL.md` 开头的 `description` 决定助手在什么任务下读取正文。助手匹配到任务后会按技能里的写法生成或修改代码；人工阅读仍以本指南和 [规范](/docs/spec/00-OVERVIEW/) 为准。
+目录名以 `~` 结尾，Unity **不会**把这里的 Markdown 当资源导入。不要把这些文件挪到普通的 `Assets/` 或 `Packages/.../` 子目录（没有 `~` 的那种），否则 Unity 会导入它们。
+
+每份技能是一个目录加一份 `SKILL.md`。文首的 `description` 告诉助手**什么时候该读它**。助手按当前任务自行选用，例如安装失败会落到 `zlua-setup`，`ref` / `out` 会落到 `zlua-in-ref-out`。
 
 ## 如何使用
 
-助手不会自动扫描包内的 `ZLua~/skills`。先按所用助手的文档找到它的 skill 根目录，或它允许追加的搜索路径。每个技能都是「目录 + `SKILL.md`」。
+助手**不会**自己去扫 `ZLua~/skills`。先看所用助手的说明，找到它读取 skill 的目录（有的在工程里，有的在用户目录，有的可以额外加一条搜索路径）。每个技能都是「目录 + `SKILL.md`」。
 
 两种接法，用其中一种即可：
 
-1. **加搜索路径。** 把 `Packages/com.code-philosophy.zlua/ZLua~/skills` 配进助手的 skill 搜索路径。其下已经是一个技能一个子目录。
-2. **复制或联接。** 使 `<skill 根>/<技能名>/SKILL.md` 落在助手会读的位置。
+1. **加搜索路径。** 助手允许配置 skill 根目录时，把 `Packages/com.code-philosophy.zlua/ZLua~/skills` 加进去。这个目录下面已经是一个技能一个子目录。
+2. **复制或联接。** 把每个技能目录放进助手的 skill 根目录，使 `<skill 根>/<技能名>/SKILL.md` 能被找到。
 
-包路径稳定时（`Packages/com.code-philosophy.zlua`，或 `file:` 本地包），在工程根把 `SKILLS` 换成助手的 skill 根目录后做目录联接，升级后仍然指向包内文件：
+包在稳定路径（`Packages/com.code-philosophy.zlua`，或 manifest 里的 `file:` 本地包）时，用目录联接，升级包后不用再拷。在**工程根**把 `SKILLS` 换成助手的 skill 根目录后执行：
 
 ```bat
 set "SKILLS=助手的 skill 根目录"
@@ -42,38 +43,34 @@ for d in Packages/com.code-philosophy.zlua/ZLua~/skills/*/; do
 done
 ```
 
-用 Git URL 安装时，实体在 `Library/PackageCache/com.code-philosophy.zlua@<版本>/`。缓存目录名会变，请把技能目录**复制**到助手的 skill 根目录，升级 ZLua 后重新复制。不要联接到 PackageCache。
+Git URL 安装时，Unity 把包放在 `Library/PackageCache/com.code-philosophy.zlua@<版本>/`，这个目录名会随升级变化。那种情况请把技能目录**复制**到助手的 skill 根目录，升级 ZLua 后再复制一次。不要把联接指到 PackageCache。
 
-接好后新开对话。可以直接提问，也可以点名，例如「用 zlua-params 改这个调用」。
+接好后新开一次助手对话。直接写 ZLua 相关的安装、互调或 Marshal 问题即可；也可以点名技能，例如「按 zlua-setup 检查 Install」。
 
-## 技能与指南
+技能和人工文档的对照表见 [使用指南 · AI Skills](/docs/guides/skills/)。
 
-| 技能 | 助手用来处理 | 对应文档 |
-|------|----------------|----------|
-| `zlua-setup` | UPM、`luaVersionId`、Install、Generate、脚本路径、HybridCLR 顺序 | [安装与 Lua 版本](/docs/guides/install/)、[Editor 与 Player](/docs/guides/editor-vs-player/) |
-| `zlua-lua-call-csharp` | `CSharp` 根表、构造、成员、事件 | [Lua 调用 C#](/docs/guides/lua-calling-csharp/) |
-| `zlua-csharp-call-lua` | `Initialize`、`GetFunction`、`Reset` | [C# 调用 Lua](/docs/guides/csharp-calling-lua/) |
-| `zlua-method-overload` | 短名分派、全签名键、何时用别名 | [方法重载](/docs/guides/overloads/) |
-| `zlua-default-arguments` | 尾部可选参数与默认值 | [函数调用](/docs/getting-started/method-calls/) |
-| `zlua-generic-method` | 闭合泛型类型与泛型方法 | [泛型](/docs/guides/generics/) |
-| `zlua-params` | `params T[]` 展开或整段数组 | [params](/docs/guides/params/) |
-| `zlua-array` | 一维 / 多维数组、`to_table`、`to_bytes` | [数组](/docs/guides/arrays/) |
-| `zlua-delegate` | `Action` / `Func`、`to_delegate`、事件订阅 | [Function](/docs/guides/functions/) |
-| `zlua-in-ref-out` | `ref` / `in` 写回，`out` 多返回值 | [ref / in / out](/docs/guides/ref-out-in/) |
-| `zlua-marshal` | 默认值传递形态 | [值类型](/docs/guides/value-types/)、[0GC Marshal](/docs/guides/zero-gc-marshal/) |
-| `zlua-marshal-as` | `[LuaMarshalAs]` 与 XML | [LuaMarshalAs](/docs/guides/lua-marshal-as/) |
-| `zlua-alias` | `[LuaAlias]` 与 XML | [LuaAlias](/docs/guides/lua-alias/) |
-| `zlua-extension` | `[LuaExtension]` 与 XML | [Extension 方法](/docs/guides/extension-methods/) |
-| `zlua-lib` | `typeof`、`inflate`、`box` / `unbox` / `cast`、opaque、数组工厂 | [常用 zlua 库](/docs/guides/zlua-lib/) |
+## 技能一览
 
-## 学习路径
+| 技能 | 何时用 |
+|------|--------|
+| `zlua-setup` | 加包、改 `luaVersionId`、Install / Generate、Editor 与 Player 脚本路径 |
+| `zlua-lua-call-csharp` | Lua 经 `CSharp` 访问类型、构造、字段、方法、事件 |
+| `zlua-csharp-call-lua` | `Initialize`、`GetFunction`、`Reset` |
+| `zlua-method-overload` | 同名重载、全签名键 |
+| `zlua-default-arguments` | 省略 C# 可选参数 |
+| `zlua-generic-method` | `make_generic_type`、`inflate`、GTAP |
+| `zlua-params` | `params T[]` |
+| `zlua-array` | `T[]`、多维数组、`to_table` / `to_bytes` |
+| `zlua-delegate` | `Action` / `Func`、`to_delegate`、`add_` / `remove_` |
+| `zlua-in-ref-out` | `ref` / `in` / `out` |
+| `zlua-marshal` | 默认 Marshal（基元、string、enum、struct、class） |
+| `zlua-marshal-as` | `[LuaMarshalAs]` 与 MarshalAs XML |
+| `zlua-alias` | `[LuaAlias]` |
+| `zlua-extension` | `[LuaExtension]` |
+| `zlua-lib` | 全局 `zlua` 表 |
 
-| | |
-|---|---|
-| **上一篇** | [Settings](/docs/guides/settings/) |
-| **下一篇** | [初始化与最小互调](/docs/guides/hello-interop/) |
+## 下一步
 
-## 相关文档
-
-- [入门 · AI Skills](/docs/getting-started/skills/)
-- [安装与 Lua 版本](/docs/guides/install/)
+- [使用指南 · AI Skills](/docs/guides/skills/)
+- [安装与集成](/docs/getting-started/installation/)
+- [快速开始](/docs/getting-started/quick-start/)

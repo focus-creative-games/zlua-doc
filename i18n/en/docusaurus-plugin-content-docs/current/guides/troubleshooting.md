@@ -1,12 +1,11 @@
 ---
-sidebar_position: 90
 title: Troubleshooting
 description: Diagnose common ZLua issues and fixes (appendix).
 ---
 
 # Troubleshooting
 
-Appendix. During development you can iterate quickly in the **Editor (Mono)**; for Player issues first confirm **`ZLua/Generate/All`** and [Compatibility](/docs/getting-started/compatibility/). Start the mainline from [Install](/docs/guides/install/).
+Appendix. During development you can iterate quickly in the **Editor (Mono)**; for Player issues first confirm **`ZLua/Generate/All`** and [Compatibility](/docs/getting-started/compatibility/). Start the mainline from [Install](/docs/getting-started/installation/).
 
 Canonical project: [zlua-demo](https://github.com/focus-creative-games/zlua-demo)
 
@@ -78,16 +77,9 @@ When a main `lua_State` already exists, use `LuaAppDomain.Reset(loader)`; you **
 | Generate | Il2Cpp must Generate C++ stubs |
 | StreamingAssets | Was Lua Synced? |
 | Deprecated APIs | Do not use Event `.get` |
-| HybridCLR combo | `HybridCLR/Installer` before `ZLua/Install`; hot-update types `Assembly.Load`’d? See [HybridCLR integration](/docs/guides/hybridclr/) |
+| HybridCLR combo | Unified `ZLua/Install...`; avoid standalone Installers; hot-update types `Assembly.Load`’d? See [HybridCLR integration](/docs/guides/hybridclr/) |
 
 ---
-
-## Learning path
-
-| | |
-|---|---|
-| **Previous** | [Migration](/docs/guides/migration/) |
-| **Next** | [Editor vs Player](/docs/guides/editor-vs-player/) |
 
 ## Related
 

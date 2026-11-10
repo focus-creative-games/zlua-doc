@@ -19,11 +19,12 @@ Compared with xLua / toLua / SLua, ZLua’s core claims are:
 |--|--|
 | **Easier** | Modern, simple, **zero config** (no per-type C# Wrap whitelist) |
 | **More complete** | Covers nearly all common C#↔Lua features (generics, overloads, ref/out, arrays, delegates…) |
-| **Faster** | Four-way Il2Cpp benchmarks: Lua→C# ≈ **2.57× / 3.52× / 7.68×** for xLua / toLua / SLua vs ZLua; see [Performance](/docs/compare/PERFORMANCE/) |
-| **Less GC** | Reference types and structs default to **0 GC**; flexible strategies such as OpaqueValue |
-| **Tiny bridge** | Same-signature merged C++ stubs; footprint can be an order of magnitude smaller; down to **0 bridge functions** |
-| **Broader versions** | Lua 5.1–5.5 / LuaJIT (Il2Cpp JIT only Android / iOS) / [Luau](https://luau.org/) (official [`luau` branch](https://github.com/focus-creative-games/zlua/tree/luau); Editor is Windows only, Il2Cpp is Windows x64 for now); Unity **2021.3 / 2022.3 / Unity 6 (6000.0 / 6000.3 / 6000.5)**; Tuanjie Engine |
+| **Faster** | Four-way Il2Cpp measurements; see [Performance](/docs/compare/PERFORMANCE/) for the report, environment, and ratios. |
+| **Less GC** | Low-allocation Marshal paths; distinguish managed and Lua allocation, warm-up and steady state. See [GC boundaries](/docs/compare/GC/). |
+| **Shared bridge** | C++ stubs share reduced signatures. Binary-size savings need measurement; see [Bridge analysis](/docs/compare/BRIDGE/). |
+| **Broader versions** | Multiple Lua engines and maintained Unity LTS series; see the [compatibility matrix](/docs/getting-started/compatibility/) for versions, platforms, and branch limits. |
 | **Native HybridCLR support** | Works with HybridCLR **v9.0.0+** out of the box; seamless interop with hot-update code |
+| **HybridCLR hot update** | Unified installation and runtime metadata registration; see [HybridCLR integration](/docs/guides/hybridclr/). |
 | **More active maintenance** | Full-time professional team |
 
 Full rationale: **[Why ZLua](/docs/concepts/why-zlua/)**; four-way comparison: **[Comparison](/docs/compare/)**.
@@ -45,10 +46,10 @@ Develop day-to-day in the **Editor (Mono)**; ship and measure performance on the
 
 ## Next steps
 
-- [5-minute Quick start](/docs/getting-started/quick-start/) — minimal working example
+- [Quick start](/docs/getting-started/quick-start/) — minimal working example
 - [Why ZLua](/docs/concepts/why-zlua/) — why pick ZLua
 - [Installation](/docs/getting-started/installation/) — UPM install and project layout
-- [Guides](/docs/guides/install/) — progressive tutorials (install → interop → build → …)
+- [Guides](/docs/getting-started/installation/) — progressive tutorials (install → interop → build → …)
 - [HybridCLR integration](/docs/guides/hybridclr/) — dual-package install order and hot-update constraints
 - [Comparison](/docs/compare/) — vs xLua / toLua / SLua
 - [Performance benchmarks](https://github.com/focus-creative-games/zlua-benchmark) — reproducible Il2Cpp comparison and [latest report](https://github.com/focus-creative-games/zlua-benchmark/blob/main/reports/comparison_20260728_121554.md)

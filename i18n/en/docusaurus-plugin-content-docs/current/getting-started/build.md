@@ -1,5 +1,4 @@
 ---
-sidebar_position: 3
 title: Build workflow
 description: Generate, Lua Sync, and a release checklist for Il2Cpp Player.
 ---
@@ -8,11 +7,28 @@ description: Generate, Lua Sync, and a release checklist for Il2Cpp Player.
 
 Editor (Mono) Play does not need per-type C# Wrap; before shipping an **Il2Cpp Player** you must finish Generate and Lua sync. Semantics follow [Editor vs Player](/docs/guides/editor-vs-player/).
 
+## Adapt the quick-start loader
+
+After [Quick start](/docs/getting-started/quick-start/), replace the path construction inside `LoadLuaModule` with the following for a desktop Player. Keep the file-existence check and `ReadAllText`:
+
+```csharp
+string relativePath = module.Replace('.', '/') + ".lua";
+#if UNITY_EDITOR
+string path = Path.Combine(Application.dataPath, "..", "LuaScripts", relativePath);
+#else
+string path = Path.Combine(Application.streamingAssetsPath, "LuaScripts", relativePath + ".txt");
+#endif
+```
+
+Synchronize files into **`Assets/StreamingAssets/LuaScripts`** before building. This filesystem loader is for desktop file paths. Android / WebGL require platform-aware resource loading: preload text / bytes into a cache and have the synchronous loader return them. Do not assume `File.ReadAllText` can read every StreamingAssets URL.
+
+After building, launch Player and verify the same `C# Add: 8`, `C# field: 10`, and `Lua add: 30` output from Quick start. A successful build alone does not verify interop.
+
 ## Pre-release checklist
 
 | Step | What to do |
 |------|--------|
-| 1 | [Install](/docs/guides/install/) is done (local `libil2cpp` / Lua / zlua tree exists) |
+| 1 | [Install](/docs/getting-started/installation/) is done (local `libil2cpp` / Lua / zlua tree exists) |
 | 2 | Menu **`ZLua/Generate/All`** (generates C++ stubs, **not** C# Wrap) |
 | 3 | Sync `LuaScripts` to `StreamingAssets/LuaScripts/*.lua.txt` |
 | 4 | Build Settings → **Il2Cpp** → target platform |
@@ -50,17 +66,10 @@ Use **Player** for performance comparisons.
 
 | Symptom | Fix |
 |------|------|
-| Prompted that Install is missing | [Install](/docs/guides/install/) first |
+| Prompted that Install is missing | [Install](/docs/getting-started/installation/) first |
 | No Lua output on Player / module not found | Sync missing or wrong path/extension |
 | Editor OK, Player crashes | Generate missing; or deprecated Event sugar still in use |
 | Broken after Unity / Lua version change | Re-run Install → Generate |
-
-## Learning path
-
-| | |
-|---|---|
-| **Previous** | [Init & minimal interop](/docs/guides/hello-interop/) |
-| **Next** | [EmmyLua debugger](/docs/guides/debugger/) |
 
 ## Related
 

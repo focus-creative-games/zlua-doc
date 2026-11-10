@@ -2,6 +2,7 @@ import type {ReactNode} from 'react';
 import clsx from 'clsx';
 import Heading from '@theme/Heading';
 import Translate from '@docusaurus/Translate';
+import Link from '@docusaurus/Link';
 import styles from './styles.module.css';
 
 function Feature({
@@ -46,12 +47,14 @@ export default function HomepageFeatures(): ReactNode {
           <Feature
             icon="🚀"
             title={
-              <Translate id="homepage.feature.fast.title">Faster · ~2.62×</Translate>
+              <Link to="/docs/compare/PERFORMANCE/">
+                <Translate id="homepage.feature.fast.title">Native C++ interop</Translate>
+              </Link>
             }
             description={
               <Translate id="homepage.feature.fast.desc">
-                Il2Cpp benchmarks: ~98% of aligned cases beat xLua; Lua→C# ~2.62× on average;
-                common field / property access ~4×.
+                Il2Cpp uses native C++ bridges. See the performance report for measured results,
+                test environment, and workload limits.
               </Translate>
             }
           />
@@ -64,8 +67,8 @@ export default function HomepageFeatures(): ReactNode {
             }
             description={
               <Translate id="homepage.feature.small.desc">
-                Signature-merged C++ stubs can be an order of magnitude smaller; reference
-                types and structs default to 0 GC, with OpaqueValue and related strategies.
+                Signature-shared C++ stubs reduce duplicated bridge code. Low-allocation Marshal
+                paths depend on data types, call direction, and warm-up.
               </Translate>
             }
           />

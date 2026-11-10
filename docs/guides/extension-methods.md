@@ -1,5 +1,4 @@
 ---
-sidebar_position: 12.6
 title: Extension 方法
 description: "[LuaExtension] 与 XML 将 C# extension 挂到被扩展类型的实例方法表。"
 ---
@@ -16,7 +15,7 @@ description: "[LuaExtension] 与 XML 将 C# extension 挂到被扩展类型的�
 |------|------|
 | 能改被扩展类型源码（含热更新程序集） | **`[LuaExtension(typeof(FooExt), …)]` 标在被扩展类型上** |
 | 第三方 / 预编译、**非热更新**类型 | Settings **`luaExtensionXmlPaths`** + 根元素 **`ZLuaExtensions`** |
-| **热更新程序集**（含 HybridCLR）内的类型 | **只**能代码中 `[LuaExtension]`；**不支持** XML |
+| 热更新程序集 | Attribute 或首次绑定前显式注册 XML；见 [InteropMetadata](/docs/reference/csharp/interop-metadata/) |
 
 `[LuaExtension]` **不要**标在扩展类上（否则为发现扩展必须扫全程序集）。
 
@@ -51,7 +50,7 @@ public class MyClass { }
 
 同一被扩展类型上：Attribute 与 XML 的扩展类列表取 **并集**。Bind **T** 时还会收集 **基类**上的 `[LuaExtension]`。
 
-Il2Cpp：XML 在 **Generate** 期写入静态表，Player **不**读 XML（改完须重新 Generate）。**热更新程序集不适用 XML。**
+Settings XML 用于构建期已知的预编译 / AOT 程序集。热更程序集可用 Attribute，或在 Il2Cpp Player 加载程序集后、首次类型绑定前调用对应的 [InteropMetadata.Register*Xml](/docs/reference/csharp/interop-metadata/)；Editor Mono 的注册方法为空实现。
 
 ## Lua 用法
 
@@ -74,14 +73,7 @@ obj:ResetLocal()   -- 冒号；底层是静态扩展方法 MyClassExt.ResetLocal
 | 只能 `Ext.Foo(obj)` | 未走 static-as-instance / 未进 IMT（实现须符合规范 §4） |
 | 调到错误重载 | 合并竞争；用全签名键或 Alias 消歧 |
 | 标在扩展类上的 Attribute 无效 | 发现只扫被扩展类型上的 `[LuaExtension]` |
-| 热更类型上的 XML 无效 / 不被支持 | 热更新程序集须用 `[LuaExtension]`，不能靠 XML |
-
-## 学习路径
-
-| | |
-|---|---|
-| **上一篇** | [LuaAlias](/docs/guides/lua-alias/) |
-| **下一篇** | [常用 zlua 库](/docs/guides/zlua-lib/) |
+| 热更新程序集 | Attribute 或首次绑定前显式注册 XML；见 [InteropMetadata](/docs/reference/csharp/interop-metadata/) |
 
 ## 相关文档
 

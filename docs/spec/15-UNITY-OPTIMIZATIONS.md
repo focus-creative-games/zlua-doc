@@ -7,7 +7,7 @@ title: "Unity 优化"
 
 > 开关：`Settings.enableUnityOptimizations`（Project Settings 标签 **Unity Optimizations**）。
 > 默认 **开**。关 = 与未实现本文件时的 Lua 可见语义相同。
-> 用法见 [Unity 优化（指南）](/docs/guides/unity-optimizations/)、[入门](/docs/getting-started/unity-optimizations/)。
+> 用法见 [Unity 优化（指南）](/docs/guides/unity-optimizations/)、[入门](/docs/guides/unity-optimizations/)。
 
 本开关是 **Unity 引擎 API 的一揽子优化**，不是单个方法的开关。当前只包含 `GetComponent`。以后新增的 Unity 优化在本开关打开时一并生效，并追加到本文。
 

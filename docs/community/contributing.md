@@ -72,11 +72,7 @@ title: "贡献约定"
 
 ### 3.3 Lua 测试
 
-| 允许 | 禁止 |
-|------|------|
-| `Tests/Lua/**` | 手动改 `Assets/StreamingAssets/Tests/**` |
-
-构建时 `SyncTestsLuaToStreamingAssets` 自动同步。
+按 [测试编辑流程](/docs/community/testing/) 选择 Mono / 已导出 Il2Cpp 的编辑目录，再按相对路径同步本次 Lua 改动，保留其它改动与兼容逻辑。C# 测试放在 `Assets/Tests`。
 
 ---
 

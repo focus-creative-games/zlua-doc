@@ -1,5 +1,4 @@
 ---
-sidebar_position: 6
 title: Project status & roadmap
 description: Current ZLua progress and version plans.
 ---
@@ -9,7 +8,7 @@ description: Current ZLua progress and version plans.
 ## Current status
 
 :::info Dual runtime
-All Unity / Lua combinations listed in the [compatibility matrix](/docs/getting-started/compatibility/) are covered; Mono and Il2Cpp dual runtimes are done.
+Both runtimes are implemented. See the [compatibility matrix](/docs/getting-started/compatibility/) for support policy, branch restrictions, and validation scope.
 
 | Runtime | Environment | Status |
 |--------|------|------|

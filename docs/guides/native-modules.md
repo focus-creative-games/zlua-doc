@@ -1,5 +1,4 @@
 ---
-sidebar_position: 13.5
 title: 第三方原生插件
 description: socket / cjson 等第三方 Lua C 模块的 Editor（cpath）与 Player（静态 RequireF）双轨集成。
 ---
@@ -144,13 +143,6 @@ sequenceDiagram
 | Player 缺符号 | 未静态链入或未重新出包 |
 | `require` 失败但 dll 在 | 模块名与 `luaopen_*` 不一致（如 `socket.core` ↔ `luaopen_socket_core`） |
 | 插件内又链了一份 Lua | 双 `lua_State` / 双运行时 |
-
-## 学习路径
-
-| | |
-|---|---|
-| **上一篇** | [常用 zlua 库](/docs/guides/zlua-lib/) |
-| **下一篇** | [迁移指南](/docs/guides/migration/) |
 
 ## 相关文档
 

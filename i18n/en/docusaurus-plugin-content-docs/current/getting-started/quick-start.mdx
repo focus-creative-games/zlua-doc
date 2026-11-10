@@ -1,214 +1,96 @@
 ---
-sidebar_position: 1
 title: Quick start
-description: Run C# ↔ Lua interop from scratch with zlua-demo.
+description: Verify both call directions in the Editor with complete minimal files.
 ---
-
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
 
 # Quick start
 
-This tutorial follows the official [zlua-demo](https://github.com/focus-creative-games/zlua-demo) sample and walks through **C# calling Lua** and **Lua accessing C#**. Clone the Demo project and follow along.
+Complete **Settings → Install** in [Installation](/docs/getting-started/installation/) first, including after cloning the Demo. This tutorial verifies both call directions in the Editor; Player setup is covered in [First Player build](/docs/getting-started/build/).
 
-<span className="runtimeBadge"><span className="runtimeBadgeMono">Mono · Done</span><span className="runtimeBadgeIl2cpp">Il2Cpp · Done</span></span> — Examples on this page work in both **Editor** and **Player**; Player builds require **Generate**. See [Compatibility](/docs/getting-started/compatibility/).
+## 1. Create the C# entry point
 
-:::tip Sample sources
-
-| Piece | Link |
-|------|------|
-| C# entry | [Assets/Bootstrap.cs](https://github.com/focus-creative-games/zlua-demo/blob/main/Assets/Bootstrap.cs) |
-| C# types | [Assets/Demo.cs](https://github.com/focus-creative-games/zlua-demo/blob/main/Assets/Demo.cs) |
-| Lua module | [LuaScripts/app.lua](https://github.com/focus-creative-games/zlua-demo/blob/main/LuaScripts/app.lua) |
-
-:::
-
-## Prerequisites
-
-- Finish [Installation](/docs/getting-started/installation/) (Settings + Install), or clone zlua-demo
-- Any Unity version listed in [Compatibility](/docs/getting-started/compatibility/); Play in the Editor is enough to start
-
-## Step 1: Initialize ZLua
-
-`Bootstrap` registers the Lua loader and initializes the domain before the scene loads:
+Save the following complete file as `Assets/Bootstrap.cs`. No scene component is needed; the initialization method runs automatically.
 
 ```csharp
-[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-private static void InitZLuaOnStartup()
+using System;
+using System.IO;
+using System.Text;
+using UnityEngine;
+using ZLua;
+
+public static class Bootstrap
 {
-    LuaAppDomain.Initialize(LoadLuaModule);
+    private static string LoadLuaModule(string module)
+    {
+        string relativePath = module.Replace('.', '/') + ".lua";
+        string path = Path.Combine(Application.dataPath, "..", "LuaScripts", relativePath);
+        if (!File.Exists(path))
+        {
+            throw new FileNotFoundException($"Lua module '{module}' not found", path);
+        }
+        return File.ReadAllText(path, Encoding.UTF8);
+    }
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    private static void Initialize()
+    {
+        LuaAppDomain.Initialize(LoadLuaModule);
+        Action main = LuaAppDomain.GetFunction<Action>("app", "main");
+        Func<int, int, int> add = LuaAppDomain.GetFunction<Func<int, int, int>>("app", "add");
+        main();
+        Debug.Log($"Lua add: {add(10, 20)}");
+    }
 }
 ```
 
-`LoadLuaModule("app")` reads `LuaScripts/app.lua` in the Editor (see [Bootstrap.cs](https://github.com/focus-creative-games/zlua-demo/blob/main/Assets/Bootstrap.cs)).
-
-You do **not** manually create a `LuaState`, `require`, or register wraps — ZLua wires the CLR and Lua environment at startup.
-
-## Step 2: C# calling Lua
-
-Use `LuaAppDomain.GetFunction<T>` to obtain a Delegate for a Lua function; the Lua module `return` table exports named functions.
-
-<Tabs groupId="quickstart-c2l">
-<TabItem value="csharp" label="C#" default>
+Create `Assets/Demo.cs`:
 
 ```csharp
-Action AppMain;
-Func<int, int, int> AppAdd;
-
-void Awake()
+public class Demo
 {
-    // After InitZLuaOnStartup (Initialize); do not use static field initializers
-    AppMain = LuaAppDomain.GetFunction<Action>("app", "main");
-    AppAdd = LuaAppDomain.GetFunction<Func<int, int, int>>("app", "add");
-}
+    public int x;
 
-void Start()
-{
-    AppMain();
-    int value = AppAdd(10, 20);
-    Debug.Log($"AppAdd(10,20)={value}");  // 30
+    public static int Add(int a, int b) => a + b;
 }
 ```
 
-</TabItem>
-<TabItem value="lua" label="Lua">
+## 2. Create the Lua module
+
+Create `LuaScripts/app.lua` in the project root (`LuaScripts` is next to `Assets`):
 
 ```lua
+local Demo = CSharp['Assembly-CSharp'].Demo
+
 local function main()
-    print("lua main start")
-    -- ...
+    local instance = Demo()
+    instance.x = 10
+    print("C# Add: " .. Demo.Add(3, 5))
+    print("C# field: " .. instance.x)
 end
 
 local function add(a, b)
     return a + b
 end
 
-return {
-    main = main,
-    add = add,
-}
+return { main = main, add = add }
 ```
 
-</TabItem>
-</Tabs>
+`GetFunction` loads the module's returned table, resolves the function key, and returns a delegate. Lua uses `CSharp[assemblyName]` for types, a dot for static calls, and a colon for instance methods.
 
-Full logic: [LuaScripts/app.lua](https://github.com/focus-creative-games/zlua-demo/blob/main/LuaScripts/app.lua).
+## 3. Verify
 
-### Expected Console output (Editor Play)
+Open any scene and enter Play mode. The Console should contain these lines in order:
 
-```
-lua main start
-[test_call_static_method] start
-Demo.Add: 8
-...
-AppAdd(10,20)=30
+```text
+C# Add: 8
+C# field: 10
+Lua add: 30
 ```
 
-## Step 3: Lua accessing C# types
+If the module is missing, check its file path. If `Demo` is missing, check the assembly name (asmdef projects must use their actual assembly name). Do not call `Initialize` again when a domain already exists; see [LuaAppDomain](/docs/reference/csharp/lua-app-domain/).
 
-### Assembly alias
+## Next
 
-Load assemblies and types lazily via the `CSharp` root table:
+Continue with [First Il2Cpp Player build](/docs/getting-started/build/) to add Player paths and resource loading. This tutorial's loader is Editor-only; on Android / WebGL, preload scripts with your project's resource system and supply them to the synchronous loader.
 
-```lua
-CSharp['AC'] = CSharp['Assembly-CSharp']   -- short alias used by the Demo
-```
-
-### Static methods
-
-```lua
-print(CSharp.AC.Demo.Add(3, 5))       -- 8
-print(CSharp.AC.Demo.Multi(3, 5))     -- 15
-```
-
-### Construction and instance methods
-
-```lua
-local demo = CSharp.AC.Demo()
-print(demo:GetX())                    -- 0
-demo:SetX(10)
-```
-
-### Fields and properties
-
-Fields and parameterless properties share the same access style:
-
-```lua
-demo.x = 20
-print(demo:GetX())                    -- 20
-```
-
-### Static members
-
-```lua
-CSharp.AC.Demo.s_x = 10
-print(CSharp.AC.Demo.GetSX())         -- 10
-```
-
-These appear in the `test_*` helpers in [app.lua](https://github.com/focus-creative-games/zlua-demo/blob/main/LuaScripts/app.lua).
-
-## Access cheat sheet
-
-| Action | Lua |
-|------|----------|
-| Construct | `CSharp.AC.Demo()` |
-| Instance field/property | `demo.x` / `demo:SetX(10)` |
-| Instance method | `demo:Run(10)` |
-| Static field | `CSharp.AC.Demo.s_x` |
-| Static method | `CSharp.AC.Demo.Add(3, 5)` |
-| Namespaced type | `CSharp.AC['MyGame.UI.Panel']` |
-
-## Step 4 (optional): Method overloads
-
-`Demo.Run` has `int` and `string` overloads. Use a full-signature key, or a Bind-time `[LuaAlias]` short name for colon calls:
-
-```lua
-demo['Run(System.Int32)'](demo, 10)
-
--- Or cache the full-signature key locally (no runtime hang-short-name API)
-local run_i32 = demo['Run(System.Int32)']
-run_i32(demo, 10)
-```
-
-See [Method calls](/docs/getting-started/method-calls/) (overloads / generic methods / `params`) and [Method overloads (guide)](/docs/guides/overloads/).
-
-## Building an Il2Cpp Player
-
-1. Run **`ZLua/Generate/All`** (emit C++ stubs)
-2. Configure [SyncLuaScriptsToStreamingAssets](https://github.com/focus-creative-games/zlua-demo/blob/main/Assets/Editor/SyncLuaScriptsToStreamingAssets.cs)
-3. Build Settings → Il2Cpp → Build
-
-See [Project status](/docs/getting-started/project-status/) and [Editor vs Player](/docs/guides/editor-vs-player/).
-
-## Mono / Il2Cpp support
-
-| This page | Mono (Editor) | Il2Cpp (Player) |
-|----------|:-------------:|:---------------:|
-| Initialize + GetFunction | ✅ | ✅ |
-| Static/instance methods, fields | ✅ | ✅ |
-| Property / overloads | ✅ | ✅ (semantics follow the Spec) |
-
-## Common errors
-
-| Error | Check |
-|------|------|
-| `module 'app' not found` | `LuaScripts/app.lua` exists; `LoadLuaModule` path |
-| Type `Demo` is nil | Wrong assembly name; use `CSharp.AC.Demo` |
-| `AppAdd` returns 0 | Module did not `return { add = add }`; or method name ≠ `GetFunction` argument |
-| No Lua output in Player | Missing `StreamingAssets/LuaScripts/app.lua.txt` sync |
-
-## Next steps
-
-Follow the Guides path:
-
-1. [Install & Lua version](/docs/guides/install/)
-2. [Init & minimal interop](/docs/guides/hello-interop/)
-3. [Build pipeline](/docs/guides/build/)
-4. [Lua calling C#](/docs/guides/lua-calling-csharp/) → [C# calling Lua](/docs/guides/csharp-calling-lua/) → …
-
-## Learning path
-
-| | |
-|---|---|
-| **Previous** | [Installation](/docs/getting-started/installation/) |
-| **Next** | [Install & Lua version](/docs/guides/install/) |
+See [Lua calling C#](/docs/guides/lua-calling-csharp/) and [C# calling Lua](/docs/guides/csharp-calling-lua/) for daily use, or the complete [zlua-demo](https://github.com/focus-creative-games/zlua-demo) project.
